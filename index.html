@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Study Compass</title>
+  <meta name="description" content="「わからない」を越えて、自分の可能性へ。短いチェックで今の現在地を見つけ、つまずきの原因と今日やることを決める学習支援アプリ（コンテスト版デモ）。">
+  <meta name="theme-color" content="#17383a">
+  <meta property="og:title" content="Study Compass">
+  <meta property="og:description" content="「わからない」を越えて、自分の可能性へ。">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" type="button" data-action="home" aria-label="Study Compass ホームへ">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="#17383a"/>
+        <circle cx="20" cy="20" r="13" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.5"/>
+        <path d="M20 7 L24 20 L20 33 L16 20 Z" fill="#ffffff" fill-opacity=".25"/>
+        <path d="M20 7 L24 20 L16 20 Z" fill="#ef7654"/>
+      </svg>
+      <span><strong>Study Compass</strong><small>自分専用のAI塾（デモ版）</small></span>
+    </button>
+    <button class="ghost-button" type="button" data-action="restart" id="restart-button" hidden>はじめから</button>
+  </header>
+
+  <main id="app" class="app" aria-live="polite">
+    <noscript><p class="card">このアプリを使うには JavaScript を有効にしてください。</p></noscript>
+  </main>
+
+  <footer class="footer">
+    <p>コンテスト版デモ｜中学2年 数学「一次関数」のみ収録｜ログイン・個人情報の入力は不要です</p>
+    <p>診断はルール（問題ごとのスキルと前提知識の対応）で行っています。外部AIへの接続はこのデモでは使っていません。</p>
+  </footer>
+
+  <script src="js/questions.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
