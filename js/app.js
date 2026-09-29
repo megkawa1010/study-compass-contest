@@ -149,14 +149,21 @@
   }
 
   function compassArt() {
+    // 夜空の文字盤。北には北極星、まわりに小さな星座。
     return '<svg viewBox="0 0 240 240" class="compass-art">' +
-      '<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dceee5"/><stop offset="1" stop-color="#fffefa"/></linearGradient></defs>' +
-      '<circle cx="120" cy="120" r="108" fill="url(#g1)" stroke="#17383a" stroke-opacity=".12"/>' +
-      '<circle cx="120" cy="120" r="82" fill="none" stroke="#17383a" stroke-opacity=".14" stroke-dasharray="3 7"/>' +
-      '<g font-size="13" font-weight="700" fill="#527174" text-anchor="middle"><text x="120" y="30">N</text><text x="120" y="222">S</text><text x="218" y="125">E</text><text x="22" y="125">W</text></g>' +
-      '<path class="needle" d="M120 40 L134 120 L120 200 L106 120 Z" fill="#17383a" fill-opacity=".85"/>' +
-      '<path class="needle" d="M120 40 L134 120 L106 120 Z" fill="#ef7654"/>' +
-      '<circle cx="120" cy="120" r="8" fill="#fffefa" stroke="#17383a" stroke-width="3"/>' +
+      '<defs>' +
+        '<radialGradient id="face" cx="50%" cy="40%" r="65%"><stop offset="0" stop-color="#27407f"/><stop offset="1" stop-color="#0d1838"/></radialGradient>' +
+        '<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0c4"/><stop offset="1" stop-color="#ffb35c"/></linearGradient>' +
+      '</defs>' +
+      '<circle cx="120" cy="120" r="108" fill="url(#face)" stroke="#ffd98a" stroke-opacity=".55" stroke-width="1.5"/>' +
+      '<circle cx="120" cy="120" r="84" fill="none" stroke="#c8d6ff" stroke-opacity=".25" stroke-dasharray="2 6"/>' +
+      '<g stroke="#c8d6ff" stroke-opacity=".35" stroke-width="1" fill="none"><path d="M58 150 L74 166 L92 160 L100 178"/><path d="M150 70 L166 62 L180 76"/></g>' +
+      '<g fill="#e8eeff"><circle cx="58" cy="150" r="1.8"/><circle cx="74" cy="166" r="1.5"/><circle cx="92" cy="160" r="1.8"/><circle cx="100" cy="178" r="1.4"/><circle cx="150" cy="70" r="1.5"/><circle cx="166" cy="62" r="1.8"/><circle cx="180" cy="76" r="1.4"/><circle cx="70" cy="80" r="1"/><circle cx="178" cy="160" r="1.2"/></g>' +
+      '<path class="polaris" d="M120 6 L123 15 L132 18 L123 21 L120 30 L117 21 L108 18 L117 15 Z" fill="#fff3cf"/>' +
+      '<g font-size="12" font-weight="700" fill="#a8b5da" text-anchor="middle"><text x="120" y="44">N</text><text x="120" y="210">S</text><text x="206" y="124">E</text><text x="34" y="124">W</text></g>' +
+      '<path class="needle" d="M120 52 L132 120 L120 188 L108 120 Z" fill="#c8d6ff" fill-opacity=".35"/>' +
+      '<path class="needle" d="M120 52 L132 120 L108 120 Z" fill="url(#gold)"/>' +
+      '<circle cx="120" cy="120" r="7" fill="#0d1838" stroke="#ffd98a" stroke-width="2.5"/>' +
       "</svg>";
   }
 
@@ -250,7 +257,7 @@
         (here ? '<span class="flag">今日越える</span>' : "") +
       "</li>";
     }).join("") +
-      (focusKey ? "" : '<li class="node s-next here"><span class="dot" aria-hidden="true">▲</span><span class="node-label">次の山<small>' + (d.planKey === "challenge" ? "応用" : "標準") + '</small></span><span class="flag">今日越える</span></li>') +
+      (focusKey ? "" : '<li class="node s-next here"><span class="dot" aria-hidden="true">★</span><span class="node-label">次の山<small>' + (d.planKey === "challenge" ? "応用" : "標準") + '</small></span><span class="flag">今日越える</span></li>') +
     "</ol>";
   }
 
@@ -378,7 +385,7 @@
 
   function feedbackBlock(res, p) {
     if (res === "correct") {
-      return '<div class="success"><span class="burst" aria-hidden="true">▲</span><div><strong>ひとつ越えました！</strong><p>' + esc(p.explain) + "</p></div></div>";
+      return '<div class="success"><span class="burst" aria-hidden="true">★</span><div><strong>ひとつ越えました！</strong><p>' + esc(p.explain) + "</p></div></div>";
     }
     return '<div class="soft-feedback"><strong>考え方をいっしょに確認しよう</strong><p>' + esc(p.explain) + '</p><p class="small muted">答えを見て理解するのも、立派な一歩です。</p></div>';
   }
