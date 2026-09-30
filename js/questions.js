@@ -123,4 +123,35 @@
   };
 
   SC.BASIC_ORDER = ["B1", "B2", "B3", "B4", "B5"];
+
+  // ---------- 学習データ用の情報（v2 データ構造） ----------
+  // skill は js/engine.js の SKILLS のID。level は basic / standard / application。
+  // （retention は問題の種類ではなく「数日後に自力でできたか」で判定する）
+  var META = {
+    B1: { skill: "coord", level: "basic", prerequisite_skills: ["signed"], skills_used: ["coord"], on_correct: [] },
+    B2: { skill: "proportion", level: "basic", prerequisite_skills: ["algebra"], skills_used: ["proportion", "algebra"], on_correct: [] },
+    B3: { skill: "substitution", level: "basic", prerequisite_skills: ["algebra"], skills_used: ["substitution", "algebra"], on_correct: [] },
+    B4: { skill: "rate", level: "basic", prerequisite_skills: ["change"], skills_used: ["rate", "change"], on_correct: ["S1"] },
+    B5: { skill: "form", level: "basic", prerequisite_skills: ["slopeIntercept"], skills_used: ["form", "slopeIntercept"], on_correct: ["S2"] },
+    C1: { skill: "signed", level: "basic", prerequisite_skills: [], skills_used: ["signed"] },
+    C2: { skill: "algebra", level: "basic", prerequisite_skills: ["signed"], skills_used: ["algebra", "signed"] },
+    C3: { skill: "proportion", level: "basic", prerequisite_skills: ["algebra"], skills_used: ["proportion"] },
+    C4: { skill: "change", level: "basic", prerequisite_skills: ["signed"], skills_used: ["change"] },
+    C5: { skill: "slopeIntercept", level: "basic", prerequisite_skills: ["proportion"], skills_used: ["slopeIntercept"] },
+    S1: { skill: "rate", level: "standard", prerequisite_skills: ["change"], skills_used: ["rate", "change"] },
+    S2: { skill: "form", level: "standard", prerequisite_skills: ["slopeIntercept", "substitution"], skills_used: ["form", "slopeIntercept", "substitution"] }
+  };
+  Object.keys(META).forEach(function (id) {
+    var q = SC.QUESTIONS[id], m = META[id];
+    q.grade = "中学2年";
+    q.subject = "数学";
+    q.unit = "一次関数";
+    q.skill = m.skill;
+    q.level = m.level;
+    q.prerequisite_skills = m.prerequisite_skills;
+    q.skills_used = m.skills_used;
+    q.on_incorrect = q.onMiss || [];
+    q.on_correct = m.on_correct || [];
+    q.explanation = q.explain || "";
+  });
 })(typeof window !== "undefined" ? window : globalThis);

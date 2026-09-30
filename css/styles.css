@@ -249,6 +249,36 @@ th { font-size: 11px; color: var(--text-soft); }
 .meter { display: inline-block; width: 64px; height: 7px; background: rgba(255, 255, 255, .1); border-radius: 99px; overflow: hidden; vertical-align: middle; }
 .meter i { display: block; height: 100%; background: var(--ok); }
 
+/* ---------- これまでの記録から見た現在地 ---------- */
+.card-label { font-size: 13px; font-weight: 900; color: var(--text-soft); letter-spacing: .06em; margin-bottom: 12px; }
+.history-card .card-label { color: var(--star); margin-bottom: 4px; }
+.hs-list { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
+.hs { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--inset); border: 1px solid var(--line); }
+.hs-mark { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 16px; }
+.tone-ok .hs-mark { background: var(--ok-bg); color: var(--ok); box-shadow: 0 0 12px rgba(126, 226, 194, .35); }
+.tone-warn .hs-mark { background: var(--warn-bg); color: var(--warn); }
+.tone-learning .hs-mark { background: rgba(140, 200, 255, .14); color: var(--hint); }
+.tone-muted .hs-mark { background: var(--check-bg); color: var(--check); }
+.hs-body { flex: 1; min-width: 0; }
+.hs-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.hs-top strong { font-size: 15px; }
+.hs-status { font-size: 12px; font-weight: 800; }
+.tone-ok .hs-status { color: var(--ok); }
+.tone-warn .hs-status { color: var(--warn); }
+.tone-learning .hs-status { color: var(--hint); }
+.tone-muted .hs-status { color: var(--check); }
+.delta { font-size: 11px; font-weight: 700; color: var(--text-soft); margin-left: auto; }
+.delta.up { color: var(--star); }
+.delta.down { color: var(--check); }
+.hs-meter { margin: 8px 0 6px; }
+.meter.wide { width: 100%; height: 6px; display: block; }
+.hs-levels { display: flex; flex-wrap: wrap; gap: 6px; }
+.lv { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--text-soft); }
+.lv-pass { color: var(--ok); border-color: rgba(126, 226, 194, .45); background: var(--ok-bg); }
+.lv-needs_review { color: var(--warn); border-color: rgba(246, 196, 108, .45); background: var(--warn-bg); }
+.lv-not_checked { opacity: .55; }
+.debug { border-style: dashed; border-color: rgba(140, 200, 255, .45); }
+
 .sticky-cta { position: sticky; bottom: 0; padding: 12px 0 max(4px, env(safe-area-inset-bottom)); background: linear-gradient(to bottom, rgba(8, 15, 39, 0), rgba(8, 15, 39, .92) 40%); }
 
 /* ---------- 今日の学習 ---------- */

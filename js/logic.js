@@ -304,7 +304,8 @@
     return {
       min: 10, title: title || "チェックの問題に再挑戦",
       body: ["コンパスチェックで止まった問題に、もう一度挑戦します。ここまでの2ステップを思い出しながら解いてみよう。"],
-      practice: { text: q.text, type: q.type, answer: q.answer, fields: q.fields, placeholder: q.placeholder,
+      practice: { id: q.id, skill: q.skill, level: q.level, unit: q.unit,
+        text: q.text, type: q.type, answer: q.answer, fields: q.fields, placeholder: q.placeholder,
         hint: q.hint, explain: q.explain || (q.display ? "答え：" + q.display : "答え：" + fmt(q)) }
     };
   }
@@ -502,11 +503,32 @@
     }
   };
 
+  // 練習問題が確かめるスキルとレベル（履歴に残すため）。再挑戦ステップは元の問題の情報を使う
+  var PRACTICE_META = {
+    change: [["change", "basic"], ["rate", "basic"]],
+    rate: [["change", "basic"], ["rate", "basic"]],
+    signed: [["signed", "basic"], ["signed", "basic"]],
+    coord: [["coord", "basic"], ["coord", "basic"]],
+    proportion: [["proportion", "basic"], ["proportion", "basic"]],
+    substitution: [["algebra", "basic"], ["substitution", "basic"]],
+    slope: [["slopeIntercept", "basic"], ["slopeIntercept", "basic"]],
+    connect: [["slopeIntercept", "basic"], ["form", "basic"]],
+    standard: [["rate", "standard"], ["form", "standard"]],
+    challenge: [["form", "application"], ["form", "application"], ["form", "application"]]
+  };
+
   function buildPlan(diagnosis, answers) {
     var key = diagnosis.planKey;
     var base = PLANS[key];
-    var steps = base.steps.map(function (st) {
-      if (st) return st;
+    var steps = base.steps.map(function (st, i) {
+      if (st) {
+        var m = PRACTICE_META[key][i];
+        st.practice.id = "L-" + key + "-" + (i + 1);
+        st.practice.skill = m[0];
+        st.practice.level = m[1];
+        st.practice.unit = "一次関数";
+        return st;
+      }
       // 標準プランは、標準で止まった問題に再挑戦（両方なら式のほう）
       if (key === "standard") return retry(miss(answers, "S2") ? "S2" : "S1", "標準問題に再挑戦");
       return retry(base.retryId, base.retryTitle);

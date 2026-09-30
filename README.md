@@ -28,24 +28,56 @@
 
 基礎・標準がすべてできた場合は、応用（料金プランの文章題 A1）を「Aの式 → Bの式 → 方程式と答え」の3ステップで学習します。
 
+## ブランチと公開について
+
+- `main` と タグ `contest-v1` … コンテスト提出版。**審査結果（2026年11月）が出るまで main は変更しない**（公開URLが変わるため）
+- `phase1-learning-engine` … 継続開発版（v2仕様書 Phase 1：学習履歴・理解度エンジン）。確認はローカルで行う
+
 ## ファイル構成
 
 ```
 index.html        画面の骨組み
-css/styles.css    デザイン（スマホ優先・PC対応）
-js/questions.js   問題データ（基礎B1〜B5・原因確認C1〜C5・標準S1〜S2）
-js/logic.js       採点（表記ゆれ吸収）・分岐・診断・学習プラン
-js/app.js         画面遷移・保存・操作
+css/styles.css    デザイン（スマホ優先・PC対応・夜空テーマ）
+js/questions.js   問題データ（基礎B1〜B5・原因確認C1〜C5・標準S1〜S2）＋ スキル・レベル・前提スキル
+js/logic.js       採点（表記ゆれ吸収）・分岐・その回の診断・学習プラン
+js/engine.js      学習履歴・理解度エンジン（スキル地図・answer_history・skill_state・確かさの計算）
+js/store.js       学習データの保存窓口（いまは localStorage。将来ここだけ差し替えてサーバー保存へ）
+js/app.js         画面遷移・操作
 icons/            アイコン
 serve.js          ローカル確認用の小さなサーバー（依存なし）
-tests/            診断ロジックのテスト
+tests/            診断ロジック・理解度エンジンのテスト
 ```
+
+## 学習データ（Phase 1）
+
+保存キー `study-compass/v2`（localStorage）に、次の形で持ちます。
+
+- `answer_history[]` … 回答1件ごとの記録（上書きしない）
+  `id, user_id, session_id, context(compass_check|lesson), question_id, unit, skill, level, correct, hint_used, unknown_selected, answered_at, self_evaluation`
+- `sessions[]` … コンパスチェック1回分（出した問題・今日越えること・つまずき候補・その時点の確かさの控え・ふり返り）
+- `skill_state{}` … スキルごとの現在地。**保存値を足し引きせず、毎回 answer_history 全体から計算し直す**
+  `learning_status（未学習/学習中/要確認/理解/活用/定着）, basic/standard/application/retention（not_checked/pass/needs_review）, confidence, attempt_count, correct_count, suspected_root_causes, last_checked, next_action`
+- `profile.school_progress` … 単元ごとの「習った / 習っている途中 / まだ習っていない」
+- `user_id` は端末内で作る匿名ID（個人情報は持たない）
+
+確かさ（confidence）の考え方（調整値は `js/engine.js` の `CONFIG`）
+
+- 上限は「どのレベルまでできたか」で決まる：基礎 0.50 / 標準 0.65 / 応用 0.80、数日後もできたら +0.12（2回目で +0.15、最大 0.95）
+- その中で、最近の結果を重めに見る（ヒントありの正解は半分、練習はチェックの半分の重さ）
+- 1回の回答で下がるのは最大 0.15。最初に「できた」日から3日以上あとに自力でできたら「定着」
+- レベルの判定は直近3回を新しいものほど重く見る（1回の×で取り消さない）
+- まだ習っていない単元のスキルは、できなくても「要確認」ではなく「未学習」
+- つまずき候補は、前提スキルをたどって一番根元の「まだ不安定なスキル」を挙げる
+
+コンテスト版（v1）の記録は、初回に読み込んで履歴に移します（v1 のデータは消しません）。
 
 ## 起動方法
 
 - いちばん簡単：`index.html` を Chrome にドラッグ＆ドロップ
 - ローカルサーバー：`node serve.js` → http://localhost:5178
-- テスト：`node --test tests/logic.test.js`
+- テスト：`node --test tests/*.test.js`
+- 動作確認用パネル：URLの最後に `?debug=1`（日付を3日進める・記録の書き出し）。ふだんは表示されない
+- 記録を消す：ホーム下部「学習の記録について」→「記録をすべて消す」
 
 ## 公開方法
 

@@ -1,18 +1,26 @@
 /*
- * Study Compass コンテスト版 — 画面
+ * Study Compass — 画面
  * ホーム → 初期設定 → コンパスチェック（基礎5問）→ 追加確認（回答で変わる）
  * → 現在地 → 今日の学習（25分・3ステップ）→ 振り返り
+ *
+ * 学習の記録（answer_history / skill_state / sessions）は js/store.js が持つ。
+ * ここで保存しているのは「画面の途中状態」だけ（リロードしても続きから開けるように）。
  */
 (function () {
   "use strict";
 
   var SC = window.SC;
   var L = SC.logic;
+  var E = SC.engine;
+  var ST = SC.store;
   var QS = SC.QUESTIONS;
   var STATE_KEY = "study-compass-contest/state/v1";
-  var HISTORY_KEY = "study-compass-contest/history/v1";
+  var DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(window.location.search.slice(1));
+  var FEELING_LABEL = { good: "できた", soso: "もう少し", hard: "わからなかった" };
   var app = document.getElementById("app");
   var restartButton = document.getElementById("restart-button");
+
+  ST.load();
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -35,7 +43,8 @@
       answers: {},
       hintOpen: false,
       lesson: { step: 0, results: {} },
-      feeling: null
+      feeling: null,
+      sessionId: null
     };
   }
 
@@ -110,7 +119,8 @@
   // ---------- 画面 ----------
 
   function viewHome() {
-    var history = load(HISTORY_KEY) || [];
+    var sessions = ST.finishedSessions();
+    var last = sessions[sessions.length - 1];
     return '' +
       '<section class="hero">' +
         '<div class="hero-copy">' +
@@ -119,7 +129,7 @@
           '<p class="lead">何を勉強したらいいかわからなくても大丈夫。<br>まずは短いチェックで、今の自分の現在地を見つけよう。</p>' +
           '<button class="primary-button big" type="button" data-action="to-setup">コンパスチェックをはじめる</button>' +
           '<ul class="assure"><li>約5問からスタート</li><li>分からなくても大丈夫</li><li>ログインなし</li></ul>' +
-          (history.length ? '<p class="small muted">これまでの記録：' + history.length + '回（この端末にだけ保存）</p>' : "") +
+          (sessions.length ? '<p class="small muted">これまでのコンパスチェック：' + sessions.length + "回（前回 " + esc(dateLabel(last.finished_at)) + "）</p>" : "") +
         "</div>" +
         '<div class="hero-art" aria-hidden="true">' + compassArt() + "</div>" +
       "</section>" +
@@ -141,7 +151,34 @@
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
         "</ul>" +
         '<p class="small"><strong>おすすめのデモ手順：</strong>Q1〜Q3は正解（−2、6、7）、Q4とQ5は「わからない」を押す → 追加確認で原因を探す流れが見られます。</p>' +
-      "</details>";
+      "</details>" +
+      '<details class="card about">' +
+        "<summary>学習の記録について</summary>" +
+        '<p class="small muted">回答はすべて、この端末のブラウザに記録しています。理解度は1回の結果ではなく、これまでの記録全体から計算します。</p>' +
+        '<p class="small">記録した回答：' + ST.get().answer_history.length + "件 / コンパスチェック：" + sessions.length + "回</p>" +
+        '<button class="secondary-button" type="button" data-action="reset-data">記録をすべて消す</button>' +
+      "</details>" +
+      debugPanel();
+  }
+
+  function dateLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return (d.getMonth() + 1) + "/" + d.getDate();
+  }
+
+  // ?debug=1 のときだけ出す動作確認用のパネル（ふだんの利用者には見えない）
+  function debugPanel() {
+    if (!DEBUG) return "";
+    var off = ST.get().debug.time_offset_days || 0;
+    return '<section class="card debug">' +
+      "<h2 class=\"h-sm\">動作確認パネル（debug）</h2>" +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(ST.now()).toLocaleString("ja-JP")) + (off ? "（" + off + "日進めています）" : "") + "</p>" +
+      '<div class="actions">' +
+        '<button class="secondary-button" type="button" data-action="debug-days">日付を3日進める</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-export">記録を書き出す（JSON）</button>' +
+      "</div></section>";
   }
 
   function cycleItem(n, title, text) {
@@ -263,6 +300,7 @@
 
   function viewResult() {
     var r = diagnosisAndPlan(), d = r.d, plan = r.plan;
+    ensureSessionFinished(d, plan);
     var okList = d.skills.filter(function (k) { return k.status === "ok"; });
     var unstable = d.skills.filter(function (k) { return k.status === "unstable"; });
     var checking = d.skills.filter(function (k) { return k.status === "checking"; });
@@ -280,7 +318,8 @@
         '<h1 class="h-md">あなたの現在地</h1>' +
         '<p class="muted small">点数ではなく、スキルごとに「どこまで来ているか」を表しています。</p>' +
       "</section>" +
-      '<section class="card">' + routeMap(d) + "</section>" +
+      '<section class="card"><h2 class="card-label">今回のチェック</h2>' + routeMap(d) + "</section>" +
+      historyCard() +
       '<div class="result-grid">' +
         '<section class="card list-card ok-card"><h2>できているところ</h2>' +
           (okList.length || d.foundOk.length
@@ -314,20 +353,74 @@
       if (!q) return "";
       return "<tr><td>" + id + "</td><td>" + esc(q.skillLabel) + "</td><td>" + statusText[a.status] + (a.hintUsed ? "・ヒント使用" : "") + "</td></tr>";
     }).join("");
-    var lv = { pass: "○", unstable: "△", not_checked: "−" };
-    var srows = d.skillState.map(function (s) {
+    var lv = { pass: "○", needs_review: "△", not_checked: "−" };
+    var states = ST.get().skill_state;
+    var srows = E.SKILL_ORDER.filter(function (k) { return states[k] && states[k].attempt_count; }).map(function (k) {
+      var s = states[k];
       return "<tr><td>" + esc(s.skill) + "</td><td>" + lv[s.basic] + "</td><td>" + lv[s.standard] + "</td><td>" + lv[s.application] + "</td><td>" + lv[s.retention] + "</td>" +
-        '<td><span class="meter"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span></td></tr>';
+        '<td><span class="meter"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span> ' + s.confidence.toFixed(2) + "</td>" +
+        "<td>" + s.correct_count + "/" + s.attempt_count + "</td></tr>";
     }).join("");
     return '' +
       '<details class="card details">' +
         "<summary>くわしい記録を見る（どう判断したか）</summary>" +
         '<p class="small muted">Study Compass は正解数ではなく、各問題が見ているスキル・前提知識・ヒントの有無・追加確認の結果を組み合わせて判断しています。</p>' +
         '<div class="table-wrap"><table><thead><tr><th>問題</th><th>見たスキル</th><th>結果</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
-        '<h3>理解のレベル</h3>' +
-        '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>基礎</th><th>標準</th><th>応用</th><th>定着</th><th>たしかさ</th></tr></thead><tbody>' + srows + "</tbody></table></div>" +
-        '<p class="small muted">「たしかさ」は1回のチェックでは最大にしません。後日もう一度できたら「定着」に進みます（デモでは未実施）。</p>' +
+        '<h3>理解のレベル（これまでの記録全体から）</h3>' +
+        '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>基礎</th><th>標準</th><th>応用</th><th>定着</th><th>たしかさ</th><th>正解/回答</th></tr></thead><tbody>' + srows + "</tbody></table></div>" +
+        '<p class="small muted">「たしかさ」は、どのレベルまでできたかと最近の結果から計算します。1回のチェックでは最大にせず、1回の不正解で大きく下げることもしません。' +
+        "最初にできた日から" + E.CONFIG.retentionDays + "日以上たってもう一度できたら「定着」に進みます。</p>" +
       "</details>";
+  }
+
+  // これまでの記録（answer_history 全体）から見た現在地。前回のチェックからの変化も出す
+  function historyCard() {
+    var states = ST.get().skill_state;
+    var prev = ST.previousSnapshot(state.sessionId);
+    var sessions = ST.finishedSessions().length;
+    var rows = E.SKILL_ORDER.filter(function (k) {
+      var s = states[k];
+      return s && (s.attempt_count || s.learning_status === "not_learned");
+    }).map(function (k) {
+      var s = states[k], v = E.STATUS_VIEW[s.learning_status];
+      var delta = "";
+      if (prev && prev[k] && s.attempt_count) {
+        var diff = s.confidence - prev[k].confidence;
+        delta = diff > 0.005 ? '<span class="delta up">前回より ↑</span>'
+          : diff < -0.005 ? '<span class="delta down">前回より少し ↓</span>'
+          : '<span class="delta">前回と同じ</span>';
+      } else if (s.attempt_count) {
+        delta = '<span class="delta">はじめての記録</span>';
+      }
+      var levels = [["basic", "基礎"], ["standard", "標準"], ["application", "応用"], ["retention", "定着"]].map(function (l) {
+        return '<span class="lv lv-' + s[l[0]] + '">' + l[1] + "</span>";
+      }).join("");
+      return '<li class="hs tone-' + v.tone + '">' +
+        '<span class="hs-mark" aria-hidden="true">' + v.mark + "</span>" +
+        '<div class="hs-body">' +
+          '<div class="hs-top"><strong>' + esc(s.skill) + '</strong><span class="hs-status">' + v.label + "</span>" + delta + "</div>" +
+          (s.attempt_count ? '<div class="hs-meter"><span class="meter wide"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span></div>' +
+            '<div class="hs-levels">' + levels + "</div>" : "") +
+          (s.suspected_root_causes.length ? '<p class="root">つまずき候補：' + esc(s.suspected_root_causes.join("、")) + "（可能性）</p>" : "") +
+        "</div></li>";
+    }).join("");
+    return '<section class="card history-card">' +
+      '<h2 class="card-label">これまでの記録から見た現在地</h2>' +
+      '<p class="small muted">コンパスチェック ' + sessions + " 回分の記録から計算しています。1回の結果だけで決めつけず、記録が増えるほど正確になります。</p>" +
+      '<ul class="hs-list">' + rows + "</ul>" +
+    "</section>";
+  }
+
+  // チェックが終わった時点で一度だけ、セッションを締めて確かさの控えを残す
+  function ensureSessionFinished(d, plan) {
+    if (!state.sessionId) return;
+    var s = ST.session(state.sessionId);
+    if (!s || s.finished_at) return;
+    ST.finishSession(state.sessionId, {
+      plan_key: plan.key,
+      focus_skill: d.focusSkill ? d.focusSkill.key : null,
+      suspected_root_causes: d.focusSkill ? d.focusSkill.roots : []
+    });
   }
 
   function viewPlan() {
@@ -413,7 +506,9 @@
       soso: "次回は、今日のところをもう一度だけ確認してから先に進みます。",
       hard: "次回は、もう一段やさしいところから一緒に確かめます。わからなかったと言えたことが、次の一歩になります。"
     }[state.feeling];
-    var history = load(HISTORY_KEY) || [];
+    var sessions = ST.finishedSessions().length;
+    var fs = focus && ST.get().skill_state[focus.key];
+    var fsView = fs && E.STATUS_VIEW[fs.learning_status];
     return '' +
       '<section class="card narrow center">' +
         '<div class="saved-icon" aria-hidden="true">✓</div>' +
@@ -424,9 +519,9 @@
         '<h2 class="h-sm">現在地の更新</h2>' +
         '<ul class="update-list">' +
           '<li><span>今日越えること</span><strong>' + esc(plan.cross) + "</strong></li>" +
-          (focus ? '<li><span>' + esc(focus.label) + "</span><strong>もう少し → 練習中（" + solved + "/" + plan.steps.length + " ステップ自力で正解）</strong></li>" : "") +
-          '<li><span>定着チェック</span><strong>3日後にもう一度確認（デモでは予定の表示のみ）</strong></li>' +
-          '<li><span>記録した回数</span><strong>' + history.length + " 回（この端末のみ）</strong></li>" +
+          (fsView ? '<li><span>' + esc(focus.label) + "</span><strong>" + fsView.mark + " " + fsView.label + "（今日は " + solved + "/" + plan.steps.length + " ステップ自力で正解）</strong></li>" : "") +
+          '<li><span>次のコンパスチェック</span><strong>今日の内容が身についたかを、もう一度確かめます。' + E.CONFIG.retentionDays + "日以上あけてできたら「定着」に進みます</strong></li>" +
+          '<li><span>これまでのコンパスチェック</span><strong>' + sessions + " 回（この端末に記録）</strong></li>" +
         "</ul>" +
         '<p class="next-text">' + nextText + "</p>" +
         '<div class="actions stack">' +
@@ -472,7 +567,8 @@
 
   function recordAnswer(status) {
     var id = state.queue[state.idx];
-    state.answers[id] = { status: status, hintUsed: !!state.hintOpen, at: new Date().toISOString() };
+    state.answers[id] = { status: status, hintUsed: !!state.hintOpen, at: new Date(ST.now()).toISOString() };
+    ST.addAnswer(QS[id], { status: status, hintUsed: !!state.hintOpen }, { sessionId: state.sessionId, context: "compass_check" });
     state.idx += 1;
     state.hintOpen = false;
     message = "";
@@ -509,31 +605,31 @@
       return;
     }
     message = "";
-    state.lesson.results[i] = L.check(p, v) ? "correct" : "tried";
+    var correct = L.check(p, v);
+    // 練習は各ステップの「最初の1回」だけを記録する（ヒントを見て答え直した分は学習の過程として数えない）
+    if (state.lesson.results[i] === undefined) {
+      ST.addAnswer(p, { status: correct ? "correct" : "incorrect", hintUsed: !!state.hintOpen }, { sessionId: state.sessionId, context: "lesson" });
+    }
+    state.lesson.results[i] = correct ? "correct" : "tried";
     if (state.lesson.results[i] === "tried") draft = {};
     state.hintOpen = false;
     render();
   }
 
-  function saveHistory(feeling) {
-    var d = diagnosisAndPlan();
-    var history = load(HISTORY_KEY) || [];
-    history.push({
-      date: new Date().toISOString(),
-      unit: state.setup.unit,
-      plan: d.plan.key,
-      feeling: feeling,
-      lesson_results: state.lesson.results,
-      answer_history: state.answers,
-      skill_state: d.d.skillState
-    });
-    save(HISTORY_KEY, history.slice(-30));
-  }
-
   function restart() {
     state = freshState();
-    state.screen = "setup";
+    state.setup.status = ST.schoolProgress("一次関数");
     go("setup");
+  }
+
+  function downloadJSON() {
+    var blob = new Blob([ST.exportJSON()], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "study-compass-record-" + new Date(ST.now()).toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
   }
 
   app.addEventListener("input", function (e) {
@@ -566,14 +662,27 @@
       case "restart-now": restart(); break;
       case "to-setup":
         if (state.screen === "home" && Object.keys(state.answers).length) state = freshState();
+        state.setup.status = ST.schoolProgress("一次関数");
         go("setup");
         break;
       case "start-check":
         var status = state.setup.status;
         state = freshState();
         state.setup.status = status;
+        ST.setSchoolProgress("一次関数", status);
+        state.sessionId = ST.startSession("compass_check", "一次関数");
         go("check");
         break;
+      case "reset-data":
+        if (window.confirm("この端末に記録した回答と理解度を、すべて消します。元に戻せません。消してもいいですか？")) {
+          ST.reset();
+          state = freshState();
+          go("home");
+        }
+        break;
+      case "debug-days": ST.addDays(3); render(); break;
+      case "debug-days-reset": ST.resetDays(); render(); break;
+      case "debug-export": downloadJSON(); break;
       case "hint": state.hintOpen = true; render(); break;
       case "lesson-hint": state.hintOpen = true; render(); break;
       case "unknown": recordAnswer("unknown"); break;
@@ -599,7 +708,7 @@
         break;
       case "feeling":
         state.feeling = el.getAttribute("data-feeling");
-        saveHistory(state.feeling);
+        ST.setSelfEvaluation(state.sessionId, FEELING_LABEL[state.feeling]);
         render();
         break;
       case "chip":
