@@ -45,6 +45,7 @@
       answer_history: [],
       sessions: [],
       compass_check_history: [],
+      explorations: [],
       skill_state: {},
       debug: { time_offset_days: 0 }
     };
@@ -96,6 +97,7 @@
     d.debug = d.debug || { time_offset_days: 0 };
     d.profile.school_progress = d.profile.school_progress || {};
     d.compass_check_history = d.compass_check_history || [];
+    d.explorations = d.explorations || [];
     data = d;
     return data;
   }
@@ -214,6 +216,21 @@
     for (var i = list.length - 1; i >= 0; i--) if (list[i].session_id === sessionId) return list[i];
     return null;
   }
+  // ---------- つまずきの原因さがし（Phase 4） ----------
+  // 道すじ（js/rootcause.js の trail）に session_id と日付を付けて残す
+  function addExploration(trail, sessionId) {
+    var list = get().explorations;
+    var rec = JSON.parse(JSON.stringify(trail));
+    rec.session_id = sessionId || null;
+    rec.date = new Date(now()).toISOString();
+    for (var i = 0; i < list.length; i++) if (list[i].id === rec.id) { list[i] = rec; persist(); return rec; }
+    list.push(rec);
+    persist();
+    return rec;
+  }
+  function explorations() { return get().explorations; }
+  function explorationsFor(sessionId) { return get().explorations.filter(function (x) { return x.session_id === sessionId; }); }
+
   // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
   function setSnooze(dateKey) { get().profile.compass_snooze_date = dateKey; persist(); }
   function snoozeDate() { return get().profile.compass_snooze_date || null; }
@@ -226,6 +243,7 @@
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,
     addCompassCheck: addCompassCheck, compassHistory: compassHistory, compassCheck: compassCheck,
     setSnooze: setSnooze, snoozeDate: snoozeDate,
+    addExploration: addExploration, explorations: explorations, explorationsFor: explorationsFor,
     _backend: backend
   };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -24,7 +24,8 @@
     change:         { label: "変化量",         unit: "一次関数", prerequisites: ["signed"] },
     substitution:   { label: "式への代入",     unit: "一次関数", prerequisites: ["algebra"] },
     rate:           { label: "変化の割合",     unit: "一次関数", prerequisites: ["change"] },
-    slopeIntercept: { label: "傾き・切片",     unit: "一次関数", prerequisites: ["proportion"] },
+    // 傾きは「変化の割合」そのもの。切片は比例 y = ax からの平行移動として理解する
+    slopeIntercept: { label: "傾き・切片",     unit: "一次関数", prerequisites: ["rate", "proportion"] },
     form:           { label: "グラフ・式",     unit: "一次関数", prerequisites: ["slopeIntercept", "rate", "substitution", "coord"] }
   };
   // 現在地画面で上から並べる順（土台 → 一次関数の本体）

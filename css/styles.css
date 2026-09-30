@@ -320,6 +320,21 @@ th { font-size: 11px; color: var(--text-soft); }
 .cr-status { grid-area: status; }
 .cr-item .delta { grid-area: tag; margin-left: 0; justify-self: end; }
 
+/* ---------- つまずきの道すじ（原因さがし） ---------- */
+.trail + .trail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.trail-path { list-style: none; padding: 0; margin: 12px 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tp { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--inset); border: 1px solid var(--line); font-size: 13px; font-weight: 800; }
+.tp + .tp::before { content: "→"; color: var(--text-soft); font-weight: 400; margin: 0 4px 0 -10px; position: relative; left: -6px; }
+.tp-mark { font-weight: 900; }
+.tp.ok .tp-mark { color: var(--ok); }
+.tp.ng .tp-mark { color: var(--warn); }
+.tp.hist { border-style: dashed; }
+.tp-label small { display: block; font-size: 10px; font-weight: 700; color: var(--text-soft); line-height: 1.1; }
+.trail-return { font-size: 14px; margin-bottom: 4px; }
+.trail-return strong { color: var(--star); }
+.probe-purpose { color: var(--hint); font-weight: 700; }
+.debug-log { padding-left: 1.4em; margin: 6px 0 0; }
+
 /* 問題バンクの確認ページ */
 .bank-skill { display: grid; gap: 10px; }
 .bank-skill h2 span { margin-left: 6px; font-weight: 700; }

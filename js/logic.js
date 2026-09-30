@@ -119,10 +119,10 @@
   // 返り値: [{ id, reason }]。全員に全部は出さない。
   function followUps(answers) {
     var Q = SC.QUESTIONS, list = [], seen = {};
-    function add(id, reason) {
+    function add(id, reason, from) {
       if (seen[id]) return;
       seen[id] = true;
-      list.push({ id: id, reason: reason });
+      list.push({ id: id, reason: reason, from: from || null });
     }
     SC.BASIC_ORDER.forEach(function (bid) {
       if (!miss(answers, bid)) return;
@@ -130,7 +130,7 @@
       q.onMiss.forEach(function (cid) {
         // B2 で止まったときの C2 は、B3 も止まったときだけ出す（B3 側で追加される）
         if (bid === "B2" && cid === "C2") return;
-        add(cid, "「" + q.skillLabel + "」の問題から → " + Q[cid].purpose);
+        add(cid, "「" + q.skillLabel + "」の問題から → " + Q[cid].purpose, bid);
       });
     });
     // 基礎ができたスキルは、形を変えた標準問題で確かめる
@@ -340,8 +340,9 @@
     return {
       min: 10, title: title || "チェックの問題に再挑戦",
       body: ["コンパスチェックで止まった問題に、もう一度挑戦します。ここまでの2ステップを思い出しながら解いてみよう。"],
-      practice: { id: q.id, skill: q.skill, level: q.level, unit: q.unit,
+      practice: { id: q.id, skill: q.skill, level: q.level, unit: q.unit, evidence_level: q.evidence_level,
         text: q.text, type: q.type, answer: q.answer, fields: q.fields, placeholder: q.placeholder,
+        figure: q.figure, choices: q.choices, steps: q.steps,
         hint: q.hint, explain: q.explain || (q.display ? "答え：" + q.display : "答え：" + fmt(q)) }
     };
   }
@@ -592,7 +593,7 @@
 
   SC.logic = {
     normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear,
-    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps,
+    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry,
     diagnose: diagnose, buildPlan: buildPlan, ROUTE: ROUTE
   };
 })(typeof window !== "undefined" ? window : globalThis);

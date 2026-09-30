@@ -208,6 +208,30 @@ test("問題数の目安（基礎5・標準5・応用3・定着5）に対する�
   assert.ok(!s.some((x) => ["signed", "algebra", "proportion", "coord"].includes(x.skill) && x.level === "standard"), "既習スキルは標準を持たない");
 });
 
+test("前回の原因さがしで確かめきれなかった前提は、次の定期チェックで最優先（P0）になる", () => {
+  const L = learner();
+  firstCheck(L);
+  const exploration = { id: "x1", date: new Date(T0 + 60e3).toISOString(), frontier: "change", symptom: { skill: "rate", label: "変化の割合", question_id: "B4" },
+    conclusion: { kind: "undetermined", pending_skills: ["signed"] } };
+  const now = T0 + 3 * E.DAY + HOUR;
+  const r = C.buildCheck({ states: L.states(now), history: L.history, sessions: L.sessions, explorations: [exploration], now, rng: B.seeded(1) });
+  assert.equal(r.candidates[0].skill, "signed");
+  assert.equal(r.candidates[0].priority, 0);
+  assert.match(r.candidates[0].reasons[0].text, /前回の原因さがしの続き/);
+  assert.ok(r.chosen.some((k) => k.skill === "signed"), "記録がなくても出題する");
+  // そのあと正負の数をチェックしたら、もう続きとしては出さない
+  L.session(now, ["signed-basic-1"], [c]);
+  assert.equal(C.pendingFromExplorations([exploration], L.history, now + HOUR).length, 0);
+});
+
+test("原因さがし用の問題：前提スキルの基礎から、最近出した問題を避けて選ぶ", () => {
+  const L = learner();
+  firstCheck(L);
+  const p = C.pickProbe({ history: L.history, sessions: L.sessions, now: T0 + HOUR, rng: B.seeded(2) }, "change", ["C4"]);
+  assert.ok(p && Q[p.question_id].skill === "change");
+  assert.notEqual(p.question_id, "C4");
+});
+
 test("同じ種なら同じ選び方（debug で再現できる）", () => {
   const L = learner();
   firstCheck(L);

@@ -27,6 +27,7 @@
   };
 
   var PRIORITY_TEXT = {
+    0: "前回の原因さがしの続き",
     1: "確かさがまだ低い",
     2: "標準・応用に「要確認」がある",
     3: "一度できたが、定着をまだ確かめていない",
@@ -177,6 +178,21 @@
         maintenance.push(entry);
       }
     });
+    // 前回の原因さがしで確かめきれなかった前提スキルは、発生条件に関係なく最優先で確かめる
+    pendingFromExplorations(input.explorations, history, now).forEach(function (p) {
+      var s = states[p.skill];
+      var existing = candidates.filter(function (c) { return c.skill === p.skill; })[0];
+      var reason = { p: 0, text: PRIORITY_TEXT[0] + "（「" + E.SKILLS[p.from].label + "」の前提）" };
+      if (existing) { existing.reasons.unshift(reason); existing.priority = 0; return; }
+      [maintenance, notDue].forEach(function (list) {
+        for (var i = list.length - 1; i >= 0; i--) if (list[i].skill === p.skill) list.splice(i, 1);
+      });
+      var level = s && s.attempt_count ? levelOf(s, p.skill) : "basic";
+      candidates.push({ skill: p.skill, label: E.SKILLS[p.skill].label, order: E.SKILL_ORDER.indexOf(p.skill),
+        confidence: s ? s.confidence : 0, status: s ? s.learning_status : "not_checked", due: null,
+        reasons: [reason], priority: 0, level: level, levelReason: "前回確かめきれなかった前提なので、" + LEVEL_JA[level] + "の問題で確かめる",
+        retentionPurpose: false, everIds: activity(p.skill, history).everIds });
+    });
     candidates.sort(function (a, b) { return a.priority - b.priority || a.confidence - b.confidence || a.order - b.order; });
     maintenance.sort(function (a, b) { return a.confidence - b.confidence || a.order - b.order; });
 
@@ -235,6 +251,42 @@
     };
   }
 
+  // 原因さがしの続き：直近14日の道すじで確かめきれなかった前提のうち、そのあとまだチェックしていないもの
+  function pendingFromExplorations(explorations, history, now) {
+    var out = [], seen = {};
+    (explorations || []).forEach(function (x) {
+      var c = x.conclusion;
+      if (!c || !c.pending_skills || !c.pending_skills.length) return;
+      var at = Date.parse(x.date);
+      if (now - at > 14 * E.DAY) return;
+      c.pending_skills.forEach(function (skill) {
+        if (seen[skill]) return;
+        var checkedSince = history.some(function (a) { return a.skill === skill && a.context !== "lesson" && t(a) > at; });
+        if (checkedSince) return;
+        seen[skill] = true;
+        out.push({ skill: skill, from: x.frontier || x.symptom.skill });
+      });
+    });
+    return out;
+  }
+
+  // 原因さがし用に、前提スキルの問題を1問えらぶ（基礎から。足りなければ段階的に除外をゆるめる）
+  function pickProbe(input, skill, used) {
+    var history = input.history || [];
+    var everAnswered = {};
+    history.forEach(function (a) { everAnswered[baseId(a.question_id)] = true; });
+    for (var s = 0; s < RELAX_STAGES.length; s++) {
+      var st = RELAX_STAGES[s];
+      var ex = Object.keys(exclusions(history, input.sessions, input.now, st.checks, st.days)).concat(used || []);
+      var levels = ["basic", "retention", "standard"];
+      for (var i = 0; i < levels.length; i++) {
+        var q = SC.bank.pick(skill, levels[i], { history: history, exclude: ex, rng: input.rng || Math.random });
+        if (q) return { question_id: q.id, relax_stage: st.stage, reused: st.stage > 0 && !!everAnswered[q.id] };
+      }
+    }
+    return null;
+  }
+
   // ホームに出すお知らせ。「今日はあとで」を選んだ日は出さない
   function notice(input) {
     var check = buildCheck(input);
@@ -287,6 +339,17 @@
   var PLAN_ORDER = ["signed", "algebra", "coord", "proportion", "change", "substitution", "rate", "slopeIntercept", "form"];
   function planFromStates(states) {
     function weak(k) { var s = states[k]; return !!s && (s.learning_status === "needs_review" || s.learning_status === "learning"); }
+    return planFromWeak(weak, states);
+  }
+
+  // 「戻る場所」（原因さがしの結論）から今日の学習の種類を決める
+  var PLAN_OF_SKILL = {
+    signed: "signed", algebra: "substitution", coord: "coord", proportion: "proportion", change: "change",
+    substitution: "substitution", rate: "rate", slopeIntercept: "slope", form: "connect"
+  };
+  function planForSkill(skill) { return PLAN_OF_SKILL[skill] || null; }
+
+  function planFromWeak(weak, states) {
     for (var i = 0; i < PLAN_ORDER.length; i++) {
       var k = PLAN_ORDER[i];
       if (!weak(k)) continue;
@@ -321,7 +384,8 @@
 
   SC.compass = {
     CONFIG: CONFIG, PRIORITY_TEXT: PRIORITY_TEXT, RELAX_STAGES: RELAX_STAGES, dateKey: dateKey, baseId: baseId, exclusions: exclusions,
+    pickProbe: pickProbe, pendingFromExplorations: pendingFromExplorations,
     buildCheck: buildCheck, notice: notice, snapshotSkills: snapshotSkills, compare: compare,
-    planFromStates: planFromStates, planWhy: planWhy
+    planFromStates: planFromStates, planForSkill: planForSkill, planWhy: planWhy
   };
 })(typeof window !== "undefined" ? window : globalThis);

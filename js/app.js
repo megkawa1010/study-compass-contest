@@ -14,6 +14,7 @@
   var E = SC.engine;
   var ST = SC.store;
   var C = SC.compass;
+  var R = SC.rootcause;
   var QS = SC.QUESTIONS;
   var STATE_KEY = "study-compass-contest/state/v1";
   var DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(window.location.search.slice(1));
@@ -50,7 +51,10 @@
       feeling: null,
       sessionId: null,
       mode: "initial",   // "initial"（はじめてのチェック）| "periodic"（定期コンパスチェック）
-      periodic: null     // 定期チェックで選んだスキルと理由
+      periodic: null,    // 定期チェックで選んだスキルと理由
+      trails: [],        // つまずきの原因さがしの道すじ（js/rootcause.js）
+      probes: {},        // 問題ID → { trail: 道すじの番号, probe, done }
+      probeBudget: 0     // 原因さがしで、あと何問追加してよいか
     };
   }
 
@@ -61,6 +65,9 @@
     var ok = s.queue.every(function (id) { return !!QS[id]; });
     if (!ok || s.idx > s.queue.length) return freshState();
     s.mode = s.mode || "initial";
+    s.trails = s.trails || [];
+    s.probes = s.probes || {};
+    s.probeBudget = s.probeBudget || 0;
     if (s.screen === "check" && s.idx >= s.queue.length) s.screen = s.mode === "periodic" ? "checkResult" : "result";
     s.lesson = s.lesson || { step: 0, results: {} };
     return s;
@@ -91,7 +98,13 @@
   function diagnosisAndPlan() {
     if (state.mode === "periodic") return periodicPlan();
     var d = L.diagnose(state.answers);
-    return { d: d, plan: L.buildPlan(d, state.answers) };
+    var plan = applyTrailToPlan(d, L.buildPlan(d, state.answers), state.trails);
+    if (plan.fromTrail) {
+      // 原因さがしで前提に戻った場合は、「発見」の文も道すじの結論に合わせる
+      d.discovery = R.deepestReturn(state.trails).conclusion.message + "\n1回のチェックだけで決めつけず、これからの学習結果もあわせて現在地を更新していきます。";
+      d.planKey = plan.key;
+    }
+    return { d: d, plan: plan };
   }
 
   // 定期チェックのあとは、その回の回答ではなく skill_state（これまでの記録全体）から今日の学習を作る。
@@ -111,6 +124,13 @@
     var plan = L.buildPlan(d, {});
     if (entry.before && entry.after) {
       plan.why = C.planWhy(C.compare(entry.before, entry.after, entry.skill_ids), { focus: focus });
+    }
+    // 原因さがしで「戻る場所」が今日の中心になったときは、最後にまちがえた問題へ再挑戦する
+    var tb = entry.trail_best;
+    if (tb && tb.return_to === focus) {
+      var sq = QS[tb.symptom_question];
+      if (sq && sq.type !== "steps") plan.steps[2] = L.retryStep(sq.id, "つまずいた問題に再挑戦");
+      plan.why = tb.message;
     }
     return { d: d, plan: plan };
   }
@@ -223,7 +243,7 @@
 
   function compassInput() {
     var d = ST.get();
-    return { states: d.skill_state, history: d.answer_history, sessions: d.sessions, now: ST.now(), snoozeDate: ST.snoozeDate() };
+    return { states: d.skill_state, history: d.answer_history, sessions: d.sessions, explorations: d.explorations, now: ST.now(), snoozeDate: ST.snoozeDate() };
   }
 
   // 定期コンパスチェックのお知らせ。強制はしない（今チェックする / 今日はあとで）
@@ -322,17 +342,20 @@
     var id = state.queue[state.idx];
     var q = QS[id];
     var periodic = state.mode === "periodic";
+    var probeInfo = state.probes && state.probes[id];
     var isBasic = state.idx < state.basicCount;
     var num = isBasic ? state.idx + 1 : state.idx - state.basicCount + 1;
     var total = isBasic ? state.basicCount : state.queue.length - state.basicCount;
     var pct = Math.round((num - 1) / total * 100);
-    var phaseLabel = periodic ? "定期コンパスチェック" : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
+    var phaseLabel = probeInfo && !probeInfo.probe.seed ? "原因をさがす確認"
+      : periodic ? "定期コンパスチェック" : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
     return '' +
       '<section class="card narrow question-card">' +
         '<div class="progress-head"><span class="eyebrow">' + phaseLabel + '</span><span class="q-count">' + (isBasic ? "Q" : "追加 ") + num + " / " + total + "</span></div>" +
         '<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + (num - 1) + '"><i style="width:' + pct + '%"></i></div>' +
         '<p class="skill-tag">確認するスキル：' + esc(q.skillLabel) + "</p>" +
-        (q.purpose && !isBasic ? '<p class="purpose">' + esc(q.purpose) + "</p>" : "") +
+        (probeInfo && !probeInfo.probe.seed ? '<p class="purpose probe-purpose">' + esc(probeInfo.probe.purpose) + "</p>"
+          : q.purpose && !isBasic ? '<p class="purpose">' + esc(q.purpose) + "</p>" : "") +
         '<h1 class="question">' + esc(q.text) + "</h1>" +
         SC.figures.render(q.figure) +
         '<form class="answer-form" data-form="check" novalidate>' +
@@ -361,7 +384,7 @@
         '<p class="eyebrow">コンパスチェック 5 / 5 おつかれさま！</p>' +
         '<h1 class="h-md">もう少しだけ、確かめさせてね</h1>' +
         '<p class="lead-sm">' + esc(intro) + "</p>" +
-        '<p class="small muted">全員に同じ問題を出すのではなく、あなたの答えに合わせて選んでいます。</p>' +
+        '<p class="small muted">全員に同じ問題を出すのではなく、あなたの答えに合わせて選んでいます。答えによっては、さらに前の内容を1〜2問確かめることがあります。</p>' +
         '<ol class="followups">' + list.map(function (f) {
           var q = QS[f.id];
           return '<li><span class="badge ' + (q.phase === "cause" ? "b-cause" : "b-std") + '">' + (q.phase === "cause" ? "原因確認" : "標準") + "</span>" +
@@ -374,7 +397,13 @@
   function routeMap(d) {
     var focusKey = d.focusSkill ? d.focusSkill.key : null;
     var icon = { ok: "✓", unstable: "△", checking: "…" };
-    return '<ol class="route" aria-label="一次関数のルートと現在地">' + d.skills.map(function (k) {
+    var onRoute = d.skills.some(function (k) { return k.key === focusKey; });
+    // 原因さがしで、ルートより前の土台（正負の数など）に戻ることになったときは、その土台をルートの先頭に出す
+    var base = focusKey && !onRoute
+      ? '<li class="node s-unstable here"><span class="dot" aria-hidden="true">△</span><span class="node-label">' + esc(d.focusSkill.label) +
+        "<small>土台・ここから</small></span><span class=\"flag\">今日越える</span></li>"
+      : "";
+    return '<ol class="route" aria-label="一次関数のルートと現在地">' + base + d.skills.map(function (k) {
       var here = k.key === focusKey;
       return '<li class="node s-' + k.status + (here ? " here" : "") + '">' +
         '<span class="dot" aria-hidden="true">' + icon[k.status] + "</span>" +
@@ -387,6 +416,8 @@
   }
 
   function viewResult() {
+    // 原因さがしの道すじを結論まで進めてから、診断と今日の学習を作る
+    state.trails.forEach(function (t) { if (t.status === "open") R.conclude(t); });
     var r = diagnosisAndPlan(), d = r.d, plan = r.plan;
     ensureSessionFinished(d, plan);
     var okList = d.skills.filter(function (k) { return k.status === "ok"; });
@@ -407,6 +438,7 @@
         '<p class="muted small">点数ではなく、スキルごとに「どこまで来ているか」を表しています。</p>' +
       "</section>" +
       '<section class="card"><h2 class="card-label">今回のチェック</h2>' + routeMap(d) + "</section>" +
+      trailsCard(state.trails) +
       historyCard() +
       '<div class="result-grid">' +
         '<section class="card list-card ok-card"><h2>できているところ</h2>' +
@@ -504,10 +536,12 @@
     if (!state.sessionId) return;
     var s = ST.session(state.sessionId);
     if (!s || s.finished_at) return;
+    saveTrails();
+    var best = R.deepestReturn(state.trails);
     ST.finishSession(state.sessionId, {
       plan_key: plan.key,
       focus_skill: d.focusSkill ? d.focusSkill.key : null,
-      suspected_root_causes: d.focusSkill ? d.focusSkill.roots : []
+      suspected_root_causes: best ? [E.SKILLS[best.conclusion.return_to].label] : d.focusSkill ? d.focusSkill.roots : []
     });
   }
 
@@ -548,7 +582,7 @@
         (st.example ? '<div class="example"><span>例</span><p>' + esc(st.example) + "</p></div>" : "") +
         '<div class="practice">' +
           '<p class="practice-label">やってみよう</p>' +
-          '<p class="question small-q">' + esc(p.text) + "</p>" +
+          '<p class="question small-q">' + esc(p.text) + "</p>" + SC.figures.render(p.figure) +
           (done
             ? feedbackBlock(res, p)
             : '<form class="answer-form" data-form="lesson" novalidate>' + inputFields(p, "l") +
@@ -649,6 +683,7 @@
         '<p class="muted small">' + entry.questions.length + " 問で、" + esc(entry.skills.join("・")) + " を確かめました。点数ではなく、前回からの変化を見ています。</p></section>" +
       crossed +
       '<section class="card"><ul class="cr-list">' + items + "</ul></section>" +
+      trailsCard(ST.explorationsFor(state.sessionId)) +
       '<section class="card discovery"><h2><span class="spark" aria-hidden="true">✦</span> Study Compass のコメント</h2>' +
         "<p>" + nl(entry.comment) + "</p>" +
         '<p class="small muted">1回の結果だけで決めつけず、これからの記録もあわせて現在地を更新していきます。</p></section>' +
@@ -712,7 +747,27 @@
         " の順にゆるめます。どの段階でも、今回すでに出した問題・前回のチェックの問題・3日以内に解いた問題は出しません。</p></section>" +
       '<section class="card"><h2 class="h-sm">除外した問題（' + chk.excluded.length + "）</h2>" +
         '<p class="small">' + (chk.excluded.map(function (e) { return esc(e.id) + "（" + esc(e.why) + "）"; }).join("、") || "なし") + "</p></section>" +
+      '<section class="bank-skill"><h2 class="h-sm">原因さがしの道すじ（新しい順・最大5件）</h2>' + (explorationDebug() || '<p class="small muted">まだありません</p>') +
+        '<p class="small muted">上限：深さ ' + R.CONFIG.MAX_DEPTH + " 段／1スキルで確かめる前提 " + R.CONFIG.MAX_PROBES_PER_STEP + " 個／追加の問題 最初のチェック " + R.CONFIG.BUDGET_INITIAL +
+        "問・定期チェック " + R.CONFIG.BUDGET_PERIODIC + "問／記録から「できている」とみなすのは " + R.CONFIG.SOLID_FRESH_DAYS + "日以内に確認したスキル。" +
+        "確かめきれなかった前提は、次の定期チェックで最優先（P0）になります。</p></section>" +
       '<section class="bank-skill"><h2 class="h-sm">これまでの定期チェック（新しい順・最大5件）</h2>' + (hist || '<p class="small muted">まだありません</p>') + "</section>";
+  }
+
+  var KIND_LABEL = { gap_found: "前提に原因がありそう", root: "土台まで戻った", in_skill: "前提はできている", not_reproduced: "別の問題ではできた", undetermined: "確かめきれていない" };
+  function explorationDebug() {
+    return ST.explorations().slice(-5).reverse().map(function (x) {
+      var c = x.conclusion || {};
+      return '<div class="card bank-item">' +
+        '<p class="small"><strong>' + esc(new Date(x.date).toLocaleString("ja-JP")) + "</strong>　症状：" + esc(x.symptom.label) + "（" + esc(x.symptom.question_id) + "）" +
+        ' <span class="lv lv-pass">' + esc(KIND_LABEL[c.kind] || "") + "</span></p>" +
+        '<p class="small">' + esc(R.pathText(x)) + "</p>" +
+        (c.return_to ? '<p class="small">戻る場所：<strong>' + esc(E.SKILLS[c.return_to].label) + "</strong>" +
+          (c.solid_skills && c.solid_skills.length ? "／できている前提：" + esc(c.solid_skills.map(function (k) { return E.SKILLS[k].label; }).join("、")) : "") +
+          (c.pending_skills && c.pending_skills.length ? "／次回に回す：" + esc(c.pending_skills.map(function (k) { return E.SKILLS[k].label; }).join("、")) : "") + "</p>" : "") +
+        '<details><summary class="small">判断の記録</summary><ol class="small muted debug-log">' + x.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></details>" +
+      "</div>";
+    }).join("");
   }
 
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
@@ -844,6 +899,15 @@
     state.hintOpen = false;
     message = "";
     draft = {};
+
+    // 原因さがし：原因確認の問題なら道すじへ。定期チェックでまちがえたら、その前提をさかのぼりはじめる
+    var correctNow = status === "correct";
+    var wasProbe = onProbeAnswered(id, correctNow);
+    if (state.mode === "periodic" && !wasProbe && !correctNow) {
+      var stepSkill = q.type === "steps" && state.answers[id].steps ? state.answers[id].steps.suspected_skill : null;
+      startTrail(q, stepSkill || q.skill, []);
+    }
+
     if (state.mode === "periodic") {
       if (state.idx >= state.queue.length) { finishPeriodic(); go("checkResult"); return; }
       render();
@@ -852,6 +916,13 @@
     if (state.idx === state.basicCount && state.followUps.length === 0) {
       state.followUps = L.followUps(state.answers);
       state.queue = state.queue.slice(0, state.basicCount).concat(state.followUps.map(function (f) { return f.id; }));
+      // まちがえた基礎問題ごとに道すじをはじめる。先に決まっている原因確認（C1〜C5）が最初の確認になる
+      state.probeBudget = R.CONFIG.BUDGET_INITIAL;
+      SC.BASIC_ORDER.forEach(function (bid) {
+        var a = state.answers[bid];
+        if (!a || a.status === "correct") return;
+        startTrail(QS[bid], QS[bid].skill, state.followUps.filter(function (f) { return f.from === bid; }).map(function (f) { return f.id; }));
+      });
       go(state.followUps.length ? "bridge" : "result");
       return;
     }
@@ -878,6 +949,111 @@
     recordAnswer(L.check(q, v) ? "correct" : "incorrect");
   }
 
+  // ---------- つまずきの原因さがし（Phase 4） ----------
+  // まちがえた問題から前提スキルをさかのぼり、確かめる問題を「次の問題」として1問ずつ差し込む。
+
+  function probeCtx() {
+    var d = ST.get();
+    // このチェックの中ですでにわかっている結果（同じことを2回きかない）
+    var known = {};
+    Object.keys(state.answers).forEach(function (qid) {
+      var q = QS[qid];
+      if (q && q.type !== "steps") known[q.skill] = state.answers[qid].status === "correct";
+    });
+    return {
+      states: d.skill_state, now: ST.now(), budgetLeft: state.probeBudget, known: known,
+      pickQuestion: function (skill) {
+        var r = C.pickProbe({ history: d.answer_history, sessions: d.sessions, now: ST.now() }, skill, state.queue);
+        return r ? r.question_id : null;
+      }
+    };
+  }
+
+  function waitingFor(ti) {
+    return Object.keys(state.probes).some(function (k) { return state.probes[k].trail === ti && !state.probes[k].done; });
+  }
+
+  // 道すじを1歩すすめる。確かめる問題があれば、今の位置（次に出す問題）に差し込む
+  function advanceTrail(ti) {
+    if (waitingFor(ti)) return; // まだ答えを待っている問題がある
+    var p = R.next(state.trails[ti], probeCtx());
+    if (!p) return;             // 結論まで進んだ
+    state.probes[p.question_id] = { trail: ti, probe: p, done: false };
+    state.queue.splice(state.idx, 0, p.question_id);
+    if (!p.seed) state.probeBudget--;
+    if (state.mode === "periodic") state.basicCount++;
+  }
+
+  // q をまちがえたので、skill から原因をさがしはじめる。seeds は、すでに問題の列に並んでいる原因確認問題
+  function startTrail(q, skill, seeds) {
+    if (state.trails.some(function (t) { return t.symptom.skill === skill; })) return; // 同じスキルは1本だけ
+    var trail = R.start({ question: q, skill: skill, seeds: seeds || [], now: ST.now() });
+    state.trails.push(trail);
+    var ti = state.trails.length - 1;
+    R.takeSeeds(trail).forEach(function (p) { state.probes[p.question_id] = { trail: ti, probe: p, done: false }; });
+    advanceTrail(ti);
+  }
+
+  // 原因さがしの問題に答えたら、道すじに結果を渡して次へ。原因さがしの問題でなければ false
+  function onProbeAnswered(qid, correct) {
+    var info = state.probes[qid];
+    if (!info || info.done) return false;
+    info.done = true;
+    R.answer(state.trails[info.trail], info.probe, correct);
+    advanceTrail(info.trail);
+    return true;
+  }
+
+  // チェックの終わりに、道すじをすべて結論まで進めて保存する
+  function saveTrails() {
+    state.trails.forEach(function (t) {
+      if (t.status === "open") R.conclude(t);
+      ST.addExploration(t, state.sessionId);
+    });
+  }
+
+  function trailsCard(trails) {
+    var shown = (trails || []).filter(function (t) { return t.conclusion; });
+    if (!shown.length) return "";
+    var told = {}; // 同じ「戻る場所」にたどりついた道すじは、説明を1回だけにする
+    return '<section class="card trail-card"><h2 class="h-sm"><span class="spark" aria-hidden="true">✦</span> つまずきの道すじ</h2>' +
+      '<p class="small muted">まちがえた問題から、前にある内容をさかのぼって確かめました。○ のところまでは戻らなくてよさそうです。</p>' +
+      shown.map(function (t) {
+        var c = t.conclusion;
+        return '<div class="trail"><ol class="trail-path">' + t.path.map(function (p) {
+          var note = p.via === "history" ? "記録から" : p.via === "session" ? "今回の答えから" : p.via === "symptom" ? "まちがえた問題" : "";
+          return '<li class="tp ' + (p.correct ? "ok" : "ng") + (p.via === "history" || p.via === "session" ? " hist" : "") + '">' +
+            '<span class="tp-mark" aria-hidden="true">' + (p.correct ? "○" : "×") + "</span>" +
+            '<span class="tp-label">' + esc(p.label) + (note ? "<small>" + note + "</small>" : "") + "</span></li>";
+        }).join("") + "</ol>" +
+        (c.return_to && told[c.return_to]
+          ? '<p class="small muted">この道すじも「' + esc(E.SKILLS[c.return_to].label) + "」にたどりつきました。</p></div>"
+          : (c.return_to ? '<p class="trail-return">戻って練習するところ：<strong>「' + esc(E.SKILLS[c.return_to].label) + "」</strong></p>" : "") +
+            '<p class="small">' + esc(c.message) + "</p></div>") + (c.return_to ? (told[c.return_to] = true, "") : "");
+      }).join("") + "</section>";
+  }
+
+  // 原因さがしで見つかった「戻る場所」が、今の方針より前提に近ければ、今日の学習をそこから始める。
+  // 最後のステップは、最初にまちがえた問題への再挑戦にする。
+  function applyTrailToPlan(d, plan, trails) {
+    var best = R.deepestReturn(trails);
+    if (!best) return plan;
+    var back = best.conclusion.return_to;
+    var cur = d.focusSkill ? d.focusSkill.key : null;
+    var order = R.ROOT_ORDER;
+    if (cur && order.indexOf(back) >= order.indexOf(cur)) return plan;
+    var key = C.planForSkill(back);
+    if (!key) return plan;
+    d.planKey = key;
+    d.focusSkill = { key: back, label: E.SKILLS[back].label, roots: [] };
+    var p2 = L.buildPlan(d, state.answers);
+    var sq = QS[best.symptom.question_id];
+    if (sq && sq.type !== "steps") p2.steps[2] = L.retryStep(sq.id, "つまずいた問題に再挑戦");
+    p2.why = best.conclusion.message;
+    p2.fromTrail = true;
+    return p2;
+  }
+
   // ---------- 定期コンパスチェック ----------
 
   function startPeriodic() {
@@ -889,6 +1065,7 @@
     state.queue = check.questions.slice();
     state.basicCount = state.queue.length;
     state.sessionId = ST.startSession("periodic", "一次関数");
+    state.probeBudget = R.CONFIG.BUDGET_PERIODIC;
     state.periodic = {
       skills: skills,
       chosen: check.chosen,
@@ -900,10 +1077,16 @@
   // チェックが終わったら、前後の変化と今日の学習の方針を compass_check_history に残す
   function finishPeriodic() {
     var p = state.periodic;
+    saveTrails();
     var states = ST.recompute();
     var after = C.snapshotSkills(states, p.skills);
     var result = C.compare(p.before, after, p.skills);
     var plan = C.planFromStates(states);
+    // 原因さがしで、今の方針より前提に近い「戻る場所」が見つかったら、そこから
+    var best = R.deepestReturn(state.trails);
+    if (best && (!plan.focus || R.ROOT_ORDER.indexOf(best.conclusion.return_to) < R.ROOT_ORDER.indexOf(plan.focus))) {
+      plan = { planKey: C.planForSkill(best.conclusion.return_to), focus: best.conclusion.return_to };
+    }
     ST.finishSession(state.sessionId, { plan_key: plan.planKey, focus_skill: plan.focus, suspected_root_causes: [] });
     var reasons = {};
     p.chosen.forEach(function (c) { reasons[c.question_id] = c.reason; });
@@ -919,7 +1102,9 @@
       after: after,
       comment: result.comment,
       plan_key: plan.planKey,
-      focus_skill: plan.focus
+      focus_skill: plan.focus,
+      exploration_ids: state.trails.map(function (t) { return t.id; }),
+      trail_best: best ? { return_to: best.conclusion.return_to, symptom_question: best.symptom.question_id, message: best.conclusion.message } : null
     });
   }
 
