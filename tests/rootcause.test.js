@@ -137,6 +137,21 @@ test("同じチェックの中ですでにわかっている結果は、問題�
   assert.equal(trail.conclusion.kind, "gap_found");
 });
 
+test("原因さがしで確認できたスキルの追加問題：原則は省略、例外（確かさが低い・誤答が多い・判断が不安定）は出題", () => {
+  const st = (confidence, attempt_count, correct_count) => ({ confidence, attempt_count, correct_count });
+  assert.equal(R.skipDecision("signed", st(0.34, 1, 1)).skip, true, "記録上も不安定な点がなければ省略");
+  assert.match(R.skipDecision("signed", st(0.34, 1, 1)).reason, /省略/);
+  assert.equal(R.skipDecision("signed", st(0.22, 3, 1)).skip, false, "確かさが低い");
+  assert.equal(R.skipDecision("signed", st(0.35, 5, 2)).skip, false, "過去に誤答が多い（1/4）");
+  assert.equal(R.skipDecision("signed", st(0.4, 2, 2), { hintUsed: true }).skip, false, "ヒントあり");
+  assert.equal(R.skipDecision("signed", st(0.4, 2, 2), { wrongInSession: true }).skip, false, "今回ほかでまちがえた");
+  ["確かさ", "誤答が多い", "ヒント", "ほかの問題で"].forEach((w, i) => {
+    const r = [R.skipDecision("signed", st(0.22, 3, 1)), R.skipDecision("signed", st(0.35, 5, 2)),
+      R.skipDecision("signed", st(0.4, 2, 2), { hintUsed: true }), R.skipDecision("signed", st(0.4, 2, 2), { wrongInSession: true })][i];
+    assert.match(r.reason, new RegExp(w), "理由が debug でわかる");
+  });
+});
+
 test("いくつかの道すじから、いちばん根元の戻る場所を選ぶ", () => {
   const a = run(Q.B4, { change: false, signed: true }).trail;   // 戻る場所：変化量
   const b = run(Q.B5, { slopeIntercept: true, rate: true, substitution: true, coord: true }).trail; // グラフ・式

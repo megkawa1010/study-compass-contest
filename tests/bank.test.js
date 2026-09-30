@@ -185,6 +185,18 @@ test("同じスキル・レベルからランダムに選べる（未出題を�
   assert.equal(B.pick("rate", "basic", { exclude: B.index.rate.basic }), null);
 });
 
+test("用途タグ（usage）：全問が持ち、用途で絞って選べる", () => {
+  const USAGES = ["diagnosis", "practice", "retention", "multi_use"];
+  Object.values(Q).forEach((q) => assert.ok(USAGES.includes(q.usage), q.id + " usage=" + q.usage));
+  assert.equal(Q.B4.usage, "diagnosis");
+  assert.equal(Q["rate-retention-1"].usage, "retention");
+  for (let seed = 1; seed < 20; seed++) {
+    const q = B.pick("rate", "basic", { usage: ["practice", "multi_use"], rng: B.seeded(seed) });
+    assert.notEqual(q.id, "B4", "練習用に絞れば、診断用の B4 は出ない");
+  }
+  assert.equal(B.pick("rate", "basic", { usage: ["practice"] }), null, "該当がなければ null（呼ぶ側で段階的にゆるめる）");
+});
+
 test("図が描ける（NaN や undefined を含まない）", () => {
   for (const q of bank.filter((q) => q.figure)) {
     const html = SC.figures.render(q.figure);

@@ -252,6 +252,31 @@
     }).join(" → ");
   }
 
+  // ---------- 同じチェック内の追加出題を省略してよいか ----------
+  // 原因さがしの途中で「この前提はできている」とわかったスキルに、予定していた問題がまだ残っているとき、
+  // 子どもの負担を減らすため原則として省略する。ただし次の場合は確かめる（例外）：
+  //   - 確かさが低い（記録上まだ不安定）
+  //   - 過去にこのスキルで誤答が多い
+  //   - 今回の1問だけでは判断が不安定（ヒントを使った／今回ほかの問題でこのスキルをまちがえている）
+  var SKIP = { MIN_CONFIDENCE: 0.3, MANY_ERRORS_MIN_ATTEMPTS: 3, MANY_ERRORS_MAX_ACCURACY: 0.5 };
+  function skipDecision(skill, state, info) {
+    info = info || {};
+    var lab = label(skill);
+    if (info.hintUsed) return { skip: false, reason: "「" + lab + "」はヒントを使って正解したので、今回の1問だけでは判断が不安定 → 予定どおり確かめる" };
+    if (info.wrongInSession) return { skip: false, reason: "「" + lab + "」は今回ほかの問題でまちがえているので、判断が不安定 → 予定どおり確かめる" };
+    if (state && state.attempt_count) {
+      if (state.confidence < SKIP.MIN_CONFIDENCE) {
+        return { skip: false, reason: "「" + lab + "」は確かさが " + state.confidence.toFixed(2) + " と低いので → 予定どおり確かめる" };
+      }
+      var prior = state.attempt_count - 1; // 今回の正解を除いた過去の回答
+      var priorCorrect = state.correct_count - 1;
+      if (prior >= SKIP.MANY_ERRORS_MIN_ATTEMPTS && priorCorrect / prior < SKIP.MANY_ERRORS_MAX_ACCURACY) {
+        return { skip: false, reason: "「" + lab + "」は過去に誤答が多い（" + priorCorrect + "/" + prior + " 正解）ので → 予定どおり確かめる" };
+      }
+    }
+    return { skip: true, reason: "「" + lab + "」は原因さがしの問題で正解し、記録上も不安定な点がないので、同じチェック内の追加問題を省略" };
+  }
+
   // いくつかの道すじの中で、いちばん根元（前提に近い）の「戻る場所」
   var ROOT_ORDER = ["signed", "algebra", "coord", "proportion", "change", "substitution", "rate", "slopeIntercept", "form"];
   function deepestReturn(trails) {
@@ -265,7 +290,8 @@
   }
 
   SC.rootcause = {
-    CONFIG: CONFIG, start: start, next: next, answer: answer, conclude: conclude, takeSeeds: takeSeeds,
+    CONFIG: CONFIG, SKIP: SKIP, skipDecision: skipDecision,
+    start: start, next: next, answer: answer, conclude: conclude, takeSeeds: takeSeeds,
     solidByHistory: solidByHistory, pathText: pathText, deepestReturn: deepestReturn, ROOT_ORDER: ROOT_ORDER
   };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -53,6 +53,7 @@
       mode: "initial",   // "initial"（はじめてのチェック）| "periodic"（定期コンパスチェック）
       periodic: null,    // 定期チェックで選んだスキルと理由
       trails: [],        // つまずきの原因さがしの道すじ（js/rootcause.js）
+      skipped: [],       // 原因さがしで確認済みになり、省略した（または例外で残した）予定問題
       probes: {},        // 問題ID → { trail: 道すじの番号, probe, done }
       probeBudget: 0     // 原因さがしで、あと何問追加してよいか
     };
@@ -723,6 +724,11 @@
           var b = h.before[k], a = h.after[k];
           return "<tr><td>" + esc(E.SKILLS[k].label) + "</td><td>" + esc(E.STATUS_VIEW[b.learning_status].label) + "</td><td>" + esc(E.STATUS_VIEW[a.learning_status].label) + "</td><td>" + b.confidence.toFixed(2) + " → " + a.confidence.toFixed(2) + "</td></tr>";
         }).join("") + "</tbody></table></div>" +
+        (h.skipped && h.skipped.length
+          ? '<p class="small"><strong>追加問題の省略：</strong></p><ul class="small muted debug-log">' + h.skipped.map(function (s) {
+              return "<li>" + esc(s.question_id) + "：" + (s.skipped ? "省略" : "出題") + "（" + esc(s.reason) + "）</li>";
+            }).join("") + "</ul>"
+          : "") +
         '<p class="small muted">今日の学習：' + esc(h.plan_key) + (h.focus_skill ? "（中心：" + esc(E.SKILLS[h.focus_skill].label) + "）" : "") + "</p></div>";
     }).join("");
     return '<section class="card"><p class="eyebrow">DEBUG / COMPASS</p><h1 class="h-md">定期コンパスチェックの確認</h1>' +
@@ -1000,8 +1006,30 @@
     if (!info || info.done) return false;
     info.done = true;
     R.answer(state.trails[info.trail], info.probe, correct);
+    if (correct && !info.probe.seed) skipConfirmedLater(info.probe.skill);
     advanceTrail(info.trail);
     return true;
+  }
+
+  // 原因さがしで「できている」とわかったスキルに、このあと予定している問題が残っていれば、原則として省略する
+  function skipConfirmedLater(skill) {
+    state.skipped = state.skipped || [];
+    var hint = !!(state.answers[state.queue[state.idx - 1]] || {}).hintUsed;
+    var wrongInSession = Object.keys(state.answers).some(function (id) {
+      var q = QS[id];
+      return q && q.skill === skill && state.answers[id].status !== "correct";
+    });
+    for (var i = state.idx; i < state.queue.length; i++) {
+      var id = state.queue[i];
+      if (state.probes[id] || !QS[id] || QS[id].skill !== skill) continue; // 原因さがしの問題はそのまま
+      var dec = R.skipDecision(skill, ST.get().skill_state[skill], { hintUsed: hint, wrongInSession: wrongInSession });
+      state.skipped.push({ question_id: id, skill: skill, skipped: dec.skip, reason: dec.reason });
+      if (dec.skip) {
+        state.queue.splice(i, 1);
+        if (state.mode === "periodic") state.basicCount--;
+        i--;
+      }
+    }
   }
 
   // チェックの終わりに、道すじをすべて結論まで進めて保存する
@@ -1104,6 +1132,7 @@
       plan_key: plan.planKey,
       focus_skill: plan.focus,
       exploration_ids: state.trails.map(function (t) { return t.id; }),
+      skipped: state.skipped || [],
       trail_best: best ? { return_to: best.conclusion.return_to, symptom_question: best.symptom.question_id, message: best.conclusion.message } : null
     });
   }

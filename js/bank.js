@@ -21,6 +21,14 @@
  *   3. node --test tests/*.test.js を実行する（正解判定・図と答えの整合・定着問題の重複を自動で確認）。
  *   索引・ランダム選択・?debug=bank の一覧・不足数の表示は、自動で新しい問題を含む。
  *   目安の問題数は下の TARGETS。?debug=bank に「あと何問」が出る。
+ *
+ * 用途タグ（usage）… 同じ問題が「診断」と「練習」の両方で何度も出すぎないようにするための目印
+ *   diagnosis … 診断用（最初のコンパスチェックの B1〜S2 など）。練習には原則まわさない
+ *   practice  … 練習用（今日の学習で優先して使う）
+ *   retention … 定着の確認用（数日後に別の形で確かめる）
+ *   multi_use … どれに使ってもよい（いまの追加問題の既定値）
+ *   ※ 項目名を "purpose" にしないのは、原因確認問題の説明文（画面に出す purpose）と名前がぶつかるため。
+ *   分類し直すときは、add({ ..., usage: "practice" }) のように書くだけでよい。
  */
 (function (root) {
   var SC = (root.SC = root.SC || {});
@@ -541,6 +549,8 @@
     q.on_incorrect = q.on_incorrect || [];
     q.on_correct = q.on_correct || [];
     q.explain = q.explanation; // 学習画面の「考え方」表示で使う名前
+    // 用途タグ（usage）。いまは既定値で、あとから問題ごとに書きかえられる
+    q.usage = q.usage || (q.level === "retention" ? "retention" : "multi_use");
     (q.steps || []).forEach(function (st) { st.explain = st.explanation; st.level = q.level; st.unit = q.unit; });
     if (q.type === "steps") {
       q.answer = {};
@@ -551,6 +561,7 @@
   Object.keys(FORMAT_OF_CORE).forEach(function (id) {
     var q = SC.QUESTIONS[id];
     q.origin = "core";
+    q.usage = q.usage || "diagnosis"; // 最初のコンパスチェックで全員が見る問題。練習にはなるべく回さない
     q.format = q.format || FORMAT_OF_CORE[id];
     q.hint = q.hint || "";
   });
@@ -581,12 +592,14 @@
   // opts.history: answer_history（最近解いた問題を避ける）
   // opts.exclude: 今回すでに出した問題ID
   // opts.rng: 0〜1 を返す関数（省略時 Math.random）
+  // opts.usage: 用途タグで絞る（例：["practice", "multi_use"]）。省略時は絞らない
   // 選び方：まだ解いていない問題を最優先 → なければ、最後に解いてから一番時間がたっている問題。
   //         同じ優先度の中からはランダム。
   function pick(skill, level, opts) {
     opts = opts || {};
     var rng = opts.rng || Math.random;
     var pool = (index[skill] && index[skill][level] || []).filter(function (id) {
+      if (opts.usage && opts.usage.indexOf(SC.QUESTIONS[id].usage) === -1) return false;
       return !(opts.exclude && opts.exclude.indexOf(id) !== -1);
     });
     if (!pool.length) return null;
