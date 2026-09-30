@@ -181,6 +181,21 @@ test("応用問題の中で同じスキルの小問に×と○が混ざったら
   assert.equal(h.length, 3, "記録そのものは小問ごとに残す");
 });
 
+test("上のレベルが新しくできていれば、古い×の残る下のレベルもできたとみなす", () => {
+  const h = [];
+  let a = log(h, T0, "s1");
+  a("B4", "incorrect"); // 基礎 ×
+  a = log(h, T0 + 24 * HOUR, "s2");
+  a("S1", "correct");   // あとで標準 ○
+  const s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.standard, "pass");
+  assert.equal(s.basic, "pass", "標準ができたので基礎も");
+  // 逆に、基礎の×が標準の○より新しければ、基礎は要確認のまま
+  a = log(h, T0 + 48 * HOUR, "s3");
+  a("B4", "incorrect");
+  assert.equal(E.computeSkillStates(h, {}).rate.basic, "needs_review");
+});
+
 test("同じ履歴からは必ず同じ結果（順番が入れ替わっていても）", () => {
   const h = [];
   const a = log(h, T0, "s1");

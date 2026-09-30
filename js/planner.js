@@ -82,8 +82,11 @@
         return alv === lv;
       });
       if (recent.length < CONFIG.PRACTICED_MIN_ATTEMPTS) return false;
-      var ok = recent.filter(function (a) { return a.correct && !a.hint_used; }).length;
-      return ok / recent.length >= CONFIG.PRACTICED_RATIO;
+      // 直近3回で判断する（前の日の×がいつまでも足を引っぱらないように）
+      recent.sort(function (x, y) { return t(x) - t(y); });
+      var last = recent.slice(-3);
+      var ok = last.filter(function (a) { return a.correct && !a.hint_used; }).length;
+      return ok / last.length >= CONFIG.PRACTICED_RATIO;
     }
     function done(k, lv) { return st(k)[lv] === "pass" || practiced(k, lv); }
     function nextLevel(k, levels) {

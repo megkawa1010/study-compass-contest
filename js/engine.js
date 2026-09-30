@@ -100,6 +100,21 @@
     return sum / weight >= 0.5 ? "pass" : "needs_review";
   }
 
+  // 上のレベルが「できた」で、その証拠が下のレベルの最後の回答より新しければ、下のレベルも「できた」とみなす。
+  // （標準問題が自力で解けるなら、基礎もわかっている。古い基礎の×だけで「要確認」のまま残さない）
+  function impliedLevels(levels, byLevel) {
+    var order = ["basic", "standard", "application"];
+    function lastT(list) { return list.length ? Date.parse(list[list.length - 1].answered_at) : -Infinity; }
+    for (var i = order.length - 1; i > 0; i--) {
+      var hi = order[i];
+      if (levels[hi] !== "pass") continue;
+      for (var j = i - 1; j >= 0; j--) {
+        var lo = order[j];
+        if (levels[lo] === "needs_review" && lastT(byLevel[hi]) > lastT(byLevel[lo])) levels[lo] = "pass";
+      }
+    }
+  }
+
   // 上限 = どのレベルまでできたか ＋ 数日後もできたか（定着のぶん上乗せ）
   // 例：基礎 0.5 → 基礎＋定着 0.62、応用 0.8 → 応用＋定着 0.92（2回確認で 0.95）
   function ceilingFor(levels, retentionPasses) {
@@ -147,6 +162,7 @@
           if (a.correct && !a.hint_used) retentionPasses++;
         }
         LEVELS.forEach(function (lv) { levels[lv] = levelStatus(byLevel[lv]); });
+        impliedLevels(levels, byLevel);
         if (firstPassAt === null && (levels.basic === "pass" || levels.standard === "pass" || levels.application === "pass")) {
           firstPassAt = t;
         }

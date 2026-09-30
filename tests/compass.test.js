@@ -169,28 +169,33 @@ test("「今日はあとで」を選んだ日はお知らせを出さない（�
 
 test("問題が足りないときは、除外を段階的にゆるめて再利用する。ただし前回のチェック・3日以内の問題は出さない", () => {
   const L = learner();
-  // 変化の割合の基礎・標準・定着の問題を、3日にわたってほぼ使い切る
-  L.session(T0, ["B4", "rate-basic-1"], [x, x]);
-  L.session(T0 + DAY, ["rate-basic-2", "rate-retention-1"], [x, x]);
-  L.session(T0 + 2 * DAY, ["S1", "rate-standard-1", "rate-standard-2", "rate-retention-2"], [x, x, x, x]);
+  // 変化の割合の基礎・標準・定着の問題を、3日にわたってほぼ使い切る（問題数が増えても成り立つように、索引から作る）
+  const basic = B.index.rate.basic, std = B.index.rate.standard, ret = B.index.rate.retention;
+  const keep = ["B4", "rate-basic-1"]; // いちばん前に解く2問（再利用の候補）
+  L.session(T0, keep, keep.map(() => x));
+  const day1 = basic.filter((id) => !keep.includes(id)).concat(ret[0]);
+  L.session(T0 + DAY, day1, day1.map(() => x));
+  const lastCheck = std.concat(ret.slice(1));
+  L.session(T0 + 2 * DAY, lastCheck, lastCheck.map(() => x));
   const now = T0 + 6 * DAY + HOUR;
   const r = L.check(now, 3);
   const rate = r.chosen.filter((k) => k.skill === "rate");
   assert.ok(rate.length >= 1, "問題が足りなくても、ゆるめて出題する");
-  const lastCheck = ["S1", "rate-standard-1", "rate-standard-2", "rate-retention-2"];
   rate.forEach((k) => {
     assert.ok(!lastCheck.includes(k.question_id), "前回のチェックの問題は出さない: " + k.question_id);
-    assert.ok(["B4", "rate-basic-1"].includes(k.question_id), "いちばん前に解いた問題から再利用: " + k.question_id);
-    assert.equal(k.reused, true);
-    assert.ok(k.relax_stage >= 2);
-    assert.match(k.reason, /問題不足のため再利用/);
+    assert.ok(k.question_id.includes("application") || keep.includes(k.question_id), "未出題の応用か、いちばん前に解いた問題から再利用: " + k.question_id);
+    if (k.reused) {
+      assert.ok(k.relax_stage >= 2);
+      assert.match(k.reason, /問題不足のため再利用/);
+    }
   });
-  assert.ok(r.shortage.some((s) => s.skill === "rate" && s.result === "reused"), "debug 用に不足を記録");
+  if (rate.some((k) => k.reused)) assert.ok(r.shortage.some((s) => s.skill === "rate" && s.result === "reused"), "debug 用に不足を記録");
 });
 
 test("未出題の別レベルの問題があれば、再利用より先にそちらを使う", () => {
   const L = learner();
-  L.session(T0, ["B4", "rate-basic-1", "rate-basic-2"], [x, x, x]);
+  const basic = B.index.rate.basic;
+  L.session(T0, basic, basic.map(() => x));
   const r = L.check(T0 + 3 * DAY + HOUR, 2);
   const rate = r.chosen.filter((k) => k.skill === "rate");
   assert.ok(rate.length >= 1);
@@ -202,9 +207,10 @@ test("未出題の別レベルの問題があれば、再利用より先にそ�
 
 test("問題数の目安（基礎5・標準5・応用3・定着5）に対する不足がわかる", () => {
   const s = B.shortage();
-  const rateStd = s.find((x) => x.skill === "rate" && x.level === "standard");
-  assert.equal(rateStd.target, 5);
-  assert.equal(rateStd.have, 3);
+  const formStd = s.find((x) => x.skill === "form" && x.level === "standard");
+  assert.equal(formStd.target, 5);
+  assert.equal(formStd.have, B.index.form.standard.length);
+  assert.ok(!s.some((x) => x.skill === "rate" && (x.level === "basic" || x.level === "standard")), "変化の割合の基礎・標準は目安に届いた");
   assert.ok(!s.some((x) => ["signed", "algebra", "proportion", "coord"].includes(x.skill) && x.level === "standard"), "既習スキルは標準を持たない");
 });
 

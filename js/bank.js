@@ -51,6 +51,21 @@
     type: "number", answer: 9,
     hint: "あとの気温 − はじめの気温",
     explanation: "21 − 12 = 9。気温は 9℃ 増えました。" });
+  add({ id: "change-basic-3", skill: "change", level: "basic", format: "expression",
+    text: "x の値が 2 から 7 になりました。x の増加量はいくつ？",
+    type: "number", answer: 5,
+    hint: "増加量 ＝ あとの値 − はじめの値",
+    explanation: "7 − 2 = 5 です。" });
+  add({ id: "change-basic-4", skill: "change", level: "basic", format: "expression",
+    text: "y の値が −3 から 4 になりました。y の増加量はいくつ？",
+    type: "number", answer: 7, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
+    hint: "4 − (−3)。マイナスをひくと、たし算になる。",
+    explanation: "4 − (−3) = 4 + 3 = 7 です。" });
+  add({ id: "change-basic-5", skill: "change", level: "basic", format: "expression",
+    text: "x の値が 5 から 2 になりました。x の増加量はいくつ？（減ったときはマイナスで答えよう）",
+    type: "number", answer: -3, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
+    hint: "あとの値 − はじめの値 ＝ 2 − 5",
+    explanation: "2 − 5 = −3。3 減ったので、増加量は −3 です。" });
 
   add({ id: "change-standard-1", skill: "change", level: "standard", format: "expression",
     text: "y の値が 8 から 2 に変わりました。y の増加量はいくつ？（減ったときはマイナスで答えよう）",
@@ -71,6 +86,17 @@
     type: "number", answer: -9, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
     hint: "x = −2 のときと x = 4 のときの y を読もう。となりどうしではないので注意。",
     explanation: "x = −2 のとき y = 10、x = 4 のとき y = 1。1 − 10 = −9 です。" });
+  add({ id: "change-standard-4", skill: "change", level: "standard", format: "word",
+    text: "水そうの水の量を調べました。午前9時に 35L、午前9時20分に 50L、午前9時45分には 20L でした。9時20分から9時45分までの、水の量の増加量は何L？",
+    type: "number", answer: -30, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
+    hint: "使うのは「9時20分」と「9時45分」の2つだけ。はじめの値とあとの値はどれ？",
+    explanation: "9時20分（はじめ）は 50L、9時45分（あと）は 20L。20 − 50 = −30L です。" });
+  add({ id: "change-standard-5", skill: "change", level: "standard", format: "expression",
+    text: "2点 A(−4, 9)、B(2, −3) があります。A から B まで進むとき、x の増加量と y の増加量を答えなさい。",
+    type: "pair", fields: [{ key: "x_change", label: "x の増加量" }, { key: "y_change", label: "y の増加量" }],
+    answer: { x_change: 6, y_change: -12 }, prerequisite_skills: ["signed", "coord"], skills_used: ["change", "signed", "coord"],
+    hint: "x どうし、y どうしで「B の値 − A の値」。",
+    explanation: "x の増加量は 2 − (−4) = 6、y の増加量は −3 − 9 = −12 です。" });
 
   add({ id: "change-application-1", skill: "change", level: "application", format: "word",
     text: "水そうに一定の割合で水を入れています。入れ始めてから 3 分後の水の量は 14L、7 分後は 30L でした。",
@@ -201,6 +227,21 @@
     type: "number", answer: 3,
     hint: "x が 1 増えると、y はいくつ増えている？",
     explanation: "x が 1 増えるごとに y は 3 増えるので、変化の割合は 3 です。" });
+  add({ id: "rate-basic-3", skill: "rate", level: "basic", format: "expression",
+    text: "x が 4 増えたとき、y は 8 減りました（y の増加量は −8）。変化の割合はいくつ？",
+    type: "number", answer: -2, prerequisite_skills: ["change", "signed"], skills_used: ["rate", "signed"],
+    hint: "y の増加量 ÷ x の増加量 ＝ (−8) ÷ 4",
+    explanation: "(−8) ÷ 4 = −2 です。y が減るときは、変化の割合がマイナスになります。" });
+  add({ id: "rate-basic-4", skill: "rate", level: "basic", format: "expression",
+    text: "x の増加量が −2、y の増加量が 6 でした。変化の割合はいくつ？",
+    type: "number", answer: -3, prerequisite_skills: ["change", "signed"], skills_used: ["rate", "signed"],
+    hint: "6 ÷ (−2)。わる数がマイナスでも、式は同じ。",
+    explanation: "6 ÷ (−2) = −3 です。" });
+  add({ id: "rate-basic-5", skill: "rate", level: "basic", format: "word",
+    text: "水そうに水を入れると、5 分間で水の量が 15L 増えました。1 分あたりに増えた水の量（変化の割合）は何L？",
+    type: "number", answer: 3,
+    hint: "時間が x、水の量が y。15 ÷ 5",
+    explanation: "15 ÷ 5 = 3。1 分あたり 3L 増えています。" });
 
   add({ id: "rate-standard-1", skill: "rate", level: "standard", format: "expression",
     text: "一次関数のグラフが、2 点 (−1, 4)、(3, −4) を通ります。変化の割合はいくつ？",
@@ -214,6 +255,17 @@
     type: "number", answer: 1.5, answer_display: "3/2（1.5）", prerequisite_skills: ["change", "coord"], skills_used: ["rate", "change", "coord"],
     hint: "グラフ上の2つの点（●）の座標を読んで、x と y がそれぞれいくつ増えたか数えよう。",
     explanation: "(0, −1) から (2, 2) まで、x は 2、y は 3 増えています。3 ÷ 2 = 3/2（1.5）です。" });
+  add({ id: "rate-standard-3", skill: "rate", level: "standard", format: "table",
+    text: "下の表の一次関数で、x が −1 から 5 まで増えたときの変化の割合を求めなさい。",
+    figure: { type: "table", rows: [{ label: "x", values: [-1, 1, 3, 5] }, { label: "y", values: [10, 4, -2, -8] }] },
+    type: "number", answer: -3, prerequisite_skills: ["change", "signed"], skills_used: ["rate", "change", "signed"],
+    hint: "まず x の増加量と y の増加量を、表から自分で計算しよう。",
+    explanation: "x の増加量 5 − (−1) = 6、y の増加量 −8 − 10 = −18。−18 ÷ 6 = −3 です。" });
+  add({ id: "rate-standard-4", skill: "rate", level: "standard", format: "word",
+    text: "自転車で走った記録です。出発して 4 分後には家から 1000m、10 分後には家から 2800m の地点にいました。4 分後から 10 分後までの変化の割合（1 分あたりに進んだ道のり）を求めなさい。",
+    type: "number", answer: 300, prerequisite_skills: ["change"], skills_used: ["rate", "change"],
+    hint: "時間の増加量と道のりの増加量を、それぞれ文章から取り出そう。",
+    explanation: "時間の増加量は 10 − 4 = 6 分、道のりの増加量は 2800 − 1000 = 1800m。1800 ÷ 6 = 300 です。" });
 
   add({ id: "rate-application-1", skill: "rate", level: "application", format: "graph",
     text: "ひなさんは家から図書館まで一定の速さで歩きました。グラフは、出発してからの時間 x 分と、家からの道のり y m の関係です。",

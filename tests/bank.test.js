@@ -28,9 +28,9 @@ function asWrong(q) {
   if (q.type === "steps") { const v = asInput(q); v[q.steps[0].id] = typeof v[q.steps[0].id] === "string" && q.steps[0].type !== "choice" ? "999" : "zz"; return v; }
 }
 
-test("追加は58問・ID は重複せず、既存の B1〜S2 はそのまま", () => {
-  assert.equal(B.ids.length, 58);
-  assert.equal(new Set(B.ids).size, 58);
+test("追加問題の ID は重複せず、既存の B1〜S2 はそのまま", () => {
+  assert.ok(B.ids.length >= 68, "追加は68問以上: " + B.ids.length);
+  assert.equal(new Set(B.ids).size, B.ids.length);
   for (const id of ["B1", "B2", "B3", "B4", "B5", "C1", "C2", "C3", "C4", "C5", "S1", "S2"]) {
     assert.ok(Q[id] && Q[id].origin === "core", id);
     assert.ok(!B.ids.includes(id));
@@ -39,11 +39,14 @@ test("追加は58問・ID は重複せず、既存の B1〜S2 はそのまま", 
   assert.deepEqual(Q.B5.answer, { a: 2, b: -1 });
 });
 
-test("スキル×レベルの問題数（一次関数は各10問・既習は各5問）", () => {
+test("スキル×レベルの問題数（一次関数は各10問以上・変化量と変化の割合は基礎・標準とも5問以上・既習は各5問）", () => {
   const c = B.count();
+  for (const s of ["change", "rate"]) {
+    assert.ok(c[s].basic >= 5 && c[s].standard >= 5, s + JSON.stringify(c[s]));
+  }
   for (const s of UNIT_SKILLS) {
     const total = Object.values(c[s]).reduce((a, b) => a + b, 0);
-    assert.equal(total, 10, s);
+    assert.ok(total >= 10, s + " " + total);
     assert.ok(c[s].basic >= 3 && c[s].standard >= 3 && c[s].application >= 2 && c[s].retention >= 2, s + JSON.stringify(c[s]));
   }
   for (const s of BASE_SKILLS) {
@@ -171,7 +174,7 @@ test("同じスキル・レベルからランダムに選べる（未出題を�
   const b = B.pickMany("rate", "basic", 3, { rng: rng2 }).map((q) => q.id);
   assert.deepEqual(a, b, "同じ種なら同じ順番");
   assert.equal(new Set(a).size, 3, "1回のチェックで同じ問題を出さない");
-  assert.deepEqual([...a].sort(), [...B.index.rate.basic].sort());
+  a.forEach((id) => assert.ok(B.index.rate.basic.includes(id)));
 
   // B4 を解いた履歴があれば、B4 以外を先に出す
   const t = Date.parse("2026-10-01T00:00:00Z");
