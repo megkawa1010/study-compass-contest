@@ -46,6 +46,7 @@
       sessions: [],
       compass_check_history: [],
       explorations: [],
+      plans: [],
       skill_state: {},
       debug: { time_offset_days: 0 }
     };
@@ -98,6 +99,7 @@
     d.profile.school_progress = d.profile.school_progress || {};
     d.compass_check_history = d.compass_check_history || [];
     d.explorations = d.explorations || [];
+    d.plans = d.plans || [];
     data = d;
     return data;
   }
@@ -231,6 +233,42 @@
   function explorations() { return get().explorations; }
   function explorationsFor(sessionId) { return get().explorations.filter(function (x) { return x.session_id === sessionId; }); }
 
+  // ---------- 今日の学習（Phase 5） ----------
+  // 設定：今日の時間の初期値と学習目標（毎回聞かず、初期値を保存しておく）
+  function settings() {
+    var s = get().profile.study_settings || {};
+    return { minutes: s.minutes || 30, goal: s.goal || "daily_learning" };
+  }
+  function setSettings(patch) {
+    var s = settings();
+    for (var k in patch) s[k] = patch[k];
+    get().profile.study_settings = s;
+    persist();
+    return s;
+  }
+  // 学校の進み具合（Phase 5 の形）。状況は初期設定の「習った／途中／まだ」から
+  function schoolProgressInfo(unit) {
+    unit = unit || "一次関数";
+    return { grade: "中2", subject: "数学", current_unit: unit, school_status: schoolProgress(unit) };
+  }
+  // 作ったプランと、その結果（問題ごとの正誤・ふり返り）
+  function addPlan(plan) {
+    var rec = JSON.parse(JSON.stringify(plan));
+    delete rec.debug;
+    get().plans.push(rec);
+    if (get().plans.length > 60) get().plans = get().plans.slice(-60);
+    persist();
+    return rec;
+  }
+  function updatePlan(id, patch) {
+    var list = get().plans;
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (list[i].id === id) { for (var k in patch) list[i][k] = patch[k]; persist(); return list[i]; }
+    }
+    return null;
+  }
+  function plans() { return get().plans; }
+
   // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
   function setSnooze(dateKey) { get().profile.compass_snooze_date = dateKey; persist(); }
   function snoozeDate() { return get().profile.compass_snooze_date || null; }
@@ -244,6 +282,8 @@
     addCompassCheck: addCompassCheck, compassHistory: compassHistory, compassCheck: compassCheck,
     setSnooze: setSnooze, snoozeDate: snoozeDate,
     addExploration: addExploration, explorations: explorations, explorationsFor: explorationsFor,
+    settings: settings, setSettings: setSettings, schoolProgressInfo: schoolProgressInfo,
+    addPlan: addPlan, updatePlan: updatePlan, plans: plans,
     _backend: backend
   };
 })(typeof window !== "undefined" ? window : globalThis);

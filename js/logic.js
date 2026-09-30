@@ -554,6 +554,25 @@
     challenge: [["form", "application"], ["form", "application"], ["form", "application"]]
   };
 
+  // 今日の学習（自動生成）で、パートのはじめに出す「ミニ解説」。固定プランの説明文をそのまま使う
+  var INTRO_OF = {
+    basic: { signed: ["signed", 0], coord: ["coord", 0], proportion: ["proportion", 0], algebra: ["substitution", 0],
+      change: ["change", 0], substitution: ["substitution", 1], rate: ["change", 1], slopeIntercept: ["slope", 0], form: ["connect", 1] },
+    standard: { rate: ["standard", 0], form: ["standard", 1], slopeIntercept: ["slope", 1], change: ["change", 0] },
+    application: { form: ["challenge", 0] }
+  };
+  function lessonIntro(skill, level) {
+    var ref = (INTRO_OF[level] || {})[skill];
+    if (!ref) return null;
+    var st = PLANS[ref[0]].steps[ref[1]];
+    return st ? { title: st.title, body: st.body.slice(), example: st.example || null } : null;
+  }
+  function planCross(skill) {
+    var key = { signed: "signed", coord: "coord", proportion: "proportion", algebra: "substitution", change: "change",
+      substitution: "substitution", rate: "rate", slopeIntercept: "slope", form: "connect" }[skill];
+    return key ? PLANS[key].cross : null;
+  }
+
   function buildPlan(diagnosis, answers) {
     var key = diagnosis.planKey;
     var base = PLANS[key];
@@ -593,7 +612,7 @@
 
   SC.logic = {
     normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear,
-    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry,
+    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry, lessonIntro: lessonIntro, planCross: planCross,
     diagnose: diagnose, buildPlan: buildPlan, ROUTE: ROUTE
   };
 })(typeof window !== "undefined" ? window : globalThis);

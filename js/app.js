@@ -26,6 +26,7 @@
   ST.load();
   ST.recompute(); // 日付によって変わる「次にやること」を、開いた時点の日付で計算し直す
   var COMPASS_VIEW = /(?:^|[?&])debug=compass(?:&|$)/.test(window.location.search.slice(1));
+  var PLAN_VIEW = /(?:^|[?&])debug=plan(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -55,11 +56,12 @@
       trails: [],        // つまずきの原因さがしの道すじ（js/rootcause.js）
       skipped: [],       // 原因さがしで確認済みになり、省略した（または例外で残した）予定問題
       probes: {},        // 問題ID → { trail: 道すじの番号, probe, done }
-      probeBudget: 0     // 原因さがしで、あと何問追加してよいか
+      probeBudget: 0,    // 原因さがしで、あと何問追加してよいか
+      daily: null        // 今日の学習（自動生成）の進み具合 { plan, si, qi, results }
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
@@ -69,6 +71,7 @@
     s.trails = s.trails || [];
     s.probes = s.probes || {};
     s.probeBudget = s.probeBudget || 0;
+    if (s.screen === "daily" && !(s.daily && s.daily.plan && s.daily.plan.sessions)) s.screen = "home";
     if (s.screen === "check" && s.idx >= s.queue.length) s.screen = s.mode === "periodic" ? "checkResult" : "result";
     s.lesson = s.lesson || { step: 0, results: {} };
     return s;
@@ -98,6 +101,20 @@
 
   function diagnosisAndPlan() {
     if (state.mode === "periodic") return periodicPlan();
+    if (state.mode === "fallback") {
+      // 自動生成に失敗したときの固定プラン
+      var fk = state.fallbackFocus;
+      var fd = { planKey: state.fallbackKey, skills: [], focusSkill: fk ? { key: fk, label: E.SKILLS[fk].label } : null };
+      return { d: fd, plan: L.buildPlan(fd, {}) };
+    }
+    if (state.mode === "daily") {
+      // ふり返り画面用：今日の学習の問題を「ステップ」として数える
+      var p = state.daily.plan;
+      var all = [];
+      p.sessions.forEach(function (s) { s.questions.forEach(function (id) { all.push(id); }); });
+      return { d: { focusSkill: p.focus_skill ? { key: p.focus_skill, label: p.focus_label } : null },
+        plan: { cross: p.cross, beyond: "次の一歩", steps: all, why: p.why } };
+    }
     var d = L.diagnose(state.answers);
     var plan = applyTrailToPlan(d, L.buildPlan(d, state.answers), state.trails);
     if (plan.fromTrail) {
@@ -202,8 +219,10 @@
   function viewHome() {
     var sessions = ST.finishedSessions();
     var last = sessions[sessions.length - 1];
-    return compassNotice() +
-      '<section class="hero">' +
+    // 記録があれば、ホームの中心は「今日の学習」。はじめての人には、まずコンパスチェック
+    var hasRecords = ST.get().answer_history.length > 0;
+    return (hasRecords ? todayCard(buildToday()) : "") + compassNotice() +
+      '<section class="hero' + (hasRecords ? " hero-sub" : "") + '">' +
         '<div class="hero-copy">' +
           '<p class="eyebrow">STUDY COMPASS</p>' +
           '<h1>「わからない」を越えて、<br>自分の可能性へ。</h1>' +
@@ -283,6 +302,8 @@
         '<button class="secondary-button" type="button" data-action="debug-days">日付を3日進める</button>' +
         '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
         '<button class="secondary-button" type="button" data-action="debug-export">記録を書き出す（JSON）</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
+        '<a class="secondary-button link-button" href="./?debug=plan">今日の学習の確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
       "</div></section>";
@@ -608,7 +629,7 @@
 
   function viewReflect() {
     var plan = diagnosisAndPlan().plan;
-    var results = state.lesson.results;
+    var results = state.mode === "daily" ? state.daily.results : state.lesson.results;
     var solved = Object.keys(results).filter(function (k) { return results[k] === "correct"; }).length;
     if (!state.feeling) {
       return '' +
@@ -776,6 +797,66 @@
     }).join("");
   }
 
+  // ---------- 今日の学習の確認ページ（?debug=plan） ----------
+
+  function viewPlanDebug() {
+    var input = plannerInput();
+    var plan = buildToday(true);
+    var P = SC.planner, LV = P.LEVEL_JA;
+    var set = ST.settings();
+    function candRows(list, extra) {
+      if (!list.length) return '<tr><td colspan="3" class="muted">なし</td></tr>';
+      return list.map(function (c) {
+        return "<tr><td>" + esc(E.SKILLS[c.skill].label) + "</td><td>" + (LV[c.level] || "") + "</td><td>" + esc(extra(c)) + "</td></tr>";
+      }).join("");
+    }
+    var dbg = plan.debug || { candidates: { p1: [], p2: [], p3: [], p4: [] }, excluded: [], log: [] };
+    var cand = dbg.candidates;
+    var states = input.states;
+    var stateRows = E.SKILL_ORDER.map(function (k) {
+      var s = states[k];
+      if (!s) return "";
+      return "<tr><td>" + esc(s.skill) + "</td><td>" + esc(E.STATUS_VIEW[s.learning_status].label) + "</td><td>" + s.confidence.toFixed(2) + "</td><td>" +
+        [s.basic, s.standard, s.application, s.retention].map(function (x) { return x === "pass" ? "○" : x === "needs_review" ? "△" : "−"; }).join(" ") + "</td></tr>";
+    }).join("");
+    var sessRows = (plan.sessions || []).map(function (s) {
+      return "<tr><td>" + s.minutes + "分</td><td>" + esc(s.type) + "<br><span class=\"muted small\">" + esc(s.role) + "</span></td><td>" + esc(s.skill_label) + "（" + esc(s.level_label) + "）</td><td>" + esc(s.why) + "</td><td>" +
+        s.picks.map(function (p) {
+          return esc(p.question_id) + (p.stage > 0 || p.reused ? ' <span class="lv lv-needs_review">' + (p.reused ? "再利用" : "緩和") + "</span>" : "") +
+            (p.why ? '<br><span class="muted small">' + esc(p.why) + "</span>" : "");
+        }).join("<br>") + "</td></tr>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / PLAN</p><h1 class="h-md">今日の学習の生成</h1>' +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(input.now).toLocaleString("ja-JP")) + "（" + (ST.get().debug.time_offset_days || 0) + "日進めています）</p>" +
+      '<div class="today-options">' +
+        optionChips("set-minutes", set.minutes, P.CONFIG.MINUTES.map(function (m) { return { value: m, label: m + "分" }; })) +
+        optionChips("set-goal", set.goal, Object.keys(P.GOALS).map(function (g) { return { value: g, label: P.GOALS[g] + "（" + g + "）" }; })) + "</div>" +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
+        '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">入力</h2><div class="table-wrap"><table><tbody>' +
+        "<tr><th>school_progress</th><td>" + esc(JSON.stringify(input.school)) + "</td></tr>" +
+        "<tr><th>available_minutes</th><td>" + input.minutes + "</td></tr>" +
+        "<tr><th>learning_goal</th><td>" + esc(input.goal) + "（" + esc(P.GOALS[input.goal]) + "）</td></tr>" +
+        "<tr><th>原因さがしの結論（14日以内）</th><td>" + esc(input.explorations.filter(function (x) { return x.conclusion && x.conclusion.return_to; }).map(function (x) { return x.symptom.label + "→" + E.SKILLS[x.conclusion.return_to].label; }).join("、") || "なし") + "</td></tr>" +
+      "</tbody></table></div>" +
+      '<h3 class="h-sm">skill_state</h3><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>基 標 応 定</th></tr></thead><tbody>' + stateRows + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">優先候補</h2>' +
+        '<h3 class="small">P1 根本のつまずき</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p1, function (c) { return (c.symptom ? "原因さがし（" + c.symptom + " から）" : "不安定なスキル") + (c.advanced ? "／練習で基礎ができたので標準へ" : ""); }) + "</tbody></table></div>" +
+        '<h3 class="small">P2 学校で学習中の単元</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p2, function (c) { return c.preview ? "先取り（まだ習っていない）" : "次に進むレベル"; }) + "</tbody></table></div>" +
+        '<h3 class="small">P3 定着の確認</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p3, function (c) { return c.why; }) + "</tbody></table></div>" +
+        '<h3 class="small">P4 得意の発展</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p4, function (c) { return "確かさ " + c.confidence.toFixed(2); }) + "</tbody></table></div>" +
+        '<h3 class="small">除外したスキル</h3><p class="small">' + (dbg.excluded.map(function (x) { return esc(E.SKILLS[x.skill].label) + "（" + esc(x.why) + "）"; }).join("、") || "なし") + "</p></section>" +
+      '<section class="card"><h2 class="h-sm">生成結果' + (plan.fallback ? '<span class="lv lv-needs_review">固定プランで代用</span>' : "") + "</h2>" +
+        (plan.fallback ? '<p class="small">理由：' + esc(plan.fallback_reason) + "／固定プラン：" + esc(plan.planKey) + "</p>" : "") +
+        '<p class="small"><strong>focus_skill：</strong>' + esc(plan.focus_label || "−") + "　<strong>今日越えること：</strong>" + esc(plan.cross) + "</p>" +
+        '<p class="small"><strong>reason：</strong>' + esc(plan.reason || "") + "</p>" +
+        '<p class="small"><strong>なぜ今日はこれ？：</strong>' + esc(plan.why) + "</p>" +
+        '<h3 class="small">時間配分と選んだ問題（合計 ' + plan.total_minutes + "分）</h3>" +
+        '<div class="table-wrap"><table><thead><tr><th>時間</th><th>種類</th><th>スキル</th><th>理由</th><th>問題</th></tr></thead><tbody>' + sessRows + "</tbody></table></div>" +
+        '<h3 class="small">生成の記録</h3><ol class="small muted debug-log">' + dbg.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>";
+  }
+
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
 
   var LEVEL_LABEL = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
@@ -850,12 +931,13 @@
   // ---------- 描画 ----------
 
   var lastScreenKey = "";
-  var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult };
+  var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult,
+    daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); } };
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : viewCompassDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : viewPlanDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -868,7 +950,7 @@
       html = VIEWS.home();
     }
     // 画面が切り替わったときだけ、ふわっと出す（エラー表示やヒントでは点滅させない）
-    var screenKey = state.screen + ":" + state.idx + ":" + state.lesson.step;
+    var screenKey = state.screen + ":" + state.idx + ":" + state.lesson.step + ":" + (state.daily ? state.daily.si + "." + state.daily.qi : "");
     var enter = screenKey !== lastScreenKey ? " enter" : "";
     lastScreenKey = screenKey;
     app.innerHTML = '<div class="screen screen-' + state.screen + enter + '">' + html + "</div>";
@@ -1082,6 +1164,185 @@
     return p2;
   }
 
+  // ---------- 今日の学習（Phase 5：自動生成） ----------
+
+  function plannerInput() {
+    var d = ST.get(), set = ST.settings();
+    return { states: d.skill_state, history: d.answer_history, explorations: d.explorations, school: ST.schoolProgressInfo(),
+      minutes: set.minutes, goal: set.goal, now: ST.now() };
+  }
+
+  // 自動生成に失敗したとき（エラー・出せる問題がない）は、固定10プランから選ぶ方式に切り替える
+  function fallbackPlan(reason) {
+    var fp = C.planFromStates(ST.get().skill_state);
+    var set = ST.settings();
+    return { id: E.makeId("pln", ST.now()), fallback: true, fallback_reason: reason, planKey: fp.planKey, focus_skill: fp.focus,
+      focus_label: fp.focus ? E.SKILLS[fp.focus].label : null, total_minutes: 25, goal: set.goal, goal_label: SC.planner.GOALS[set.goal],
+      cross: L.buildPlan({ planKey: fp.planKey, skills: [] }, {}).cross, why: "今日は、いつもの3ステップの学習にします。", sessions: [] };
+  }
+
+  var todayCache = null;
+  function buildToday(force) {
+    var set = ST.settings();
+    var key = [set.minutes, set.goal, ST.get().answer_history.length, C.dateKey(ST.now()), ST.get().debug.time_offset_days].join("|");
+    if (!force && todayCache && todayCache.key === key) return todayCache.plan;
+    var plan;
+    try {
+      plan = SC.planner.build(plannerInput());
+      if (!plan.sessions.length) plan = fallbackPlan("出せる問題が見つからなかった");
+    } catch (err) {
+      if (window.console) console.error(err);
+      plan = fallbackPlan("自動生成でエラー：" + (err && err.message));
+    }
+    todayCache = { key: key, plan: plan };
+    return plan;
+  }
+
+  function optionChips(action, current, options) {
+    return '<div class="opt-chips" role="radiogroup">' + options.map(function (o) {
+      var on = String(o.value) === String(current);
+      return '<button type="button" class="opt-chip' + (on ? " selected" : "") + '" role="radio" aria-checked="' + on + '" data-action="' + action + '" data-value="' + esc(o.value) + '">' + esc(o.label) + "</button>";
+    }).join("") + "</div>";
+  }
+
+  // ホームと「今日の学習を作る」の両方で使う、今日のプランのカード
+  function todayCard(plan, full) {
+    var set = ST.settings();
+    var chips =
+      '<div class="today-options"><p class="small muted">今日は何分できる？</p>' +
+        optionChips("set-minutes", set.minutes, SC.planner.CONFIG.MINUTES.map(function (m) { return { value: m, label: m + "分" }; })) +
+      '<p class="small muted">今日の目標</p>' +
+        optionChips("set-goal", set.goal, Object.keys(SC.planner.GOALS).map(function (g) { return { value: g, label: SC.planner.GOALS[g] }; })) + "</div>";
+    var timeline = plan.fallback ? "" :
+      '<ol class="timeline compact">' + plan.sessions.map(function (s) {
+        return '<li><span class="min">' + s.minutes + "分</span><div><strong>" + esc(s.type_label) + "</strong><p class=\"small muted\">" +
+          esc(s.skill_label) + "（" + esc(s.level_label) + "）・" + s.questions.length + "問</p></div></li>";
+      }).join("") + "</ol>";
+    return '<section class="card today-card' + (full ? " narrow" : "") + '">' +
+      '<p class="eyebrow">TODAY</p>' +
+      '<div class="today-cross"><span>今日越えること</span><strong>「' + esc(plan.cross) + "」</strong></div>" +
+      '<p class="today-meta">今日の学習 <strong>' + plan.total_minutes + "分</strong>" + (plan.goal_label ? "・" + esc(plan.goal_label) : "") + "</p>" +
+      chips + timeline +
+      '<button class="primary-button big full" type="button" data-action="start-daily">今日の学習をはじめる</button>' +
+      '<div class="why"><h2>なぜ今日はこれ？</h2><p>' + esc(plan.why) + "</p></div>" +
+      (full ? '<button class="text-button" type="button" data-action="to-result">← 現在地にもどる</button>' : "") +
+    "</section>";
+  }
+
+  function startDaily() {
+    var plan = buildToday();
+    var sessionMode = state.mode;
+    if (plan.fallback) {
+      // 固定プラン（3ステップ）の学習へ
+      state = freshState();
+      state.mode = "fallback";
+      state.fallbackKey = plan.planKey;
+      state.fallbackFocus = plan.focus_skill;
+      state.sessionId = ST.startSession("daily", "一次関数");
+      ST.addPlan(plan);
+      state.lesson = { step: 0, results: {} };
+      go("lesson");
+      return;
+    }
+    state = freshState();
+    state.mode = "daily";
+    state.sessionId = ST.startSession("daily", "一次関数");
+    var rec = ST.addPlan(plan);
+    state.daily = { plan: rec, si: 0, qi: 0, results: {}, from: sessionMode };
+    go("daily");
+  }
+
+  function dailyCurrent() {
+    var d = state.daily;
+    var sess = d.plan.sessions[d.si];
+    return { d: d, sess: sess, qid: sess.questions[d.qi], q: QS[sess.questions[d.qi]] };
+  }
+
+  // 学習画面：パートごとに、ミニ解説 → 問題（1問ずつ）
+  function viewDaily() {
+    var cur = dailyCurrent(), d = cur.d, sess = cur.sess, q = cur.q, plan = d.plan;
+    var res = d.results[cur.qid];
+    var doneQ = res === "correct" || res === "revealed" || res === "unknown";
+    var lastQ = d.qi === sess.questions.length - 1, lastS = d.si === plan.sessions.length - 1;
+    var nextLabel = !lastQ ? "次の問題へ" : !lastS ? "次のパートへ" : "今日の学習を終える";
+    var nextAction = lastQ && lastS ? "daily-finish" : "daily-next";
+    var intro = d.qi === 0 && sess.intro
+      ? '<div class="example daily-intro"><span>ミニ解説</span><div><p><strong>' + esc(sess.intro.title) + "</strong></p>" +
+        sess.intro.body.map(function (b) { return "<p>" + esc(b) + "</p>"; }).join("") +
+        (sess.intro.example ? '<p class="muted">例：' + esc(sess.intro.example) + "</p>" : "") + "</div></div>"
+      : "";
+    return '' +
+      '<section class="card narrow lesson">' +
+        '<div class="progress-head"><span class="eyebrow">今日越えること：' + esc(plan.cross) + '</span><span class="q-count">パート ' + (d.si + 1) + " / " + plan.sessions.length + "</span></div>" +
+        '<ol class="steps-dots">' + plan.sessions.map(function (_, k) {
+          return '<li class="' + (k === d.si ? "now" : k < d.si ? "done" : "") + '"></li>';
+        }).join("") + "</ol>" +
+        '<h1 class="h-md">' + esc(sess.type_label) + '<span class="min-tag">' + sess.minutes + "分</span></h1>" +
+        '<p class="muted small">' + esc(sess.skill_label) + "（" + esc(sess.level_label) + "）・" + (d.qi + 1) + " / " + sess.questions.length + " 問目</p>" +
+        intro +
+        '<div class="practice">' +
+          '<p class="practice-label">やってみよう</p>' +
+          '<p class="question small-q">' + esc(q.text) + "</p>" + SC.figures.render(q.figure) +
+          (doneQ
+            ? feedbackBlock(res === "correct" ? "correct" : "revealed", { explain: q.explanation || q.explain || "" })
+            : '<form class="answer-form" data-form="daily" novalidate>' + inputFields(q, "d") +
+                (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
+                (res === "tried" ? '<div class="soft-feedback"><strong>おしい！ここはもう少し確認してみよう。</strong><p>ヒント：' + esc(q.hint) + "</p></div>" : "") +
+                (state.hintOpen && res !== "tried" ? '<div class="hint"><strong>ヒント</strong><p>' + esc(q.hint) + "</p></div>" : "") +
+                '<div class="actions"><button class="primary-button" type="submit">答える</button>' +
+                  (res === "tried" ? '<button class="secondary-button" type="button" data-action="daily-reveal">答えと考え方を見る</button>'
+                    : (state.hintOpen ? "" : '<button class="secondary-button" type="button" data-action="lesson-hint">ヒントを見る</button>') +
+                      '<button class="secondary-button soft" type="button" data-action="daily-unknown">わからない</button>') +
+                "</div></form>") +
+        "</div>" +
+        (doneQ ? '<button class="primary-button big full" type="button" data-action="' + nextAction + '">' + nextLabel + "</button>" : "") +
+      "</section>";
+  }
+
+  // 1問目の答えだけを記録する（ヒントを見て答え直した分は、学習の過程として数えない）
+  function recordDaily(q, status, stepResults) {
+    var sess = dailyCurrent().sess;
+    // 確認のパート・定着の確認は「チェック」として記録（理解度のレベル判定に使う）。それ以外は練習
+    var context = sess.type === "check" || sess.level === "retention" ? "daily_check" : "lesson";
+    var ctx = { sessionId: state.sessionId, context: context };
+    var hint = !!state.hintOpen;
+    if (q.type === "steps") {
+      q.steps.forEach(function (st, i) {
+        var r = stepResults ? stepResults[i] : null;
+        var s = status === "unknown" ? "unknown" : r && r.correct ? "correct" : "incorrect";
+        ST.addAnswer({ id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit }, { status: s, hintUsed: hint }, ctx);
+      });
+    } else {
+      ST.addAnswer(q, { status: status, hintUsed: hint }, ctx);
+    }
+  }
+
+  function submitDaily() {
+    var cur = dailyCurrent(), q = cur.q, d = cur.d;
+    var v = readInput(q);
+    if (L.isBlank(q, v)) {
+      message = "答えを入力してね。わからないときは「ヒントを見る」か「わからない」を押してみよう。";
+      render();
+      return;
+    }
+    message = "";
+    var stepRes = q.type === "steps" ? L.checkSteps(q, v) : null;
+    var ok = stepRes ? stepRes.every(function (r) { return r.correct; }) : L.check(q, v);
+    if (d.results[cur.qid] === undefined) recordDaily(q, ok ? "correct" : "incorrect", stepRes);
+    d.results[cur.qid] = ok ? "correct" : "tried";
+    if (!ok) draft = {};
+    state.hintOpen = false;
+    render();
+  }
+
+  function finishDaily() {
+    var d = state.daily;
+    var focus = d.plan.focus_skill;
+    ST.finishSession(state.sessionId, { plan_key: "daily", focus_skill: focus, suspected_root_causes: [] });
+    ST.updatePlan(d.plan.id, { completed_at: new Date(ST.now()).toISOString(), results: d.results });
+    todayCache = null; // 学習結果で、次のプランが変わる
+  }
+
   // ---------- 定期コンパスチェック ----------
 
   function startPeriodic() {
@@ -1189,6 +1450,7 @@
     var form = e.target.getAttribute("data-form");
     if (form === "check") submitCheck();
     if (form === "lesson") submitLesson();
+    if (form === "daily") submitDaily();
   });
 
   document.addEventListener("click", function (e) {
@@ -1224,13 +1486,16 @@
         }
         break;
       case "debug-days": ST.addDays(3); render(); break;
+      case "debug-day1": ST.addDays(1); render(); break;
       case "debug-days-reset": ST.resetDays(); render(); break;
       case "debug-export": downloadJSON(); break;
       case "hint": state.hintOpen = true; render(); break;
       case "lesson-hint": state.hintOpen = true; render(); break;
       case "unknown": recordAnswer("unknown"); break;
       case "continue-check": go("check"); break;
-      case "to-result": go(state.mode === "periodic" ? "checkResult" : "result"); break;
+      case "to-result":
+        go(state.mode === "periodic" ? "checkResult" : state.mode === "daily" || state.mode === "fallback" ? "home" : "result");
+        break;
       case "start-periodic": startPeriodic(); break;
       case "snooze":
         ST.setSnooze(C.dateKey(ST.now()));
@@ -1240,7 +1505,45 @@
         box(el.getAttribute("data-step")).value = el.getAttribute("data-choice");
         render();
         break;
-      case "to-plan": go("plan"); break;
+      case "to-plan":
+        // 自動生成の今日の学習へ。失敗したら固定プラン（従来の画面）
+        go(buildToday(true).fallback ? "plan" : "dailyPlan");
+        break;
+      case "set-minutes":
+        ST.setSettings({ minutes: Number(el.getAttribute("data-value")) });
+        render();
+        break;
+      case "set-goal":
+        ST.setSettings({ goal: el.getAttribute("data-value") });
+        render();
+        break;
+      case "start-daily": startDaily(); break;
+      case "daily-unknown":
+        (function () {
+          var cur = dailyCurrent();
+          if (cur.d.results[cur.qid] === undefined) recordDaily(cur.q, "unknown");
+          cur.d.results[cur.qid] = "unknown";
+          state.hintOpen = false;
+          render();
+        })();
+        break;
+      case "daily-reveal":
+        state.daily.results[dailyCurrent().qid] = "revealed";
+        render();
+        break;
+      case "daily-next":
+        (function () {
+          var d = state.daily, sess = d.plan.sessions[d.si];
+          if (d.qi < sess.questions.length - 1) d.qi++;
+          else { d.si++; d.qi = 0; }
+          go("daily");
+        })();
+        break;
+      case "daily-finish":
+        finishDaily();
+        state.feeling = null;
+        go("reflect");
+        break;
       case "start-lesson":
         state.lesson = { step: 0, results: {} };
         state.feeling = null;
@@ -1261,6 +1564,7 @@
       case "feeling":
         state.feeling = el.getAttribute("data-feeling");
         ST.setSelfEvaluation(state.sessionId, FEELING_LABEL[state.feeling]);
+        if (state.mode === "daily") ST.updatePlan(state.daily.plan.id, { self_evaluation: FEELING_LABEL[state.feeling] });
         render();
         break;
       case "chip":
