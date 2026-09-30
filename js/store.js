@@ -269,6 +269,19 @@
   }
   function plans() { return get().plans; }
 
+  // ---------- テスト対策（Phase 6） ----------
+  // { test_date: "YYYY-MM-DD", range_skills: [...], created_at, active }
+  function testPrep() { var t = get().profile.test_prep; return t && t.active ? t : null; }
+  function setTestPrep(t) {
+    get().profile.test_prep = { test_date: t.test_date, range_skills: t.range_skills.slice(), created_at: new Date(now()).toISOString(), active: true };
+    persist();
+    return get().profile.test_prep;
+  }
+  function endTestPrep() {
+    var t = get().profile.test_prep;
+    if (t) { t.active = false; t.ended_at = new Date(now()).toISOString(); persist(); }
+  }
+
   // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
   function setSnooze(dateKey) { get().profile.compass_snooze_date = dateKey; persist(); }
   function snoozeDate() { return get().profile.compass_snooze_date || null; }
@@ -284,6 +297,7 @@
     addExploration: addExploration, explorations: explorations, explorationsFor: explorationsFor,
     settings: settings, setSettings: setSettings, schoolProgressInfo: schoolProgressInfo,
     addPlan: addPlan, updatePlan: updatePlan, plans: plans,
+    testPrep: testPrep, setTestPrep: setTestPrep, endTestPrep: endTestPrep,
     _backend: backend
   };
 })(typeof window !== "undefined" ? window : globalThis);

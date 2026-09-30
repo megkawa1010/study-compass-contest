@@ -27,6 +27,7 @@
   ST.recompute(); // 日付によって変わる「次にやること」を、開いた時点の日付で計算し直す
   var COMPASS_VIEW = /(?:^|[?&])debug=compass(?:&|$)/.test(window.location.search.slice(1));
   var PLAN_VIEW = /(?:^|[?&])debug=plan(?:&|$)/.test(window.location.search.slice(1));
+  var TEST_VIEW = /(?:^|[?&])debug=test(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -61,7 +62,7 @@
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
@@ -797,6 +798,38 @@
     }).join("");
   }
 
+  // ---------- テスト対策の確認ページ（?debug=test） ----------
+
+  function viewTestDebug() {
+    var tc = testContext();
+    var head = '<section class="card"><p class="eyebrow">DEBUG / TEST</p><h1 class="h-md">テスト対策の確認</h1>' +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(ST.now()).toLocaleString("ja-JP")) + "（" + (ST.get().debug.time_offset_days || 0) + "日進めています）</p>" +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-test-sample">テストを7日後に設定（一次関数の5スキル）</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
+        '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>';
+    if (!tc) return head + '<section class="card"><p class="small muted">テスト対策は設定されていません。</p></section>';
+    var plan = buildToday(true);
+    var ready = tc.schedule.readiness.map(function (r) {
+      return "<tr><td>" + esc(r.label) + "</td><td>" + r.mark + "</td><td>" + r.need + "</td><td>" + r.confidence.toFixed(2) + "</td><td>" + (r.stale ? "7日以上確かめていない" : "") + "</td></tr>";
+    }).join("");
+    var days = tc.schedule.days.map(function (d) {
+      return "<tr><td>" + d.date + "</td><td>" + KIND_JA[d.kind] + "</td><td>" + esc(d.skills.map(function (k) { return E.SKILLS[k].label; }).join("・")) + "</td><td>" + esc(d.note) + "</td></tr>";
+    }).join("");
+    return head +
+      '<section class="card"><h2 class="h-sm">入力</h2><p class="small">テストの日：' + esc(tc.test.test_date) + "（あと " + tc.left + " 日）／範囲：" +
+        esc(tc.test.range_skills.map(function (k) { return E.SKILLS[k].label; }).join("・")) + "／1日 " + ST.settings().minutes + "分／今日の範囲チェック：" + (tc.checkedToday ? "済み" : "まだ") + "</p>" +
+      '<h3 class="small">仕上がり（必要度が高いほど多くの日を割り当てる）</h3><div class="table-wrap"><table><thead><tr><th>スキル</th><th>仕上がり</th><th>必要度</th><th>確かさ</th><th></th></tr></thead><tbody>' + ready + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">残り日数の計画</h2><div class="table-wrap"><table><thead><tr><th>日付</th><th>種類</th><th>スキル</th><th>メモ</th></tr></thead><tbody>' + days + "</tbody></table></div>" +
+        '<ol class="small muted debug-log">' + tc.schedule.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>" +
+      '<section class="card"><h2 class="h-sm">今日の学習</h2>' +
+        (plan.range_check ? '<p class="small">今日はテスト範囲チェック（' + esc(tc.day.skills.map(function (k) { return E.SKILLS[k].label; }).join("・")) + "）</p>"
+          : '<p class="small">' + esc(plan.sessions.map(function (s) { return s.minutes + "分 " + s.type_label + "：" + s.skill_label + "（" + s.level_label + "）"; }).join(" / ")) + "</p>") +
+        '<p class="small"><strong>なぜ今日はこれ？：</strong>' + esc(plan.why) + "</p>" +
+        (plan.debug ? '<p class="small muted">除外：' + esc(plan.debug.excluded.filter(function (x) { return x.why === "テスト範囲外"; }).map(function (x) { return E.SKILLS[x.skill].label; }).join("・")) + "（テスト範囲外）</p>" : "") +
+      "</section>";
+  }
+
   // ---------- 今日の学習の確認ページ（?debug=plan） ----------
 
   function viewPlanDebug() {
@@ -932,12 +965,13 @@
 
   var lastScreenKey = "";
   var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult,
-    daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); } };
+    daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); },
+    testSetup: viewTestSetup, testPlan: viewTestPlan };
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : viewPlanDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : viewTestDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1181,14 +1215,42 @@
       cross: L.buildPlan({ planKey: fp.planKey, skills: [] }, {}).cross, why: "今日は、いつもの3ステップの学習にします。", sessions: [] };
   }
 
+  // テスト対策中なら、テストの日・範囲・残り日数の計画と今日の予定
+  function testContext() {
+    var t = ST.testPrep();
+    if (!t) return null;
+    var now = ST.now();
+    var left = SC.testprep.daysLeft(t.test_date, now);
+    var checkedToday = ST.compassHistory().some(function (h) { return h.kind === "range_check" && C.dateKey(Date.parse(h.date)) === C.dateKey(now); });
+    var sch = SC.testprep.schedule(t, ST.get().skill_state, now, { rangeCheckedToday: checkedToday });
+    return { test: t, left: left, schedule: sch, day: sch.days[0] || null, checkedToday: checkedToday };
+  }
+
   var todayCache = null;
   function buildToday(force) {
     var set = ST.settings();
-    var key = [set.minutes, set.goal, ST.get().answer_history.length, C.dateKey(ST.now()), ST.get().debug.time_offset_days].join("|");
+    var tc = testContext();
+    var key = [set.minutes, set.goal, ST.get().answer_history.length, C.dateKey(ST.now()), ST.get().debug.time_offset_days,
+      tc ? tc.test.test_date + tc.test.range_skills.join(",") + tc.checkedToday : ""].join("|");
     if (!force && todayCache && todayCache.key === key) return todayCache.plan;
     var plan;
     try {
-      plan = SC.planner.build(plannerInput());
+      var input = plannerInput();
+      if (tc && tc.left >= 1 && tc.day && tc.day.kind === "range_check") {
+        // テスト対策の1日目：まず範囲チェック
+        plan = { id: E.makeId("pln", ST.now()), range_check: true, testCtx: tc, total_minutes: 5, goal: "test_preparation", goal_label: "テスト対策",
+          cross: "テスト範囲の今の力を確かめる", sessions: [],
+          why: "テストまであと" + tc.left + "日。まず範囲のスキルを1問ずつ確かめて、残りの日の計画を作ります。" };
+        todayCache = { key: key, plan: plan };
+        return plan;
+      }
+      if (tc && tc.left >= 1 && tc.day) {
+        var nextDay = tc.schedule.days[1];
+        input.test = { range: tc.test.range_skills, focus: tc.day.skills, kind: tc.day.kind, days_left: tc.left,
+          next_note: nextDay ? (nextDay.kind === "final_review" ? "「総仕上げ」" : nextDay.skills.map(function (k) { return "「" + E.SKILLS[k].label + "」"; }).join("と")) : null };
+      }
+      plan = SC.planner.build(input);
+      if (tc) plan.testCtx = tc;
       if (!plan.sessions.length) plan = fallbackPlan("出せる問題が見つからなかった");
     } catch (err) {
       if (window.console) console.error(err);
@@ -1205,28 +1267,101 @@
     }).join("") + "</div>";
   }
 
+  function readinessChips(tc) {
+    return '<div class="ready-chips">' + tc.schedule.readiness.map(function (r) {
+      return '<span class="rc rc-' + ({ "◎": "top", "○": "ok", "△": "warn", "？": "unk" }[r.mark]) + '"><b>' + r.mark + "</b>" + esc(r.label) + "</span>";
+    }).join("") + "</div>";
+  }
+
+  // テスト対策中の見出し（あと何日・仕上がり・計画へのリンク）
+  function testHeader(tc) {
+    var md = tc.test.test_date.slice(5).replace("-", "/");
+    if (tc.left < 0) {
+      return '<div class="test-head"><p><strong>テストおつかれさま！</strong>（' + md + "）</p>" +
+        '<p class="small muted">テスト対策モードを終えて、いつもの勉強にもどりましょう。</p>' +
+        '<button class="secondary-button" type="button" data-action="end-test">いつもの勉強にもどる</button></div>';
+    }
+    if (tc.left === 0) {
+      return '<div class="test-head"><p><strong>今日はテスト本番（' + md + "）</strong></p>" +
+        '<p class="small muted">これまでの練習を思い出して、落ち着いてがんばろう。</p>' + readinessChips(tc) + "</div>";
+    }
+    return '<div class="test-head"><p>テストまで <strong class="days-left">あと ' + tc.left + " 日</strong>（" + md + "）</p>" +
+      readinessChips(tc) +
+      '<button class="text-button" type="button" data-action="to-test-plan">テストまでの計画を見る →</button></div>';
+  }
+
   // ホームと「今日の学習を作る」の両方で使う、今日のプランのカード
   function todayCard(plan, full) {
     var set = ST.settings();
+    var tc = plan.testCtx || null;
     var chips =
       '<div class="today-options"><p class="small muted">今日は何分できる？</p>' +
         optionChips("set-minutes", set.minutes, SC.planner.CONFIG.MINUTES.map(function (m) { return { value: m, label: m + "分" }; })) +
-      '<p class="small muted">今日の目標</p>' +
-        optionChips("set-goal", set.goal, Object.keys(SC.planner.GOALS).map(function (g) { return { value: g, label: SC.planner.GOALS[g] }; })) + "</div>";
+      (tc ? "" : '<p class="small muted">今日の目標</p>' +
+        optionChips("set-goal", set.goal, Object.keys(SC.planner.GOALS).map(function (g) { return { value: g, label: SC.planner.GOALS[g] }; }))) + "</div>";
+    if (plan.range_check) {
+      return '<section class="card today-card' + (full ? " narrow" : "") + '"><p class="eyebrow">TEST</p>' + testHeader(tc) +
+        '<div class="today-cross"><span>今日越えること</span><strong>「' + esc(plan.cross) + "」</strong></div>" +
+        '<p class="small muted">範囲の ' + tc.day.skills.length + " スキルを1問ずつ（約" + Math.max(3, tc.day.skills.length) + "分）</p>" +
+        '<button class="primary-button big full" type="button" data-action="start-range-check">テスト範囲チェックをはじめる</button>' +
+        '<div class="why"><h2>なぜ今日はこれ？</h2><p>' + esc(plan.why) + "</p></div></section>";
+    }
     var timeline = plan.fallback ? "" :
       '<ol class="timeline compact">' + plan.sessions.map(function (s) {
         return '<li><span class="min">' + s.minutes + "分</span><div><strong>" + esc(s.type_label) + "</strong><p class=\"small muted\">" +
           esc(s.skill_label) + "（" + esc(s.level_label) + "）・" + s.questions.length + "問</p></div></li>";
       }).join("") + "</ol>";
     return '<section class="card today-card' + (full ? " narrow" : "") + '">' +
-      '<p class="eyebrow">TODAY</p>' +
+      '<p class="eyebrow">' + (tc ? "TEST" : "TODAY") + "</p>" +
+      (tc ? testHeader(tc) : "") +
       '<div class="today-cross"><span>今日越えること</span><strong>「' + esc(plan.cross) + "」</strong></div>" +
       '<p class="today-meta">今日の学習 <strong>' + plan.total_minutes + "分</strong>" + (plan.goal_label ? "・" + esc(plan.goal_label) : "") + "</p>" +
       chips + timeline +
       '<button class="primary-button big full" type="button" data-action="start-daily">今日の学習をはじめる</button>' +
       '<div class="why"><h2>なぜ今日はこれ？</h2><p>' + esc(plan.why) + "</p></div>" +
+      (tc ? "" : '<button class="text-button" type="button" data-action="to-test-setup">テストが近い？ テストの予定を入れる →</button>') +
       (full ? '<button class="text-button" type="button" data-action="to-result">← 現在地にもどる</button>' : "") +
     "</section>";
+  }
+
+  // ---------- テスト対策の画面 ----------
+
+  function viewTestSetup() {
+    var set = ST.settings();
+    var today = SC.testprep.dateKey(ST.now());
+    var unit = SC.testprep.UNIT_SKILLS;
+    var base = E.SKILL_ORDER.filter(function (k) { return unit.indexOf(k) === -1; });
+    function box(k, on) {
+      return '<label class="radio-chip"><input type="checkbox" name="test-range" value="' + k + '"' + (on ? " checked" : "") + "><span>" + esc(E.SKILLS[k].label) + "</span></label>";
+    }
+    return '<section class="card narrow">' +
+      '<p class="eyebrow">TEST</p><h1 class="h-md">テストの予定を入れよう</h1>' +
+      '<p class="small muted">テストの日と範囲から、残りの日の計画を作ります。いつもの学習データをそのまま使います。</p>' +
+      '<div class="form-grid"><label class="field" for="test-date"><span>テストの日</span><input id="test-date" type="date" min="' + today + '"></label></div>' +
+      '<fieldset class="status-group"><legend>テスト範囲（一次関数）</legend>' + unit.map(function (k) { return box(k, true); }).join("") + "</fieldset>" +
+      '<fieldset class="status-group"><legend>前の学年までの内容も入れる（必要なら）</legend>' + base.map(function (k) { return box(k, false); }).join("") + "</fieldset>" +
+      '<p class="small muted">1日の学習時間</p>' +
+      optionChips("set-minutes", set.minutes, SC.planner.CONFIG.MINUTES.map(function (m) { return { value: m, label: m + "分" }; })) +
+      (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
+      '<button class="primary-button big full test-save" type="button" data-action="save-test">この予定でテスト対策をはじめる</button>' +
+      '<button class="text-button" type="button" data-action="home">← ホームにもどる</button>' +
+    "</section>";
+  }
+
+  var KIND_JA = { range_check: "範囲チェック", focus: "練習", final_review: "総仕上げ" };
+  function viewTestPlan() {
+    var tc = testContext();
+    if (!tc) { state.screen = "home"; return viewHome(); }
+    var rows = tc.schedule.days.map(function (d, i) {
+      var md = d.date.slice(5).replace("-", "/");
+      return '<li class="' + (i === 0 ? "now" : "") + '"><span class="min">' + (i === 0 ? "今日" : md) + "</span><div><strong>" + KIND_JA[d.kind] + "</strong>" +
+        '<p class="small muted">' + esc(d.kind === "final_review" ? "範囲をひととおり" : d.skills.map(function (k) { return E.SKILLS[k].label; }).join("・")) + "</p></div></li>";
+    }).join("");
+    return '<section class="card narrow"><p class="eyebrow">TEST</p><h1 class="h-md">テストまでの計画</h1>' + testHeader(tc).replace(/<button class="text-button"[^>]*>[^<]*<\/button>/, "") +
+      '<p class="small muted">仕上がりの低いスキルほど多くの日を使い、前にある内容から順に練習します。毎日の結果で計画は変わります。</p>' +
+      '<ol class="timeline compact test-days">' + rows + "</ol>" +
+      '<button class="primary-button big full" type="button" data-action="home">今日の学習へ</button>' +
+      '<button class="text-button" type="button" data-action="end-test">テスト対策をやめる</button></section>';
   }
 
   function startDaily() {
@@ -1345,8 +1480,9 @@
 
   // ---------- 定期コンパスチェック ----------
 
-  function startPeriodic() {
-    var check = C.buildCheck(compassInput());
+  // pre：あらかじめ選んだ問題（テスト範囲チェック）。kind："periodic" | "range_check"
+  function startPeriodic(pre, kind) {
+    var check = pre || C.buildCheck(compassInput());
     if (!check.questions.length) { go("home"); return; }
     var skills = check.chosen.map(function (c) { return c.skill; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
     state = freshState();
@@ -1356,6 +1492,7 @@
     state.sessionId = ST.startSession("periodic", "一次関数");
     state.probeBudget = R.CONFIG.BUDGET_PERIODIC;
     state.periodic = {
+      kind: kind || "periodic",
       skills: skills,
       chosen: check.chosen,
       before: C.snapshotSkills(ST.get().skill_state, skills)
@@ -1394,6 +1531,7 @@
       focus_skill: plan.focus,
       exploration_ids: state.trails.map(function (t) { return t.id; }),
       skipped: state.skipped || [],
+      kind: p.kind || "periodic",
       trail_best: best ? { return_to: best.conclusion.return_to, symptom_question: best.symptom.question_id, message: best.conclusion.message } : null
     });
   }
@@ -1487,6 +1625,11 @@
         break;
       case "debug-days": ST.addDays(3); render(); break;
       case "debug-day1": ST.addDays(1); render(); break;
+      case "debug-test-sample":
+        ST.setTestPrep({ test_date: SC.testprep.dateKey(ST.now() + 7 * E.DAY), range_skills: SC.testprep.UNIT_SKILLS.slice() });
+        todayCache = null;
+        render();
+        break;
       case "debug-days-reset": ST.resetDays(); render(); break;
       case "debug-export": downloadJSON(); break;
       case "hint": state.hintOpen = true; render(); break;
@@ -1497,6 +1640,35 @@
         go(state.mode === "periodic" ? "checkResult" : state.mode === "daily" || state.mode === "fallback" ? "home" : "result");
         break;
       case "start-periodic": startPeriodic(); break;
+      case "start-range-check":
+        (function () {
+          var tc = testContext(), d = ST.get();
+          var chk = SC.testprep.rangeCheck({ states: d.skill_state, history: d.answer_history, now: ST.now() }, tc.day.skills);
+          startPeriodic(chk, "range_check");
+        })();
+        break;
+      case "to-test-setup": message = ""; go("testSetup"); break;
+      case "to-test-plan": go("testPlan"); break;
+      case "save-test":
+        (function () {
+          var date = (document.getElementById("test-date") || {}).value;
+          var range = [].slice.call(document.querySelectorAll('input[name="test-range"]:checked')).map(function (i) { return i.value; });
+          if (!date) { message = "テストの日を選んでね。"; render(); return; }
+          if (SC.testprep.daysLeft(date, ST.now()) < 0) { message = "テストの日は、今日より後の日を選んでね。"; render(); return; }
+          if (!range.length) { message = "テスト範囲を1つ以上選んでね。"; render(); return; }
+          ST.setTestPrep({ test_date: date, range_skills: range });
+          todayCache = null;
+          message = "";
+          go("testPlan");
+        })();
+        break;
+      case "end-test":
+        if (window.confirm("テスト対策モードを終えて、いつもの勉強にもどりますか？（学習の記録は残ります）")) {
+          ST.endTestPrep();
+          todayCache = null;
+          go("home");
+        }
+        break;
       case "snooze":
         ST.setSnooze(C.dateKey(ST.now()));
         render();

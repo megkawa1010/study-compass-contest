@@ -32,7 +32,9 @@
   };
 
   var GOALS = { daily_learning: "いつもの勉強", catch_up: "苦手を戻る", review: "復習", challenge: "もう少し先へ" };
-  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ" };
+  // テスト対策はホームの目標ボタンには出さず、テストの予定を入れたときだけ使う
+  var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
+  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で" };
   var LEVEL_JA = { basic: "基礎", standard: "標準", application: "応用", retention: "定着の確認" };
   var UNIT_SKILLS = { "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form"] };
   var ROOT_ORDER = ["signed", "algebra", "coord", "proportion", "change", "substitution", "rate", "slopeIntercept", "form"];
@@ -49,7 +51,8 @@
     daily_learning: {},
     catch_up: { current: "reinforce_next", advance: "reinforce_next", warmup: "warmup" },
     review: { reinforce: "review", main: "review", current: "review_unit", advance: "review", check: "check_retention" },
-    challenge: { reinforce: "advance", main: "advance", current: "current_up", check: "check_advance" }
+    challenge: { reinforce: "advance", main: "advance", current: "current_up", check: "check_advance" },
+    test_preparation: { warmup: "warmup", reinforce: "reinforce", main: "test_focus", current: "test_focus", advance: "test_range", review: "test_range", check: "check" }
   };
 
   var RANK = E.STATUS_RANK;
@@ -160,6 +163,19 @@
       return ua - ub || b.confidence - a.confidence;
     });
 
+    // テスト対策モード：範囲の中だけで組み立てる。今日の予定スキルを先頭に
+    var test = input.test;
+    if (test) {
+      var inRange = function (c) { return test.range.indexOf(c.skill) !== -1; };
+      E.SKILL_ORDER.forEach(function (k) { if (test.range.indexOf(k) === -1) excluded.push({ skill: k, why: "テスト範囲外" }); });
+      var focusFirst = function (x, y) { return (test.focus.indexOf(x.skill) === -1 ? 1 : 0) - (test.focus.indexOf(y.skill) === -1 ? 1 : 0); };
+      p1 = p1.filter(inRange).sort(focusFirst);
+      p2 = p2.filter(inRange).sort(focusFirst);
+      p3 = p3.filter(inRange);
+      p4 = p4.filter(inRange);
+      log.push("テスト対策：範囲 " + test.range.map(label).join("・") + "／今日の予定 " + test.focus.map(label).join("・"));
+    }
+
     // 扱わないスキル
     E.SKILL_ORDER.forEach(function (k) {
       var s = st(k);
@@ -168,7 +184,8 @@
       else if (s.learning_status === "not_learned" && status !== "notyet") excluded.push({ skill: k, why: "学校でまだ習っていない" });
     });
 
-    return { p1: p1, p2: p2, p3: p3, p4: p4, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills };
+    return { p1: p1, p2: p2, p3: p3, p4: p4, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills,
+      nextLevel: nextLevel, test: test || null };
   }
 
   // スキル k が、前提をたどると r にたどりつくか
@@ -199,7 +216,9 @@
         // 今日の中心スキルの前提で、できているものを軽く思い出す
         var target = a.p1[0] || a.p2[0];
         if (target) {
-          var pre = (E.SKILLS[target.skill].prerequisites || []).filter(function (p) { return a.rank(p) >= 3 && !used(p); })[0];
+          var pre = (E.SKILLS[target.skill].prerequisites || []).filter(function (p) {
+            return a.rank(p) >= 3 && !used(p) && (!a.test || a.test.range.indexOf(p) !== -1); // テスト対策中は範囲の中だけ
+          })[0];
           if (pre) return { skill: pre, level: "basic", type: "review", why: "今日の「" + label(target.skill) + "」の前にある、できている内容を思い出す" };
         }
         return null;
@@ -246,6 +265,22 @@
           (focus ? { skill: focus.skill, level: focus.level, type: "check", why: "今日の内容の確認" } : null);
       case "check_advance":
         return focus ? { skill: focus.skill, level: focus.level === "basic" ? "standard" : focus.level, type: "check", why: "もう少し先の問題で確かめる" } : null;
+      // --- テスト対策 ---
+      case "test_focus": {
+        // 今日の予定スキルを、テストに出る形（基礎ができていれば標準以上）で
+        var tf = (a.test ? a.test.focus : []).map(function (k) {
+          var lv = a.weak(k) ? "basic" : (a.nextLevel(k, ["standard", "application"]) || "standard");
+          return { skill: k, level: lv };
+        });
+        return first(tf, "test", function (c) { return "今日の予定：「" + label(c.skill) + "」をテストに出る形の問題で"; });
+      }
+      case "test_range": {
+        // 範囲のほかのスキルも、仕上がりの低い順に少しずつ（テストは範囲全体から出るため）
+        var rest = (a.test ? a.test.range : []).filter(function (k) { return !used(k); })
+          .sort(function (x, y) { return a.rank(x) - a.rank(y) || a.st(x).confidence - a.st(y).confidence; })
+          .map(function (k) { return { skill: k, level: a.weak(k) ? "basic" : "standard" }; });
+        return first(rest, "test", function (c) { return "テスト範囲の「" + label(c.skill) + "」も確かめる"; });
+      }
     }
     return null;
   }
@@ -293,10 +328,11 @@
   // input: { states, history, explorations, school, minutes, goal, now, rng }
   function build(input) {
     var minutes = nearestMinutes(input.minutes || CONFIG.DEFAULT_MINUTES);
-    var goal = GOALS[input.goal] ? input.goal : CONFIG.DEFAULT_GOAL;
+    var goal = input.test ? "test_preparation" : GOALS[input.goal] ? input.goal : CONFIG.DEFAULT_GOAL;
     var rng = input.rng || Math.random;
     var a = analyze(input);
     var log = a.log.slice();
+    if (input.test && input.test.kind === "final_review") return buildFinalReview(input, a, minutes, rng, log);
     var tmpl = TEMPLATES[minutes].map(function (x) { return { role: (GOAL_ROLES[goal][x.role] || x.role), baseRole: x.role, m: x.m }; });
     log.push(minutes + "分の枠：" + TEMPLATES[minutes].map(function (x) { return x.role + " " + x.m + "分"; }).join(" / ") +
       (goal !== "daily_learning" ? "（「" + GOALS[goal] + "」のため役割を入れかえ：" + tmpl.map(function (x) { return x.role; }).join(" / ") + "）" : ""));
@@ -317,7 +353,7 @@
     // 空いた時間を、いちばん大事な枠（最初の practice / current_unit / challenge、なければ最初の枠）に足す
     var spare = tmpl.filter(function (x) { return x.empty; }).reduce(function (s, x) { return s + x.m; }, 0);
     if (spare && chosen.length) {
-      var main = chosen.filter(function (c) { return c.type === "practice" || c.type === "current_unit" || c.type === "challenge"; })[0] || chosen[0];
+      var main = chosen.filter(function (c) { return c.type === "practice" || c.type === "current_unit" || c.type === "challenge" || c.type === "test"; })[0] || chosen[0];
       main.minutes += spare;
       log.push("空いた " + spare + "分 を「" + label(main.skill) + "」に回す");
     }
@@ -344,13 +380,14 @@
       };
     }).filter(function (s) { return s.questions.length; });
 
-    var focusS = sessions.filter(function (s) { return s.type === "practice" || s.type === "current_unit" || s.type === "challenge"; })[0] || sessions[0] || null;
+    var focusS = sessions.filter(function (s) { return s.type === "practice" || s.type === "current_unit" || s.type === "challenge" || s.type === "test"; })[0] || sessions[0] || null;
     var plan = {
       id: E.makeId("pln", input.now),
       date: new Date(input.now).toISOString(),
       total_minutes: sessions.reduce(function (s, x) { return s + x.minutes; }, 0),
       requested_minutes: input.minutes || CONFIG.DEFAULT_MINUTES,
-      goal: goal, goal_label: GOALS[goal],
+      goal: goal, goal_label: ALL_GOALS[goal],
+      test: input.test ? { days_left: input.test.days_left, kind: input.test.kind, focus: input.test.focus, range: input.test.range } : null,
       school_progress: input.school || null,
       focus_skill: focusS ? focusS.skill : null,
       focus_label: focusS ? focusS.skill_label : null,
@@ -359,9 +396,59 @@
     };
     plan.cross = crossText(plan, focusS);
     plan.reason = reasonText(a, plan, focusS);
-    plan.why = whyText(a, plan, goal);
+    plan.why = input.test ? testWhy(a, plan, input.test) : whyText(a, plan, goal);
     plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: TEMPLATES[minutes], log: log };
     return plan;
+  }
+
+  // テスト前日の総仕上げ：範囲をひととおり、1スキル1〜2問ずつ（不安定なスキルから）
+  function buildFinalReview(input, a, minutes, rng, log) {
+    // 必要度の高い順（△ まだ不安定 > ？ まだ確かめていない > ○ > ◎）。js/testprep.js の readiness と同じ考え方
+    var need = function (k) { return a.weak(k) ? 3 : a.rank(k) === 0 ? 2.5 : a.rank(k) === 3 ? 2 : 0.5; };
+    var range = input.test.range.slice().sort(function (x, y) { return need(y) - need(x) || a.st(x).confidence - a.st(y).confidence; });
+    var n = Math.max(1, Math.min(range.length, Math.floor(minutes / 5)));
+    var per = Math.floor(minutes / n);
+    var used = [];
+    var sessions = range.slice(0, n).map(function (k, i) {
+      var m = i === n - 1 ? minutes - per * (n - 1) : per;
+      var level = a.weak(k) ? "basic" : "standard";
+      var picks = [];
+      for (var j = 0; j < (m >= 8 ? 2 : 1); j++) {
+        var p = pickFor(k, level, input, used, rng);
+        if (!p) break;
+        used.push(p.question_id);
+        picks.push(p);
+      }
+      return { minutes: m, type: "check", type_label: "総仕上げ", role: "final_review", skill: k, skill_label: label(k), level: level, level_label: LEVEL_JA[level],
+        title: "総仕上げ：" + label(k), why: "テスト前日：範囲をひととおり確かめる", intro: null,
+        questions: picks.map(function (p) { return p.question_id; }), picks: picks };
+    }).filter(function (s) { return s.questions.length; });
+    if (range.length > n) log.push("時間が足りないので、仕上がりの低い " + n + " スキルにしぼった（" + range.slice(n).map(label).join("・") + " は省略）");
+    return {
+      id: E.makeId("pln", input.now), date: new Date(input.now).toISOString(),
+      total_minutes: sessions.reduce(function (s, x) { return s + x.minutes; }, 0), requested_minutes: input.minutes,
+      goal: "test_preparation", goal_label: ALL_GOALS.test_preparation, school_progress: input.school || null,
+      test: { days_left: input.test.days_left, kind: "final_review", focus: input.test.focus, range: input.test.range },
+      focus_skill: sessions[0] ? sessions[0].skill : null, focus_label: sessions[0] ? sessions[0].skill_label : null,
+      sessions: sessions, fallback: false,
+      cross: "テスト範囲をひととおり確かめる",
+      reason: "テスト前日の総仕上げのため",
+      why: "テストまであと" + input.test.days_left + "日。今日は範囲をひととおり、テストに出る形の問題で確かめます。まちがえたところは、解説を読んで考え方を確認しよう。",
+      debug: { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: null, log: log.concat(["総仕上げ：" + sessions.map(function (s) { return s.skill_label; }).join("・")]) }
+    };
+  }
+
+  // テスト対策の「なぜ今日はこれ？」
+  function testWhy(a, plan, test) {
+    var lines = ["テストまであと" + test.days_left + "日。"];
+    var strong = test.range.filter(function (k) { return a.rank(k) >= 3 && !a.weak(k); })
+      .sort(function (x, y) { return a.st(y).confidence - a.st(x).confidence; }).slice(0, 2);
+    if (strong.length) lines.push("範囲のうち" + strong.map(function (k) { return "「" + label(k) + "」"; }).join("と") + "はよくできています。");
+    var weak = test.focus.filter(function (k) { return a.weak(k); });
+    if (weak.length) lines.push(weak.map(function (k) { return "「" + label(k) + "」"; }).join("と") + "がまだ少し不安定なので、今日はここを中心に練習します。");
+    else if (test.focus.length) lines.push("今日は" + test.focus.map(function (k) { return "「" + label(k) + "」"; }).join("と") + "を、テストに出る形の問題で練習します。");
+    if (test.next_note) lines.push("明日は" + test.next_note + "の予定です。");
+    return lines.join("");
   }
 
   function crossText(plan, s) {
@@ -369,6 +456,7 @@
     if (s.type === "practice") return s.level === "standard" ? "「" + s.skill_label + "」を、形が変わっても使えるようになる" : (SC.logic && SC.logic.planCross(s.skill)) || "「" + s.skill_label + "」を使えるようになる";
     if (s.type === "challenge") return "「" + s.skill_label + "」を" + (s.level === "application" ? "組み合わせて使えるようになる" : "形が変わっても使えるようになる");
     if (s.type === "review" || s.type === "check") return "前にできたところを、忘れないようにする";
+    if (s.type === "test") return "「" + s.skill_label + "」を、テストに出る形でも使えるようにする";
     return "「" + s.skill_label + "」の" + LEVEL_JA[s.level] + "を越える";
   }
 
@@ -423,6 +511,6 @@
     return head.concat(lines.slice(0, 4)).join("");
   }
 
-  SC.planner = { CONFIG: CONFIG, GOALS: GOALS, TYPE_LABEL: TYPE_LABEL, LEVEL_JA: LEVEL_JA, TEMPLATES: TEMPLATES, PICK_STAGES: PICK_STAGES,
+  SC.planner = { CONFIG: CONFIG, GOALS: GOALS, ALL_GOALS: ALL_GOALS, TYPE_LABEL: TYPE_LABEL, LEVEL_JA: LEVEL_JA, TEMPLATES: TEMPLATES, PICK_STAGES: PICK_STAGES,
     analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes };
 })(typeof window !== "undefined" ? window : globalThis);
