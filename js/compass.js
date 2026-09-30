@@ -107,18 +107,31 @@
     return "retention";
   }
 
-  // 避ける問題：直近3回のチェックで出た問題 ＋ 7日以内に解いた問題
-  function exclusions(history, sessions, now) {
+  // 問題が足りないときに、除外条件を段階的にゆるめる順番。
+  // どの段階でも「今回すでに出した問題」「前回のチェックの問題」「3日以内に解いた問題」は出さない
+  // （同じ問題が短期間に続かないことを、問題数より優先する）。
+  var RELAX_STAGES = [
+    { stage: 0, checks: CONFIG.RECENT_EXCLUDE_CHECKS, days: CONFIG.RECENT_EXCLUDE_DAYS, everForRetention: true, label: "通常" },
+    { stage: 1, checks: CONFIG.RECENT_EXCLUDE_CHECKS, days: CONFIG.RECENT_EXCLUDE_DAYS, everForRetention: false, label: "定着の確認でも、以前に解いた問題を許可" },
+    { stage: 2, checks: 2, days: 5, everForRetention: false, label: "除外を「直近2回・5日以内」にゆるめた" },
+    { stage: 3, checks: 1, days: 3, everForRetention: false, label: "除外を「前回のチェック・3日以内」までゆるめた" }
+  ];
+
+  // 避ける問題：直近 checks 回のチェックで出た問題 ＋ days 日以内に解いた問題
+  function exclusions(history, sessions, now, checks, days) {
+    checks = checks === undefined ? CONFIG.RECENT_EXCLUDE_CHECKS : checks;
+    days = days === undefined ? CONFIG.RECENT_EXCLUDE_DAYS : days;
     var out = {};
     var finished = (sessions || []).filter(function (s) { return s.finished_at; })
       .sort(function (a, b) { return Date.parse(b.finished_at) - Date.parse(a.finished_at); })
-      .slice(0, CONFIG.RECENT_EXCLUDE_CHECKS);
+      .slice(0, checks);
     var recentSessionIds = {};
-    finished.forEach(function (s) { recentSessionIds[s.id] = true; (s.question_ids || []).forEach(function (q) { out[baseId(q)] = "直近" + CONFIG.RECENT_EXCLUDE_CHECKS + "回のチェックで出題"; }); });
+    var why = "直近" + checks + "回のチェックで出題";
+    finished.forEach(function (s) { recentSessionIds[s.id] = true; (s.question_ids || []).forEach(function (q) { out[baseId(q)] = why; }); });
     history.forEach(function (a) {
       var id = baseId(a.question_id);
-      if (a.session_id && recentSessionIds[a.session_id] && a.context !== "lesson") out[id] = out[id] || "直近" + CONFIG.RECENT_EXCLUDE_CHECKS + "回のチェックで出題";
-      if (now - t(a) < CONFIG.RECENT_EXCLUDE_DAYS * E.DAY) out[id] = out[id] || CONFIG.RECENT_EXCLUDE_DAYS + "日以内に解いた";
+      if (a.session_id && recentSessionIds[a.session_id] && a.context !== "lesson") out[id] = out[id] || why;
+      if (now - t(a) < days * E.DAY) out[id] = out[id] || days + "日以内に解いた";
     });
     return out;
   }
@@ -129,9 +142,10 @@
     var states = input.states, history = input.history || [], now = input.now;
     var rng = input.rng || Math.random;
     var excluded = exclusions(history, input.sessions, now);
-    var lastSession = (input.sessions || []).filter(function (s) { return s.finished_at; })
-      .sort(function (a, b) { return Date.parse(b.finished_at) - Date.parse(a.finished_at); })[0];
-    var lastSessionIds = lastSession ? (lastSession.question_ids || []).map(baseId) : [];
+    var stageExcl = RELAX_STAGES.map(function (st) { return Object.keys(exclusions(history, input.sessions, now, st.checks, st.days)); });
+    var everAnswered = {};
+    history.forEach(function (a) { everAnswered[baseId(a.question_id)] = true; });
+    var shortage = [];
 
     var candidates = [], maintenance = [], notDue = [];
     E.SKILL_ORDER.forEach(function (skill, order) {
@@ -168,26 +182,34 @@
 
     var chosen = [], used = [];
     function countFor(skill) { return chosen.filter(function (c) { return c.skill === skill; }).length; }
+    // 1問えらぶ。段階（除外のゆるさ）を外側、レベルを内側にまわす：
+    // 「同じ問題をくり返す」より「同じスキルの別レベルの未出題問題」を先に使うため。
     function pickFor(c) {
       if (chosen.length >= CONFIG.MAX_QUESTIONS || countFor(c.skill) >= CONFIG.MAX_PER_SKILL) return false;
-      var extra = c.retentionPurpose ? c.everIds : [];
-      var strict = Object.keys(excluded).concat(used, extra);
-      var relaxed = false, q = null, lv;
+      var q = null, stage = null;
       var levels = FALLBACK[c.level];
-      for (var i = 0; i < levels.length && !q; i++) { lv = levels[i]; q = SC.bank.pick(c.skill, lv, { history: history, exclude: strict, rng: rng }); }
-      if (!q) {
-        // 候補がないときだけ、条件をゆるめる（それでも前回のチェックと今回すでに出した問題は避ける）
-        relaxed = true;
-        var loose = used.concat(lastSessionIds, extra);
-        for (var j = 0; j < levels.length && !q; j++) { lv = levels[j]; q = SC.bank.pick(c.skill, lv, { history: history, exclude: loose, rng: rng }); }
+      for (var s = 0; s < RELAX_STAGES.length && !q; s++) {
+        var st = RELAX_STAGES[s];
+        var ex = stageExcl[s].concat(used, c.retentionPurpose && st.everForRetention ? c.everIds : []);
+        for (var i = 0; i < levels.length && !q; i++) {
+          q = SC.bank.pick(c.skill, levels[i], { history: history, exclude: ex, rng: rng });
+          if (q) stage = st;
+        }
       }
-      if (!q) return false;
+      if (!q) {
+        shortage.push({ skill: c.skill, label: c.label, level: c.level, result: "skipped", note: "除外を最後の段階までゆるめても出せる問題がなかったので、今回は出題しない" });
+        return false;
+      }
+      var reused = !!everAnswered[q.id];
+      if (stage.stage > 0) shortage.push({ skill: c.skill, label: c.label, level: c.level, result: reused ? "reused" : "relaxed", question_id: q.id, stage: stage.stage, note: stage.label });
       used.push(q.id);
       chosen.push({
         skill: c.skill, label: c.label, level: q.level, planned_level: c.level, question_id: q.id,
         reason: (c.reasons.length ? c.reasons.map(function (r) { return r.text; }).join("・") : "定期の確認") + "／" + c.levelReason +
-          (q.level !== c.level ? "（" + LEVEL_JA[c.level] + "の問題が残っていないため、" + LEVEL_JA[q.level] + "の問題で代用）" : "") + (relaxed ? "（候補が少ないため除外条件をゆるめた）" : ""),
-        relaxed: relaxed
+          (q.level !== c.level ? "（" + LEVEL_JA[c.level] + "の問題が残っていないため、" + LEVEL_JA[q.level] + "の問題で代用）" : "") +
+          (stage.stage > 0 ? "（問題不足のため" + (reused ? "再利用" : "条件を緩和") + "：" + stage.label + "）" : ""),
+        relax_stage: stage.stage,
+        reused: reused && stage.stage > 0
       });
       return true;
     }
@@ -207,6 +229,7 @@
       now: now,
       candidates: candidates, maintenance: maintenance, notDue: notDue,
       excluded: Object.keys(excluded).map(function (id) { return { id: id, why: excluded[id] }; }),
+      shortage: shortage,
       chosen: chosen,
       questions: chosen.map(function (c) { return c.question_id; })
     };
@@ -297,7 +320,7 @@
   }
 
   SC.compass = {
-    CONFIG: CONFIG, PRIORITY_TEXT: PRIORITY_TEXT, dateKey: dateKey, baseId: baseId,
+    CONFIG: CONFIG, PRIORITY_TEXT: PRIORITY_TEXT, RELAX_STAGES: RELAX_STAGES, dateKey: dateKey, baseId: baseId, exclusions: exclusions,
     buildCheck: buildCheck, notice: notice, snapshotSkills: snapshotSkills, compare: compare,
     planFromStates: planFromStates, planWhy: planWhy
   };

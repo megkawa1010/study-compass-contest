@@ -79,32 +79,53 @@ test("受入シナリオ：×→学習→○（少し上がる・定着ではな
   assert.equal(s3.rate.correct_count, 4);
 });
 
-test("確かさは一度で最大にならず、段階ごとに上がる", () => {
+test("1回の正解で上がる幅：基礎 +0.04 / 標準 +0.05 / 応用 +0.06 / 数日後の確認 +0.08", () => {
   const h = [];
-  const a = log(h, T0, "s1");
+  const conf = () => E.computeSkillStates(h, {}).rate.confidence;
+  let a = log(h, T0, "s1");
+  const c0 = E.CONFIG.startConfidence;
   a("B4", "correct");
-  const basic = E.computeSkillStates(h, { now: T0 }).rate.confidence;
+  const c1 = conf();
   a("S1", "correct");
-  const standard = E.computeSkillStates(h, { now: T0 }).rate.confidence;
-  assert.ok(basic >= 0.45 && basic <= 0.5, "基礎 ≈0.5: " + basic);
-  assert.ok(standard > basic && standard <= 0.65, "標準 ≈0.65: " + standard);
-  // 同じ日に何回正解しても、定着の上限は超えない
-  for (let i = 0; i < 10; i++) a("B4", "correct");
-  assert.ok(E.computeSkillStates(h, { now: T0 }).rate.confidence <= 0.65);
+  const c2 = conf();
+  a({ id: "rate-application-1#s2", skill: "rate", level: "application", unit: "一次関数" }, "correct");
+  const c3 = conf();
+  a = log(h, T0 + 4 * 24 * HOUR, "s2");
+  a({ id: "rate-retention-x", skill: "rate", level: "retention", evidence_level: "basic", unit: "一次関数" }, "correct");
+  const c4 = conf();
+  const near = (x, y) => Math.abs(x - y) < 0.011;
+  assert.ok(near(c1 - c0, 0.04), "基礎 " + (c1 - c0));
+  assert.ok(near(c2 - c1, 0.05), "標準 " + (c2 - c1));
+  assert.ok(near(c3 - c2, 0.06), "応用 " + (c3 - c2));
+  assert.ok(near(c4 - c3, 0.08), "定着 " + (c4 - c3));
 });
 
-test("高い確かさから1回の不正解で急落しない", () => {
+test("確かさは一度で最大にならず、同じ日に何回正解しても到達レベルの上限を超えない", () => {
+  const h = [];
+  const a = log(h, T0, "s1");
+  for (let i = 0; i < 20; i++) a(i % 2 ? "B4" : "S1", "correct");
+  const s = E.computeSkillStates(h, { now: T0 }).rate;
+  assert.ok(s.confidence <= E.CONFIG.ceiling.standard + 1e-9, "標準までなら 0.65 まで: " + s.confidence);
+  assert.equal(s.retention, "not_checked");
+});
+
+test("1回の不正解で下がる幅：通常 −0.05 まで、数日後の確認でも −0.10 まで", () => {
   const h = [];
   let a = log(h, T0, "s1");
-  a("B4", "correct"); a("S1", "correct");
-  a = log(h, T0 + 4 * 24 * HOUR, "s2");
-  a("B4", "correct"); a("S1", "correct");
-  const before = E.computeSkillStates(h, {}).rate.confidence;
+  for (let i = 0; i < 3; i++) a(i % 2 ? "B4" : "S1", "correct");
+  const conf = () => E.computeSkillStates(h, {}).rate.confidence;
+  let before = conf();
   a("B4", "incorrect");
+  assert.ok(before - conf() <= 0.05 + 1e-9, "通常: " + before + " → " + conf());
+  // 定着まで上げてから、数日後に×
+  for (let d = 1; d <= 6; d++) { a = log(h, T0 + d * 4 * 24 * HOUR, "d" + d); a("S1", "correct"); }
+  before = conf();
+  assert.ok(before >= 0.8, "何度も数日後に確かめると高くなる: " + before);
+  a = log(h, T0 + 30 * 24 * HOUR, "late");
+  a("S1", "incorrect");
   const after = E.computeSkillStates(h, {}).rate;
-  assert.ok(before >= 0.8, "定着後は高い: " + before);
-  assert.ok(before - after.confidence <= E.CONFIG.maxDropPerAnswer + 1e-9, before + " → " + after.confidence);
-  assert.equal(after.basic, "pass", "直近の傾向で見るので、1回の×では基礎を取り消さない");
+  assert.ok(before - after.confidence <= 0.10 + 1e-9, "定着の確認での×: " + before + " → " + after.confidence);
+  assert.equal(after.standard, "pass", "直近の傾向で見るので、何度もできていた標準を1回の×では取り消さない");
 });
 
 test("ヒントありの正解は、ヒントなしより確かさが低い", () => {

@@ -36,7 +36,15 @@
     ceiling: { none: 0.3, basic: 0.5, standard: 0.65, application: 0.8, retentionBonus: 0.12, retentionBonus2: 0.15, max: 0.95 },
     ema: { check: 0.35, lesson: 0.175 }, // 最近の結果をどれだけ重く見るか（練習はチェックの半分）
     prior: 0.5,                           // 何も分からないときの正答率の見込み
-    maxDropPerAnswer: 0.15,               // 1回の回答で下がる最大幅
+    startConfidence: 0.3,                 // 記録がないときの確かさ（= ceiling.none。「まだわからない」）
+    minConfidence: 0.05,
+    // 1回の回答で確かさが動く幅（「一度の結果で決めつけない」ため、小さく固定する）
+    step: {
+      up: { basic: 0.04, standard: 0.05, application: 0.06, retention: 0.08 },
+      down: { normal: 0.05, retention: 0.10 }
+    },
+    lessonStepScale: 0.5,                 // 練習（lesson）はチェックの半分の幅
+    maxDropPerAnswer: 0.10,               // 1回の回答で下がる最大幅（= step.down.retention）
     hintCeilingPenalty: 0.1,              // ヒントありでできたときに下げる上限の幅
     retentionDays: 3,                     // 最初に「できた」から何日後の正解を「定着」の確認とみなすか
     masteredConfidence: 0.85,             // 4レベルすべて pass ＋ この確かさ以上で「マスター」
@@ -122,6 +130,10 @@
       var t = Date.parse(a.answered_at);
       var isCheck = a.context !== "lesson";
 
+      // この回答が「数日後の確認（定着の証拠）」にあたるか。firstPassAt を更新する前に判定する
+      var retentionEvidence = isCheck && firstPassAt !== null && t - firstPassAt >= CONFIG.retentionDays * DAY;
+      var accBefore = acc;
+
       if (isCheck) {
         lastCheckIndex = idx;
         // 定着用の問題（level: retention）も、ふだんは基礎・標準の証拠として数える。
@@ -143,13 +155,30 @@
       var alpha = isCheck ? CONFIG.ema.check : CONFIG.ema.lesson;
       acc = acc * (1 - alpha) + credit(a) * alpha;
 
-      // 確かさ：到達レベルの上限 × 最近の正答率。ただし一度に大きくは下げない
-      // 直近のチェックがヒントありの正解なら、上限を少し下げる（「ヒントがあればできる」段階）
+      // 確かさ（confidence）の更新：1回の回答で動く幅を小さく固定する。
+      // - 目標値 target ＝「どのレベルまでできたか」の上限 と「これまでの正答率（新しいほど重い）」の小さい方。
+      //   正解しても target より上には上がらない → 履歴が悪ければ1回の正解では上がりにくい。
+      // - 上がる幅はレベルごとに決まった値まで（基礎 +0.04 / 標準 +0.05 / 応用 +0.06 / 数日後の確認 +0.08）。
+      // - 下がる幅は通常 −0.05、数日後の確認 −0.10 まで。これまでの正答率が高いほど下げ幅は小さい。
+      // - 練習（lesson）はチェックの半分の幅。ヒントありの正解は上がる幅も半分。
       if (isCheck) lastCheckHinted = a.correct && a.hint_used;
       var ceiling = ceilingFor(levels, retentionPasses) - (lastCheckHinted ? CONFIG.hintCeilingPenalty : 0);
       var target = Math.min(ceiling, 0.1 + acc * 0.9);
-      if (conf === null) conf = target;
-      else conf = Math.max(target, conf - CONFIG.maxDropPerAnswer);
+      var scale = isCheck ? 1 : CONFIG.lessonStepScale;
+      if (conf === null) conf = CONFIG.startConfidence;
+      if (a.correct) {
+        var levelKey = a.level === "retention" ? (a.evidence_level || "basic") : a.level;
+        var up = (retentionEvidence ? CONFIG.step.up.retention : (CONFIG.step.up[levelKey] || CONFIG.step.up.basic)) * scale;
+        if (a.hint_used) up *= 0.5;
+        conf = Math.min(conf + up, Math.max(conf, target));
+      } else {
+        var down = (retentionEvidence ? CONFIG.step.down.retention : CONFIG.step.down.normal) * scale;
+        down *= 1 - 0.5 * accBefore; // これまでよくできていたスキルほど、1回の×では下げすぎない
+        conf = conf - down;
+      }
+      // 上限（到達レベル）を超えていたら上限に向けて下げるが、1回に下げるのは通常の幅（0.05）まで
+      if (conf > ceiling) conf = Math.max(ceiling, conf - CONFIG.step.down.normal);
+      conf = Math.min(Math.max(conf, CONFIG.minConfidence), CONFIG.ceiling.max);
     });
 
     var correctCount = attempts.filter(function (a) { return a.correct; }).length;

@@ -674,7 +674,12 @@
     }
     var head = "<thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>最後のチェックから</th><th>チェック後の練習</th><th>理由</th><th>出題レベル</th></tr></thead>";
     var chosen = chk.chosen.map(function (c) {
-      return "<tr><td>" + esc(c.question_id) + "</td><td>" + esc(c.label) + "</td><td>" + L2[c.level] + "</td><td>" + esc(c.reason) + "</td><td>" + esc(QS[c.question_id].text) + "</td></tr>";
+      var mark = c.reused ? ' <span class="lv lv-needs_review">問題不足のため再利用</span>' : c.relax_stage > 0 ? ' <span class="lv lv-needs_review">除外条件を緩和</span>' : "";
+      return "<tr><td>" + esc(c.question_id) + mark + "</td><td>" + esc(c.label) + "</td><td>" + L2[c.level] + "</td><td>" + esc(c.reason) + "</td><td>" + esc(QS[c.question_id].text) + "</td></tr>";
+    }).join("");
+    var shortageRows = chk.shortage.map(function (s) {
+      var what = s.result === "reused" ? "再利用：" + esc(s.question_id) : s.result === "relaxed" ? "緩和して出題：" + esc(s.question_id) : "出題できず";
+      return "<tr><td>" + esc(s.label) + "</td><td>" + L2[s.level] + "</td><td>" + what + "</td><td>" + esc(s.note) + "</td></tr>";
     }).join("");
     var hist = ST.compassHistory().slice(-5).reverse().map(function (h) {
       return '<div class="card bank-item"><p class="small"><strong>' + esc(new Date(h.date).toLocaleString("ja-JP")) + "</strong>　問題：" + esc(h.questions.join(", ")) + "</p>" +
@@ -699,6 +704,12 @@
         '<h3 class="h-sm">対象外</h3><div class="table-wrap"><table>' + head + "<tbody>" + chk.notDue.map(row).join("") + "</tbody></table></div></section>" +
       '<section class="card"><h2 class="h-sm">出題する問題（例：乱数の種 1 で選んだ場合）</h2><div class="table-wrap"><table><thead><tr><th>問題ID</th><th>スキル</th><th>レベル</th><th>選んだ理由</th><th>問題文</th></tr></thead><tbody>' +
         (chosen || '<tr><td colspan="5">なし</td></tr>') + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">問題不足（今回のチェック）</h2>' +
+        (shortageRows
+          ? '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>予定レベル</th><th>対応</th><th>段階</th></tr></thead><tbody>' + shortageRows + "</tbody></table></div>"
+          : '<p class="small muted">なし（すべて通常の条件で、最近出していない問題を選べました）</p>') +
+        '<p class="small muted">足りないときは ' + C.RELAX_STAGES.slice(1).map(function (s) { return "段階" + s.stage + "「" + esc(s.label) + "」"; }).join(" → ") +
+        " の順にゆるめます。どの段階でも、今回すでに出した問題・前回のチェックの問題・3日以内に解いた問題は出しません。</p></section>" +
       '<section class="card"><h2 class="h-sm">除外した問題（' + chk.excluded.length + "）</h2>" +
         '<p class="small">' + (chk.excluded.map(function (e) { return esc(e.id) + "（" + esc(e.why) + "）"; }).join("、") || "なし") + "</p></section>" +
       '<section class="bank-skill"><h2 class="h-sm">これまでの定期チェック（新しい順・最大5件）</h2>' + (hist || '<p class="small muted">まだありません</p>') + "</section>";
@@ -754,8 +765,12 @@
     var total = 0;
     var rows = E.SKILL_ORDER.map(function (s) {
       var sum = SC.bank.LEVELS.reduce(function (a, lv) { return a + c[s][lv]; }, 0);
+      var target = E.SKILLS[s].unit === "既習" ? SC.bank.TARGETS.base : SC.bank.TARGETS.unit;
       total += sum;
-      return "<tr><td>" + esc(E.SKILLS[s].label) + "</td>" + SC.bank.LEVELS.map(function (lv) { return "<td>" + c[s][lv] + "</td>"; }).join("") + "<td><strong>" + sum + "</strong></td></tr>";
+      return "<tr><td>" + esc(E.SKILLS[s].label) + "</td>" + SC.bank.LEVELS.map(function (lv) {
+        var need = target[lv] - c[s][lv];
+        return "<td>" + c[s][lv] + (target[lv] ? '<span class="muted small"> / ' + target[lv] + "</span>" : "") + (need > 0 ? ' <span class="lv lv-needs_review">あと' + need + "</span>" : "") + "</td>";
+      }).join("") + "<td><strong>" + sum + "</strong></td></tr>";
     }).join("");
     var sections = E.SKILL_ORDER.map(function (s) {
       var list = [];
@@ -764,7 +779,9 @@
         '<div class="bank-grid">' + list.map(bankItem).join("") + "</div></section>";
     }).join("");
     return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中2数学・一次関数）</h1>' +
-      '<p class="small muted">全 ' + total + " 問。数学として正しいか、図と答えが合っているかを確かめるためのページです。ふだんの利用者には表示されません。</p>" +
+      '<p class="small muted">全 ' + total + " 問。数学として正しいか、図と答えが合っているかを確かめるためのページです。ふだんの利用者には表示されません。" +
+        "「 / 」のあとは将来の目安の問題数。定期チェックで問題が足りなくなったスキルから順に追加します（目安まであと " +
+        SC.bank.shortage().reduce(function (a, s) { return a + s.need; }, 0) + " 問）。</p>" +
       '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>基礎</th><th>標準</th><th>応用</th><th>定着</th><th>計</th></tr></thead><tbody>' + rows + "</tbody></table></div></section>" +
       sections;
   }

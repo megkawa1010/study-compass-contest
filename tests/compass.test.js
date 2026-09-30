@@ -140,13 +140,20 @@ test("マスター：4レベルすべて pass ＋ 確かさ0.85以上。あと�
   L.session(T0, ["B4", "S1", "rate-application-2"], [c, c, c]);
   // 応用は小問ごとの記録。rate-application-2 は小問ごとに別スキルなので、変化の割合の応用を直接記録する
   L.history.push(E.makeAnswerRecord({ id: "rate-application-1#s2", skill: "rate", level: "application", unit: "一次関数" }, { status: c }, { userId: "u", now: T0 + 5000 }));
-  L.session(T0 + 4 * DAY, ["rate-retention-1", "rate-standard-1"], [c, c]);
-  L.session(T0 + 9 * DAY, ["rate-retention-2"], [c]);
-  let s = L.states(T0 + 9 * DAY + HOUR).rate;
+  // 確かさはゆっくり上がるので、数日おきに何度も確かめてはじめてマスターになる
+  const later = ["rate-retention-1", "rate-standard-1", "rate-retention-2", "rate-standard-2", "rate-basic-2", "rate-basic-1", "B4"];
+  let s;
+  later.forEach((id, i) => L.session(T0 + (i + 1) * 4 * DAY, [id], [c]));
+  const end = T0 + later.length * 4 * DAY + HOUR;
+  s = L.states(end).rate;
   assert.equal(s.learning_status, "mastered", JSON.stringify(s));
   assert.ok(s.confidence >= 0.85);
-  L.session(T0 + 20 * DAY, ["rate-standard-2", "rate-basic-2"], [x, x]);
-  s = L.states(T0 + 20 * DAY + HOUR).rate;
+  const earlyAt = T0 + 4 * DAY + HOUR;
+  const early = E.computeSkillStates(L.history.filter((a) => Date.parse(a.answered_at) <= earlyAt), { now: earlyAt }).rate;
+  assert.notEqual(early.learning_status, "mastered", "1回の定着確認だけではマスターにしない");
+  L.session(end + 3 * DAY, ["rate-standard-2", "rate-basic-2"], [x, x]);
+  L.session(end + 6 * DAY, ["rate-standard-1", "S1"], [x, x]);
+  s = L.states(end + 6 * DAY + HOUR).rate;
   assert.notEqual(s.learning_status, "mastered", "定着は永久に固定しない");
 });
 
@@ -158,6 +165,47 @@ test("「今日はあとで」を選んだ日はお知らせを出さない（�
   assert.equal(C.notice(input).show, true);
   assert.equal(C.notice({ ...input, snoozeDate: C.dateKey(now) }).show, false);
   assert.equal(C.notice({ ...input, now: now + DAY, snoozeDate: C.dateKey(now) }).show, true);
+});
+
+test("問題が足りないときは、除外を段階的にゆるめて再利用する。ただし前回のチェック・3日以内の問題は出さない", () => {
+  const L = learner();
+  // 変化の割合の基礎・標準・定着の問題を、3日にわたってほぼ使い切る
+  L.session(T0, ["B4", "rate-basic-1"], [x, x]);
+  L.session(T0 + DAY, ["rate-basic-2", "rate-retention-1"], [x, x]);
+  L.session(T0 + 2 * DAY, ["S1", "rate-standard-1", "rate-standard-2", "rate-retention-2"], [x, x, x, x]);
+  const now = T0 + 6 * DAY + HOUR;
+  const r = L.check(now, 3);
+  const rate = r.chosen.filter((k) => k.skill === "rate");
+  assert.ok(rate.length >= 1, "問題が足りなくても、ゆるめて出題する");
+  const lastCheck = ["S1", "rate-standard-1", "rate-standard-2", "rate-retention-2"];
+  rate.forEach((k) => {
+    assert.ok(!lastCheck.includes(k.question_id), "前回のチェックの問題は出さない: " + k.question_id);
+    assert.ok(["B4", "rate-basic-1"].includes(k.question_id), "いちばん前に解いた問題から再利用: " + k.question_id);
+    assert.equal(k.reused, true);
+    assert.ok(k.relax_stage >= 2);
+    assert.match(k.reason, /問題不足のため再利用/);
+  });
+  assert.ok(r.shortage.some((s) => s.skill === "rate" && s.result === "reused"), "debug 用に不足を記録");
+});
+
+test("未出題の別レベルの問題があれば、再利用より先にそちらを使う", () => {
+  const L = learner();
+  L.session(T0, ["B4", "rate-basic-1", "rate-basic-2"], [x, x, x]);
+  const r = L.check(T0 + 3 * DAY + HOUR, 2);
+  const rate = r.chosen.filter((k) => k.skill === "rate");
+  assert.ok(rate.length >= 1);
+  rate.forEach((k) => {
+    assert.equal(k.reused, false, k.question_id);
+    assert.notEqual(k.level, "basic", "基礎は使い切っているので別レベル");
+  });
+});
+
+test("問題数の目安（基礎5・標準5・応用3・定着5）に対する不足がわかる", () => {
+  const s = B.shortage();
+  const rateStd = s.find((x) => x.skill === "rate" && x.level === "standard");
+  assert.equal(rateStd.target, 5);
+  assert.equal(rateStd.have, 3);
+  assert.ok(!s.some((x) => ["signed", "algebra", "proportion", "coord"].includes(x.skill) && x.level === "standard"), "既習スキルは標準を持たない");
 });
 
 test("同じ種なら同じ選び方（debug で再現できる）", () => {

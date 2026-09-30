@@ -13,6 +13,14 @@
  * - type: number / linear（一次関数の式）/ pair（2つの答え）/ choice（選択）/ steps（小問に分かれた応用）
  * - steps の各小問は skill を持つ。どの小問で止まったかで、原因のスキルを推定できる。
  * - 図（figure）は画像ではなくデータ。js/figures.js が描く。
+ *
+ * 問題の追加のしかた（問題が足りなくなったスキルから順に）
+ *   1. 該当スキルの区切りの中に add({ ... }) を1つ足す。id は「スキル-レベル-番号」で重ならないように。
+ *   2. skill / level / format / text / type / answer / hint / explanation は必須。
+ *      retention なら evidence_level、応用なら steps（小問ごとに skill）を付ける。
+ *   3. node --test tests/*.test.js を実行する（正解判定・図と答えの整合・定着問題の重複を自動で確認）。
+ *   索引・ランダム選択・?debug=bank の一覧・不足数の表示は、自動で新しい問題を含む。
+ *   目安の問題数は下の TARGETS。?debug=bank に「あと何問」が出る。
  */
 (function (root) {
   var SC = (root.SC = root.SC || {});
@@ -609,6 +617,26 @@
     return out;
   }
 
+  // 将来の目安の問題数。問題が足りなくなったスキルから、ここに近づくよう順に追加する。
+  // （既習スキルは基礎と定着だけを持つ）
+  var TARGETS = {
+    unit: { basic: 5, standard: 5, application: 3, retention: 5 },
+    base: { basic: 5, standard: 0, application: 0, retention: 5 }
+  };
+
+  // スキル×レベルごとの「目安まであと何問」。多い順に並べて返す（追加する順番の参考）
+  function shortage() {
+    var out = [];
+    Object.keys(index).forEach(function (s) {
+      var target = E.SKILLS[s].unit === "既習" ? TARGETS.base : TARGETS.unit;
+      LEVELS.forEach(function (lv) {
+        var have = index[s][lv].length, need = target[lv] - have;
+        if (need > 0) out.push({ skill: s, label: E.SKILLS[s].label, level: lv, have: have, target: target[lv], need: need });
+      });
+    });
+    return out.sort(function (a, b) { return b.need - a.need; });
+  }
+
   function count() {
     var out = {};
     Object.keys(index).forEach(function (s) {
@@ -618,5 +646,5 @@
     return out;
   }
 
-  SC.bank = { LEVELS: LEVELS, index: index, ids: items.map(function (q) { return q.id; }), pick: pick, pickMany: pickMany, count: count, seeded: seeded };
+  SC.bank = { LEVELS: LEVELS, TARGETS: TARGETS, index: index, ids: items.map(function (q) { return q.id; }), pick: pick, pickMany: pickMany, count: count, shortage: shortage, seeded: seeded };
 })(typeof window !== "undefined" ? window : globalThis);
