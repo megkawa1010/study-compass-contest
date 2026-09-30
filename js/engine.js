@@ -39,6 +39,7 @@
     maxDropPerAnswer: 0.15,               // 1回の回答で下がる最大幅
     hintCeilingPenalty: 0.1,              // ヒントありでできたときに下げる上限の幅
     retentionDays: 3,                     // 最初に「できた」から何日後の正解を「定着」の確認とみなすか
+    masteredConfidence: 0.85,             // 4レベルすべて pass ＋ この確かさ以上で「マスター」
     levelWindow: 3                        // レベルの判定に使う直近の回答数
   };
 
@@ -155,10 +156,18 @@
     var last = attempts[attempts.length - 1];
     var lessonAfterCheck = attempts.slice(lastCheckIndex + 1).filter(function (a) { return a.context === "lesson"; });
 
+    var status = learningStatus(skillId, levels, attempts.length, lessonAfterCheck, opts);
+    // 4つのレベルすべてが pass で確かさも高ければ「マスター」。
+    // ただし永久には固定しない（履歴から毎回計算し直すので、あとの不正解で下がりうる）
+    if (status === "retained" && LEVELS.every(function (lv) { return levels[lv] === "pass"; }) &&
+        conf !== null && conf >= CONFIG.masteredConfidence) {
+      status = "mastered";
+    }
+
     return {
       skill: SKILLS[skillId] ? SKILLS[skillId].label : skillId,
       skill_id: skillId,
-      learning_status: learningStatus(skillId, levels, attempts.length, lessonAfterCheck, opts),
+      learning_status: status,
       basic: levels.basic,
       standard: levels.standard,
       application: levels.application,
@@ -225,8 +234,33 @@
       if (s.application === "not_checked") return "try_application";
       return "wait_for_retention_check";
     }
-    if (s.learning_status === "retained") return "keep";
+    if (s.learning_status === "retained" || s.learning_status === "mastered") return "keep";
     return null;
+  }
+
+  // 応用問題の小問（question_id が "問題ID#小問ID"）は小問ごとに記録するが、
+  // 理解度を計算するときは「1つの問題の中の、同じスキルの小問」を1回分にまとめる。
+  // まとめた1回は、そのスキルの小問がすべて正解のときだけ正解（1問の中で×と○が混ざっても、できたことにしない）。
+  function mergeSteps(sorted) {
+    var out = [], groups = {};
+    sorted.forEach(function (a) {
+      var qid = String(a.question_id);
+      var hash = qid.indexOf("#");
+      if (hash === -1) { out.push(a); return; }
+      var key = qid.slice(0, hash) + "|" + a.skill + "|" + (a.session_id || "") + "|" + a.context;
+      var g = groups[key];
+      if (g && Date.parse(a.answered_at) - Date.parse(g.answered_at) < 60 * 60 * 1000) {
+        g.correct = g.correct && a.correct;
+        g.hint_used = g.hint_used || a.hint_used;
+        g.unknown_selected = g.unknown_selected || a.unknown_selected;
+        return;
+      }
+      g = groups[key] = {};
+      for (var k in a) g[k] = a[k];
+      g.question_id = qid.slice(0, hash);
+      out.push(g);
+    });
+    return out;
   }
 
   // answer_history 全体から、全スキルの skill_state を作る
@@ -235,7 +269,7 @@
     opts = opts || {};
     var now = opts.now || Date.now();
     var bySkill = {};
-    history.slice().sort(function (a, b) { return Date.parse(a.answered_at) - Date.parse(b.answered_at); })
+    mergeSteps(history.slice().sort(function (a, b) { return Date.parse(a.answered_at) - Date.parse(b.answered_at) || (a.question_id < b.question_id ? -1 : 1); }))
       .forEach(function (a) { (bySkill[a.skill] = bySkill[a.skill] || []).push(a); });
 
     var states = {};
@@ -251,6 +285,7 @@
 
   // 画面用：学習状態の表示
   var STATUS_VIEW = {
+    mastered:     { mark: "★", label: "マスター",   tone: "ok" },
     retained:     { mark: "◎", label: "定着",       tone: "ok" },
     applying:     { mark: "◎", label: "活用できる", tone: "ok" },
     understood:   { mark: "○", label: "理解",       tone: "ok" },
@@ -259,6 +294,9 @@
     not_learned:  { mark: "・", label: "未学習",     tone: "muted" },
     not_checked:  { mark: "−", label: "まだ",       tone: "muted" }
   };
+
+  // 状態の「高さ」。前回と今回をくらべて、上がったか下がったかを判断するのに使う
+  var STATUS_RANK = { not_checked: 0, not_learned: 0, needs_review: 1, learning: 2, understood: 3, applying: 4, retained: 5, mastered: 6 };
 
   // セッションの終わりに、確かさの控え（前回との比較用）を作る
   function snapshot(states) {
@@ -270,7 +308,7 @@
   }
 
   SC.engine = {
-    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, LEVELS: LEVELS, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, DAY: DAY,
+    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, LEVELS: LEVELS, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot
   };
 })(typeof window !== "undefined" ? window : globalThis);

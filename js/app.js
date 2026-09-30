@@ -13,6 +13,7 @@
   var L = SC.logic;
   var E = SC.engine;
   var ST = SC.store;
+  var C = SC.compass;
   var QS = SC.QUESTIONS;
   var STATE_KEY = "study-compass-contest/state/v1";
   var DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(window.location.search.slice(1));
@@ -22,6 +23,8 @@
   var restartButton = document.getElementById("restart-button");
 
   ST.load();
+  ST.recompute(); // 日付によって変わる「次にやること」を、開いた時点の日付で計算し直す
+  var COMPASS_VIEW = /(?:^|[?&])debug=compass(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -45,17 +48,20 @@
       hintOpen: false,
       lesson: { step: 0, results: {} },
       feeling: null,
-      sessionId: null
+      sessionId: null,
+      mode: "initial",   // "initial"（はじめてのチェック）| "periodic"（定期コンパスチェック）
+      periodic: null     // 定期チェックで選んだスキルと理由
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
     var ok = s.queue.every(function (id) { return !!QS[id]; });
     if (!ok || s.idx > s.queue.length) return freshState();
-    if (s.screen === "check" && s.idx >= s.queue.length) s.screen = "result";
+    s.mode = s.mode || "initial";
+    if (s.screen === "check" && s.idx >= s.queue.length) s.screen = s.mode === "periodic" ? "checkResult" : "result";
     s.lesson = s.lesson || { step: 0, results: {} };
     return s;
   }
@@ -83,38 +89,91 @@
   }
 
   function diagnosisAndPlan() {
+    if (state.mode === "periodic") return periodicPlan();
     var d = L.diagnose(state.answers);
     return { d: d, plan: L.buildPlan(d, state.answers) };
   }
 
+  // 定期チェックのあとは、その回の回答ではなく skill_state（これまでの記録全体）から今日の学習を作る。
+  // 方針はチェックが終わった時点で決めて保存してあるので、学習の途中で変わらない。
+  function periodicPlan() {
+    var entry = ST.compassCheck(state.sessionId) || {};
+    var states = ST.get().skill_state;
+    var focus = entry.focus_skill || null;
+    var d = {
+      planKey: entry.plan_key || C.planFromStates(states).planKey,
+      skills: E.SKILL_ORDER.filter(function (k) { return states[k] && states[k].attempt_count; }).map(function (k) {
+        var s = states[k];
+        return { key: k, label: E.SKILLS[k].label, status: (E.STATUS_RANK[s.learning_status] || 0) >= 3 ? "ok" : "unstable", roots: s.suspected_root_causes };
+      }),
+      focusSkill: focus ? { key: focus, label: E.SKILLS[focus].label } : null
+    };
+    var plan = L.buildPlan(d, {});
+    if (entry.before && entry.after) {
+      plan.why = C.planWhy(C.compare(entry.before, entry.after, entry.skill_ids), { focus: focus });
+    }
+    return { d: d, plan: plan };
+  }
+
   // ---------- 入力欄 ----------
 
-  function inputFields(q, prefix) {
+  // 入力中の値の置き場所。小問つきの問題は、小問ごとに分けて持つ
+  function box(stepId) {
+    if (!stepId) return draft;
+    draft.steps = draft.steps || {};
+    return (draft.steps[stepId] = draft.steps[stepId] || {});
+  }
+
+  function inputFields(q, prefix, stepId, first) {
+    if (first === undefined) first = true;
+    var cur = box(stepId);
+    var stepAttr = stepId ? ' data-step="' + esc(stepId) + '"' : "";
     var ph = q.placeholder || "答えを入力";
+    if (q.type === "steps") {
+      return '<ol class="step-list">' + q.steps.map(function (st, i) {
+        return '<li><p class="step-text">' + esc(st.text) + "</p>" + inputFields(st, prefix + "-" + st.id, st.id, first && i === 0) + "</li>";
+      }).join("") + "</ol>";
+    }
+    if (q.type === "choice") {
+      return '<div class="choices" role="radiogroup">' + q.choices.map(function (c) {
+        var on = cur.value === c.key;
+        return '<button type="button" class="choice' + (on ? " selected" : "") + '" role="radio" aria-checked="' + on + '" data-action="choose" data-choice="' + esc(c.key) + '"' + stepAttr + ">" + esc(c.label) + "</button>";
+      }).join("") + "</div>";
+    }
     if (q.type === "pair") {
       return '<div class="pair">' + q.fields.map(function (f, i) {
         var id = prefix + "-" + f.key;
         return '<label class="field" for="' + id + '"><span>' + esc(f.label) + '</span>' +
-          '<input id="' + id + '" data-field="' + f.key + '" autocomplete="off" inputmode="text" value="' + esc(draft[f.key] || "") + '"' +
-          (i === 0 ? " data-autofocus" : "") + '></label>';
+          '<input id="' + id + '" data-field="' + f.key + '"' + stepAttr + ' autocomplete="off" inputmode="text" value="' + esc(cur[f.key] || "") + '"' +
+          (first && i === 0 ? " data-autofocus" : "") + '></label>';
       }).join("") + "</div>";
     }
+    var inputId = prefix + "-v";
     var chips = q.type === "linear"
-      ? '<div class="chips" aria-label="入力の補助">' + ["y =", "x", "−", "+"].map(function (c) {
-          return '<button type="button" class="chip" data-action="chip" data-chip="' + esc(c) + '">' + esc(c) + "</button>";
+      ? '<div class="chips" aria-label="入力の補助">' + ["y =", "x", "−", "+", "/"].map(function (c) {
+          return '<button type="button" class="chip" data-action="chip" data-target="' + inputId + '" data-chip="' + esc(c) + '">' + esc(c) + "</button>";
         }).join("") + "</div>"
       : "";
-    return '<label class="field single" for="' + prefix + '-v"><span class="sr-only">答え</span>' +
-      '<input id="' + prefix + '-v" data-field="value" autocomplete="off" inputmode="text" placeholder="' + esc(ph) + '" value="' + esc(draft.value || "") + '" data-autofocus></label>' + chips;
+    return '<label class="field single" for="' + inputId + '"><span class="sr-only">答え</span>' +
+      '<input id="' + inputId + '" data-field="value"' + stepAttr + ' autocomplete="off" inputmode="text" placeholder="' + esc(ph) + '" value="' + esc(cur.value || "") + '"' + (first ? " data-autofocus" : "") + "></label>" + chips;
+  }
+
+  function readFrom(q, cur) {
+    if (q.type === "pair") {
+      var v = {};
+      q.fields.forEach(function (f) { v[f.key] = cur[f.key] || ""; });
+      return v;
+    }
+    return cur.value || "";
   }
 
   function readInput(q) {
-    if (q.type === "pair") {
-      var v = {};
-      q.fields.forEach(function (f) { v[f.key] = draft[f.key] || ""; });
-      return v;
+    if (q.type === "steps") {
+      var out = {};
+      q.steps.forEach(function (st) { out[st.id] = readFrom(st, box(st.id)); });
+      return out;
     }
-    return draft.value || "";
+    return readFrom(q, draft);
   }
 
   // ---------- 画面 ----------
@@ -122,7 +181,7 @@
   function viewHome() {
     var sessions = ST.finishedSessions();
     var last = sessions[sessions.length - 1];
-    return '' +
+    return compassNotice() +
       '<section class="hero">' +
         '<div class="hero-copy">' +
           '<p class="eyebrow">STUDY COMPASS</p>' +
@@ -162,6 +221,30 @@
       debugPanel();
   }
 
+  function compassInput() {
+    var d = ST.get();
+    return { states: d.skill_state, history: d.answer_history, sessions: d.sessions, now: ST.now(), snoozeDate: ST.snoozeDate() };
+  }
+
+  // 定期コンパスチェックのお知らせ。強制はしない（今チェックする / 今日はあとで）
+  function compassNotice() {
+    var n = C.notice(compassInput());
+    if (n.snoozed && n.count) {
+      return '<p class="small muted snoozed-note">今日のコンパスチェックは「あとで」にしました。明日またお知らせします。' +
+        '<button class="text-button inline" type="button" data-action="start-periodic">やっぱり今チェックする</button></p>';
+    }
+    if (!n.show) return "";
+    return '<section class="card notice-card">' +
+      '<p class="eyebrow">COMPASS CHECK</p>' +
+      '<h2 class="h-sm">そろそろ現在地を確認しよう</h2>' +
+      '<p>最近勉強したところを ' + n.count + " 問だけ確認します。</p>" +
+      '<p class="small muted">所要時間：約3〜5分 ／ 確認するところ：' + esc(n.skills.join("、")) + "</p>" +
+      '<div class="actions">' +
+        '<button class="primary-button" type="button" data-action="start-periodic">今チェックする</button>' +
+        '<button class="secondary-button" type="button" data-action="snooze">今日はあとで</button>' +
+      "</div></section>";
+  }
+
   function dateLabel(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return "";
@@ -179,6 +262,8 @@
         '<button class="secondary-button" type="button" data-action="debug-days">日付を3日進める</button>' +
         '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
         '<button class="secondary-button" type="button" data-action="debug-export">記録を書き出す（JSON）</button>' +
+        '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
+        '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
       "</div></section>";
   }
 
@@ -236,11 +321,12 @@
   function viewCheck() {
     var id = state.queue[state.idx];
     var q = QS[id];
+    var periodic = state.mode === "periodic";
     var isBasic = state.idx < state.basicCount;
     var num = isBasic ? state.idx + 1 : state.idx - state.basicCount + 1;
     var total = isBasic ? state.basicCount : state.queue.length - state.basicCount;
     var pct = Math.round((num - 1) / total * 100);
-    var phaseLabel = isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
+    var phaseLabel = periodic ? "定期コンパスチェック" : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
     return '' +
       '<section class="card narrow question-card">' +
         '<div class="progress-head"><span class="eyebrow">' + phaseLabel + '</span><span class="q-count">' + (isBasic ? "Q" : "追加 ") + num + " / " + total + "</span></div>" +
@@ -248,6 +334,7 @@
         '<p class="skill-tag">確認するスキル：' + esc(q.skillLabel) + "</p>" +
         (q.purpose && !isBasic ? '<p class="purpose">' + esc(q.purpose) + "</p>" : "") +
         '<h1 class="question">' + esc(q.text) + "</h1>" +
+        SC.figures.render(q.figure) +
         '<form class="answer-form" data-form="check" novalidate>' +
           inputFields(q, "q") +
           (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
@@ -536,6 +623,87 @@
     return '<button class="feeling" type="button" data-action="feeling" data-feeling="' + key + '"><span class="emoji" aria-hidden="true">' + emoji + "</span>" + label + "</button>";
   }
 
+  // ---------- 定期コンパスチェックの結果 ----------
+
+  function viewCheckResult() {
+    var entry = ST.compassCheck(state.sessionId);
+    if (!entry) { state.screen = "home"; return viewHome(); }
+    var res = C.compare(entry.before, entry.after, entry.skill_ids);
+    var V = E.STATUS_VIEW;
+    var TAG = { up: '<span class="delta up">前回より ↑</span>', down: '<span class="delta down">今回は少し ↓</span>',
+      same_good: '<span class="delta">安定</span>', same_weak: '<span class="delta">もう少し</span>' };
+    var items = res.items.map(function (i) {
+      var b = V[i.before.learning_status], a = V[i.after.learning_status];
+      return '<li class="cr-item change-' + i.change + '">' +
+        '<strong class="cr-label">' + esc(i.label) + "</strong>" +
+        '<span class="cr-move"><span class="cr-mark">' + b.mark + '</span><span class="cr-arrow">→</span><span class="cr-mark now">' + a.mark + "</span></span>" +
+        '<span class="cr-status small muted">' + esc(b.label) + " → " + esc(a.label) + "</span>" + TAG[i.change] +
+      "</li>";
+    }).join("");
+    var crossed = res.crossed.length
+      ? '<div class="success"><span class="burst" aria-hidden="true">★</span><div><strong>ひとつ越えました！</strong><p>' +
+        esc(res.crossed.map(function (i) { return i.label; }).join("・")) + " が、次の段階に進みました。</p></div></div>"
+      : "";
+    return '' +
+      '<section class="result-head"><p class="eyebrow">COMPASS CHECK</p><h1 class="h-md">今回わかったこと</h1>' +
+        '<p class="muted small">' + entry.questions.length + " 問で、" + esc(entry.skills.join("・")) + " を確かめました。点数ではなく、前回からの変化を見ています。</p></section>" +
+      crossed +
+      '<section class="card"><ul class="cr-list">' + items + "</ul></section>" +
+      '<section class="card discovery"><h2><span class="spark" aria-hidden="true">✦</span> Study Compass のコメント</h2>' +
+        "<p>" + nl(entry.comment) + "</p>" +
+        '<p class="small muted">1回の結果だけで決めつけず、これからの記録もあわせて現在地を更新していきます。</p></section>' +
+      historyCard() +
+      '<div class="sticky-cta"><button class="primary-button big full" type="button" data-action="to-plan">今日の学習を作る</button></div>';
+  }
+
+  // ---------- 定期コンパスチェックの確認ページ（?debug=compass） ----------
+
+  function viewCompassDebug() {
+    var input = compassInput();
+    var chk = C.buildCheck({ states: input.states, history: input.history, sessions: input.sessions, now: input.now, rng: SC.bank.seeded(1) });
+    var n = C.notice(input);
+    var cfg = C.CONFIG;
+    var L2 = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
+    function row(c) {
+      var s = input.states[c.skill];
+      return "<tr><td>" + esc(c.label) + "</td><td>" + esc(E.STATUS_VIEW[c.status].label) + "</td><td>" + (s ? s.confidence.toFixed(2) : "−") + "</td>" +
+        "<td>" + (c.due && c.due.daysSince !== null ? c.due.daysSince + "日" : "−") + (c.due && c.due.byDays ? " ✓" : "") + "</td>" +
+        "<td>" + (c.due ? c.due.lessonSince + "問" : "−") + (c.due && c.due.byAttempts ? " ✓" : "") + "</td>" +
+        "<td>" + (c.reasons.length ? c.reasons.map(function (r) { return "P" + r.p + " " + esc(r.text); }).join("<br>") : esc(c.why_not || "優先理由なし")) + "</td>" +
+        "<td>" + (c.level ? L2[c.level] + (c.retentionPurpose ? "（定着目的）" : "") : "−") + "</td></tr>";
+    }
+    var head = "<thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>最後のチェックから</th><th>チェック後の練習</th><th>理由</th><th>出題レベル</th></tr></thead>";
+    var chosen = chk.chosen.map(function (c) {
+      return "<tr><td>" + esc(c.question_id) + "</td><td>" + esc(c.label) + "</td><td>" + L2[c.level] + "</td><td>" + esc(c.reason) + "</td><td>" + esc(QS[c.question_id].text) + "</td></tr>";
+    }).join("");
+    var hist = ST.compassHistory().slice(-5).reverse().map(function (h) {
+      return '<div class="card bank-item"><p class="small"><strong>' + esc(new Date(h.date).toLocaleString("ja-JP")) + "</strong>　問題：" + esc(h.questions.join(", ")) + "</p>" +
+        '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>前</th><th>後</th><th>確かさ</th></tr></thead><tbody>' +
+        h.skill_ids.map(function (k) {
+          var b = h.before[k], a = h.after[k];
+          return "<tr><td>" + esc(E.SKILLS[k].label) + "</td><td>" + esc(E.STATUS_VIEW[b.learning_status].label) + "</td><td>" + esc(E.STATUS_VIEW[a.learning_status].label) + "</td><td>" + b.confidence.toFixed(2) + " → " + a.confidence.toFixed(2) + "</td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        '<p class="small muted">今日の学習：' + esc(h.plan_key) + (h.focus_skill ? "（中心：" + esc(E.SKILLS[h.focus_skill].label) + "）" : "") + "</p></div>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / COMPASS</p><h1 class="h-md">定期コンパスチェックの確認</h1>' +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(input.now).toLocaleString("ja-JP")) + "（" + (ST.get().debug.time_offset_days || 0) + "日進めています）" +
+        "／ホームのお知らせ：" + (n.show ? "表示する" : n.snoozed ? "今日はあとで" : "表示しない") + "</p>" +
+      '<p class="small muted">設定：' + cfg.COMPASS_CHECK_DAYS + "日経過 または 練習" + cfg.COMPASS_CHECK_MIN_ATTEMPTS + "問で候補／1回 " + cfg.MIN_QUESTIONS + "〜" + cfg.MAX_QUESTIONS + "問・1スキル" + cfg.MAX_PER_SKILL +
+        "問まで／直近" + cfg.RECENT_EXCLUDE_CHECKS + "回・" + cfg.RECENT_EXCLUDE_DAYS + "日以内の問題は除外／確かさ " + cfg.LOW_CONFIDENCE + " 未満を優先</p>" +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-days">日付を3日進める</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
+        '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">チェック対象のスキル（優先度順）</h2><div class="table-wrap"><table>' + head + "<tbody>" +
+        (chk.candidates.map(row).join("") || '<tr><td colspan="7">いまは対象なし</td></tr>') + "</tbody></table></div>" +
+        (chk.maintenance.length ? '<h3 class="h-sm">条件は満たすが優先理由なし（問題数が足りないときだけ使う）</h3><div class="table-wrap"><table>' + head + "<tbody>" + chk.maintenance.map(row).join("") + "</tbody></table></div>" : "") +
+        '<h3 class="h-sm">対象外</h3><div class="table-wrap"><table>' + head + "<tbody>" + chk.notDue.map(row).join("") + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">出題する問題（例：乱数の種 1 で選んだ場合）</h2><div class="table-wrap"><table><thead><tr><th>問題ID</th><th>スキル</th><th>レベル</th><th>選んだ理由</th><th>問題文</th></tr></thead><tbody>' +
+        (chosen || '<tr><td colspan="5">なし</td></tr>') + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">除外した問題（' + chk.excluded.length + "）</h2>" +
+        '<p class="small">' + (chk.excluded.map(function (e) { return esc(e.id) + "（" + esc(e.why) + "）"; }).join("、") || "なし") + "</p></section>" +
+      '<section class="bank-skill"><h2 class="h-sm">これまでの定期チェック（新しい順・最大5件）</h2>' + (hist || '<p class="small muted">まだありません</p>') + "</section>";
+  }
+
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
 
   var LEVEL_LABEL = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
@@ -604,12 +772,12 @@
   // ---------- 描画 ----------
 
   var lastScreenKey = "";
-  var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect };
+  var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult };
 
   function render() {
     var html;
-    if (BANK_VIEW) {
-      app.innerHTML = '<div class="screen">' + viewBank() + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : viewCompassDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -636,14 +804,34 @@
 
   function currentQuestion() { return QS[state.queue[state.idx]]; }
 
-  function recordAnswer(status) {
+  // stepResults: 小問つきの問題のとき、小問ごとの正誤（L.checkSteps の結果）
+  function recordAnswer(status, stepResults) {
     var id = state.queue[state.idx];
-    state.answers[id] = { status: status, hintUsed: !!state.hintOpen, at: new Date(ST.now()).toISOString() };
-    ST.addAnswer(QS[id], { status: status, hintUsed: !!state.hintOpen }, { sessionId: state.sessionId, context: "compass_check" });
+    var q = QS[id];
+    var hint = !!state.hintOpen;
+    var ctx = { sessionId: state.sessionId, context: "compass_check" };
+    state.answers[id] = { status: status, hintUsed: hint, at: new Date(ST.now()).toISOString() };
+    if (q.type === "steps") {
+      // 小問ごとに、その小問のスキルで記録する（どの小問で止まったかが理解度に反映される）
+      q.steps.forEach(function (st, i) {
+        var r = stepResults ? stepResults[i] : null;
+        var s = status === "unknown" ? "unknown" : r && r.correct ? "correct" : "incorrect";
+        ST.addAnswer({ id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit },
+          { status: s, hintUsed: hint }, ctx);
+      });
+      if (stepResults) state.answers[id].steps = L.analyzeSteps(q, stepResults);
+    } else {
+      ST.addAnswer(q, { status: status, hintUsed: hint }, ctx);
+    }
     state.idx += 1;
     state.hintOpen = false;
     message = "";
     draft = {};
+    if (state.mode === "periodic") {
+      if (state.idx >= state.queue.length) { finishPeriodic(); go("checkResult"); return; }
+      render();
+      return;
+    }
     if (state.idx === state.basicCount && state.followUps.length === 0) {
       state.followUps = L.followUps(state.answers);
       state.queue = state.queue.slice(0, state.basicCount).concat(state.followUps.map(function (f) { return f.id; }));
@@ -658,11 +846,64 @@
     var q = currentQuestion();
     var v = readInput(q);
     if (L.isBlank(q, v)) {
-      message = q.type === "pair" ? "両方の欄に答えを入れるか、「わからない」を選んでね。" : "答えを入力するか、「わからない」を選んでね。";
+      message = q.type === "pair" ? "両方の欄に答えを入れるか、「わからない」を選んでね。"
+        : q.type === "steps" ? "すべての小問に答えるか、「わからない」を選んでね。"
+        : q.type === "choice" ? "答えをひとつ選ぶか、「わからない」を選んでね。"
+        : "答えを入力するか、「わからない」を選んでね。";
       render();
       return;
     }
+    if (q.type === "steps") {
+      var res = L.checkSteps(q, v);
+      recordAnswer(res.every(function (r) { return r.correct; }) ? "correct" : "incorrect", res);
+      return;
+    }
     recordAnswer(L.check(q, v) ? "correct" : "incorrect");
+  }
+
+  // ---------- 定期コンパスチェック ----------
+
+  function startPeriodic() {
+    var check = C.buildCheck(compassInput());
+    if (!check.questions.length) { go("home"); return; }
+    var skills = check.chosen.map(function (c) { return c.skill; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+    state = freshState();
+    state.mode = "periodic";
+    state.queue = check.questions.slice();
+    state.basicCount = state.queue.length;
+    state.sessionId = ST.startSession("periodic", "一次関数");
+    state.periodic = {
+      skills: skills,
+      chosen: check.chosen,
+      before: C.snapshotSkills(ST.get().skill_state, skills)
+    };
+    go("check");
+  }
+
+  // チェックが終わったら、前後の変化と今日の学習の方針を compass_check_history に残す
+  function finishPeriodic() {
+    var p = state.periodic;
+    var states = ST.recompute();
+    var after = C.snapshotSkills(states, p.skills);
+    var result = C.compare(p.before, after, p.skills);
+    var plan = C.planFromStates(states);
+    ST.finishSession(state.sessionId, { plan_key: plan.planKey, focus_skill: plan.focus, suspected_root_causes: [] });
+    var reasons = {};
+    p.chosen.forEach(function (c) { reasons[c.question_id] = c.reason; });
+    ST.addCompassCheck({
+      id: E.makeId("chk", ST.now()),
+      session_id: state.sessionId,
+      date: new Date(ST.now()).toISOString(),
+      questions: state.queue.slice(),
+      skills: p.skills.map(function (k) { return E.SKILLS[k].label; }),
+      skill_ids: p.skills,
+      reasons: reasons,
+      before: p.before,
+      after: after,
+      comment: result.comment,
+      plan_key: plan.planKey,
+      focus_skill: plan.focus
+    });
   }
 
   function submitLesson() {
@@ -705,7 +946,7 @@
 
   app.addEventListener("input", function (e) {
     var key = e.target.getAttribute && e.target.getAttribute("data-field");
-    if (key) draft[key] = e.target.value;
+    if (key) box(e.target.getAttribute("data-step"))[key] = e.target.value;
   });
 
   app.addEventListener("change", function (e) {
@@ -758,7 +999,16 @@
       case "lesson-hint": state.hintOpen = true; render(); break;
       case "unknown": recordAnswer("unknown"); break;
       case "continue-check": go("check"); break;
-      case "to-result": go("result"); break;
+      case "to-result": go(state.mode === "periodic" ? "checkResult" : "result"); break;
+      case "start-periodic": startPeriodic(); break;
+      case "snooze":
+        ST.setSnooze(C.dateKey(ST.now()));
+        render();
+        break;
+      case "choose":
+        box(el.getAttribute("data-step")).value = el.getAttribute("data-choice");
+        render();
+        break;
       case "to-plan": go("plan"); break;
       case "start-lesson":
         state.lesson = { step: 0, results: {} };
@@ -783,11 +1033,11 @@
         render();
         break;
       case "chip":
-        var input = app.querySelector('input[data-field="value"]');
+        var input = document.getElementById(el.getAttribute("data-target")) || app.querySelector('input[data-field="value"]');
         if (!input) break;
         var chip = el.getAttribute("data-chip").replace("−", "-");
         input.value = input.value + (chip === "y =" ? "y=" : chip);
-        draft.value = input.value;
+        box(input.getAttribute("data-step")).value = input.value;
         input.focus();
         break;
     }

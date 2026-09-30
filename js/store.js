@@ -44,6 +44,7 @@
       profile: { school_progress: {} },
       answer_history: [],
       sessions: [],
+      compass_check_history: [],
       skill_state: {},
       debug: { time_offset_days: 0 }
     };
@@ -94,6 +95,7 @@
     }
     d.debug = d.debug || { time_offset_days: 0 };
     d.profile.school_progress = d.profile.school_progress || {};
+    d.compass_check_history = d.compass_check_history || [];
     data = d;
     return data;
   }
@@ -199,12 +201,31 @@
 
   function exportJSON() { return JSON.stringify(get(), null, 2); }
 
+  // ---------- 定期コンパスチェック（Phase 2） ----------
+  // { id, session_id, date, questions[], skills[], skill_ids[], reasons{}, before{}, after{}, plan_key }
+  function addCompassCheck(entry) {
+    get().compass_check_history.push(entry);
+    persist();
+    return entry;
+  }
+  function compassHistory() { return get().compass_check_history; }
+  function compassCheck(sessionId) {
+    var list = get().compass_check_history;
+    for (var i = list.length - 1; i >= 0; i--) if (list[i].session_id === sessionId) return list[i];
+    return null;
+  }
+  // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
+  function setSnooze(dateKey) { get().profile.compass_snooze_date = dateKey; persist(); }
+  function snoozeDate() { return get().profile.compass_snooze_date || null; }
+
   SC.store = {
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
     schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress,
     startSession: startSession, session: session, addAnswer: addAnswer, finishSession: finishSession,
     setSelfEvaluation: setSelfEvaluation, previousSnapshot: previousSnapshot, finishedSessions: finishedSessions,
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,
+    addCompassCheck: addCompassCheck, compassHistory: compassHistory, compassCheck: compassCheck,
+    setSnooze: setSnooze, snoozeDate: snoozeDate,
     _backend: backend
   };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -146,6 +146,20 @@ test("定着用の問題でも、日数があいていなければ定着にし�
   assert.equal(s.retention, "pass", "日数があいていれば定着");
 });
 
+test("応用問題の中で同じスキルの小問に×と○が混ざったら、そのスキルはできたことにしない", () => {
+  const h = [];
+  const a = log(h, T0, "s1");
+  const step = (id, skill) => ({ id: "rate-application-1#" + id, skill, level: "application", unit: "一次関数" });
+  a(step("s1", "change"), "correct");
+  a(step("s2", "rate"), "incorrect");
+  a(step("s3", "rate"), "correct");
+  const s = E.computeSkillStates(h, {});
+  assert.equal(s.rate.application, "needs_review");
+  assert.equal(s.rate.attempt_count, 1, "小問2つで1回分");
+  assert.equal(s.change.application, "pass");
+  assert.equal(h.length, 3, "記録そのものは小問ごとに残す");
+});
+
 test("同じ履歴からは必ず同じ結果（順番が入れ替わっていても）", () => {
   const h = [];
   const a = log(h, T0, "s1");

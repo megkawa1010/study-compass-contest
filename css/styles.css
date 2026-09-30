@@ -296,6 +296,30 @@ th { font-size: 11px; color: var(--text-soft); }
 .fig-text.point-label { fill: var(--text); font-size: 12px; font-weight: 800; }
 .fig-text.axis-name { font-size: 11px; font-weight: 700; }
 
+/* ---------- 定期コンパスチェック ---------- */
+.notice-card { border: 1px solid rgba(255, 217, 138, .5); background: radial-gradient(90% 140% at 100% 0%, rgba(255, 217, 138, .16), transparent 60%), var(--card-strong); }
+.notice-card .h-sm { margin-bottom: 6px; }
+.snoozed-note { text-align: center; }
+.text-button.inline { padding: 0 0 0 8px; }
+.link-button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.choices { display: grid; gap: 8px; }
+.choice { text-align: left; border: 1.5px solid var(--line-strong); background: rgba(255, 255, 255, .04); border-radius: 12px; padding: 12px 14px; font-weight: 700; min-height: 48px; }
+.choice:hover { background: rgba(255, 255, 255, .08); }
+.choice.selected { border-color: var(--star); background: rgba(255, 217, 138, .14); color: var(--star); }
+.choice:focus-visible { outline: 3px solid var(--hint); outline-offset: 2px; }
+.step-list { margin: 0; padding-left: 1.4em; display: grid; gap: 14px; }
+.step-text { font-weight: 700; margin-bottom: 6px; }
+.cr-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.cr-item { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "label move" "status tag"; gap: 2px 10px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--inset); border: 1px solid var(--line); }
+.cr-label { grid-area: label; font-size: 16px; }
+.cr-move { grid-area: move; display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; }
+.cr-mark { color: var(--text-soft); }
+.cr-mark.now { color: var(--text); }
+.change-up .cr-mark.now { color: var(--star); text-shadow: 0 0 12px rgba(255, 217, 138, .7); }
+.cr-arrow { font-size: 14px; color: var(--text-soft); }
+.cr-status { grid-area: status; }
+.cr-item .delta { grid-area: tag; margin-left: 0; justify-self: end; }
+
 /* 問題バンクの確認ページ */
 .bank-skill { display: grid; gap: 10px; }
 .bank-skill h2 span { margin-left: 6px; font-weight: 700; }
