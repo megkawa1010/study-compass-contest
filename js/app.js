@@ -16,6 +16,7 @@
   var QS = SC.QUESTIONS;
   var STATE_KEY = "study-compass-contest/state/v1";
   var DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(window.location.search.slice(1));
+  var BANK_VIEW = /(?:^|[?&])debug=bank(?:&|$)/.test(window.location.search.slice(1));
   var FEELING_LABEL = { good: "できた", soso: "もう少し", hard: "わからなかった" };
   var app = document.getElementById("app");
   var restartButton = document.getElementById("restart-button");
@@ -535,6 +536,71 @@
     return '<button class="feeling" type="button" data-action="feeling" data-feeling="' + key + '"><span class="emoji" aria-hidden="true">' + emoji + "</span>" + label + "</button>";
   }
 
+  // ---------- 問題バンクの確認ページ（?debug=bank） ----------
+
+  var LEVEL_LABEL = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
+  var FORMAT_LABEL = { expression: "数式", table: "表", graph: "グラフ", word: "文章", numberline: "数直線" };
+
+  function answerText(q) {
+    var n = SC.figures.num;
+    if (q.answer_display) return q.answer_display;
+    if (q.type === "number") return n(q.answer);
+    if (q.type === "linear") {
+      var a = q.answer.a, b = q.answer.b;
+      var as = a === 1 ? "" : a === -1 ? "−" : n(a);
+      return "y = " + as + "x" + (b === 0 ? "" : b > 0 ? " + " + n(b) : " − " + n(-b));
+    }
+    if (q.type === "pair") return q.fields.map(function (f) { return f.label + " " + n(q.answer[f.key]); }).join("、");
+    if (q.type === "choice") {
+      var c = q.choices.filter(function (x) { return x.key === q.answer; })[0];
+      return c ? c.label : q.answer;
+    }
+    return "";
+  }
+
+  function bankItem(q) {
+    return '<article class="card bank-item" id="' + esc(q.id) + '">' +
+      '<div class="bank-meta"><span class="lv lv-pass">' + LEVEL_LABEL[q.level] + (q.evidence_level ? "（" + LEVEL_LABEL[q.evidence_level] + "相当）" : "") + "</span>" +
+        '<span class="lv">' + (FORMAT_LABEL[q.format] || "") + "</span>" +
+        '<span class="bank-id">' + esc(q.id) + (q.origin === "core" ? "（既存）" : "") + "</span></div>" +
+      '<p class="bank-text">' + esc(q.text) + "</p>" +
+      SC.figures.render(q.figure) +
+      (q.type === "choice" ? '<ol class="bank-choices">' + q.choices.map(function (c) { return "<li>" + esc(c.label) + "</li>"; }).join("") + "</ol>" : "") +
+      (q.type === "steps"
+        ? '<ol class="bank-steps">' + q.steps.map(function (st) {
+            return "<li><p>" + esc(st.text) + "</p>" +
+              (st.type === "choice" ? '<ol class="bank-choices">' + st.choices.map(function (c) { return "<li>" + esc(c.label) + "</li>"; }).join("") + "</ol>" : "") +
+              '<p class="bank-ans">答え：' + esc(answerText(st)) + ' <span class="muted">［' + esc(E.SKILLS[st.skill].label) + "］</span></p>" +
+              '<p class="small muted">' + esc(st.explanation || "") + "</p></li>";
+          }).join("") + "</ol>"
+        : '<p class="bank-ans">答え：' + esc(answerText(q)) + "</p>") +
+      '<p class="small"><strong>ヒント：</strong>' + esc(q.hint || "") + "</p>" +
+      '<p class="small"><strong>解説：</strong>' + esc(q.explanation || q.explain || "") + "</p>" +
+      '<p class="small muted">前提スキル：' + esc((q.prerequisite_skills || []).map(function (s) { return E.SKILLS[s].label; }).join("、") || "なし") +
+        "／使うスキル：" + esc((q.skills_used || []).map(function (s) { return E.SKILLS[s].label; }).join("、")) + "</p>" +
+    "</article>";
+  }
+
+  function viewBank() {
+    var c = SC.bank.count();
+    var total = 0;
+    var rows = E.SKILL_ORDER.map(function (s) {
+      var sum = SC.bank.LEVELS.reduce(function (a, lv) { return a + c[s][lv]; }, 0);
+      total += sum;
+      return "<tr><td>" + esc(E.SKILLS[s].label) + "</td>" + SC.bank.LEVELS.map(function (lv) { return "<td>" + c[s][lv] + "</td>"; }).join("") + "<td><strong>" + sum + "</strong></td></tr>";
+    }).join("");
+    var sections = E.SKILL_ORDER.map(function (s) {
+      var list = [];
+      SC.bank.LEVELS.forEach(function (lv) { SC.bank.index[s][lv].forEach(function (id) { list.push(QS[id]); }); });
+      return '<section class="bank-skill"><h2 class="h-sm">' + esc(E.SKILLS[s].label) + '<span class="muted small">（' + list.length + "問）</span></h2>" +
+        '<div class="bank-grid">' + list.map(bankItem).join("") + "</div></section>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中2数学・一次関数）</h1>' +
+      '<p class="small muted">全 ' + total + " 問。数学として正しいか、図と答えが合っているかを確かめるためのページです。ふだんの利用者には表示されません。</p>" +
+      '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>基礎</th><th>標準</th><th>応用</th><th>定着</th><th>計</th></tr></thead><tbody>' + rows + "</tbody></table></div></section>" +
+      sections;
+  }
+
   // ---------- 描画 ----------
 
   var lastScreenKey = "";
@@ -542,6 +608,11 @@
 
   function render() {
     var html;
+    if (BANK_VIEW) {
+      app.innerHTML = '<div class="screen">' + viewBank() + "</div>";
+      restartButton.hidden = true;
+      return;
+    }
     try {
       html = VIEWS[state.screen]();
     } catch (err) {

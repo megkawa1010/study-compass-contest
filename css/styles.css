@@ -279,6 +279,37 @@ th { font-size: 11px; color: var(--text-soft); }
 .lv-not_checked { opacity: .55; }
 .debug { border-style: dashed; border-color: rgba(140, 200, 255, .45); }
 
+/* ---------- 問題の図（表・グラフ・数直線） ---------- */
+.fig { margin: 10px 0 14px; }
+.fig-table-wrap { overflow-x: auto; }
+.fig-table { border-collapse: collapse; font-size: 15px; font-weight: 700; margin: 0 auto; }
+.fig-table th, .fig-table td { border: 1px solid var(--line-strong); padding: 6px 12px; text-align: center; white-space: nowrap; }
+.fig-table th { color: var(--star); background: rgba(255, 217, 138, .08); font-size: 14px; }
+.fig-table td.blank { color: var(--star); background: rgba(255, 217, 138, .12); }
+.fig-graph svg { display: block; width: 100%; max-width: 300px; margin: 0 auto; background: var(--inset); border-radius: 12px; border: 1px solid var(--line); }
+.fig-numberline svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
+.fig-grid { stroke: rgba(170, 192, 255, .14); stroke-width: 1; }
+.fig-axis { stroke: var(--text-soft); stroke-width: 1.5; }
+.fig-line { stroke: var(--star); stroke-width: 2.5; stroke-linecap: round; }
+.fig-point { fill: var(--hint); stroke: #0b1530; stroke-width: 1.5; }
+.fig-text { fill: var(--text-soft); font-size: 10px; font-family: inherit; }
+.fig-text.point-label { fill: var(--text); font-size: 12px; font-weight: 800; }
+.fig-text.axis-name { font-size: 11px; font-weight: 700; }
+
+/* 問題バンクの確認ページ */
+.bank-skill { display: grid; gap: 10px; }
+.bank-skill h2 span { margin-left: 6px; font-weight: 700; }
+.bank-grid { display: grid; gap: 12px; }
+.bank-item { padding: 16px 16px; }
+.bank-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.bank-id { font-size: 11px; color: var(--text-soft); margin-left: auto; font-family: ui-monospace, monospace; }
+.bank-text { font-weight: 700; margin-bottom: 4px; }
+.bank-ans { color: var(--ok); font-weight: 800; margin: 6px 0; }
+.bank-choices { margin: 6px 0; padding-left: 1.4em; font-size: 14px; }
+.bank-steps { margin: 8px 0; padding-left: 1.4em; display: grid; gap: 8px; font-size: 14px; }
+.bank-item p + p { margin-top: 4px; }
+@media (min-width: 760px) { .bank-grid { grid-template-columns: 1fr 1fr; } }
+
 .sticky-cta { position: sticky; bottom: 0; padding: 12px 0 max(4px, env(safe-area-inset-bottom)); background: linear-gradient(to bottom, rgba(8, 15, 39, 0), rgba(8, 15, 39, .92) 40%); }
 
 /* ---------- 今日の学習 ---------- */

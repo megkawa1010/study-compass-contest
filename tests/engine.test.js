@@ -132,6 +132,20 @@ test("原因候補は前提スキルをいちばん根元までたどる", () =>
   assert.deepEqual(s.form.suspected_root_causes, ["変化量"]);
 });
 
+test("定着用の問題でも、日数があいていなければ定着にしない", () => {
+  const h = [];
+  const retQ = { id: "rate-ret-x", skill: "rate", level: "retention", evidence_level: "basic", unit: "一次関数" };
+  let a = log(h, T0, "s1");
+  a(retQ, "correct");
+  let s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.retention, "not_checked", "同じ日に解いても定着ではない");
+  assert.equal(s.basic, "pass", "基礎の証拠としては数える");
+  a = log(h, T0 + 4 * 24 * HOUR, "s2");
+  a(retQ, "correct");
+  s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.retention, "pass", "日数があいていれば定着");
+});
+
 test("同じ履歴からは必ず同じ結果（順番が入れ替わっていても）", () => {
   const h = [];
   const a = log(h, T0, "s1");

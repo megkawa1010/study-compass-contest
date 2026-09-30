@@ -60,6 +60,7 @@
       unit: q.unit || "一次関数",
       skill: q.skill,
       level: q.level || "basic",
+      evidence_level: q.evidence_level || null,
       correct: r.status === "correct",
       hint_used: !!r.hintUsed,
       unknown_selected: r.status === "unknown",
@@ -122,7 +123,10 @@
 
       if (isCheck) {
         lastCheckIndex = idx;
-        byLevel[a.level] && byLevel[a.level].push(a);
+        // 定着用の問題（level: retention）も、ふだんは基礎・標準の証拠として数える。
+        // 「定着」になるかどうかは、問題の種類ではなく日数で決める（下の firstPassAt の判定）
+        var lv = a.level === "retention" ? (a.evidence_level || "basic") : a.level;
+        byLevel[lv] && byLevel[lv].push(a);
         // 最初に「できた」と言えた日から retentionDays 以上たってからの回答は、定着の確認にもなる
         if (firstPassAt !== null && t - firstPassAt >= CONFIG.retentionDays * DAY) {
           byLevel.retention.push(a);

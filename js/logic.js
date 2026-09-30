@@ -17,33 +17,42 @@
       .replace(/\s+/g, "");
   }
 
+  // "3" / "-2" / "1.5" / "3/2" / "-1/2" を数にする。単位（GB・円・分など）は最後に付いていてもよい
   function parseNumber(value) {
-    var s = normalize(value).replace(/(gb|ギガ|個|です|。)$/g, "");
-    var frac = s.match(/^([+-]?\d+)\/(\d+)$/);
+    var s = normalize(value).replace(/(gb|ギガ|個|です|。|円|分|時間|本|℃|度|cm|km|m|l|g|%)+$/g, "");
+    return toNumber(s);
+  }
+  function toNumber(s) {
+    s = s.replace(/^\((.*)\)$/, "$1");
+    var frac = s.match(/^([+-]?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
     if (frac) return Number(frac[2]) === 0 ? null : Number(frac[1]) / Number(frac[2]);
     if (!/^[+-]?\d+(\.\d+)?$/.test(s)) return null;
     return Number(s);
   }
+  function same(a, b) { return typeof a === "number" && typeof b === "number" && Math.abs(a - b) < 1e-9; }
 
-  // "y=2x-1" / "2x-1" / "y=-1+2x" などを {a, b} にする。読めなければ null。
+  // "y=2x-1" / "2x-1" / "y=-1+2x" / "y=1/2x+3" / "y=x/2+3" / "y=(1/2)x" / "y=0.5x" などを {a, b} にする。読めなければ null。
   function parseLinear(value) {
     var s = normalize(value).replace(/\*/g, "");
     s = s.replace(/^y=/, "");
-    if (!s || s.indexOf("=") !== -1 || /[^0-9x+\-.]/.test(s)) return null;
+    if (!s || s.indexOf("=") !== -1 || /[^0-9x+\-./()]/.test(s)) return null;
     var terms = s.match(/[+-]?[^+-]+/g);
     if (!terms) return null;
     var a = 0, b = 0, hasX = false;
     for (var i = 0; i < terms.length; i++) {
       var t = terms[i];
-      if (t.charAt(t.length - 1) === "x") {
-        var c = t.slice(0, -1);
-        var n = c === "" || c === "+" ? 1 : c === "-" ? -1 : Number(c);
-        if (isNaN(n)) return null;
-        a += n; hasX = true;
+      var sign = t.charAt(0) === "-" ? -1 : 1;
+      var body = t.replace(/^[+-]/, "");
+      var m = body.match(/^\(?([0-9./]*)\)?x(?:\/(\d+(?:\.\d+)?))?$/);
+      if (m) {
+        var c = m[1] === "" ? 1 : toNumber(m[1]);
+        if (c === null) return null;
+        if (m[2]) c = c / Number(m[2]);
+        a += sign * c; hasX = true;
       } else {
-        var k = Number(t);
-        if (isNaN(k)) return null;
-        b += k;
+        var k = toNumber(body);
+        if (k === null) return null;
+        b += sign * k;
       }
     }
     return hasX ? { a: a, b: b } : null;
@@ -53,22 +62,49 @@
     if (q.type === "pair") {
       return q.fields.some(function (f) { return normalize(value && value[f.key]) === ""; });
     }
+    if (q.type === "steps") {
+      return q.steps.some(function (st) { return isBlank(st, value && value[st.id]); });
+    }
     return normalize(value) === "";
   }
 
-  // 正誤判定。pair は両方そろって正解。
+  // 正誤判定。pair は両方そろって正解。steps は全部の小問が正解で正解。
   function check(q, value) {
-    if (q.type === "number") return parseNumber(value) === q.answer;
+    if (q.type === "number") return same(parseNumber(value), q.answer);
     if (q.type === "linear") {
       var p = parseLinear(value);
-      return !!p && p.a === q.answer.a && p.b === q.answer.b;
+      return !!p && same(p.a, q.answer.a) && same(p.b, q.answer.b);
     }
     if (q.type === "pair") {
       return q.fields.every(function (f) {
-        return parseNumber(value && value[f.key]) === q.answer[f.key];
+        return same(parseNumber(value && value[f.key]), q.answer[f.key]);
       });
     }
+    if (q.type === "choice") return normalize(value) === q.answer;
+    if (q.type === "steps") return checkSteps(q, value).every(function (r) { return r.correct; });
     return false;
+  }
+
+  // 応用問題：小問ごとに採点する。values = { 小問id: 答え }
+  function checkSteps(q, values) {
+    return q.steps.map(function (st) {
+      var v = values ? values[st.id] : undefined;
+      return { id: st.id, skill: st.skill, answered: !isBlank(st, v), correct: check(st, v) };
+    });
+  }
+
+  // どの小問で止まったか。最初につまずいた小問のスキルを「原因の候補」として返す（断定はしない）
+  function analyzeSteps(q, results) {
+    var miss = null;
+    for (var i = 0; i < results.length; i++) {
+      if (!results[i].correct) { miss = results[i]; break; }
+    }
+    return {
+      solved: results.filter(function (r) { return r.correct; }).length,
+      total: results.length,
+      first_miss_step: miss ? miss.id : null,
+      suspected_skill: miss ? miss.skill : null
+    };
   }
 
   // ---------- 分岐：基礎の結果から、次に出す問題を選ぶ ----------
@@ -556,7 +592,7 @@
 
   SC.logic = {
     normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear,
-    isBlank: isBlank, check: check, followUps: followUps,
+    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps,
     diagnose: diagnose, buildPlan: buildPlan, ROUTE: ROUTE
   };
 })(typeof window !== "undefined" ? window : globalThis);
