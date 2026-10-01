@@ -350,6 +350,19 @@
       r.minutes = x.m; r.role = x.role;
       chosen.push(r);
     });
+    // どの枠にも当てはまらない（＝今の範囲はひととおりできている）ときは、確かさの低い順に「おさらい」
+    if (!chosen.length) {
+      var pool = (a.test ? a.test.range : a.unitSkills.length ? a.unitSkills : E.SKILL_ORDER).filter(function (k) { return a.st(k).attempt_count; })
+        .sort(function (x, y) { return a.st(x).confidence - a.st(y).confidence; });
+      tmpl.forEach(function (x, i) {
+        var k = pool[i % Math.max(pool.length, 1)];
+        if (!k || chosen.some(function (c) { return c.skill === k; })) return;
+        chosen.push({ skill: k, level: "standard", type: "review", why: "ひととおりできているので、忘れないように形を変えておさらい", minutes: x.m, role: "maintain" });
+        x.empty = false;
+      });
+      if (chosen.length) log.push("今の範囲はひととおりできているので、確かさの低い順におさらい：" + chosen.map(function (c) { return label(c.skill); }).join("・"));
+    }
+
     // 空いた時間を、いちばん大事な枠（最初の practice / current_unit / challenge、なければ最初の枠）に足す
     var spare = tmpl.filter(function (x) { return x.empty; }).reduce(function (s, x) { return s + x.m; }, 0);
     if (spare && chosen.length) {

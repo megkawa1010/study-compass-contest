@@ -68,7 +68,7 @@ test("全問が必須項目を持つ", () => {
     assert.ok(q.answer !== undefined && q.answer !== null, where + " answer");
     assert.ok(q.explanation && q.explanation.length > 3, where + " explanation");
     assert.ok(q.hint && q.hint.length > 3, where + " hint");
-    assert.ok(["expression", "table", "graph", "word", "numberline"].includes(q.format), where + " format");
+    assert.ok(["expression", "table", "graph", "word", "numberline", "coordinate"].includes(q.format), where + " format");
     if (q.level === "retention") assert.ok(["basic", "standard"].includes(q.evidence_level), where + " evidence_level");
     if (q.type === "steps") {
       assert.ok(q.steps.length >= 2, where + " steps");

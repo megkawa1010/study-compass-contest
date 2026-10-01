@@ -154,6 +154,16 @@ test("「なぜ今日はこれ？」は必ずあり、断定しない", () => {
   }
 });
 
+test("すべてできるようになっても、空のプランにせず「おさらい」を出す", () => {
+  const L = learner();
+  const ids = ["change", "substitution", "rate", "slopeIntercept", "form"].flatMap((s) => [...B.index[s].basic, ...B.index[s].standard, ...B.index[s].application]);
+  L.add(T0, ids, ids.map(() => c));
+  L.add(T0 + 4 * DAY, ids, ids.map(() => c));
+  const p = L.plan(T0 + 30 * DAY);
+  assert.ok(p.sessions.length >= 1, "空にしない");
+  assert.equal(p.total_minutes, 30);
+});
+
 test("記録がまったくなくても止まらない（学校の単元の基礎から）", () => {
   const L = learner();
   const p = L.plan(T0);

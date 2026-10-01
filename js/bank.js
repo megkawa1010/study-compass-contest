@@ -9,7 +9,7 @@
  * - level: basic / standard / application / retention
  *   retention の問題は evidence_level（basic / standard）を持つ。
  *   定着になるかどうかは問題の種類ではなく「最初にできた日から何日たったか」で決める（js/engine.js）。
- * - format: expression（数式）/ table（表）/ graph（グラフ）/ word（文章）/ numberline（数直線）
+ * - format: expression（数式）/ table（表）/ graph（グラフ）/ word（文章）/ numberline（数直線）/ coordinate（座標・グラフ上の点）
  * - type: number / linear（一次関数の式）/ pair（2つの答え）/ choice（選択）/ steps（小問に分かれた応用）
  * - steps の各小問は skill を持つ。どの小問で止まったかで、原因のスキルを推定できる。
  * - 図（figure）は画像ではなくデータ。js/figures.js が描く。
@@ -154,6 +154,22 @@
     type: "number", answer: 2,
     hint: "? の上にある x の値を、式に入れてみよう。",
     explanation: "x = 2 を代入して y = 3 × 2 − 4 = 2 です。" });
+  add({ id: "substitution-basic-3", skill: "substitution", level: "basic", format: "coordinate",
+    text: "一次関数 y = 2x − 3 のグラフ上に、x 座標が 4 の点があります。この点の y 座標は？",
+    type: "number", answer: 5, prerequisite_skills: ["algebra", "coord"], skills_used: ["substitution", "coord"],
+    hint: "グラフ上の点は、式を満たす。x に 4 を入れてみよう。",
+    explanation: "y = 2 × 4 − 3 = 5。点の座標は (4, 5) です。" });
+  add({ id: "substitution-basic-4", skill: "substitution", level: "basic", format: "graph",
+    text: "グラフの直線は y = (1/2)x + 1 です。点A の x 座標は 4 です。点A の y 座標を、式に代入して求めなさい。",
+    figure: { type: "graph", x: [-2, 6, 1], y: [-1, 5, 1], lines: [line(0.5, 1)], points: [{ x: 4, y: 3, label: "A" }] },
+    type: "number", answer: 3, prerequisite_skills: ["algebra"], skills_used: ["substitution"],
+    hint: "(1/2) × 4 は、4 の半分。",
+    explanation: "y = (1/2) × 4 + 1 = 2 + 1 = 3 です。グラフの点A の高さとも合っています。" });
+  add({ id: "substitution-basic-5", skill: "substitution", level: "basic", format: "word",
+    text: "毎月 500 円ずつ貯金します。最初に 2000 円あるとき、x か月後の貯金額 y 円は y = 500x + 2000 です。3 か月後の貯金額は何円？",
+    type: "number", answer: 3500,
+    hint: "x に 3 を入れる。",
+    explanation: "500 × 3 + 2000 = 1500 + 2000 = 3500 円です。" });
 
   add({ id: "substitution-standard-1", skill: "substitution", level: "standard", format: "expression",
     text: "y = 4x − 3 で、y = 13 のとき、x はいくつ？",
@@ -172,6 +188,16 @@
     type: "number", answer: 1, prerequisite_skills: ["algebra", "signed"], skills_used: ["substitution", "signed"],
     hint: "(1/2) × (−4) は、−4 の半分。",
     explanation: "(1/2) × (−4) = −2、−2 + 3 = 1 です。" });
+  add({ id: "substitution-standard-4", skill: "substitution", level: "standard", format: "coordinate",
+    text: "一次関数 y = 3x + 2 のグラフ上に、y 座標が −7 の点があります。この点の x 座標は？",
+    type: "number", answer: -3, prerequisite_skills: ["algebra", "signed", "coord"], skills_used: ["substitution", "algebra", "signed"],
+    hint: "y に −7 を入れると −7 = 3x + 2。この方程式を解こう。",
+    explanation: "−7 = 3x + 2 → 3x = −9 → x = −3。点は (−3, −7) です。" });
+  add({ id: "substitution-standard-5", skill: "substitution", level: "standard", format: "word",
+    text: "水そうの水をぬいています。x 分後の水の量 y L は y = −4x + 60 で表されます。水の量が 20L になるのは何分後？",
+    type: "number", answer: 10, prerequisite_skills: ["algebra", "signed"], skills_used: ["substitution", "algebra"],
+    hint: "20 = −4x + 60 を解こう。",
+    explanation: "20 = −4x + 60 → −4x = −40 → x = 10 分後です。" });
 
   add({ id: "substitution-application-1", skill: "substitution", level: "application", format: "word",
     text: "ある電話プランの料金 y 円は、通話時間 x 分を使って y = 20x + 800 と表されます。",
@@ -332,6 +358,24 @@
     type: "number", answer: -3, prerequisite_skills: ["proportion", "coord"], skills_used: ["slopeIntercept", "coord"],
     hint: "切片は、直線が y 軸と交わるところの y の値。",
     explanation: "直線は y 軸と (0, −3) で交わるので、切片は −3 です。" });
+  add({ id: "slopeIntercept-basic-3", skill: "slopeIntercept", level: "basic", format: "table",
+    text: "下の表は一次関数の x と y の関係です。切片はいくつ？",
+    figure: { type: "table", rows: [{ label: "x", values: [-2, -1, 0, 1] }, { label: "y", values: [-7, -4, -1, 2] }] },
+    type: "number", answer: -1,
+    hint: "切片は、x = 0 のときの y の値。",
+    explanation: "x = 0 のとき y = −1 なので、切片は −1 です。" });
+  add({ id: "slopeIntercept-basic-4", skill: "slopeIntercept", level: "basic", format: "graph",
+    text: "グラフの直線の傾きはいくつ？",
+    figure: { type: "graph", x: [-2, 3, 1], y: [-5, 5, 1], lines: [line(-3, 2)], points: [{ x: 0, y: 2 }, { x: 1, y: -1 }] },
+    type: "number", answer: -3, prerequisite_skills: ["proportion", "coord"], skills_used: ["slopeIntercept", "coord"],
+    hint: "●から右に 1 進むと、上下にいくつ動く？ 下がるならマイナス。",
+    explanation: "右に 1 進むと 3 下がるので、傾きは −3 です。" });
+  add({ id: "slopeIntercept-basic-5", skill: "slopeIntercept", level: "basic", format: "word",
+    text: "x が 1 増えると y が 3 増え、x = 0 のとき y = −4 になる一次関数があります。傾きと切片を答えなさい。",
+    type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }],
+    answer: { slope: 3, intercept: -4 },
+    hint: "x が 1 増えたときの y の増え方が傾き、x = 0 のときの y が切片。",
+    explanation: "傾きは 3、切片は −4 です（式は y = 3x − 4）。" });
 
   add({ id: "slopeIntercept-standard-1", skill: "slopeIntercept", level: "standard", format: "graph",
     text: "グラフの直線の傾きはいくつ？（分数で答えよう）",
@@ -353,6 +397,18 @@
     answer: "b",
     hint: "傾き（x の前の数）がプラスなら右上がり、マイナスなら右下がり。",
     explanation: "傾きがマイナスなのは y = −2x + 4 だけ。x が増えると y は減ります。" });
+  add({ id: "slopeIntercept-standard-4", skill: "slopeIntercept", level: "standard", format: "expression",
+    text: "一次関数 y = 6 − 2x の傾きと切片を答えなさい。",
+    type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }],
+    answer: { slope: -2, intercept: 6 },
+    hint: "y = ax + b の順番に並べかえてみよう。x の項が後ろにあっても、x についている数が傾き。",
+    explanation: "y = −2x + 6 と同じなので、傾きは −2、切片は 6 です。" });
+  add({ id: "slopeIntercept-standard-5", skill: "slopeIntercept", level: "standard", format: "coordinate",
+    text: "2点 (0, 5)、(2, −1) を通る直線の傾きと切片を答えなさい。",
+    type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }],
+    answer: { slope: -3, intercept: 5 }, prerequisite_skills: ["rate", "coord"], skills_used: ["slopeIntercept", "rate", "coord"],
+    hint: "x = 0 の点がそのまま切片。傾きは (y の増加量) ÷ (x の増加量)。",
+    explanation: "(0, 5) から切片は 5。傾きは (−1 − 5) ÷ (2 − 0) = −6 ÷ 2 = −3 です。" });
 
   add({ id: "slopeIntercept-application-1", skill: "slopeIntercept", level: "application", format: "word",
     text: "ある駐車場の料金は、はじめに 300 円、そのあと 1 時間ごとに 200 円かかります。とめた時間を x 時間、料金を y 円とします。",
@@ -418,6 +474,22 @@
     prerequisite_skills: ["rate", "slopeIntercept"], skills_used: ["form", "rate"],
     hint: "x が 1 増えると y はいくつ増える？ x = 0 のときの y は？",
     explanation: "変化の割合は 4、x = 0 のとき y = −2 なので y = 4x − 2 です。" });
+  add({ id: "form-basic-3", skill: "form", level: "basic", format: "expression",
+    text: "傾きが −3、切片が 4 の一次関数の式を答えなさい。",
+    type: "linear", answer: { a: -3, b: 4 }, placeholder: "例：y = 2x + 1",
+    hint: "y = ax + b の a に傾き、b に切片を入れる。",
+    explanation: "y = −3x + 4 です。" });
+  add({ id: "form-basic-4", skill: "form", level: "basic", format: "coordinate",
+    text: "傾きが 2 で、点 (0, −5) を通る直線の式を答えなさい。",
+    type: "linear", answer: { a: 2, b: -5 }, placeholder: "例：y = 2x + 1",
+    prerequisite_skills: ["slopeIntercept", "coord"], skills_used: ["form", "slopeIntercept", "coord"],
+    hint: "x 座標が 0 の点の y 座標が、そのまま切片。",
+    explanation: "(0, −5) を通るので切片は −5。y = 2x − 5 です。" });
+  add({ id: "form-basic-5", skill: "form", level: "basic", format: "word",
+    text: "はじめに 10L の水が入った水そうに、1 分に 4L ずつ水を入れます。x 分後の水の量を y L として、y を x の式で表しなさい。",
+    type: "linear", answer: { a: 4, b: 10 }, placeholder: "例：y = 2x + 1",
+    hint: "1 分あたりに増える量が x の前、はじめの量がうしろ。",
+    explanation: "y = 4x + 10 です。" });
 
   add({ id: "form-standard-1", skill: "form", level: "standard", format: "expression",
     text: "2 点 (−1, 1)、(2, 7) を通る直線の式を求めなさい。",
@@ -433,6 +505,20 @@
     prerequisite_skills: ["slopeIntercept", "rate", "coord"], skills_used: ["form", "slopeIntercept", "rate", "coord"],
     hint: "●から●へ、右に何マス・上に何マス？ 傾きが分数になることもあります。",
     explanation: "右に 4 進むと上に 2 なので傾きは 1/2、切片は −2。y = (1/2)x − 2 です。" });
+  add({ id: "form-standard-3", skill: "form", level: "standard", format: "table",
+    text: "下の表は一次関数の x と y の関係です。y を x の式で表しなさい。（表に x = 0 はありません）",
+    figure: { type: "table", rows: [{ label: "x", values: [1, 3, 5] }, { label: "y", values: [5, 11, 17] }] },
+    type: "linear", answer: { a: 3, b: 2 }, placeholder: "例：y = 2x + 1",
+    prerequisite_skills: ["rate", "substitution"], skills_used: ["form", "rate", "substitution"],
+    hint: "まず変化の割合を出し、x = 1 のときの値を使って切片を求めよう。",
+    explanation: "x が 2 増えると y は 6 増えるので傾きは 3。5 = 3 × 1 + b より b = 2。y = 3x + 2 です。" });
+  add({ id: "form-standard-4", skill: "form", level: "standard", format: "graph",
+    text: "グラフの直線の式を求めなさい。（y 軸との交わり方にも注意）",
+    figure: { type: "graph", x: [-3, 5, 1], y: [-1, 5, 1], lines: [line(-0.5, 3)], points: [{ x: -2, y: 4 }, { x: 4, y: 1 }] },
+    type: "linear", answer: { a: -0.5, b: 3 }, answer_display: "y = −(1/2)x + 3", placeholder: "例：y = (1/3)x + 1",
+    prerequisite_skills: ["slopeIntercept", "rate", "coord"], skills_used: ["form", "slopeIntercept", "rate", "coord"],
+    hint: "●から●へ、右に何マス・下に何マス？ 切片は y 軸と交わるところ。",
+    explanation: "右に 6 進むと 3 下がるので傾きは −1/2。y 軸とは (0, 3) で交わる。y = −(1/2)x + 3 です。" });
 
   add({ id: "form-application-1", skill: "form", level: "application", format: "word",
     text: "動画配信サービスの料金です。Aプランは月額 800 円で、1 本見るごとに 100 円。Bプランは月額 1400 円で、1 本見るごとに 40 円。1 か月に x 本見たときの料金を y 円とします。",

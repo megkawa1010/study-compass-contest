@@ -893,7 +893,7 @@
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
 
   var LEVEL_LABEL = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
-  var FORMAT_LABEL = { expression: "数式", table: "表", graph: "グラフ", word: "文章", numberline: "数直線" };
+  var FORMAT_LABEL = { expression: "数式", table: "表", graph: "グラフ", word: "文章", numberline: "数直線", coordinate: "座標" };
 
   function answerText(q) {
     var n = SC.figures.num;

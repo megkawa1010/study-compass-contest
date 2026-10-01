@@ -207,9 +207,9 @@ test("未出題の別レベルの問題があれば、再利用より先にそ�
 
 test("問題数の目安（基礎5・標準5・応用3・定着5）に対する不足がわかる", () => {
   const s = B.shortage();
-  const formStd = s.find((x) => x.skill === "form" && x.level === "standard");
-  assert.equal(formStd.target, 5);
-  assert.equal(formStd.have, B.index.form.standard.length);
+  const changeApp = s.find((x) => x.skill === "change" && x.level === "application");
+  assert.equal(changeApp.target, 3);
+  assert.equal(changeApp.have, B.index.change.application.length);
   assert.ok(!s.some((x) => x.skill === "rate" && (x.level === "basic" || x.level === "standard")), "変化の割合の基礎・標準は目安に届いた");
   assert.ok(!s.some((x) => ["signed", "algebra", "proportion", "coord"].includes(x.skill) && x.level === "standard"), "既習スキルは標準を持たない");
 });
