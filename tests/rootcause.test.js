@@ -65,15 +65,19 @@ test("一番の土台までまちがえたら、土台から", () => {
 test("記録で「できている」前提は、問題を出さずに飛ばす", () => {
   const states = E.computeSkillStates([
     E.makeAnswerRecord(Q.B3, { status: "correct" }, { userId: "u", now: T0 - 1000 }),
-    E.makeAnswerRecord(Q.B1, { status: "correct" }, { userId: "u", now: T0 - 1000 }),
     E.makeAnswerRecord(Q.B4, { status: "correct" }, { userId: "u", now: T0 - 1000 })
   ], { now: T0 });
-  // B5（グラフ・式）：C5（傾き・切片）は先に決まっている原因確認。他の前提は記録からできている
-  const { trail, asked, c } = run(Q.B5, { slopeIntercept: true }, { seeds: ["C5"], states });
-  assert.deepEqual(asked.map((p) => p.question_id), ["C5"], "記録でできている 変化の割合・式への代入・座標 には問題を出さない");
+  // 2点を通る直線の式（前提：変化の割合・式への代入・移項）。変化の割合・式への代入は記録でできている
+  const { trail, asked, c } = run(Q["form-standard-1"], { transpose: true }, { states });
+  assert.deepEqual(asked.map((p) => p.skill), ["transpose"], "記録でできている前提には問題を出さず、移項だけ確かめる");
   assert.ok(trail.path.some((p) => p.via === "history" && p.skill === "rate"));
+  assert.ok(trail.path.some((p) => p.via === "history" && p.skill === "substitution"));
   assert.equal(c.kind, "in_skill");
-  assert.match(c.message, /「傾き・切片」/);
+});
+
+test("問題が持つ前提だけを見る（傾きと切片から式を書く問題では、方程式は確かめない）", () => {
+  const { asked } = run(Q.B5, { slopeIntercept: true }, { seeds: ["C5"] });
+  assert.deepEqual(asked.map((p) => p.question_id), ["C5"]);
 });
 
 test("同じスキルを別の問題で確かめてできたら、うっかりの可能性として深追いしない", () => {
@@ -120,11 +124,9 @@ test("同じ道すじで同じスキル・同じ問題を2回確かめない。�
 });
 
 test("同じチェックの中ですでにわかっている結果は、問題を出さずに使う（同じことを2回きかない）", () => {
-  // B4（変化の割合）× と C4（変化量）× がすでにわかっている状態で、グラフ・式（B5）の原因をさがす
+  // B4（変化の割合）× と C4（変化量）× がすでにわかっている状態で、2点から式を作る問題の原因をさがす
   const known = { rate: false, change: false };
-  const trail = R.start({ question: Q.B5, seeds: ["C5"], now: T0 });
-  const seeds = R.takeSeeds(trail);
-  R.answer(trail, seeds[0], true); // C5（傾き・切片）○
+  const trail = R.start({ question: Q["form-standard-1"], now: T0 });
   const asked = [];
   const ctx = { states: {}, now: T0, budgetLeft: 3, known, pickQuestion: (s) => (asked.push(s), SC.bank.pick(s, "basic", { rng: SC.bank.seeded(1) }).id) };
   const p = R.next(trail, ctx);
@@ -135,21 +137,6 @@ test("同じチェックの中ですでにわかっている結果は、問題�
   assert.equal(R.next(trail, ctx), null);
   assert.equal(trail.conclusion.return_to, "change");
   assert.equal(trail.conclusion.kind, "gap_found");
-});
-
-test("原因さがしで確認できたスキルの追加問題：原則は省略、例外（確かさが低い・誤答が多い・判断が不安定）は出題", () => {
-  const st = (confidence, attempt_count, correct_count) => ({ confidence, attempt_count, correct_count });
-  assert.equal(R.skipDecision("signed", st(0.34, 1, 1)).skip, true, "記録上も不安定な点がなければ省略");
-  assert.match(R.skipDecision("signed", st(0.34, 1, 1)).reason, /省略/);
-  assert.equal(R.skipDecision("signed", st(0.22, 3, 1)).skip, false, "確かさが低い");
-  assert.equal(R.skipDecision("signed", st(0.35, 5, 2)).skip, false, "過去に誤答が多い（1/4）");
-  assert.equal(R.skipDecision("signed", st(0.4, 2, 2), { hintUsed: true }).skip, false, "ヒントあり");
-  assert.equal(R.skipDecision("signed", st(0.4, 2, 2), { wrongInSession: true }).skip, false, "今回ほかでまちがえた");
-  ["確かさ", "誤答が多い", "ヒント", "ほかの問題で"].forEach((w, i) => {
-    const r = [R.skipDecision("signed", st(0.22, 3, 1)), R.skipDecision("signed", st(0.35, 5, 2)),
-      R.skipDecision("signed", st(0.4, 2, 2), { hintUsed: true }), R.skipDecision("signed", st(0.4, 2, 2), { wrongInSession: true })][i];
-    assert.match(r.reason, new RegExp(w), "理由が debug でわかる");
-  });
 });
 
 test("いくつかの道すじから、いちばん根元の戻る場所を選ぶ", () => {

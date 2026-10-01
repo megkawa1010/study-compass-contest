@@ -29,6 +29,7 @@
   var PLAN_VIEW = /(?:^|[?&])debug=plan(?:&|$)/.test(window.location.search.slice(1));
   var TEST_VIEW = /(?:^|[?&])debug=test(?:&|$)/.test(window.location.search.slice(1));
   var PARENT_DEBUG = /(?:^|[?&])debug=parent(?:&|$)/.test(window.location.search.slice(1));
+  var MAP_VIEW = /(?:^|[?&])debug=map(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -313,6 +314,7 @@
         '<button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
         '<a class="secondary-button link-button" href="./?debug=plan">今日の学習の確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=parent">保護者向けの根拠</a>' +
+        '<a class="secondary-button link-button" href="./?debug=map">学習マップ</a>' +
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
       "</div></section>";
@@ -524,6 +526,13 @@
       "</details>";
   }
 
+  // いまの単元（一次関数）とちがう単元のスキルには、小さく「中1・一次方程式」などと付ける
+  function unitTag(k) {
+    var sk = E.SKILLS[k];
+    if (!sk || sk.unit === ST.schoolProgressInfo().current_unit) return "";
+    return '<span class="unit-tag">' + esc(sk.grade + (sk.unit === "既習" ? "" : "・" + sk.unit)) + "</span>";
+  }
+
   // これまでの記録（answer_history 全体）から見た現在地。前回のチェックからの変化も出す
   function historyCard() {
     var states = ST.get().skill_state;
@@ -549,7 +558,7 @@
       return '<li class="hs tone-' + v.tone + '">' +
         '<span class="hs-mark" aria-hidden="true">' + v.mark + "</span>" +
         '<div class="hs-body">' +
-          '<div class="hs-top"><strong>' + esc(s.skill) + '</strong><span class="hs-status">' + v.label + "</span>" + delta + "</div>" +
+          '<div class="hs-top"><strong>' + esc(s.skill) + "</strong>" + unitTag(k) + '<span class="hs-status">' + v.label + "</span>" + delta + "</div>" +
           (s.attempt_count ? '<div class="hs-meter"><span class="meter wide"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span></div>' +
             '<div class="hs-levels">' + levels + "</div>" : "") +
           (s.suspected_root_causes.length ? '<p class="root">つまずき候補：' + esc(s.suspected_root_causes.join("、")) + "（可能性）</p>" : "") +
@@ -847,9 +856,57 @@
       '<section class="card"><h2 class="h-sm">つまずきの可能性</h2>' + stumbles + "</section>" +
       '<section class="card"><h2 class="h-sm">Study Compass の予定</h2><ol class="pr-next">' + r.next.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></section>" +
       '<section class="card"><h2 class="h-sm">単元の地図</h2><p class="small muted">点数ではなく、いまどの段階にいるかを表しています。</p><ul class="pr-map">' +
-        r.map.map(function (m) { return '<li><span class="pr-mark">' + m.mark + "</span><strong>" + esc(m.label) + "</strong><span class=\"muted small\">" + esc(m.word) + "</span></li>"; }).join("") + "</ul></section>" +
+        r.map.map(function (m) { return '<li><span class="pr-mark">' + m.mark + "</span><strong>" + esc(m.label) + unitTag(m.skill) + "</strong><span class=\"muted small\">" + esc(m.word) + "</span></li>"; }).join("") + "</ul></section>" +
       '<p class="small muted center">このページでは、毎回の正誤や点数、ほかの子との比較は表示しません。</p>' +
       '<button class="text-button" type="button" data-action="home">← ホームにもどる</button>';
+  }
+
+  // ---------- 学習マップの確認ページ（?debug=map） ----------
+
+  function viewMapDebug() {
+    var states = ST.get().skill_state;
+    var S = E.SKILLS;
+    var units = [];
+    E.SKILL_ORDER.forEach(function (k) { var u = S[k].grade + " " + S[k].unit; if (units.indexOf(u) === -1) units.push(u); });
+    var dependents = {};
+    E.SKILL_ORDER.forEach(function (k) { S[k].prerequisites.forEach(function (p) { (dependents[p] = dependents[p] || []).push(k); }); });
+    var STATUS_NOTE = { not_checked: "まだ（記録なし・苦手とは扱わない）", not_learned: "未学習（学校でまだ習っていない）" };
+    var sections = units.map(function (u) {
+      var rows = E.SKILL_ORDER.filter(function (k) { return S[k].grade + " " + S[k].unit === u; }).map(function (k) {
+        var s = states[k];
+        var n = SC.bank.LEVELS.reduce(function (a, lv) { return a + SC.bank.index[k][lv].length; }, 0);
+        return "<tr><td>" + esc(S[k].label) + "<br><span class=\"muted small\">" + k + "</span></td><td>" + esc(S[k].prerequisites.map(function (p) { return S[p].label; }).join("、") || "−") +
+          "</td><td>" + esc((dependents[k] || []).map(function (d) { return S[d].label; }).join("、") || "−") + "</td><td>" + n + "問</td><td>" +
+          esc(s ? (STATUS_NOTE[s.learning_status] || E.STATUS_VIEW[s.learning_status].label) : "−") + "</td></tr>";
+      }).join("");
+      return '<h3 class="small">' + esc(u) + '</h3><div class="table-wrap"><table><thead><tr><th>スキル</th><th>前提</th><th>この上に積むスキル</th><th>問題</th><th>いまの状態</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+    }).join("");
+    // 一次関数の各スキルから、前提をたどって土台までの道（すべての道）
+    function chains(k, path) {
+      path = (path || []).concat(k);
+      var pre = S[k].prerequisites;
+      if (!pre.length) return [path];
+      return pre.reduce(function (acc, p) { return acc.concat(chains(p, path)); }, []);
+    }
+    var chainRows = ["substitution", "form"].map(function (k) {
+      var viaEq = chains(k).filter(function (c) { return c.some(function (x) { return S[x].unit === "一次方程式"; }); });
+      return "<li><strong>" + esc(S[k].label) + "</strong>（一次方程式を通る道 " + viaEq.length + " 本）<ul>" +
+        viaEq.map(function (c) { return "<li>" + esc(c.map(function (x) { return S[x].label; }).join(" → ")) + "</li>"; }).join("") + "</ul></li>";
+    }).join("");
+    var withTranspose = Object.keys(QS).filter(function (id) { var q = QS[id]; return S[q.skill].unit === "一次関数" && (q.prerequisite_skills || []).indexOf("transpose") !== -1; });
+    var ex = ST.explorations().slice(-5).reverse().map(function (x) {
+      var depth = Math.max.apply(null, x.path.map(function (p) { return p.depth || 0; }));
+      var reachedEq = x.path.some(function (p) { return S[p.skill] && S[p.skill].unit === "一次方程式"; });
+      return "<li>" + esc(R.pathText(x)) + '<br><span class="muted small">' + depth + "段さかのぼった" + (reachedEq ? "・一次方程式まで到達" : "") +
+        "／戻る場所：" + esc(x.conclusion && x.conclusion.return_to ? S[x.conclusion.return_to].label : "−") + "</span></li>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / MAP</p><h1 class="h-md">学習マップ（スキルのつながり）</h1>' +
+      '<p class="small muted">' + E.SKILL_ORDER.length + " スキル（" + esc(units.join("／")) + "）。原因さがしは、まちがえた問題が持つ前提 → 2段目からはこの地図の前提、の順にさかのぼる。</p>" +
+      '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">スキルと前提</h2>' + sections + "</section>" +
+      '<section class="card"><h2 class="h-sm">一次関数 → 一次方程式 のつながり</h2><ul class="small debug-log">' + chainRows + "</ul>" +
+        '<p class="small muted">方程式を解く必要がある一次関数の問題（前提に「移項」を付けた問題）：' + withTranspose.length + "問（" + esc(withTranspose.join(", ")) + "）</p></section>" +
+      '<section class="card"><h2 class="h-sm">最近の原因さがし（どこまでさかのぼったか）</h2>' + (ex ? '<ul class="small debug-log">' + ex + "</ul>" : '<p class="small muted">まだありません</p>') + "</section>";
   }
 
   // ---------- 保護者向けの確認ページ（?debug=parent） ----------
@@ -1057,8 +1114,8 @@
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : viewParentDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }

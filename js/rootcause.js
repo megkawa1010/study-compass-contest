@@ -19,8 +19,8 @@
 
   var CONFIG = {
     MAX_DEPTH: 3,              // 症状から何段までさかのぼるか
-    MAX_PROBES_PER_STEP: 2,    // 1つのスキルについて、前提を何個まで問題で確かめるか
-    BUDGET_INITIAL: 3,         // 最初のチェックで、原因さがしに追加してよい問題数（C1〜C5 とは別）
+    MAX_PROBES_PER_STEP: 3,    // 1つのスキルについて、前提を何個まで問題で確かめるか（一次方程式までたどれるよう3）
+    BUDGET_INITIAL: 4,         // 最初のチェックで、原因さがしに追加してよい問題数（C1〜C5 とは別）
     BUDGET_PERIODIC: 2,        // 定期チェックで、原因さがしに追加してよい問題数
     SOLID_FRESH_DAYS: 14       // 記録から「できている」とみなすのは、最後の確認がこの日数以内のとき
   };
@@ -38,11 +38,14 @@
     return now - Date.parse(s.last_checked) <= CONFIG.SOLID_FRESH_DAYS * E.DAY;
   }
 
-  // あるスキルの前提の候補（その問題が持つ前提を先に、次にスキル地図の前提）
+  // あるスキルの前提の候補。
+  // まちがえた問題そのもの（1段目）は、その問題が持つ前提だけを見る（例：傾きと切片から式を書く問題に、
+  // 方程式を解く力は関係ないので、地図上の前提でも確かめない）。問題が前提を持たないときと、2段目からはスキル地図の前提。
   function prereqOrder(trail, skill) {
     var fromQuestion = skill === trail.symptom.skill ? (trail.symptom.prerequisite_skills || []) : [];
     var fromGraph = E.SKILLS[skill] ? E.SKILLS[skill].prerequisites : [];
-    return uniq(fromQuestion.concat(fromGraph)).filter(function (p) { return p !== skill && E.SKILLS[p]; });
+    var list = fromQuestion.length ? fromQuestion : fromGraph;
+    return uniq(list).filter(function (p) { return p !== skill && E.SKILLS[p]; });
   }
 
   // ---------- 道すじをはじめる ----------
@@ -278,7 +281,7 @@
   }
 
   // いくつかの道すじの中で、いちばん根元（前提に近い）の「戻る場所」
-  var ROOT_ORDER = ["signed", "algebra", "coord", "proportion", "change", "substitution", "rate", "slopeIntercept", "form"];
+  var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
   function deepestReturn(trails) {
     var best = null;
     (trails || []).forEach(function (t) {

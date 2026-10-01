@@ -588,6 +588,13 @@
     hint: "●から●へ、右に何マス・下に何マス？ 切片は y 軸と交わるところ。",
     explanation: "右に 6 進むと 3 下がるので傾きは −1/2。y 軸とは (0, 3) で交わる。y = −(1/2)x + 3 です。" });
 
+  add({ id: "form-standard-5", skill: "form", level: "standard", format: "graph",
+    text: "グラフは一次関数の一部です（y 軸は図の外にあります）。直線の式を求めなさい。",
+    figure: { type: "graph", x: [1, 6, 1], y: [-1, 9, 1], lines: [line(2, -3)], points: [{ x: 2, y: 1, label: "A", coords: true }, { x: 5, y: 7, label: "B", coords: true }] },
+    type: "linear", answer: { a: 2, b: -3 }, placeholder: "例：y = 3x + 1",
+    prerequisite_skills: ["rate", "coord", "transpose"], skills_used: ["form", "rate", "coord", "transpose"],
+    hint: "切片はグラフから読めないので、傾きを出してから、点A を y = ax + b に代入して b を求めよう（方程式を解く）。",
+    explanation: "傾きは (7 − 1) ÷ (5 − 2) = 2。1 = 2 × 2 + b → b = −3。y = 2x − 3 です。" });
   add({ id: "form-application-1", skill: "form", level: "application", format: "word",
     text: "動画配信サービスの料金です。Aプランは月額 800 円で、1 本見るごとに 100 円。Bプランは月額 1400 円で、1 本見るごとに 40 円。1 か月に x 本見たときの料金を y 円とします。",
     type: "steps",
@@ -756,6 +763,161 @@
     explanation: "y 軸上で、下に 3 なので C(0, −3) です。" });
 
   // =====================================================================
+  // 中1 一次方程式
+  // study-compass-app の「一次方程式 基本チェック」20問（math-jh1-linear-equations-core-v1）を
+  // スキルとレベルに分けて再利用（source に元の ID）。足りないスキルは新しく作った。
+  // =====================================================================
+  function eq(id, skill, level, src, text, answer, hint, explanation, extra) {
+    var q = { id: id, skill: skill, level: level, format: /[人本円歳時速km枚]/.test(text) ? "word" : "expression",
+      text: text, type: "number", answer: answer, hint: hint, explanation: explanation };
+    if (src) q.source = "study-compass-app:" + src;
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+
+  // --- 方程式の意味（新規） ---
+  add({ id: "eqMeaning-basic-1", skill: "eqMeaning", level: "basic", format: "expression",
+    text: "x = 3 は、方程式 2x + 1 = 7 の解ですか？",
+    type: "choice", choices: [{ key: "a", label: "解である" }, { key: "b", label: "解ではない" }], answer: "a",
+    hint: "x に 3 を入れて、左辺と右辺が等しくなるか確かめよう。",
+    explanation: "2 × 3 + 1 = 7 で、右辺の 7 と等しいので、x = 3 は解です。" });
+  add({ id: "eqMeaning-basic-2", skill: "eqMeaning", level: "basic", format: "expression",
+    text: "次のうち、方程式 x − 4 = 2 の解はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x = 2" }, { key: "b", label: "x = 6" }, { key: "c", label: "x = −2" }, { key: "d", label: "x = 8" }], answer: "b",
+    hint: "それぞれ x に入れて、x − 4 が 2 になるものをさがそう。",
+    explanation: "6 − 4 = 2 なので、x = 6 が解です。" });
+  add({ id: "eqMeaning-basic-3", skill: "eqMeaning", level: "basic", format: "expression",
+    text: "方程式 3x − 5 = 10 で、左辺に x = 5 を代入すると、左辺の値はいくつ？",
+    type: "number", answer: 10, prerequisite_skills: ["algebra"],
+    hint: "3 × 5 − 5 を計算しよう。",
+    explanation: "3 × 5 − 5 = 10。右辺と等しいので、x = 5 はこの方程式の解です。" });
+  add({ id: "eqMeaning-retention-1", skill: "eqMeaning", level: "retention", evidence_level: "basic", format: "expression",
+    text: "−2、0、2 のうち、方程式 9 − x = 11 の解はどれ？",
+    type: "choice", choices: [{ key: "a", label: "−2" }, { key: "b", label: "0" }, { key: "c", label: "2" }], answer: "a", prerequisite_skills: ["algebra", "signed"],
+    hint: "x に −2 を入れると 9 − (−2)。",
+    explanation: "9 − (−2) = 11 なので、x = −2 が解です。" });
+
+  // --- 等式の性質（係数を外す） ---
+  eq("eqProperty-basic-1", "eqProperty", "basic", "linear-eq-03", "方程式 3x = 15 を解きましょう。", 5,
+    "両辺を 3 で割ります。", "両辺を3で割ると x = 15 ÷ 3 = 5 です。");
+  eq("eqProperty-basic-2", "eqProperty", "basic", null, "方程式 −4x = 28 を解きましょう。", -7,
+    "両辺を −4 で割ります。符号に注意。", "両辺を −4 で割ると x = 28 ÷ (−4) = −7 です。", { prerequisite_skills: ["signed"] });
+  eq("eqProperty-basic-3", "eqProperty", "basic", null, "方程式 6x = −18 を解きましょう。", -3,
+    "両辺を 6 で割ります。", "x = −18 ÷ 6 = −3 です。", { prerequisite_skills: ["signed"] });
+  eq("eqProperty-retention-1", "eqProperty", "retention", null, "方程式 −9x = −54 を解きましょう。", 6,
+    "両辺を −9 で割ると、マイナスどうしでプラスになる。", "x = −54 ÷ (−9) = 6 です。", { evidence_level: "basic", prerequisite_skills: ["signed"] });
+
+  // --- 移項 ---
+  eq("transpose-basic-1", "transpose", "basic", "linear-eq-01", "方程式 x + 5 = 12 を解きましょう。", 7,
+    "左辺の +5 を、符号を変えて右辺に移します。", "+5を右辺に移項すると x = 12 − 5 = 7 です。");
+  eq("transpose-basic-2", "transpose", "basic", "linear-eq-02", "方程式 x − 4 = 9 を解きましょう。", 13,
+    "左辺の −4 を、符号を変えて右辺に移します。", "−4を右辺に移項すると x = 9 + 4 = 13 です。");
+  eq("transpose-basic-3", "transpose", "basic", "linear-eq-04", "方程式 2x + 3 = 11 を解きましょう。", 4,
+    "+3 を右辺に移項 → 2x = 8 → 両辺を 2 で割る。", "+3を移項すると 2x = 8。両辺を2で割ると x = 4 です。",
+    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+  eq("transpose-basic-4", "transpose", "basic", "linear-eq-05", "方程式 5x − 7 = 18 を解きましょう。", 5,
+    "−7 を右辺に移項 → 5x = 25 → 両辺を 5 で割る。", "−7を移項すると 5x = 25。両辺を5で割ると x = 5 です。",
+    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+  eq("transpose-standard-1", "transpose", "standard", "linear-eq-06", "方程式 4x + 9 = 1 を解きましょう。", -2,
+    "+9 を右辺に移項すると、右辺は負の数になります。", "+9を移項すると 4x = 1 − 9 = −8。両辺を4で割ると x = −2 です。",
+    { prerequisite_skills: ["signed", "eqProperty"], skills_used: ["transpose", "eqProperty", "signed"] });
+  eq("transpose-standard-2", "transpose", "standard", "linear-eq-07", "方程式 −2x + 5 = 11 を解きましょう。", -3,
+    "+5 を右辺に移項 → −2x = 6 → 両辺を −2 で割る。", "+5を移項すると −2x = 6。両辺を−2で割ると x = −3 です。",
+    { prerequisite_skills: ["signed", "eqProperty"], skills_used: ["transpose", "eqProperty", "signed"] });
+  eq("transpose-standard-3", "transpose", "standard", "linear-eq-15", "方程式 2x + 5 = 3x − 1 を解きましょう。", 6,
+    "x の項を左辺に、数の項を右辺にまとめて移項します。", "移項すると 2x − 3x = −1 − 5、つまり −x = −6 なので x = 6 です。",
+    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty", "signed"] });
+  eq("transpose-standard-4", "transpose", "standard", "linear-eq-16", "方程式 5x − 3 = 2x + 12 を解きましょう。", 5,
+    "x の項を左辺に、数の項を右辺にまとめます。", "移項すると 5x − 2x = 12 + 3、つまり 3x = 15 なので x = 5 です。",
+    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+  eq("transpose-retention-1", "transpose", "retention", null, "方程式 8 − x = 3 を解きましょう。", 5,
+    "x の項を右辺に、数を左辺に移すと考えやすい。", "8 − 3 = x なので x = 5 です。",
+    { evidence_level: "basic", prerequisite_skills: ["signed", "algebra"] });
+  eq("transpose-retention-2", "transpose", "retention", null, "方程式 7x − 4 = 3x + 20 を解きましょう。", 6,
+    "x の項は左辺、数の項は右辺へ。", "7x − 3x = 20 + 4 → 4x = 24 → x = 6 です。",
+    { evidence_level: "standard", prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+
+  // --- 分配法則（かっこを外す・中1 文字式。新規） ---
+  function dist(id, level, text, a, b, hint, explanation, extra) {
+    var q = { id: id, skill: "distrib", level: level, format: "expression", text: text, type: "linear", answer: { a: a, b: b },
+      placeholder: "例：2x + 6", hint: hint, explanation: explanation };
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  dist("distrib-basic-1", "basic", "3(x + 4) のかっこを外しなさい。", 3, 12, "3 × x と 3 × 4。", "3(x + 4) = 3x + 12 です。");
+  dist("distrib-basic-2", "basic", "−2(x − 5) のかっこを外しなさい。", -2, 10, "−2 × x と −2 × (−5)。符号に注意。", "−2(x − 5) = −2x + 10 です。");
+  dist("distrib-basic-3", "basic", "4(2x − 1) のかっこを外しなさい。", 8, -4, "4 × 2x と 4 × (−1)。", "4(2x − 1) = 8x − 4 です。");
+  dist("distrib-retention-1", "retention", "−(3x − 6) のかっこを外しなさい。", -3, 6, "−(…) は、中の符号を全部反対にする。", "−(3x − 6) = −3x + 6 です。", { evidence_level: "basic" });
+
+  // --- かっこのある方程式 ---
+  eq("eqParen-basic-1", "eqParen", "basic", "linear-eq-08", "方程式 3(x + 2) = 21 を解きましょう。", 5,
+    "まずかっこを開きます。3 × x と 3 × 2。", "かっこを開くと 3x + 6 = 21。+6を移項して 3x = 15、両辺を3で割ると x = 5 です。");
+  eq("eqParen-basic-2", "eqParen", "basic", "linear-eq-09", "方程式 2(x − 3) = 10 を解きましょう。", 8,
+    "かっこを開きます。2 × x と 2 × (−3)。", "かっこを開くと 2x − 6 = 10。−6を移項して 2x = 16、両辺を2で割ると x = 8 です。");
+  eq("eqParen-standard-1", "eqParen", "standard", "linear-eq-10", "方程式 4(x + 1) − 2x = 14 を解きましょう。", 5,
+    "かっこを開いて 4x + 4 − 2x = 14 の形に。同じ x の項をまとめる。", "4x + 4 − 2x = 14 → 2x + 4 = 14 → 2x = 10 → x = 5 です。");
+  eq("eqParen-standard-2", "eqParen", "standard", null, "方程式 −2(x − 4) = 6 を解きましょう。", 1,
+    "−2 をかっこの中に配ると、−2x + 8。", "−2x + 8 = 6 → −2x = −2 → x = 1 です。", { prerequisite_skills: ["distrib", "transpose", "signed"] });
+  eq("eqParen-retention-1", "eqParen", "retention", null, "方程式 5(x − 1) = 3x + 7 を解きましょう。", 6,
+    "かっこを開いてから、x の項と数の項に分けて移項。", "5x − 5 = 3x + 7 → 2x = 12 → x = 6 です。", { evidence_level: "standard" });
+
+  // --- 分数・小数の方程式 ---
+  eq("eqFraction-basic-1", "eqFraction", "basic", "linear-eq-11", "方程式 x/2 + 3 = 7 を解きましょう。", 8,
+    "+3 を右辺に移項 → x/2 = 4 → 両辺に 2 をかける。", "+3を移項すると x/2 = 4。両辺に2をかけると x = 8 です。");
+  eq("eqFraction-basic-2", "eqFraction", "basic", "linear-eq-12", "方程式 x/4 − 1 = 2 を解きましょう。", 12,
+    "−1 を右辺に移項 → x/4 = 3 → 両辺に 4 をかける。", "−1を移項すると x/4 = 3。両辺に4をかけると x = 12 です。");
+  eq("eqFraction-standard-1", "eqFraction", "standard", "linear-eq-13", "方程式 0.3x + 1 = 2.5 を解きましょう。", 5,
+    "+1 を移項 → 0.3x = 1.5。両辺を 10 倍すると考えやすい。", "0.3x = 1.5。両辺を10倍すると 3x = 15、x = 5 です。");
+  eq("eqFraction-standard-2", "eqFraction", "standard", "linear-eq-14", "方程式 0.5x − 2 = 3 を解きましょう。", 10,
+    "−2 を移項 → 0.5x = 5 → 両辺を 2 倍。", "0.5x = 5。両辺を2倍すると x = 10 です。");
+  eq("eqFraction-retention-1", "eqFraction", "retention", null, "方程式 x/5 + 4 = 6 を解きましょう。", 10,
+    "+4 を移項して、x/5 = 2。", "x/5 = 2 → 両辺に5をかけて x = 10 です。", { evidence_level: "basic" });
+  eq("eqFraction-retention-2", "eqFraction", "retention", null, "方程式 0.4x + 1.2 = 2 を解きましょう。", 2,
+    "+1.2 を移項して 0.4x = 0.8。", "0.4x = 0.8 → 両辺を10倍して 4x = 8 → x = 2 です。", { evidence_level: "standard" });
+
+  // --- 方程式の文章題 ---
+  add({ id: "eqWord-basic-1", skill: "eqWord", level: "basic", format: "word",
+    text: "ある数 x に 7 を足すと 15 になります。x はいくつ？",
+    type: "number", answer: 8,
+    hint: "x + 7 = 15 という方程式になる。",
+    explanation: "x + 7 = 15 → x = 8 です。" });
+  eq("eqWord-standard-1", "eqWord", "standard", "linear-eq-17", "1本80円のペンをx本と、50円の消しゴムを1個買ったら、合計610円でした。ペンは何本買いましたか。", 7,
+    "ペン代と消しゴム代を足すと合計になる式：80x + 50 = 610", "80x + 50 = 610 → 80x = 560 → x = 7（本）です。");
+  eq("eqWord-standard-2", "eqWord", "standard", "linear-eq-19", "時速60kmで走る車がx時間走った後、さらに30km進んで、合計150km進みました。xを求めましょう。", 2,
+    "時速60kmでx時間なら 60x km。60x + 30 = 150", "60x + 30 = 150 → 60x = 120 → x = 2（時間）です。");
+  add({ id: "eqWord-application-1", skill: "eqWord", level: "application", format: "word", source: "study-compass-app:linear-eq-18",
+    text: "現在の年齢を x 歳とすると、5 年後の年齢を 3 倍した数は 54 になります。",
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "eqWord", text: "この文を方程式にすると、どれ？", type: "choice",
+        choices: [{ key: "a", label: "3(x + 5) = 54" }, { key: "b", label: "3x + 5 = 54" }, { key: "c", label: "x + 5 × 3 = 54" }, { key: "d", label: "3(x − 5) = 54" }],
+        answer: "a", hint: "5年後の年齢は x + 5。それを3倍する。", explanation: "5年後は x + 5、その3倍なので 3(x + 5) = 54 です。" },
+      { id: "s2", skill: "eqParen", text: "方程式を解いて、現在の年齢を求めなさい。", type: "number", answer: 13,
+        hint: "かっこを開くと 3x + 15 = 54。", explanation: "3x + 15 = 54 → 3x = 39 → x = 13（歳）です。" }
+    ],
+    prerequisite_skills: ["eqMeaning", "algebra", "eqParen"], skills_used: ["eqWord", "eqParen"],
+    hint: "「何を x にしたか」と「どれとどれが等しいか」を考えて式を作る。",
+    explanation: "3(x + 5) = 54 を解いて x = 13。現在 13 歳です。" });
+  add({ id: "eqWord-application-2", skill: "eqWord", level: "application", format: "word", source: "study-compass-app:linear-eq-20",
+    text: "折り紙を x 人に 4 枚ずつ配ると 3 枚余ります。同じ折り紙を 5 枚ずつ配ると 2 枚足りません。",
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "eqWord", text: "折り紙の総数が等しいことから、方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "4x + 3 = 5x − 2" }, { key: "b", label: "4x − 3 = 5x + 2" }, { key: "c", label: "4x + 3 = 5x + 2" }, { key: "d", label: "4(x + 3) = 5(x − 2)" }],
+        answer: "a", hint: "余る → 配った数より多い（＋）、足りない → 配りたい数より少ない（−）。", explanation: "総数は 4x + 3 とも 5x − 2 とも表せるので、4x + 3 = 5x − 2 です。" },
+      { id: "s2", skill: "transpose", text: "方程式を解いて、人数を求めなさい。", type: "number", answer: 5,
+        hint: "x の項を右辺、数の項を左辺に集めると 3 + 2 = 5x − 4x。", explanation: "3 + 2 = 5x − 4x → x = 5（人）です。" }
+    ],
+    prerequisite_skills: ["eqMeaning", "algebra", "transpose"], skills_used: ["eqWord", "transpose"],
+    hint: "配り方がちがっても、折り紙の総数は同じ。",
+    explanation: "4x + 3 = 5x − 2 を解いて x = 5。人数は 5 人です。" });
+  add({ id: "eqWord-retention-1", skill: "eqWord", level: "retention", evidence_level: "standard", format: "word",
+    text: "1 個 x 円のパンを 4 個と、200 円のジュースを 1 本買ったら、代金は 680 円でした。パン 1 個の値段は何円？",
+    type: "number", answer: 120,
+    hint: "4x + 200 = 680 という方程式になる。",
+    explanation: "4x + 200 = 680 → 4x = 480 → x = 120（円）です。" });
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
@@ -769,7 +931,9 @@
     q.unit = "一次関数";
     q.origin = "bank";
     q.skillLabel = sk.label;
-    q.prerequisite_skills = q.prerequisite_skills || sk.prerequisites.slice();
+    // 前提を書いていない問題は、スキル地図の前提を使う。ただし「移項」（方程式を解く）は、
+    // 実際に解く問題（下の SOLVES_EQUATION）にだけ付ける
+    q.prerequisite_skills = q.prerequisite_skills || sk.prerequisites.filter(function (p) { return p !== "transpose" || E.SKILLS[q.skill].unit === "一次方程式"; });
     q.skills_used = q.skills_used || [q.skill];
     q.on_incorrect = q.on_incorrect || [];
     q.on_correct = q.on_correct || [];
@@ -783,6 +947,20 @@
     }
     SC.QUESTIONS[q.id] = q;
   });
+  // 解く途中で方程式（移項）が必要な問題には、前提に「移項」を足す。
+  // （1点と傾きから切片を求める・y から x を求める・2x + y = 5 を変形する など）
+  // こうしておくと、まちがえたときに原因さがしが中1の一次方程式までさかのぼれる。
+  var SOLVES_EQUATION = ["S2", "form-standard-1", "form-standard-3", "form-retention-2", "form-retention-3",
+    "substitution-standard-1", "substitution-standard-4", "substitution-standard-5", "substitution-retention-4",
+    "slopeIntercept-standard-2", "substitution-application-1", "substitution-application-2",
+    "form-application-1", "form-application-2", "rate-application-2", "slopeIntercept-application-1", "slopeIntercept-application-2"];
+  SOLVES_EQUATION.forEach(function (id) {
+    var q = SC.QUESTIONS[id];
+    if (!q) return;
+    if (q.prerequisite_skills.indexOf("transpose") === -1) q.prerequisite_skills = q.prerequisite_skills.concat("transpose");
+    if (q.skills_used.indexOf("transpose") === -1) q.skills_used = q.skills_used.concat("transpose");
+  });
+
   Object.keys(FORMAT_OF_CORE).forEach(function (id) {
     var q = SC.QUESTIONS[id];
     q.origin = "core";

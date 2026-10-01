@@ -20,7 +20,7 @@
     RANGE_CHECK_MAX: 6,          // 範囲チェックの問題数の上限
     MAX_FOCUS_PER_DAY: 2         // 1日に中心にするスキルの数
   };
-  var ROOT_ORDER = ["signed", "algebra", "coord", "proportion", "change", "substitution", "rate", "slopeIntercept", "form"];
+  var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
   var UNIT_SKILLS = ["change", "substitution", "rate", "slopeIntercept", "form"];
 
   function label(k) { return E.SKILLS[k] ? E.SKILLS[k].label : k; }

@@ -89,7 +89,7 @@
       judge.result = "成長"; dbg.growth.push(judge);
       var wasWeak = !a || a.learning_status === "needs_review" || a.learning_status === "learning";
       growth.push({ skill: k, label: label(k), from: wa.mark, to: wb.mark, from_word: wa.word, to_word: wb.word, text: text, rank_up: up,
-        was_weak: wasWeak && rank(a) > 0, in_unit: E.SKILLS[k].unit !== "既習" });
+        was_weak: wasWeak && rank(a) > 0, in_unit: E.SKILLS[k].unit === weekInfo.unit });
     });
     // 大事な順：確認していたところ（△）から伸びた → 単元のスキル → 段階が上がった
     function score(g) { return (g.was_weak ? 4 : 0) + (g.in_unit ? 2 : 0) + (g.rank_up ? 1 : 0); }

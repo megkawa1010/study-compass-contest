@@ -16,20 +16,38 @@
 
   // ---------- 学習地図（スキルと前提スキル） ----------
   // unit が「既習」のものは前の学年までの内容。「まだ習っていない」の影響を受けない。
+  // unit：単元。grade：学年。「既習」は単元に分けていない前の学年の土台。
   var SKILLS = {
-    signed:         { label: "正負の数",       unit: "既習",     prerequisites: [] },
-    algebra:        { label: "文字式への代入", unit: "既習",     prerequisites: ["signed"] },
-    proportion:     { label: "比例",           unit: "既習",     prerequisites: ["algebra"] },
-    coord:          { label: "座標",           unit: "既習",     prerequisites: ["signed"] },
-    change:         { label: "変化量",         unit: "一次関数", prerequisites: ["signed"] },
-    substitution:   { label: "式への代入",     unit: "一次関数", prerequisites: ["algebra"] },
-    rate:           { label: "変化の割合",     unit: "一次関数", prerequisites: ["change"] },
+    signed:         { label: "正負の数",       unit: "既習",     grade: "中1", prerequisites: [] },
+    algebra:        { label: "文字式への代入", unit: "既習",     grade: "中1", prerequisites: ["signed"] },
+    distrib:        { label: "分配法則",       unit: "既習",     grade: "中1", prerequisites: ["signed"] },
+    proportion:     { label: "比例",           unit: "既習",     grade: "中1", prerequisites: ["algebra"] },
+    coord:          { label: "座標",           unit: "既習",     grade: "中1", prerequisites: ["signed"] },
+    // --- 中1 一次方程式 ---
+    eqMeaning:      { label: "方程式の意味",   unit: "一次方程式", grade: "中1", prerequisites: ["algebra"] },
+    eqProperty:     { label: "等式の性質",     unit: "一次方程式", grade: "中1", prerequisites: ["signed"] },
+    transpose:      { label: "移項",           unit: "一次方程式", grade: "中1", prerequisites: ["signed", "algebra"] },
+    eqParen:        { label: "かっこのある方程式", unit: "一次方程式", grade: "中1", prerequisites: ["distrib", "transpose", "signed"] },
+    eqFraction:     { label: "分数・小数の方程式", unit: "一次方程式", grade: "中1", prerequisites: ["eqProperty", "transpose"] },
+    eqWord:         { label: "方程式の文章題", unit: "一次方程式", grade: "中1", prerequisites: ["eqMeaning", "algebra", "transpose"] },
+    // --- 中2 一次関数 ---
+    change:         { label: "変化量",         unit: "一次関数", grade: "中2", prerequisites: ["signed"] },
+    // y から x を求めるには、方程式を解く（移項）
+    substitution:   { label: "式への代入",     unit: "一次関数", grade: "中2", prerequisites: ["algebra", "transpose"] },
+    rate:           { label: "変化の割合",     unit: "一次関数", grade: "中2", prerequisites: ["change"] },
     // 傾きは「変化の割合」そのもの。切片は比例 y = ax からの平行移動として理解する
-    slopeIntercept: { label: "傾き・切片",     unit: "一次関数", prerequisites: ["rate", "proportion"] },
-    form:           { label: "グラフ・式",     unit: "一次関数", prerequisites: ["slopeIntercept", "rate", "substitution", "coord"] }
+    slopeIntercept: { label: "傾き・切片",     unit: "一次関数", grade: "中2", prerequisites: ["rate", "proportion"] },
+    // 1点と傾きから切片を求めるときに、方程式を解く（移項）
+    form:           { label: "グラフ・式",     unit: "一次関数", grade: "中2", prerequisites: ["slopeIntercept", "rate", "substitution", "coord", "transpose"] }
   };
-  // 現在地画面で上から並べる順（土台 → 一次関数の本体）
-  var SKILL_ORDER = ["signed", "algebra", "proportion", "coord", "change", "substitution", "rate", "slopeIntercept", "form"];
+  // 現在地画面で上から並べる順（土台 → 中1一次方程式 → 中2一次関数）
+  var SKILL_ORDER = ["signed", "algebra", "distrib", "proportion", "coord",
+    "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
+    "change", "substitution", "rate", "slopeIntercept", "form"];
+  // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
+  var ROOT_ORDER = ["signed", "algebra", "distrib", "coord", "proportion",
+    "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
+    "change", "substitution", "rate", "slopeIntercept", "form"];
   var LEVELS = ["basic", "standard", "application", "retention"];
 
   // ---------- 調整値（ここを変えると理解度の動き方が変わる） ----------
@@ -242,7 +260,9 @@
 
   // 未学習 / 学習中 / 要確認 / 理解 / 活用 / 定着
   function learningStatus(skillId, levels, count, lessonAfterCheck, opts, retainedOk) {
-    var inUnit = SKILLS[skillId] && SKILLS[skillId].unit !== "既習";
+    // 「まだ習っていない」は、学校でいま学習中の単元（既定：一次関数）にだけ当てはめる。
+    // 中1 一次方程式などは既習扱い。記録がなければ「まだ（not_checked）」で、苦手とは扱わない
+    var inUnit = SKILLS[skillId] && SKILLS[skillId].unit === (opts.currentUnit || "一次関数");
     var notYet = inUnit && opts.schoolProgress === "notyet";
     if (!count) return notYet ? "not_learned" : "not_checked";
     if (retainedOk) return "retained";
@@ -276,7 +296,8 @@
   var NEXT_ACTION = {
     signed: "review_signed_numbers", algebra: "review_substitution", proportion: "review_proportion",
     coord: "review_coordinates", change: "review_change_amount", substitution: "review_substitution",
-    rate: "review_rate_of_change", slopeIntercept: "review_slope_intercept", form: "practice_slope_to_equation"
+    rate: "review_rate_of_change", distrib: "review_distributive", eqMeaning: "review_equation_meaning", eqProperty: "review_equation_property",
+    transpose: "review_transposition", eqParen: "review_paren_equation", eqFraction: "review_fraction_equation", eqWord: "review_equation_word", slopeIntercept: "review_slope_intercept", form: "practice_slope_to_equation"
   };
 
   function nextAction(skillId, s, rootIds, now) {
@@ -366,7 +387,7 @@
   }
 
   SC.engine = {
-    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, LEVELS: LEVELS, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
+    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, LEVELS: LEVELS, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot
   };
 })(typeof window !== "undefined" ? window : globalThis);
