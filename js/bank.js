@@ -139,6 +139,23 @@
     answer: { x_change: 6, y_change: 12 }, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
     hint: "マイナスをひくときは、かっこをつけて計算しよう。3 − (−3)。",
     explanation: "x の増加量は 3 − (−3) = 6、y の増加量は 7 − (−5) = 12 です。" });
+  add({ id: "change-retention-3", skill: "change", level: "retention", evidence_level: "basic", format: "numberline",
+    text: "数直線上の点が、P の位置から Q の位置まで動きました。位置の増加量はいくつ？",
+    figure: { type: "numberline", from: -6, to: 6, marks: [{ x: -5, label: "P" }, { x: 3, label: "Q" }] },
+    type: "number", answer: 8, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
+    hint: "Q の数 − P の数",
+    explanation: "P は −5、Q は 3。3 − (−5) = 8 です。" });
+  add({ id: "change-retention-4", skill: "change", level: "retention", evidence_level: "basic", format: "word",
+    text: "午後1時の気温は 18℃、午後7時には 11℃ でした。1時から7時までの気温の増加量は何℃？",
+    type: "number", answer: -7, prerequisite_skills: ["signed"], skills_used: ["change", "signed"],
+    hint: "あとの気温 − はじめの気温。下がったときはマイナス。",
+    explanation: "11 − 18 = −7℃ です。" });
+  add({ id: "change-retention-5", skill: "change", level: "retention", evidence_level: "standard", format: "coordinate",
+    text: "点 A(5, −4) から点 B(−1, 8) まで動きました。x の増加量と y の増加量を答えなさい。",
+    type: "pair", fields: [{ key: "x_change", label: "x の増加量" }, { key: "y_change", label: "y の増加量" }],
+    answer: { x_change: -6, y_change: 12 }, prerequisite_skills: ["signed", "coord"], skills_used: ["change", "signed", "coord"],
+    hint: "x どうし、y どうしで「B − A」。x は減っている。",
+    explanation: "x の増加量は −1 − 5 = −6、y の増加量は 8 − (−4) = 12 です。" });
 
   // =====================================================================
   // 式への代入（substitution）  既存：B3（基礎）
@@ -238,6 +255,22 @@
     answer: { left: 7, right: -11 }, prerequisite_skills: ["algebra", "signed"], skills_used: ["substitution", "signed"],
     hint: "−3 × (−2) と −3 × 4 を、かっこをつけて計算しよう。",
     explanation: "x = −2 のとき −3 × (−2) + 1 = 7、x = 4 のとき −3 × 4 + 1 = −11 です。" });
+  add({ id: "substitution-retention-3", skill: "substitution", level: "retention", evidence_level: "basic", format: "coordinate",
+    text: "点 (−2, 9) は、一次関数 y = −4x + 1 のグラフ上にありますか？",
+    type: "choice", choices: [{ key: "a", label: "グラフ上にある" }, { key: "b", label: "グラフ上にない" }],
+    answer: "a", prerequisite_skills: ["algebra", "signed", "coord"], skills_used: ["substitution", "signed"],
+    hint: "x = −2 を式に入れて、y が 9 になるか確かめよう。",
+    explanation: "y = −4 × (−2) + 1 = 9。式を満たすので、グラフ上にあります。" });
+  add({ id: "substitution-retention-4", skill: "substitution", level: "retention", evidence_level: "standard", format: "word",
+    text: "工作で使うひもの長さ y cm は、作る飾りの数 x に対して y = 7x + 15 です。ひもが 71cm のとき、飾りはいくつ？",
+    type: "number", answer: 8, skills_used: ["substitution", "algebra"],
+    hint: "71 = 7x + 15 を解こう。",
+    explanation: "7x = 71 − 15 = 56 → x = 8 です。" });
+  add({ id: "substitution-retention-5", skill: "substitution", level: "retention", evidence_level: "basic", format: "expression",
+    text: "y = 0.4x − 2 で、x = 15 のとき、y はいくつ？",
+    type: "number", answer: 4,
+    hint: "0.4 × 15 を先に計算。",
+    explanation: "0.4 × 15 = 6、6 − 2 = 4 です。" });
 
   // =====================================================================
   // 変化の割合（rate）  既存：B4（基礎）・S1（標準）
@@ -342,6 +375,21 @@
     type: "number", answer: -1 / 3, answer_display: "−1/3", prerequisite_skills: ["change", "coord", "signed"], skills_used: ["rate", "change", "coord"],
     hint: "2 つの●の座標を読もう。右へ進むと、上がる？下がる？",
     explanation: "(−3, 3) から (3, 1) まで、x は 6 増え、y は 2 減っています。−2 ÷ 6 = −1/3 です。" });
+  add({ id: "rate-retention-3", skill: "rate", level: "retention", evidence_level: "standard", format: "expression",
+    text: "一次関数 y = −5x + 8 で、x が 3 から 7 まで増えると、y の増加量はいくつ？",
+    type: "number", answer: -20, prerequisite_skills: ["change", "signed"], skills_used: ["rate", "change", "signed"],
+    hint: "変化の割合は −5。y の増加量 ＝ 変化の割合 × x の増加量。",
+    explanation: "x の増加量は 4。−5 × 4 = −20 です。" });
+  add({ id: "rate-retention-4", skill: "rate", level: "retention", evidence_level: "basic", format: "word",
+    text: "ろうそくが 8 分間で 12cm 短くなりました。時間 x 分と長さ y cm の変化の割合はいくつ？（短くなるのでマイナス）",
+    type: "number", answer: -1.5, answer_display: "−1.5（−3/2）", prerequisite_skills: ["change", "signed"], skills_used: ["rate", "signed"],
+    hint: "y の増加量は −12、x の増加量は 8。",
+    explanation: "(−12) ÷ 8 = −1.5 です。1 分に 1.5cm ずつ短くなっています。" });
+  add({ id: "rate-retention-5", skill: "rate", level: "retention", evidence_level: "standard", format: "coordinate",
+    text: "2点 (−4, −1)、(2, 11) を通る直線の変化の割合は？",
+    type: "number", answer: 2, prerequisite_skills: ["change", "signed", "coord"], skills_used: ["rate", "change", "signed"],
+    hint: "(y の増加量) ÷ (x の増加量)。マイナスをひくときに注意。",
+    explanation: "y の増加量 11 − (−1) = 12、x の増加量 2 − (−4) = 6。12 ÷ 6 = 2 です。" });
 
   // =====================================================================
   // 傾き・切片（slopeIntercept）  既存：C5（基礎）
@@ -455,6 +503,26 @@
     answer: { slope: 3, intercept: -2 }, prerequisite_skills: ["proportion", "coord"], skills_used: ["slopeIntercept", "coord"],
     hint: "y 軸と交わる点で切片、そこから右に 1 進むと上にいくつ？で傾き。",
     explanation: "y 軸と (0, −2) で交わり、右に 1 進むと上に 3。傾き 3、切片 −2 です。" });
+  add({ id: "slopeIntercept-retention-3", skill: "slopeIntercept", level: "retention", evidence_level: "standard", format: "table",
+    text: "下の表は一次関数の x と y の関係です。傾きと切片を答えなさい。",
+    figure: { type: "table", rows: [{ label: "x", values: [0, 3, 6] }, { label: "y", values: [7, 1, -5] }] },
+    type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }],
+    answer: { slope: -2, intercept: 7 }, prerequisite_skills: ["rate"], skills_used: ["slopeIntercept", "rate"],
+    hint: "x = 0 のときの y が切片。x が 3 増えると y はいくつ変わる？",
+    explanation: "x = 0 のとき y = 7 なので切片は 7。x が 3 増えると y は 6 減るので、傾きは −6 ÷ 3 = −2 です。" });
+  add({ id: "slopeIntercept-retention-4", skill: "slopeIntercept", level: "retention", evidence_level: "basic", format: "expression",
+    text: "切片が −4 で、右下がりの直線の式はどれ？",
+    type: "choice",
+    choices: [{ key: "a", label: "y = 4x − 1" }, { key: "b", label: "y = −x − 4" }, { key: "c", label: "y = −4x + 1" }, { key: "d", label: "y = x + 4" }],
+    answer: "b",
+    hint: "切片はうしろの数、右下がりは傾きがマイナス。",
+    explanation: "切片が −4 なのは y = −x − 4。傾き −1 なので右下がりです。" });
+  add({ id: "slopeIntercept-retention-5", skill: "slopeIntercept", level: "retention", evidence_level: "basic", format: "word",
+    text: "ある駐輪場の料金は、はじめに 400 円かかり、そのあと 1 時間ごとに 60 円ずつ増えます。とめた時間を x 時間、料金を y 円として y = ax + b と表すとき、a（傾き）と b（切片）を答えなさい。",
+    type: "pair", fields: [{ key: "slope", label: "a（傾き）" }, { key: "intercept", label: "b（切片）" }],
+    answer: { slope: 60, intercept: 400 },
+    hint: "1 時間ごとに増える分が傾き、はじめにかかる分が切片。",
+    explanation: "a = 60、b = 400。式は y = 60x + 400 です。" });
 
   // =====================================================================
   // グラフ・式（form）  既存：B5（基礎）・S2（標準）
@@ -565,6 +633,25 @@
     prerequisite_skills: ["rate", "substitution", "signed"], skills_used: ["form", "rate", "substitution"],
     hint: "表に x = 0 がないので、変化の割合を出してから、1 組の x, y を代入して切片を求めよう。",
     explanation: "x が 2 増えると y は 4 減るので傾きは −2。1 = −2 × 2 + b より b = 5。y = −2x + 5 です。" });
+  add({ id: "form-retention-3", skill: "form", level: "retention", evidence_level: "standard", format: "coordinate",
+    text: "2点 (−1, −7)、(3, 5) を通る直線の式を求めなさい。",
+    type: "linear", answer: { a: 3, b: -4 }, placeholder: "例：y = 2x + 1",
+    prerequisite_skills: ["rate", "substitution", "signed"], skills_used: ["form", "rate", "substitution"],
+    hint: "傾きを出してから、どちらかの点を代入して切片を求めよう。",
+    explanation: "傾きは (5 − (−7)) ÷ (3 − (−1)) = 12 ÷ 4 = 3。5 = 3 × 3 + b より b = −4。y = 3x − 4 です。" });
+  add({ id: "form-retention-4", skill: "form", level: "retention", evidence_level: "basic", format: "graph",
+    text: "グラフの直線の式を答えなさい。",
+    figure: { type: "graph", x: [-1, 3, 1], y: [-5, 5, 1], lines: [line(-4, 2)], points: [{ x: 0, y: 2 }, { x: 1, y: -2 }] },
+    type: "linear", answer: { a: -4, b: 2 }, placeholder: "例：y = 2x + 1",
+    prerequisite_skills: ["slopeIntercept", "coord"], skills_used: ["form", "slopeIntercept", "coord"],
+    hint: "y 軸と交わるところが切片。右に 1 進むと、上下にいくつ？",
+    explanation: "切片は 2、右に 1 進むと 4 下がるので傾きは −4。y = −4x + 2 です。" });
+  add({ id: "form-retention-5", skill: "form", level: "retention", evidence_level: "basic", format: "word",
+    text: "24L 入ったタンクから、1 分に 1.5L ずつ水を出します。x 分後の水の量を y L として、y を x の式で表しなさい。",
+    type: "linear", answer: { a: -1.5, b: 24 }, placeholder: "例：y = −2x + 10",
+    prerequisite_skills: ["slopeIntercept", "signed"], skills_used: ["form", "slopeIntercept"],
+    hint: "減っていく量は、傾きがマイナス。はじめの量が切片。",
+    explanation: "y = −1.5x + 24 です。" });
 
   // =====================================================================
   // 既習：正負の数（signed）  既存：C1

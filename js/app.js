@@ -155,6 +155,11 @@
     return { d: d, plan: plan };
   }
 
+  // 定着の確認の問題は、まず自力で。ヒントを使うと、定着の判定は次回にまわる（js/engine.js）
+  function hintLabel(q) {
+    return q && q.level === "retention" ? "ヒントを見る（定着の確認は次回に）" : "ヒントを見る";
+  }
+
   // ---------- 入力欄 ----------
 
   // 入力中の値の置き場所。小問つきの問題は、小問ごとに分けて持つ
@@ -390,7 +395,7 @@
           (state.hintOpen ? '<div class="hint"><strong>ヒント</strong><p>' + esc(q.hint) + "</p></div>" : "") +
           '<div class="actions">' +
             '<button class="primary-button" type="submit">答える</button>' +
-            (state.hintOpen ? "" : '<button class="secondary-button" type="button" data-action="hint">ヒントを見る</button>') +
+            (state.hintOpen ? "" : '<button class="secondary-button" type="button" data-action="hint">' + hintLabel(q) + "</button>") +
             '<button class="secondary-button soft" type="button" data-action="unknown">わからない</button>' +
           "</div>" +
         "</form>" +
@@ -834,7 +839,7 @@
       '<section class="card pr-message"><p class="eyebrow">今週のひとこと</p><p class="pr-message-text">' + esc(r.message) + "</p></section>" +
       '<section class="card"><h2 class="h-sm">今週の学習</h2><div class="pr-stats">' +
         '<div><span>学習した日</span><strong>' + w.active_days + ' 日</strong><small>この7日間</small></div>' +
-        '<div><span>学習時間</span><strong>' + w.minutes + ' 分</strong><small>目安</small></div>' +
+        '<div><span>学習の目安</span><strong>' + w.minutes + ' 分</strong><small>予定時間の合計</small></div>' +
         '<div><span>いまの単元</span><strong>' + esc(w.unit) + "</strong><small>学校：" + ({ done: "習った", learning: "学習中", notyet: "これから" }[w.school_status] || "") + "</small></div>" +
       "</div></section>" +
       '<section class="card"><h2 class="h-sm">最近できるようになったこと</h2>' + growth + "</section>" +
@@ -870,7 +875,7 @@
         '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
         '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
       '<section class="card"><h2 class="h-sm">今週の学習の計算</h2><p class="small">この7日間の回答 ' + dbg.week.answers_in_week + "件 → 学習した日 " + r.week.active_days +
-        "日／学習時間 ＝ 完了した今日の学習 " + dbg.week.plan_minutes + "分 ＋ チェック " + dbg.week.check_answers + "問 × 1分 ＝ " + r.week.minutes + "分</p></section>" +
+        "日／学習の目安 ＝ 完了した今日の学習の予定時間 " + dbg.week.plan_minutes + "分 ＋ チェック " + dbg.week.check_answers + "問 × 1分 ＝ " + r.week.minutes + "分</p></section>" +
       '<section class="card"><h2 class="h-sm">skill_state（いま）</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>原因候補</th></tr></thead><tbody>' + stateRows + "</tbody></table></div></section>" +
       '<section class="card"><h2 class="h-sm">成長の判定（7日前と比べる）</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>新しくできたレベル</th><th>段階</th><th>判定</th></tr></thead><tbody>' + growthRows + "</tbody></table></div></section>" +
       '<section class="card"><h2 class="h-sm">つまずき候補</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>根拠</th><th>14日の×</th><th>表示</th></tr></thead><tbody>' + (stumbleRows || '<tr><td colspan="4">なし</td></tr>') + "</tbody></table></div>" +
@@ -1508,7 +1513,7 @@
                 (state.hintOpen && res !== "tried" ? '<div class="hint"><strong>ヒント</strong><p>' + esc(q.hint) + "</p></div>" : "") +
                 '<div class="actions"><button class="primary-button" type="submit">答える</button>' +
                   (res === "tried" ? '<button class="secondary-button" type="button" data-action="daily-reveal">答えと考え方を見る</button>'
-                    : (state.hintOpen ? "" : '<button class="secondary-button" type="button" data-action="lesson-hint">ヒントを見る</button>') +
+                    : (state.hintOpen ? "" : '<button class="secondary-button" type="button" data-action="lesson-hint">' + hintLabel(q) + "</button>") +
                       '<button class="secondary-button soft" type="button" data-action="daily-unknown">わからない</button>') +
                 "</div></form>") +
         "</div>" +

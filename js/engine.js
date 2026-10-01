@@ -49,6 +49,7 @@
     hintCeilingPenalty: 0.1,              // ヒントありでできたときに下げる上限の幅
     retentionDays: 3,                     // 最初に「できた」から何日後の正解を「定着」の確認とみなすか
     masteredConfidence: 0.85,             // 4レベルすべて pass ＋ この確かさ以上で「マスター」
+    retainedMinDays: 2,                   // 「定着」には、数日後の自力正解がこの日数以上必要
     levelWindow: 3                        // レベルの判定に使う直近の回答数
   };
 
@@ -88,13 +89,14 @@
   }
 
   // 直近 levelWindow 件を新しいものほど重く見て、半分以上できていれば pass
-  function levelStatus(attempts) {
+  // strict（定着の判定）のときは、ヒントありの正解を「できた」に数えない
+  function levelStatus(attempts, strict) {
     if (!attempts.length) return "not_checked";
     var recent = attempts.slice(-CONFIG.levelWindow);
     var sum = 0, weight = 0;
     for (var i = 0; i < recent.length; i++) {
       var w = i + 1; // 古い 1 … 新しい 3
-      sum += credit(recent[i]) * w;
+      sum += (strict && recent[i].hint_used ? 0 : credit(recent[i])) * w;
       weight += w;
     }
     return sum / weight >= 0.5 ? "pass" : "needs_review";
@@ -138,6 +140,7 @@
     var conf = null;
     var firstPassAt = null;
     var retentionPasses = 0;
+    var retentionDays = {};
     var levels = { basic: "not_checked", standard: "not_checked", application: "not_checked", retention: "not_checked" };
     var lastCheckIndex = -1;
     var lastCheckHinted = false;
@@ -159,9 +162,11 @@
         // 最初に「できた」と言えた日から retentionDays 以上たってからの回答は、定着の確認にもなる
         if (firstPassAt !== null && t - firstPassAt >= CONFIG.retentionDays * DAY) {
           byLevel.retention.push(a);
-          if (a.correct && !a.hint_used) retentionPasses++;
+          // 定着の証拠は「ヒントなしで自力で正解」だけ。数えるのは日数（同じ日に何問解いても1回）
+          if (a.correct && !a.hint_used) retentionDays[new Date(t).toISOString().slice(0, 10)] = true;
+          retentionPasses = Object.keys(retentionDays).length;
         }
-        LEVELS.forEach(function (lv) { levels[lv] = levelStatus(byLevel[lv]); });
+        LEVELS.forEach(function (lv) { levels[lv] = levelStatus(byLevel[lv], lv === "retention"); });
         impliedLevels(levels, byLevel);
         if (firstPassAt === null && (levels.basic === "pass" || levels.standard === "pass" || levels.application === "pass")) {
           firstPassAt = t;
@@ -202,7 +207,12 @@
     var last = attempts[attempts.length - 1];
     var lessonAfterCheck = attempts.slice(lastCheckIndex + 1).filter(function (a) { return a.context === "lesson"; });
 
-    var status = learningStatus(skillId, levels, attempts.length, lessonAfterCheck, opts);
+    // 「定着」は1回の数日後正解では決めない：
+    //   数日後の確認で自力正解した日が2日以上 ＋ 直近3回のチェックに誤答がない、とき
+    var checks = attempts.filter(function (a) { return a.context !== "lesson"; });
+    var recentErrors = checks.slice(-3).filter(function (a) { return !a.correct; }).length;
+    var retainedOk = levels.retention === "pass" && retentionPasses >= CONFIG.retainedMinDays && recentErrors === 0;
+    var status = learningStatus(skillId, levels, attempts.length, lessonAfterCheck, opts, retainedOk);
     // 4つのレベルすべてが pass で確かさも高ければ「マスター」。
     // ただし永久には固定しない（履歴から毎回計算し直すので、あとの不正解で下がりうる）
     if (status === "retained" && LEVELS.every(function (lv) { return levels[lv] === "pass"; }) &&
@@ -221,6 +231,8 @@
       confidence: conf === null ? 0 : round2(conf),
       attempt_count: attempts.length,
       correct_count: correctCount,
+      retention_count: retentionPasses,   // 数日後の確認で自力正解した日数
+      recent_check_errors: recentErrors,  // 直近3回のチェックの誤答数
       suspected_root_causes: [],
       first_pass_at: firstPassAt === null ? null : new Date(firstPassAt).toISOString(),
       last_checked: last ? last.answered_at : null,
@@ -229,11 +241,11 @@
   }
 
   // 未学習 / 学習中 / 要確認 / 理解 / 活用 / 定着
-  function learningStatus(skillId, levels, count, lessonAfterCheck, opts) {
+  function learningStatus(skillId, levels, count, lessonAfterCheck, opts, retainedOk) {
     var inUnit = SKILLS[skillId] && SKILLS[skillId].unit !== "既習";
     var notYet = inUnit && opts.schoolProgress === "notyet";
     if (!count) return notYet ? "not_learned" : "not_checked";
-    if (levels.retention === "pass") return "retained";
+    if (retainedOk) return "retained";
     if (levels.application === "pass") return "applying";
     if (levels.basic === "pass" || levels.standard === "pass") return "understood";
     // ここから下は「まだできていない」。まだ習っていない単元なら苦手扱いしない

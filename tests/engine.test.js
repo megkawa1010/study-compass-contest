@@ -73,10 +73,37 @@ test("受入シナリオ：×→学習→○（少し上がる・定着ではな
   a("B4", "correct");
   const s3 = E.computeSkillStates(h, { now: T0 + 4 * 24 * HOUR + HOUR });
   assert.equal(s3.rate.retention, "pass");
-  assert.equal(s3.rate.learning_status, "retained");
-  assert.ok(s3.rate.confidence > s2.rate.confidence, "定着で上がる");
+  assert.equal(s3.rate.retention_count, 1);
+  assert.notEqual(s3.rate.learning_status, "retained", "1回の数日後正解だけでは「定着」にしない");
+  assert.ok(s3.rate.confidence > s2.rate.confidence, "定着の確認で確かさは上がる");
   assert.equal(s3.rate.attempt_count, 5);
   assert.equal(s3.rate.correct_count, 4);
+
+  // さらに数日後、別の日にも自力でできた → 定着
+  a = log(h, T0 + 8 * 24 * HOUR, "s4");
+  a("B4", "correct");
+  const s4 = E.computeSkillStates(h, { now: T0 + 8 * 24 * HOUR + HOUR });
+  assert.equal(s4.rate.retention_count, 2);
+  assert.equal(s4.rate.learning_status, "retained");
+});
+
+test("定着の判定：ヒントありの正解は数えない・同じ日の正解は1日分・最近の誤答があれば定着にしない", () => {
+  const h = [];
+  let a = log(h, T0, "s1");
+  a("B4", "correct");
+  a = log(h, T0 + 4 * 24 * HOUR, "s2");
+  a("B4", "correct", true); // ヒントあり
+  let s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.retention_count, 0);
+  assert.notEqual(s.retention, "pass", "ヒントありの正解だけでは定着の確認にならない");
+  a("S1", "correct"); a("B4", "correct"); // 同じ日に2問
+  s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.retention_count, 1, "同じ日は1日分");
+  a = log(h, T0 + 8 * 24 * HOUR, "s3");
+  a("B4", "correct"); a("S1", "incorrect");
+  s = E.computeSkillStates(h, {}).rate;
+  assert.equal(s.retention_count, 2);
+  assert.notEqual(s.learning_status, "retained", "直近のチェックに誤答があるので、まだ定着にしない");
 });
 
 test("1回の正解で上がる幅：基礎 +0.04 / 標準 +0.05 / 応用 +0.06 / 数日後の確認 +0.08", () => {

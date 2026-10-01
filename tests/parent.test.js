@@ -96,6 +96,22 @@ test("監視・比較をしない：点数・正誤の数・ランキング・�
   r.map.forEach((m) => assert.ok(m.word && !/\d/.test(m.word), "地図はことばで表す（数字を出さない）"));
 });
 
+test("「身についてきています」は数日後の確認が2回以上のときだけ。1回なら「今回も使うことができました」", () => {
+  const L = learner();
+  L.add(T0, ["B4"], [c]);
+  L.add(T0 + 4 * DAY, ["rate-retention-1"], [c]);
+  let now = T0 + 4 * DAY + HOUR;
+  let r = PR.report({ history: L.history, states: E.computeSkillStates(L.history, { now }), now, school: SCHOOL });
+  let g = r.growth.find((x) => x.skill === "rate");
+  assert.match(g.text, /前回学んだ内容を、今回も使うことができました/);
+  L.add(T0 + 9 * DAY, ["rate-retention-3"], [c]);
+  now = T0 + 9 * DAY + HOUR;
+  r = PR.report({ history: L.history, states: E.computeSkillStates(L.history, { now }), now, school: SCHOOL });
+  g = r.growth.find((x) => x.skill === "rate");
+  assert.ok(g, JSON.stringify(r.growth));
+  assert.match(g.text, /数日後の確認でもできており、少しずつ身についてきています/);
+});
+
 test("記録がなくても止まらない", () => {
   const r = PR.report({ history: [], states: E.computeSkillStates([], {}), now: T0, school: SCHOOL });
   assert.equal(r.empty, true);

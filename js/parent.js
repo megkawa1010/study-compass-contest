@@ -21,8 +21,8 @@
 
   // 保護者向けのことば（点数や「要確認」のような評価語を使わない）
   var WORD = {
-    mastered: { mark: "◎", word: "しっかり身についている" },
-    retained: { mark: "◎", word: "身についてきている" },
+    mastered: { mark: "◎", word: "しっかり身についてきている" },
+    retained: { mark: "◎", word: "少しずつ身についてきている" },
     applying: { mark: "◎", word: "応用にも使えている" },
     understood: { mark: "○", word: "基本はできている" },
     learning: { mark: "↗", word: "練習しているところ" },
@@ -79,7 +79,9 @@
       var up = rank(b) > rank(a);
       var judge = { skill: k, before: a ? a.learning_status : "not_checked", after: b.learning_status, newly_passed: newly, rank_up: up };
       if (!up && !newly.length) { judge.result = "変化なし"; dbg.growth.push(judge); return; }
-      var text = newly.indexOf("retention") !== -1 ? "数日たっても自分で解けていて、身についてきています。"
+      // 「身についてきています」は、数日後の確認が1回だけなら言い切らない
+      var text = newly.indexOf("retention") !== -1
+          ? (b.retention_count >= 2 ? "数日後の確認でもできており、少しずつ身についてきています。" : "前回学んだ内容を、今回も使うことができました。")
         : newly.indexOf("application") !== -1 ? "知識を組み合わせる問題にも取り組めるようになってきました。"
         : newly.indexOf("standard") !== -1 ? "基礎問題だけでなく、形が変わった問題でも安定してきました。"
         : "基本の問題を、自分で解けるようになってきました。";
