@@ -59,7 +59,7 @@
   }
 
   // 文字式（多項式）を { 項の文字: 係数 } にする。読めなければ null。
-  // "7x+2y" / "2y+7x" / "-10xy" / "-10yx" / "6x^2" / "6x²" / "12x^3y" / "x=-2y+6"（先頭の「文字=」は外す）
+  // "7x+2y" / "2y+7x" / "-10xy" / "-10yx" / "6x^2" / "6x²" / "12x^3y" / "x=-2y+6"（先頭の「文字=」は外す）/ "y/2+2" / "1/2y+2"
   // 項の文字は、文字ごとの次数を並べた名前（x²y → "x2y1"）。同じ項はまとめて、係数 0 の項は消す。
   function parsePoly(value) {
     // ² ³ は NFKC で ただの 2 3 になってしまうので、正規化の前に ^2 ^3 にする
@@ -71,10 +71,12 @@
     if (!terms || terms.join("") !== s) return null; // 「2x+」のように符号だけ残っているものは読まない
     var out = {};
     for (var i = 0; i < terms.length; i++) {
-      var m = terms[i].match(/^([+-]?)(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?((?:[a-z](?:\^\d+)?)*)$/);
-      if (!m || (!m[2] && !m[3])) return null;
+      // 係数は 3 / 0.5 / 1/2 のほか、文字のあとの「/2」（y/2 = 1/2 y）も読む
+      var m = terms[i].match(/^([+-]?)(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?((?:[a-z](?:\^\d+)?)*)(?:\/(\d+(?:\.\d+)?))?$/);
+      if (!m || (!m[2] && !m[3]) || (m[4] && !m[3])) return null;
       var c = m[2] ? toNumber(m[2]) : 1;
       if (c === null) return null;
+      if (m[4]) { if (Number(m[4]) === 0) return null; c = c / Number(m[4]); }
       if (m[1] === "-") c = -c;
       var deg = {};
       (m[3].match(/[a-z](?:\^\d+)?/g) || []).forEach(function (f) { deg[f[0]] = (deg[f[0]] || 0) + (f.length > 1 ? Number(f.slice(2)) : 1); });

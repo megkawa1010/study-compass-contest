@@ -1102,10 +1102,77 @@
     "−4x を右辺に移項すると +4x。", "−4x を移項して y = 4x + 1 です。", { prerequisite_skills: ["transpose", "signed"] });
   solveY("eqTransform-standard-1", "standard", "3x + 2y = 12 を y について解きなさい。", -1.5, 6,
     "3x を移項すると 2y = −3x + 12。そのあと両辺を 2 でわる。", "2y = −3x + 12 の両辺を 2 でわって y = −3/2 x + 6 です。",
-    { prerequisite_skills: ["transpose", "eqProperty"], answer_display: "y = −3/2 x + 6" });
+    { prerequisite_skills: ["eqProperty", "transpose"], answer_display: "y = −3/2 x + 6" });
   solveY("eqTransform-standard-2", "standard", "4x − 2y = 6 を y について解きなさい。", 2, -3,
     "4x を移項すると −2y = −4x + 6。両辺を −2 でわると、全部の符号が変わる。", "−2y = −4x + 6 の両辺を −2 でわって y = 2x − 3 です。",
-    { prerequisite_skills: ["transpose", "eqProperty", "signed"] });
+    { prerequisite_skills: ["eqProperty", "transpose", "signed"] });
+  // 補強（基礎）：1回の操作だけ。両辺から同じ式をひく・両辺を同じ数でわる・両辺に同じ数をかける（どの操作かを選ぶ）
+  add({ id: "eqTransform-basic-4", skill: "eqTransform", level: "basic", format: "expression",
+    text: "x + y = 7 を y について解いた式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "y = 7 − x" }, { key: "b", label: "y = x − 7" }, { key: "c", label: "y = 7 + x" }, { key: "d", label: "y = −7 − x" }], answer: "a",
+    prerequisite_skills: ["transpose"],
+    hint: "両辺から x をひく。",
+    explanation: "両辺から x をひくと y = 7 − x（y = −x + 7 と同じ）です。一次関数の式の形になります。" });
+  solveY("eqTransform-basic-5", "basic", "3y = 6x + 9 を y について解きなさい。", 2, 3,
+    "両辺を 3 でわる。右辺は 6x も 9 も、どちらも 3 でわる。", "両辺を 3 でわって y = 2x + 3 です。",
+    { prerequisite_skills: ["eqProperty", "distrib"] });
+  // 「どの操作をするか」だけを聞く（等式の性質の理解）。計算の正しさとは分けて記録する
+  add({ id: "eqTransform-basic-6", skill: "eqTransform", level: "basic", format: "expression",
+    text: "y/3 = x + 2 を y について解くには、どうすればよい？",
+    type: "choice", choices: [{ key: "a", label: "両辺に 3 をかける" }, { key: "b", label: "両辺を 3 でわる" }, { key: "c", label: "両辺から 3 をひく" }, { key: "d", label: "両辺に x をたす" }], answer: "a",
+    prerequisite_skills: ["eqProperty"],
+    hint: "y が 3 でわられている。それをもとに戻す操作は？",
+    explanation: "両辺に 3 をかけると y = 3(x + 2) = 3x + 6 になります。等式は、両辺に同じ数をかけても成り立ちます。" });
+  // 補強（標準）：2〜3段階。整理する力（同類項・分配法則）と、等式の性質を使う力を分けて見る
+  solveY("eqTransform-standard-3", "standard", "y + 2x = 3x − 4 を y について解きなさい。", 1, -4,
+    "2x を右辺に移項してから、x の項をまとめる：y = 3x − 2x − 4。", "y = 3x − 2x − 4 = x − 4 です。",
+    { prerequisite_skills: ["transpose", "likeTerms"], skills_used: ["eqTransform", "likeTerms"] });
+  add({ id: "eqTransform-standard-4", skill: "eqTransform", level: "standard", format: "expression",
+    text: "2(y − x) = 6 を、順に y について解きます。",
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "distrib", text: "左辺のかっこを外すと？", type: "poly", answer: "2y-2x", placeholder: "例：2y − 2x",
+        hint: "2 × y と 2 × (−x)。", explanation: "2(y − x) = 2y − 2x です。" },
+      { id: "s2", skill: "eqTransform", text: "2y − 2x = 6 で、y の項だけを左辺に残すと？", type: "choice",
+        choices: [{ key: "a", label: "2y = 2x + 6" }, { key: "b", label: "2y = −2x + 6" }, { key: "c", label: "2y = 2x − 6" }, { key: "d", label: "y = 2x + 6" }],
+        answer: "a", hint: "−2x を右辺に移すと +2x。", explanation: "−2x を右辺に移項して 2y = 2x + 6 です。" },
+      { id: "s3", skill: "eqProperty", text: "両辺を 2 でわって、y = の形で答えなさい。", type: "linear", answer: { a: 1, b: 3 }, placeholder: "例：y = 2x + 1",
+        hint: "2x も 6 も 2 でわる。", explanation: "y = x + 3 です。" }
+    ],
+    prerequisite_skills: ["distrib", "eqProperty", "transpose"], skills_used: ["eqTransform", "distrib", "eqProperty"],
+    hint: "かっこを外す → y の項を残す → 両辺をわる。",
+    explanation: "2y − 2x = 6 → 2y = 2x + 6 → y = x + 3 です。" });
+  poly("eqTransform-standard-5", "eqTransform", "standard", null, "6x − 3y = 12 を x について解きなさい（x = の右側を答える）。", "0.5y+2",
+    "−3y を右辺に移項して 6x = 3y + 12。両辺を 6 でわる。", "6x = 3y + 12 の両辺を 6 でわって x = y/2 + 2（1/2 y + 2）です。",
+    { prerequisite_skills: ["eqProperty", "transpose", "signed"], placeholder: "例：x = y/2 + 1" });
+
+  // --- 一次関数の側で、式を y = ax + b に直す必要がある問題（前提に「等式の変形」） ---
+  // 傾き・切片／グラフ・式／2直線の交点 でまちがえたとき、式変形が原因候補なら等式の変形まで戻れる
+  add({ id: "slopeIntercept-standard-6", skill: "slopeIntercept", level: "standard", format: "expression",
+    text: "一次関数 6x + 3y = 9 のグラフの傾きと切片は？",
+    type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }], answer: { slope: -2, intercept: 3 },
+    prerequisite_skills: ["eqTransform", "proportion"], skills_used: ["slopeIntercept", "eqTransform"],
+    hint: "まず y について解いて、y = ax + b の形にする。",
+    explanation: "3y = −6x + 9、y = −2x + 3。傾きは −2、切片は 3 です。" });
+  add({ id: "form-standard-6", skill: "form", level: "standard", format: "expression",
+    text: "直線 4x + y = 7 と傾きが同じで、点 (0, −2) を通る直線の式を求めなさい。",
+    type: "linear", answer: { a: -4, b: -2 }, placeholder: "例：y = 2x + 1",
+    prerequisite_skills: ["eqTransform", "slopeIntercept"], skills_used: ["form", "eqTransform", "slopeIntercept"],
+    hint: "4x + y = 7 を y について解くと、傾きがわかる。(0, −2) は切片。",
+    explanation: "4x + y = 7 は y = −4x + 7 なので傾きは −4。切片 −2 なので y = −4x − 2 です。" });
+  add({ id: "simGraph-standard-3", skill: "simGraph", level: "standard", format: "expression",
+    text: "2直線 x + y = 5 と 2x − y = 1 の交点を、それぞれの式を y = の形にしてから求めます。",
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "eqTransform", text: "2つの式を、それぞれ y について解くと？", type: "choice",
+        choices: [{ key: "a", label: "y = −x + 5、y = 2x − 1" }, { key: "b", label: "y = x + 5、y = 2x − 1" }, { key: "c", label: "y = −x + 5、y = −2x + 1" }, { key: "d", label: "y = −x − 5、y = 2x + 1" }],
+        answer: "a", hint: "1つ目は x を、2つ目は 2x を右辺へ。2つ目は両辺に −1 をかける。", explanation: "x + y = 5 → y = −x + 5、2x − y = 1 → −y = −2x + 1 → y = 2x − 1 です。" },
+      { id: "s2", skill: "simGraph", text: "交点の座標は？", type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 2, y: 3 },
+        hint: "−x + 5 = 2x − 1 を解く。", explanation: "−x + 5 = 2x − 1 → 3x = 6 → x = 2、y = 3。交点は (2, 3) です。" }
+    ],
+    lines: [[-1, 5], [2, -1]], prerequisite_skills: ["eqTransform", "simSubst"], skills_used: ["eqTransform", "simGraph"],
+    hint: "y = の形にすると、グラフの傾きと切片も見えて、交点も求めやすい。",
+    explanation: "y = −x + 5 と y = 2x − 1 の交点は (2, 3) です。" });
   add({ id: "eqTransform-application-1", skill: "eqTransform", level: "application", format: "expression",
     text: "連立方程式を、上の式を y について解いてから代入法で解きます。",
     figure: { type: "system", eqs: ["2x + y = 7", "3x − 2y = 0"] }, system: [[2, 1, 7], [3, -2, 0]],

@@ -84,10 +84,10 @@ test("原因さがし：両辺に x がある一次方程式 → 移項 ○ で�
   assert.equal(c.return_to, "likeTerms");
 });
 
-test("原因さがし：一次関数の「y = の形にする」→ 等式の変形 → 移項", () => {
-  const { trail, c } = run(Q["slopeIntercept-standard-2"], { proportion: true, eqTransform: false, transpose: false, signed: true, algebra: true, likeTerms: true });
+test("原因さがし：一次関数の「y = の形にする」→ 等式の変形 → 等式の性質 ○ → 移項 ×", () => {
+  const { trail, c } = run(Q["slopeIntercept-standard-2"], { proportion: true, eqTransform: false, eqProperty: true, transpose: false, signed: true, algebra: true, likeTerms: true });
   assert.equal(c.return_to, "transpose");
-  assert.match(R.pathText(trail), /傾き・切片 × → 比例 ○ → 等式の変形 × → 移項 ×/);
+  assert.match(R.pathText(trail), /傾き・切片 × → 比例 ○ → 等式の変形 × → 等式の性質 ○ → 移項 ×/);
 });
 
 test("はじめてのチェック・未学習・今日の学習のひとこと", () => {
@@ -127,4 +127,35 @@ test("多項式の加法・減法：基礎と定着は5問以上・形がばら�
   assert.ok(B.index.polyAddSub.retention.length >= 5);
   const types = new Set(B.index.polyAddSub.basic.concat(B.index.polyAddSub.retention).map((id) => Q[id].type));
   assert.ok(types.has("choice") && types.has("poly"));
+});
+
+test("等式の変形：基礎5問以上・標準5問以上。整理する力と等式の性質を使う力を小問で分ける", () => {
+  assert.ok(B.index.eqTransform.basic.length >= 5, "基礎 " + B.index.eqTransform.basic.length);
+  assert.ok(B.index.eqTransform.standard.length >= 5, "標準 " + B.index.eqTransform.standard.length);
+  assert.deepEqual(E.SKILLS.eqTransform.prerequisites[0], "eqProperty", "等式の変形 → 等式の性質 が最初");
+  // かっこ → y の項を残す → 両辺をわる：どの小問で止まったかで、計算（分配法則）／変形の理解／等式の性質 を分ける
+  const q = Q["eqTransform-standard-4"];
+  const right = { s1: "2y-2x", s2: "a", s3: "y=x+3" };
+  assert.ok(L.check(q, right));
+  assert.equal(L.analyzeSteps(q, L.checkSteps(q, { ...right, s1: "2y-x" })).suspected_skill, "distrib");
+  assert.equal(L.analyzeSteps(q, L.checkSteps(q, { ...right, s2: "b" })).suspected_skill, "eqTransform");
+  assert.equal(L.analyzeSteps(q, L.checkSteps(q, { ...right, s3: "y=2x+6" })).suspected_skill, "eqProperty");
+  // x について解く：y/2 + 2 でも 1/2y + 2 でも正解
+  assert.ok(L.check(Q["eqTransform-standard-5"], "y/2 + 2"));
+  assert.ok(L.check(Q["eqTransform-standard-5"], "x = 1/2y + 2"));
+});
+
+test("原因さがし：等式の変形 × → 等式の性質 × → 正負の数 ○（両辺をわる問題）", () => {
+  const { trail, c } = run(Q["eqTransform-basic-5"], { eqProperty: false, distrib: true, signed: true });
+  assert.equal(c.return_to, "eqProperty");
+  assert.match(R.pathText(trail), /等式の変形 × → 等式の性質 × → 正負の数 ○/);
+});
+
+test("一次関数（傾き・切片・グラフ・式・2直線の交点）から等式の変形へ戻れる", () => {
+  ["slopeIntercept-standard-2", "slopeIntercept-standard-6", "form-standard-6", "simGraph-standard-3"].forEach((id) =>
+    assert.ok(Q[id].prerequisite_skills.includes("eqTransform"), id));
+  const { c } = run(Q["form-standard-6"], { eqTransform: false, slopeIntercept: true, eqProperty: true, transpose: true, likeTerms: true });
+  assert.equal(c.return_to, "eqTransform");
+  const g = Q["simGraph-standard-3"];
+  assert.equal(L.analyzeSteps(g, L.checkSteps(g, { s1: "b", s2: { x: "2", y: "3" } })).suspected_skill, "eqTransform");
 });

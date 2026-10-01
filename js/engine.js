@@ -41,7 +41,7 @@
     // いまの地図では、ほかのスキルの前提にはならない（中3の展開・因数分解へつながる）
     monoMulDiv:     { label: "単項式の乗法・除法", unit: "式の計算", grade: "中2", prerequisites: ["signed"] },
     // 2x + y = 5 → y = −2x + 5。一次関数の式の形にする・代入法の準備に使う
-    eqTransform:    { label: "等式の変形",     unit: "式の計算", grade: "中2", prerequisites: ["transpose", "eqProperty", "likeTerms"] },
+    eqTransform:    { label: "等式の変形",     unit: "式の計算", grade: "中2", prerequisites: ["eqProperty", "transpose", "likeTerms"] },
     // --- 中2 連立方程式 ---
     // 2つの式から文字を1つ消して一次方程式にし（加減法・代入法）、あとは一次方程式として解く
     simMeaning:     { label: "連立方程式の意味", unit: "連立方程式", grade: "中2", prerequisites: ["eqMeaning", "algebra"] },

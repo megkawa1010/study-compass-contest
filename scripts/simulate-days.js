@@ -70,3 +70,15 @@ for (let d = 1; d <= DAYS; d++) {
 }
 console.log(`今日の学習：合計 ${totalQ}問中 再利用 ${totalReuse}（${Math.round((totalReuse / totalQ) * 100)}%）・緩和 ${totalRelax}・fallback ${fallbacks}・最初の再利用 ${firstReuseDay ? firstReuseDay + "日目" : "なし"}`);
 console.log(`定期チェック：合計 ${chkQ}問・緩和 ${chkRelax}・再利用 ${chkReuse}・出題できず ${chkSkip}`);
+// COUNT=スキル なら、そのスキルの問題の出題数と、そのスキルを前提に持つ問題（単元別）の出題数を出す
+if (process.env.COUNT) {
+  const k = process.env.COUNT, own = {}, via = {};
+  history.forEach((a) => {
+    const q = Q[String(a.question_id).split("#")[0]];
+    if (!q) return;
+    const u = E.SKILLS[a.skill].unit;
+    if (a.skill === k) own[u] = (own[u] || 0) + 1;
+    else if ((q.prerequisite_skills || []).includes(k) && a.skill === q.skill) via[u] = (via[u] || 0) + 1;
+  });
+  console.log(`「${E.SKILLS[k].label}」の問題：${JSON.stringify(own)}／前提に持つ問題（単元別）：${JSON.stringify(via)}`);
+}
