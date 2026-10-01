@@ -41,7 +41,7 @@ test("追加問題の ID は重複せず、既存の B1〜S2 はそのまま", (
   assert.deepEqual(Q.B5.answer, { a: 2, b: -1 });
 });
 
-test("スキル×レベルの問題数（一次関数は各10問以上・変化量と変化の割合は基礎・標準とも5問以上・既習は各5問）", () => {
+test("スキル×レベルの問題数（一次関数は各10問以上・変化量と変化の割合は基礎・標準とも5問以上・既習は各5問以上）", () => {
   const c = B.count();
   for (const s of ["change", "rate"]) {
     assert.ok(c[s].basic >= 5 && c[s].standard >= 5, s + JSON.stringify(c[s]));
@@ -53,7 +53,7 @@ test("スキル×レベルの問題数（一次関数は各10問以上・変化�
   }
   for (const s of BASE_SKILLS) {
     const total = Object.values(c[s]).reduce((a, b) => a + b, 0);
-    assert.equal(total, 5, s);
+    assert.ok(total >= 5, s + " " + total); // よく通る土台（正負の数など）は、足りなくなった順に増やす
     assert.ok(c[s].basic >= 3 && c[s].retention >= 2, s);
   }
 });

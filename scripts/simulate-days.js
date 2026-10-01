@@ -65,7 +65,8 @@ for (let d = 1; d <= DAYS; d++) {
     `  → 再利用 ${reuse}・緩和 ${relax}` + (reuse ? "  [" + picks.filter((p) => p.reused).map((p) => p.question_id).join(",") + "]" : ""));
   // 学習する（練習したスキルは、その日の終わりにはできるようになる）
   plan.sessions.forEach((s) => s.questions.forEach((id) => answer(id, now + 3600e3, s.type === "check" || s.level === "retention" ? "daily_check" : "lesson")));
-  plan.sessions.filter((s) => s.type === "practice").forEach((s) => (knows[s.skill] = true));
+  // LEARN_ALL=1 なら、学校の単元の練習でもできるようになる（ふだんは、つまずき補強で練習したスキルだけ）
+  plan.sessions.filter((s) => s.type === "practice" || (process.env.LEARN_ALL && s.type === "current_unit")).forEach((s) => (knows[s.skill] = true));
 }
 console.log(`今日の学習：合計 ${totalQ}問中 再利用 ${totalReuse}（${Math.round((totalReuse / totalQ) * 100)}%）・緩和 ${totalRelax}・fallback ${fallbacks}・最初の再利用 ${firstReuseDay ? firstReuseDay + "日目" : "なし"}`);
 console.log(`定期チェック：合計 ${chkQ}問・緩和 ${chkRelax}・再利用 ${chkReuse}・出題できず ${chkSkip}`);

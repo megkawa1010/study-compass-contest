@@ -684,6 +684,39 @@
     type: "number", answer: -6,
     hint: "左から順に。−2 − 7 はいくつ？",
     explanation: "−2 − 7 = −9、−9 + 3 = −6 です。" });
+  // 補強：原因さがしの一番下（いろいろな単元から戻ってくる）なので、判定が安定するよう1つの計算に1つのポイントだけ
+  function signedQ(id, level, text, answer, hint, explanation, extra) {
+    var q = { id: id, skill: "signed", level: level, format: "expression", text: text, type: "number", answer: answer, hint: hint, explanation: explanation };
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  signedQ("signed-basic-3", "basic", "(−4) + (−7) を計算しなさい。", -11,
+    "負の数どうしのたし算は、絶対値をたして − をつける。", "4 + 7 = 11 に − をつけて −11 です。");
+  signedQ("signed-basic-4", "basic", "2 − 9 を計算しなさい。", -7,
+    "0 をまたぐ。2 から 9 戻ると、0 をこえてマイナスへ。", "2 − 9 = −7 です。");
+  signedQ("signed-basic-5", "basic", "5 − (−3) を計算しなさい。", 8,
+    "負の数をひくのは、正の数をたすのと同じ。", "5 − (−3) = 5 + 3 = 8 です。");
+  signedQ("signed-basic-6", "basic", "(−6) × (−3) を計算しなさい。", 18,
+    "負 × 負 は 正。", "6 × 3 = 18、符号は ＋ なので 18 です。");
+  signedQ("signed-basic-7", "basic", "(−24) ÷ 6 を計算しなさい。", -4,
+    "負 ÷ 正 は 負。", "24 ÷ 6 = 4、符号は − なので −4 です。");
+  add({ id: "signed-basic-8", skill: "signed", level: "basic", format: "expression",
+    text: "(−2) × (−3) × (−5) の答えの符号は？",
+    type: "choice", choices: [{ key: "a", label: "＋（正の数）" }, { key: "b", label: "−（負の数）" }], answer: "b",
+    hint: "負の数を何個かけているか数える。",
+    explanation: "負の数を3個（奇数個）かけるので、答えは負の数です（−30）。" });
+  signedQ("signed-basic-9", "basic", "−3 より 5 小さい数は？", -8,
+    "「小さい」は数直線の左へ。−3 − 5。", "−3 − 5 = −8 です。", { format: "word" });
+  // 定着：見た目を変える（0 をはさむ式・どれが負になるか選ぶ・逆に求める）
+  signedQ("signed-retention-3", "retention", "0 − (−9) + (−4) を計算しなさい。", 5,
+    "0 − (−9) は +9。そこに −4 をたす。", "0 + 9 − 4 = 5 です。", { evidence_level: "basic" });
+  add({ id: "signed-retention-4", skill: "signed", level: "retention", evidence_level: "basic", format: "expression",
+    text: "次のうち、計算した答えが負の数になるのはどれ？",
+    type: "choice", choices: [{ key: "a", label: "(−7) × (−2)" }, { key: "b", label: "(−12) ÷ 3" }, { key: "c", label: "(−5) − (−8)" }, { key: "d", label: "0 × (−9)" }], answer: "b",
+    hint: "それぞれ符号だけ先に考える。0 は正でも負でもない。",
+    explanation: "(−12) ÷ 3 = −4 で負。(−7) × (−2) = 14、(−5) − (−8) = 3、0 × (−9) = 0 です。" });
+  signedQ("signed-retention-5", "retention", "ある数に −4 をかけたら 28 になりました。ある数は？", -7,
+    "28 ÷ (−4) を計算する。", "28 ÷ (−4) = −7。たしかめると (−7) × (−4) = 28 です。", { evidence_level: "basic", format: "word" });
 
   // =====================================================================
   // 既習：文字式への代入（algebra）  既存：C2
@@ -1002,6 +1035,13 @@
     "まずかっこを開く：2 × 3x と 2 × y。", "かっこを開くと 6x + 2y − 5x。まとめると x + 2y です。");
   poly("polyMixed-basic-3", "polyMixed", "basic", "polynomial-calc-11", "4(2a − b) − 3a を計算しましょう。", "5a-4b",
     "まずかっこを開く：4 × 2a と 4 × (−b)。", "かっこを開くと 8a − 4b − 3a。まとめると 5a − 4b です。");
+  // 補強（基礎）：かっこを外す → 同類項をまとめる の1回だけ。見え方だけ変える
+  poly("polyMixed-basic-4", "polyMixed", "basic", null, "2(x + 3) + 4x を計算しましょう。", "6x+6",
+    "かっこを外すと 2x + 6。そのあと x の項をまとめる。", "2x + 6 + 4x をまとめると 6x + 6 です。");
+  poly("polyMixed-basic-5", "polyMixed", "basic", null, "−3(x − 2) + 5x を計算しましょう。", "2x+6",
+    "−3 × x と −3 × (−2)。負 × 負 は 正。", "−3x + 6 + 5x をまとめると 2x + 6 です。");
+  poly("polyMixed-basic-6", "polyMixed", "basic", null, "7x − 2(x + 3y) を計算しましょう。", "5x-6y",
+    "かっこの前が −2。−2 × x と −2 × 3y。", "7x − 2x − 6y をまとめると 5x − 6y です。");
   poly("polyMixed-standard-1", "polyMixed", "standard", "polynomial-calc-12", "5(x − y) − 2(x − 3y) を計算しましょう。", "3x+y",
     "2つのかっこを先に開く：5x − 5y と −2x + 6y。", "かっこを開くと 5x − 5y − 2x + 6y。まとめると 3x + y です。", { usage: "diagnosis" });
   poly("polyMixed-standard-2", "polyMixed", "standard", "polynomial-calc-13", "3(2x − y) − (x − 4y) を計算しましょう。", "5x+y",
