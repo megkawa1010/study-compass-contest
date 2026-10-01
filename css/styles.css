@@ -339,6 +339,27 @@ th { font-size: 11px; color: var(--text-soft); }
 .hero-sub h1 { font-size: clamp(22px, 5vw, 30px); }
 .daily-intro div p + p { margin-top: 4px; }
 
+/* ---------- 保護者向け：学習のようす ---------- */
+.parent-link { justify-self: center; border: 1px solid var(--line-strong); background: rgba(255, 255, 255, .04); color: var(--text-soft); border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700; }
+.parent-link:hover { color: var(--text); background: rgba(255, 255, 255, .08); }
+.pr-message { border: 1px solid rgba(255, 217, 138, .45); }
+.pr-message-text { font-size: 17px; font-weight: 700; line-height: 1.8; }
+.pr-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pr-stats div { background: var(--inset); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; display: grid; gap: 2px; text-align: center; }
+.pr-stats span { font-size: 11px; color: var(--text-soft); font-weight: 700; }
+.pr-stats strong { font-size: 18px; overflow-wrap: anywhere; }
+.pr-stats small { font-size: 10px; color: var(--text-soft); }
+.pr-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.pr-list li { background: var(--inset); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.pr-list p { font-size: 14px; }
+.pr-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.pr-move { font-weight: 900; color: var(--star); }
+.pr-focus { font-size: 18px; font-weight: 900; color: var(--star); margin-bottom: 6px; }
+.pr-next { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; font-size: 14px; }
+.pr-map { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.pr-map li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--inset); }
+.pr-mark { font-weight: 900; color: var(--star); text-align: center; }
+
 /* ---------- テスト対策 ---------- */
 .test-head { margin: 2px 0 14px; display: grid; gap: 6px; }
 .days-left { color: var(--star); font-size: 22px; }

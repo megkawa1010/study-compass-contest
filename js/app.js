@@ -28,6 +28,7 @@
   var COMPASS_VIEW = /(?:^|[?&])debug=compass(?:&|$)/.test(window.location.search.slice(1));
   var PLAN_VIEW = /(?:^|[?&])debug=plan(?:&|$)/.test(window.location.search.slice(1));
   var TEST_VIEW = /(?:^|[?&])debug=test(?:&|$)/.test(window.location.search.slice(1));
+  var PARENT_DEBUG = /(?:^|[?&])debug=parent(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -62,7 +63,7 @@
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan", "parent"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
@@ -253,6 +254,7 @@
         "</ul>" +
         '<p class="small"><strong>おすすめのデモ手順：</strong>Q1〜Q3は正解（−2、6、7）、Q4とQ5は「わからない」を押す → 追加確認で原因を探す流れが見られます。</p>' +
       "</details>" +
+      (hasRecords ? '<button class="parent-link" type="button" data-action="to-parent">保護者の方へ：学習のようすを見る →</button>' : "") +
       '<details class="card about">' +
         "<summary>学習の記録について</summary>" +
         '<p class="small muted">回答はすべて、この端末のブラウザに記録しています。理解度は1回の結果ではなく、これまでの記録全体から計算します。</p>' +
@@ -305,6 +307,7 @@
         '<button class="secondary-button" type="button" data-action="debug-export">記録を書き出す（JSON）</button>' +
         '<button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
         '<a class="secondary-button link-button" href="./?debug=plan">今日の学習の確認</a>' +
+        '<a class="secondary-button link-button" href="./?debug=parent">保護者向けの根拠</a>' +
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
       "</div></section>";
@@ -798,6 +801,85 @@
     }).join("");
   }
 
+  // ---------- 保護者向け：学習のようす ----------
+
+  function parentReport() {
+    var d = ST.get();
+    var today = d.answer_history.length ? buildToday() : null;
+    return SC.parent.report({ history: d.answer_history, states: d.skill_state, compassHistory: d.compass_check_history,
+      explorations: d.explorations, plans: d.plans, now: ST.now(), school: ST.schoolProgressInfo(), testPrep: ST.testPrep(),
+      todayPlan: today && !today.range_check ? today : null });
+  }
+
+  function viewParent() {
+    var r = parentReport();
+    var head = '<section class="result-head"><p class="eyebrow">FOR PARENTS</p><h1 class="h-md">学習のようす（保護者の方へ）</h1>' +
+      '<p class="muted small">点数や他の子との比較ではなく、「いまどこにいて、次に何をするか」をお伝えします。毎日すべてを見なくても大丈夫です。</p></section>';
+    if (r.empty) {
+      return head + '<section class="card"><p>まだ学習の記録がありません。最初のコンパスチェックのあとから、ここに学習のようすが表示されます。</p></section>' +
+        '<button class="text-button" type="button" data-action="home">← ホームにもどる</button>';
+    }
+    var w = r.week;
+    var growth = r.growth.length
+      ? '<ul class="pr-list">' + r.growth.slice(0, 3).map(function (g) {
+          return '<li><div class="pr-top"><strong>' + esc(g.label) + '</strong><span class="pr-move">' + g.from + " → " + g.to + "</span></div><p>" + esc(g.text) + "</p></li>";
+        }).join("") + "</ul>" +
+        (r.growth.length > 3 ? '<p class="small muted">ほかに「' + r.growth.slice(3).map(function (g) { return g.label; }).join("」「") + "」も、前より安定してきています。</p>" : "")
+      : '<p class="small muted">この1週間で大きく変わったところは、まだありません。少しずつ積み重ねています。</p>';
+    var stumbles = r.stumbles.length
+      ? '<ul class="pr-list">' + r.stumbles.map(function (s) { return "<li><p>" + esc(s.text) + "</p></li>"; }).join("") + "</ul>" +
+        '<p class="small muted">1回の結果では決めつけず、何度か様子を見たうえでお伝えしています。</p>'
+      : '<p class="small muted">いまは、目立ったつまずきは見つかっていません。</p>';
+    return head +
+      '<section class="card pr-message"><p class="eyebrow">今週のひとこと</p><p class="pr-message-text">' + esc(r.message) + "</p></section>" +
+      '<section class="card"><h2 class="h-sm">今週の学習</h2><div class="pr-stats">' +
+        '<div><span>学習した日</span><strong>' + w.active_days + ' 日</strong><small>この7日間</small></div>' +
+        '<div><span>学習時間</span><strong>' + w.minutes + ' 分</strong><small>目安</small></div>' +
+        '<div><span>いまの単元</span><strong>' + esc(w.unit) + "</strong><small>学校：" + ({ done: "習った", learning: "学習中", notyet: "これから" }[w.school_status] || "") + "</small></div>" +
+      "</div></section>" +
+      '<section class="card"><h2 class="h-sm">最近できるようになったこと</h2>' + growth + "</section>" +
+      (r.focus ? '<section class="card"><h2 class="h-sm">いま確認しているところ</h2><p class="pr-focus">「' + esc(r.focus.label) + "」</p><p>" + esc(r.focus.why) + "</p></section>" : "") +
+      '<section class="card"><h2 class="h-sm">つまずきの可能性</h2>' + stumbles + "</section>" +
+      '<section class="card"><h2 class="h-sm">Study Compass の予定</h2><ol class="pr-next">' + r.next.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></section>" +
+      '<section class="card"><h2 class="h-sm">単元の地図</h2><p class="small muted">点数ではなく、いまどの段階にいるかを表しています。</p><ul class="pr-map">' +
+        r.map.map(function (m) { return '<li><span class="pr-mark">' + m.mark + "</span><strong>" + esc(m.label) + "</strong><span class=\"muted small\">" + esc(m.word) + "</span></li>"; }).join("") + "</ul></section>" +
+      '<p class="small muted center">このページでは、毎回の正誤や点数、ほかの子との比較は表示しません。</p>' +
+      '<button class="text-button" type="button" data-action="home">← ホームにもどる</button>';
+  }
+
+  // ---------- 保護者向けの確認ページ（?debug=parent） ----------
+
+  function viewParentDebug() {
+    var r = parentReport(), dbg = r.debug, d = ST.get();
+    var states = d.skill_state;
+    var growthRows = dbg.growth.map(function (g) {
+      return "<tr><td>" + esc(E.SKILLS[g.skill].label) + "</td><td>" + esc(E.STATUS_VIEW[g.before].label) + " → " + esc(E.STATUS_VIEW[g.after].label) + "</td><td>" +
+        esc(g.newly_passed.join(",") || "−") + "</td><td>" + (g.rank_up ? "上がった" : "−") + "</td><td>" + esc(g.result) + "</td></tr>";
+    }).join("");
+    var stumbleRows = dbg.stumble.map(function (s) {
+      return "<tr><td>" + esc(E.SKILLS[s.skill].label) + "</td><td>" + esc(s.from) + (s.kind ? "（" + esc(s.kind) + "）" : "") + "</td><td>" + s.misses_14d + "</td><td>" + (s.resolved ? "解決済み→表示しない" : "表示") + "</td></tr>";
+    }).join("");
+    var stateRows = E.SKILL_ORDER.filter(function (k) { return states[k] && states[k].attempt_count; }).map(function (k) {
+      var s = states[k];
+      return "<tr><td>" + esc(s.skill) + "</td><td>" + esc(E.STATUS_VIEW[s.learning_status].label) + "</td><td>" + s.confidence.toFixed(2) + "</td><td>" + esc((s.suspected_root_causes || []).join("、")) + "</td></tr>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / PARENT</p><h1 class="h-md">保護者向けの表示の根拠</h1>' +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(ST.now()).toLocaleString("ja-JP")) + "／使ったデータ：回答 " + dbg.sources.answers + "件・定期チェック " + dbg.sources.compass_checks +
+        "回・原因さがし " + dbg.sources.explorations + "件・今日の学習の記録 " + dbg.sources.plans + "件</p>" +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
+        '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">今週の学習の計算</h2><p class="small">この7日間の回答 ' + dbg.week.answers_in_week + "件 → 学習した日 " + r.week.active_days +
+        "日／学習時間 ＝ 完了した今日の学習 " + dbg.week.plan_minutes + "分 ＋ チェック " + dbg.week.check_answers + "問 × 1分 ＝ " + r.week.minutes + "分</p></section>" +
+      '<section class="card"><h2 class="h-sm">skill_state（いま）</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>原因候補</th></tr></thead><tbody>' + stateRows + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">成長の判定（7日前と比べる）</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>新しくできたレベル</th><th>段階</th><th>判定</th></tr></thead><tbody>' + growthRows + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">つまずき候補</h2><div class="table-wrap"><table><thead><tr><th>スキル</th><th>根拠</th><th>14日の×</th><th>表示</th></tr></thead><tbody>' + (stumbleRows || '<tr><td colspan="4">なし</td></tr>') + "</tbody></table></div>" +
+        '<p class="small muted">原因さがしで見つかっても、そのあとできるようになったものは表示しない。記録だけの候補は、14日で2回以上の×があるときだけ（1回の×では取り上げない）。</p></section>' +
+      '<section class="card"><h2 class="h-sm">次の学習予定</h2><p class="small">今日の学習：' + esc(dbg.next.plan_sessions.join(" / ") || "なし") + "</p>" +
+        '<p class="small">次のコンパスチェック：' + (dbg.next.next_check.due ? "すでに時期" : esc(new Date(dbg.next.next_check.at).toLocaleString("ja-JP"))) + "（各スキルの最後の確認＋3日のうち一番早い日）</p>" +
+        '<h3 class="small">保護者向けの表示</h3><p class="small">' + esc(r.message) + "</p><ol class=\"small\">" + r.next.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></section>";
+  }
+
   // ---------- テスト対策の確認ページ（?debug=test） ----------
 
   function viewTestDebug() {
@@ -966,12 +1048,12 @@
   var lastScreenKey = "";
   var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult,
     daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); },
-    testSetup: viewTestSetup, testPlan: viewTestPlan };
+    testSetup: viewTestSetup, testPlan: viewTestPlan, parent: viewParent };
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : viewTestDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1649,6 +1731,7 @@
         break;
       case "to-test-setup": message = ""; go("testSetup"); break;
       case "to-test-plan": go("testPlan"); break;
+      case "to-parent": go("parent"); break;
       case "save-test":
         (function () {
           var date = (document.getElementById("test-date") || {}).value;
