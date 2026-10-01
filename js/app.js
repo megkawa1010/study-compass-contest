@@ -1137,7 +1137,7 @@
       return '<section class="bank-skill"><h2 class="h-sm">' + esc(E.SKILLS[s].label) + '<span class="muted small">（' + list.length + "問）</span></h2>" +
         '<div class="bank-grid">' + list.map(bankItem).join("") + "</div></section>";
     }).join("");
-    return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中1〜中2数学：一次方程式・連立方程式・一次関数）</h1>' +
+    return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中1〜中2数学：一次方程式・式の計算・連立方程式・一次関数）</h1>' +
       '<p class="small muted">全 ' + total + " 問。数学として正しいか、図と答えが合っているかを確かめるためのページです。ふだんの利用者には表示されません。" +
         "「 / 」のあとは将来の目安の問題数。定期チェックで問題が足りなくなったスキルから順に追加します（目安まであと " +
         SC.bank.shortage().reduce(function (a, s) { return a + s.need; }, 0) + " 問）。</p>" +

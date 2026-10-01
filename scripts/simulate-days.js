@@ -39,6 +39,13 @@ const explorations = UNIT === "式の計算"
   : [{ date: new Date(T0).toISOString(), symptom: { skill: "rate", label: "変化の割合" }, conclusion: { kind: "gap_found", return_to: "change" } }];
 const sessions = [];
 let chkQ = 0, chkRelax = 0, chkReuse = 0, chkSkip = 0;
+// JSON=1 のとき、scripts/audit-bank.js 用に、問題ごとの出題・再利用（前回から何日あいたか）を記録する
+const audit = { picks: [], checks: [] };
+function lastSeen(qid, now) {
+  let t = null;
+  history.forEach((a) => { if (String(a.question_id).split("#")[0] === qid && Date.parse(a.answered_at) < now) t = Math.max(t || 0, Date.parse(a.answered_at)); });
+  return t;
+}
 
 console.log(`日数 ${DAYS} ／ ${MIN}分 ／ 単元 ${UNIT} ／ 問題数 ${SC.bank.ids.length + 12}`);
 let totalQ = 0, totalReuse = 0, totalRelax = 0, fallbacks = 0, firstReuseDay = null;
@@ -52,12 +59,18 @@ for (let d = 1; d <= DAYS; d++) {
     sessions.push({ id: "chk" + d, finished_at: new Date(now - 3000e3).toISOString(), question_ids: chk.questions.slice() });
     chkQ += chk.questions.length;
     chk.shortage.forEach((x) => { if (x.result === "reused") chkReuse++; else if (x.result === "relaxed") chkRelax++; else chkSkip++; });
+    chk.shortage.forEach((x) => audit.checks.push({ day: d, skill: x.skill, level: x.level, result: x.result, stage: x.stage || null, question_id: x.question_id || null }));
     console.log(`${String(d).padStart(2)}日目 チェック：` + chk.chosen.map((c) => c.label + "(" + c.level + ")").join("・") +
       (chk.shortage.length ? "  不足：" + chk.shortage.map((x) => x.label + "/" + x.level + "→" + x.result + (x.question_id ? " " + x.question_id : "")).join("、") : ""));
   }
   const plan = P.build({ states: E.computeSkillStates(history, { now }), history, explorations, school: SCHOOL, minutes: MIN, goal: "daily_learning", now, rng: SC.bank.seeded(d) });
-  if (!plan.sessions.length) { fallbacks++; console.log(`${d}日目：fallback`); continue; }
+  if (!plan.sessions.length) { fallbacks++; audit.fallbacks = (audit.fallbacks || 0) + 1; console.log(`${d}日目：fallback`); continue; }
   const picks = plan.sessions.flatMap((s) => s.picks.map((p) => ({ ...p, type: s.type, skill: s.skill })));
+  picks.forEach((p) => {
+    const seen = p.reused ? lastSeen(p.question_id, now) : null;
+    audit.picks.push({ day: d, skill: Q[p.question_id].skill, level: p.level, question_id: p.question_id, stage: p.stage, reused: p.reused,
+      gap_days: seen === null ? null : Math.round(((now - seen) / DAY) * 10) / 10, why: p.why || "" });
+  });
   const reuse = picks.filter((p) => p.reused).length, relax = picks.filter((p) => p.stage > 0 && !p.reused).length;
   totalQ += picks.length; totalReuse += reuse; totalRelax += relax;
   if (reuse && firstReuseDay === null) firstReuseDay = d;
@@ -82,3 +95,4 @@ if (process.env.COUNT) {
   });
   console.log(`「${E.SKILLS[k].label}」の問題：${JSON.stringify(own)}／前提に持つ問題（単元別）：${JSON.stringify(via)}`);
 }
+if (process.env.JSON) console.log("JSON " + JSON.stringify(audit));
