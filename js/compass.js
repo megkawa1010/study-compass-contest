@@ -100,11 +100,13 @@
 
   // skill_state から出題レベルを決める
   // （既習スキルは基礎と定着の問題だけを持つので、基礎ができていれば定着の問題で確かめる）
+  // （問題バンクにそのレベルの問題が1問もないスキルは、そのレベルを飛ばす。例：移項に応用の問題はない）
   function levelOf(s, skill) {
+    function has(lv) { return !SC.bank || !SC.bank.index[skill] || SC.bank.index[skill][lv].length > 0; }
     if (s.basic !== "pass") return "basic";
     if (E.SKILLS[skill] && E.SKILLS[skill].unit === "既習") return "retention";
-    if (s.standard !== "pass") return "standard";
-    if (s.application !== "pass") return "application";
+    if (s.standard !== "pass" && has("standard")) return "standard";
+    if (s.application !== "pass" && has("application")) return "application";
     return "retention";
   }
 

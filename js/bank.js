@@ -1259,6 +1259,174 @@
     explanation: "6x − 9 = x + 11 → 5x = 20 → x = 4。y = 4 + 11 = 15。交点は (4, 15) です。" });
 
   // =====================================================================
+  // 連立方程式の補強（実際に不足が出たところ）
+  //   2直線の交点の基礎・各スキルの定着・文章題の基礎・連立方程式の意味の標準
+  //   定着は、数字だけ変えた問題にならないよう、形（選ぶ・表・整理だけ・立式だけ・逆に求める）を変えた
+  // =====================================================================
+  var XYC = [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }];
+
+  // --- 2直線の交点：基礎（グラフで読む → 連立方程式の解として答える／連立方程式の解 → 交点） ---
+  add({ id: "simGraph-basic-3", skill: "simGraph", level: "basic", format: "graph",
+    text: "グラフの2直線の交点Q の座標を答えなさい。",
+    figure: { type: "graph", x: [-4, 2, 1], y: [-3, 4, 1], lines: [line(1, 3), line(-1, -1)], points: [{ x: -2, y: 1, label: "Q" }] },
+    type: "pair", fields: XYC, answer: { x: -2, y: 1 },
+    lines: [[1, 3], [-1, -1]], prerequisite_skills: ["coord", "signed"], skills_used: ["simGraph", "coord"],
+    hint: "交点は原点から左にいくつ、上にいくつ？ 左は x がマイナス。",
+    explanation: "交点Q は左に 2、上に 1 なので (−2, 1) です。" });
+  add({ id: "simGraph-basic-4", skill: "simGraph", level: "basic", format: "graph",
+    text: "直線ℓ：y = x − 1 と直線m：y = −2x + 5 のグラフです。交点P の座標は (2, 1) と読めます。では、連立方程式 y = x − 1、y = −2x + 5 の解は？",
+    figure: { type: "graph", x: [-1, 4, 1], y: [-2, 5, 1], lines: [line(1, -1), line(-2, 5)], points: [{ x: 2, y: 1, label: "P", coords: true }] },
+    type: "pair", fields: XY, answer: { x: 2, y: 1 },
+    lines: [[1, -1], [-2, 5]], prerequisite_skills: ["simMeaning", "coord"], skills_used: ["simGraph", "simMeaning"],
+    hint: "交点は、2本の直線の両方の上にある点。",
+    explanation: "交点の座標 (2, 1) は2つの式の両方をみたすので、連立方程式の解は x = 2、y = 1 です。計算しなくてもグラフから読めます。" });
+  add({ id: "simGraph-basic-5", skill: "simGraph", level: "basic", format: "expression",
+    text: "連立方程式 x + y = 4、x − y = 2 の解は x = 3、y = 1 です。この2つの式を変形した2直線 y = −x + 4 と y = x − 2 の交点の座標は？",
+    type: "pair", fields: XYC, answer: { x: 3, y: 1 },
+    lines: [[-1, 4], [1, -2]], prerequisite_skills: ["simMeaning", "coord"], skills_used: ["simGraph", "simMeaning"],
+    hint: "連立方程式の解 ＝ 2直線の交点の座標。",
+    explanation: "連立方程式の解 x = 3、y = 1 が、そのまま交点の座標 (3, 1) です。" });
+
+  // --- 2直線の交点：定着 ---
+  add({ id: "simGraph-retention-2", skill: "simGraph", level: "retention", evidence_level: "basic", format: "expression",
+    text: "2直線 y = 6x + 7 と y = −x + 14 の交点の x 座標を求めるには、どの方程式を解けばよい？",
+    type: "choice", choices: [{ key: "a", label: "6x + 7 = −x + 14" }, { key: "b", label: "6x + 7 = 0" }, { key: "c", label: "−x + 14 = 0" }, { key: "d", label: "6x + 7 + (−x + 14) = 0" }], answer: "a",
+    prerequisite_skills: ["simMeaning", "simSubst"], skills_used: ["simGraph", "simSubst"],
+    hint: "交点では、2つの直線の y が同じになる。",
+    explanation: "交点では y が等しいので 6x + 7 = −x + 14。これを解くと x = 1 です。「= 0」は x 軸との交点を求める式です。" });
+  add({ id: "simGraph-retention-3", skill: "simGraph", level: "retention", evidence_level: "standard", format: "expression",
+    text: "2直線 y = ax + 1 と y = −x + 19 の交点の x 座標が 6 のとき、a の値は？",
+    type: "number", answer: 2,
+    prerequisite_skills: ["simMeaning", "transpose"], skills_used: ["simGraph", "transpose"],
+    hint: "まず、わかっている方の直線 y = −x + 19 で、交点の y 座標を求める。",
+    explanation: "x = 6 のとき y = −6 + 19 = 13。交点 (6, 13) は y = ax + 1 の上にもあるので 13 = 6a + 1、a = 2 です。" });
+
+  // --- 連立方程式の意味：標準（「2つの式を同時にみたす」を使う） ---
+  add({ id: "simMeaning-standard-1", skill: "simMeaning", level: "standard", format: "expression",
+    text: "次の4つの組のうち、x + y = 6 と 2x − y = 3 の両方を同時にみたすのはどれ？",
+    type: "choice", choices: [{ key: "a", label: "x = 1、y = 5" }, { key: "b", label: "x = 3、y = 3" }, { key: "c", label: "x = 2、y = 1" }, { key: "d", label: "x = 4、y = 2" }], answer: "b",
+    prerequisite_skills: ["algebra", "eqMeaning"],
+    hint: "1つの式だけに合う組もまざっている。両方に入れて確かめよう。",
+    explanation: "x = 3、y = 3 は 3 + 3 = 6、6 − 3 = 3 で両方をみたします。(1, 5) と (4, 2) は1つ目だけ、(2, 1) は2つ目だけをみたします。" });
+  add({ id: "simMeaning-standard-2", skill: "simMeaning", level: "standard", format: "expression",
+    text: "x = 3、y = b は、連立方程式 2x + y = 8、ax − y = 4 の解です。a の値は？",
+    type: "number", answer: 2,
+    prerequisite_skills: ["algebra", "transpose"], skills_used: ["simMeaning", "transpose"],
+    hint: "解は両方の式をみたす。まず1つ目の式に x = 3 を入れて b を求める。",
+    explanation: "1つ目の式から 6 + b = 8、b = 2。x = 3、y = 2 を2つ目の式に入れると 3a − 2 = 4、a = 2 です。" });
+  add({ id: "simMeaning-standard-3", skill: "simMeaning", level: "standard", format: "expression",
+    text: "連立方程式 ax + by = 7、bx + ay = 8 の解が x = 2、y = 1 のとき、a と b の値を求めなさい。",
+    type: "pair", fields: [{ key: "a", label: "a =" }, { key: "b", label: "b =" }], answer: { a: 2, b: 3 },
+    prerequisite_skills: ["algebra", "simElim"], skills_used: ["simMeaning", "simElim"],
+    hint: "解を2つの式に入れると、a と b の連立方程式になる：2a + b = 7、2b + a = 8。",
+    explanation: "x = 2、y = 1 を入れると 2a + b = 7、a + 2b = 8。これを解いて a = 2、b = 3 です。" });
+
+  // --- 連立方程式の意味：定着 ---
+  add({ id: "simMeaning-retention-2", skill: "simMeaning", level: "retention", evidence_level: "basic", format: "word",
+    text: "2つの数 x、y は、和が 20、差が 6 です（x の方が大きい）。この2つの条件を両方みたす組はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x = 13、y = 7" }, { key: "b", label: "x = 12、y = 8" }, { key: "c", label: "x = 16、y = 10" }, { key: "d", label: "x = 11、y = 9" }], answer: "a",
+    prerequisite_skills: ["algebra"],
+    hint: "和が 20 になる組と、差が 6 になる組の、両方にあてはまるもの。",
+    explanation: "13 + 7 = 20、13 − 7 = 6 で両方をみたします。(16, 10) は差だけ、(12, 8) と (11, 9) は和だけです。" });
+  add({ id: "simMeaning-retention-3", skill: "simMeaning", level: "retention", evidence_level: "standard", format: "table",
+    text: "表は、x + y = 15 をみたす組と、x − y = 3 をみたす組です。両方の式を同時にみたす組を答えなさい。",
+    figure: { type: "table", rows: [{ label: "x", values: [6, 7, 8, 9, 10] }, { label: "x + y = 15 の y", values: [9, 8, 7, 6, 5] }, { label: "x − y = 3 の y", values: [3, 4, 5, 6, 7] }] },
+    type: "pair", fields: XY, answer: { x: 9, y: 6 }, system: [[1, 1, 15], [1, -1, 3]],
+    prerequisite_skills: ["algebra", "eqMeaning"],
+    hint: "同じ x のところで、2つの式の y がそろう列をさがす。",
+    explanation: "x = 9 のとき、どちらの式でも y = 6。だから x = 9、y = 6 が連立方程式の解です。" });
+
+  // --- 係数をそろえる：定着 ---
+  add({ id: "simCoef-retention-2", skill: "simCoef", level: "retention", evidence_level: "basic", format: "expression",
+    text: "連立方程式 7x + 3y = 1、2x − 6y = 8 で y を消すには、どうする？",
+    type: "choice", choices: [{ key: "a", label: "上の式を 2 倍して足す" }, { key: "b", label: "上の式を 2 倍して引く" }, { key: "c", label: "下の式を 2 倍して足す" }, { key: "d", label: "下の式を 3 倍して足す" }], answer: "a",
+    hint: "y の係数は 3 と −6。上の式だけ何倍かすればそろう。",
+    explanation: "上を 2 倍すると 14x + 6y = 2。下の −6y と符号が反対なので、足すと y が消えます。" });
+  add({ id: "simCoef-retention-3", skill: "simCoef", level: "retention", evidence_level: "standard", format: "expression",
+    text: "式 −3x + 4y = −2 の両辺を −2 倍した式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "6x − 8y = 4" }, { key: "b", label: "6x − 8y = −4" }, { key: "c", label: "6x + 8y = 4" }, { key: "d", label: "−6x + 8y = 4" }], answer: "a",
+    prerequisite_skills: ["eqProperty", "distrib", "signed"],
+    hint: "マイナスをかけると、すべての項の符号が反対になる。右辺も。",
+    explanation: "−3x × (−2) = 6x、4y × (−2) = −8y、−2 × (−2) = 4。6x − 8y = 4 です。" });
+
+  // --- 代入法：定着 ---
+  sim("simSubst-retention-2", "simSubst", "retention", null, [[1, 2, 5], [3, 4, 11]], [1, 2],
+    "下の式の x に (5 − 2y) をかっこごと入れる。", "3(5 − 2y) + 4y = 11 → 15 − 6y + 4y = 11 → −2y = −4 → y = 2。x = 5 − 4 = 1 です。",
+    { shown: ["x = 5 − 2y", "3x + 4y = 11"], evidence_level: "standard" });
+  add({ id: "simSubst-retention-3", skill: "simSubst", level: "retention", evidence_level: "basic", format: "expression",
+    text: "連立方程式 y = 4x、x + y = 15 を代入法で解きます。最初にできる一次方程式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x + 4x = 15" }, { key: "b", label: "4x + y = 15" }, { key: "c", label: "x + 4 = 15" }, { key: "d", label: "y + 4x = 15" }], answer: "a",
+    prerequisite_skills: ["algebra"],
+    hint: "x + y = 15 の y を、4x に置きかえる。",
+    explanation: "y に 4x を入れて x + 4x = 15。5x = 15 なので x = 3、y = 12 です。" });
+
+  // --- かっこを含む連立方程式：定着 ---
+  add({ id: "simParen-retention-2", skill: "simParen", level: "retention", evidence_level: "basic", format: "expression",
+    text: "式 4(x − y) + 3y = 9 を整理すると、どの式になる？",
+    type: "choice", choices: [{ key: "a", label: "4x − y = 9" }, { key: "b", label: "4x − 7y = 9" }, { key: "c", label: "4x + 7y = 9" }, { key: "d", label: "4x − y = 36" }], answer: "a",
+    prerequisite_skills: ["distrib", "signed"],
+    hint: "4(x − y) = 4x − 4y。そのあと −4y + 3y をまとめる。",
+    explanation: "4x − 4y + 3y = 9 なので 4x − y = 9 です。" });
+  sim("simParen-retention-3", "simParen", "retention", null, [[3, -2, 11], [1, 1, 7]], [5, 2],
+    "上の式のかっこを外すと 5x − 2x − 2y = 11、整理して 3x − 2y = 11。", "3x − 2y = 11 と、x + y = 7 を 2 倍した 2x + 2y = 14 を足すと 5x = 25、x = 5。y = 2 です。",
+    { shown: ["5x − 2(x + y) = 11", "x + y = 7"], evidence_level: "standard" });
+
+  // --- 小数・分数を含む連立方程式：定着 ---
+  add({ id: "simFraction-retention-2", skill: "simFraction", level: "retention", evidence_level: "basic", format: "expression",
+    text: "式 0.3x − 0.5y = 1.1 の両辺を 10 倍した式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "3x − 5y = 11" }, { key: "b", label: "3x − 5y = 1.1" }, { key: "c", label: "3x − 0.5y = 11" }, { key: "d", label: "30x − 50y = 110" }], answer: "a",
+    prerequisite_skills: ["eqFraction", "distrib"],
+    hint: "左辺のすべての項と右辺に 10 をかける。",
+    explanation: "0.3x × 10 = 3x、0.5y × 10 = 5y、1.1 × 10 = 11。3x − 5y = 11 です。" });
+  sim("simFraction-retention-3", "simFraction", "retention", null, [[0.1, 0.4, 1.4], [1, -1, 4]], [6, 2],
+    "上の式を 10 倍すると x + 4y = 14。", "x + 4y = 14 から x − y = 4 を引くと 5y = 10、y = 2。x = 6 です。",
+    { shown: ["0.1x + 0.4y = 1.4", "x − y = 4"], evidence_level: "standard" });
+
+  // --- 連立方程式の文章題：基礎（「式を立てる」と「解く」を小問に分ける） ---
+  add({ id: "simWord-basic-2", skill: "simWord", level: "basic", format: "word",
+    text: "大人と子どもが合わせて 7 人います。子どもは大人より 3 人多いです。大人を x 人、子どもを y 人とします。",
+    system: [[1, 1, 7], [-1, 1, 3]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simWord", text: "連立方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "x + y = 7、y − x = 3" }, { key: "b", label: "x + y = 7、x − y = 3" }, { key: "c", label: "x + y = 3、y − x = 7" }, { key: "d", label: "x − y = 7、x + y = 3" }],
+        answer: "a", hint: "子どもの方が多いので、子ども − 大人 = 3。", explanation: "人数の合計で x + y = 7、子どもの方が 3 人多いので y − x = 3 です。" },
+      { id: "s2", skill: "simElim", text: "連立方程式を解きなさい。", type: "pair",
+        fields: [{ key: "x", label: "大人 x（人）" }, { key: "y", label: "子ども y（人）" }], answer: { x: 2, y: 5 },
+        hint: "2つの式を足すと x が消える：2y = 10。", explanation: "足すと 2y = 10 なので y = 5、x = 2 です。" }
+    ],
+    prerequisite_skills: ["simMeaning", "eqWord", "simElim"], skills_used: ["simWord", "simElim"],
+    hint: "「合わせて」と「〜より多い」で、式を1本ずつ。",
+    explanation: "x + y = 7、y − x = 3 を解いて x = 2、y = 5。大人 2 人、子ども 5 人です。" });
+  add({ id: "simWord-basic-3", skill: "simWord", level: "basic", format: "word",
+    text: "2つの数があります。和は 14 で、大きい数は小さい数の 2 倍より 2 大きいです。大きい数を x、小さい数を y とします。",
+    system: [[1, 1, 14], [1, -2, 2]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simWord", text: "連立方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "x + y = 14、x = 2y + 2" }, { key: "b", label: "x + y = 14、y = 2x + 2" }, { key: "c", label: "x − y = 14、x = 2y + 2" }, { key: "d", label: "x + y = 14、x = 2(y + 2)" }],
+        answer: "a", hint: "「小さい数の 2 倍」は 2y、「それより 2 大きい」は +2。", explanation: "和から x + y = 14、大きい数は 2y + 2 なので x = 2y + 2 です。" },
+      { id: "s2", skill: "simSubst", text: "連立方程式を解きなさい。", type: "pair",
+        fields: [{ key: "x", label: "大きい数 x" }, { key: "y", label: "小さい数 y" }], answer: { x: 10, y: 4 },
+        hint: "x = 2y + 2 を、x + y = 14 の x に入れる。", explanation: "(2y + 2) + y = 14 → 3y = 12 → y = 4、x = 10 です。" }
+    ],
+    prerequisite_skills: ["simMeaning", "eqWord", "simSubst"], skills_used: ["simWord", "simSubst"],
+    hint: "「x = …」の形の式が作れたら、代入法で解ける。",
+    explanation: "x + y = 14、x = 2y + 2 を解いて x = 10、y = 4 です。" });
+
+  // --- 連立方程式の文章題：定着（立式だけ／ちがう場面） ---
+  add({ id: "simWord-retention-2", skill: "simWord", level: "retention", evidence_level: "basic", format: "word",
+    text: "鉛筆 x 本と消しゴム y 個を、合わせて 9 個買います。鉛筆は消しゴムより 3 多いです。連立方程式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x + y = 9、x − y = 3" }, { key: "b", label: "x + y = 9、x + 3 = y" }, { key: "c", label: "x − y = 9、x + y = 3" }, { key: "d", label: "x + y = 3、x − y = 9" }], answer: "a",
+    prerequisite_skills: ["simMeaning", "eqWord"],
+    hint: "鉛筆の方が多いので、鉛筆 − 消しゴム = 3。",
+    explanation: "個数の合計で x + y = 9、鉛筆の方が 3 多いので x − y = 3（x = y + 3 でもよい）です。" });
+  word("simWord-retention-3", "retention", null, "長方形の縦を x cm、横を y cm とします。周りの長さは 26 cm で、横は縦より 3 cm 長いです。縦と横の長さを求めなさい。",
+    [{ key: "x", label: "縦 x（cm）" }, { key: "y", label: "横 y（cm）" }], [[2, 2, 26], [-1, 1, 3]], [5, 8],
+    "周りの長さは (縦 + 横) × 2。2x + 2y = 26 と y = x + 3。", "2x + 2y = 26 から x + y = 13。y = x + 3 を代入して 2x + 3 = 13、x = 5、y = 8 です。",
+    { evidence_level: "standard" });
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
