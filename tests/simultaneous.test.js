@@ -64,24 +64,39 @@ test("問題数：連立方程式は25問すべて再利用＋追加。スキル
   assert.ok(c.simElim.basic >= 3 && c.simElim.standard >= 3 && c.simElim.application >= 2 && c.simElim.retention >= 3);
 });
 
-test("原因さがし①：加減法 × → 係数をそろえる ○ → 移項 × → 正負の数 ○・文字式 ○ → 戻る場所「移項」（一次方程式にした後で解けない）", () => {
-  const { trail, asked, c } = run(Q["simElim-standard-4"], { simCoef: true, transpose: false, signed: true, algebra: true });
-  assert.deepEqual(asked.map((p) => p.skill), ["simCoef", "transpose", "signed", "algebra"]);
+test("原因さがし①：加減法 × → 係数をそろえる ○ → 多項式の加減 ○ → 移項 × → 正負の数 ○・文字式 ○・同類項 ○ → 戻る場所「移項」（一次方程式にした後で解けない）", () => {
+  const { trail, asked, c } = run(Q["simElim-standard-4"], { simCoef: true, polyAddSub: true, transpose: false, signed: true, algebra: true, likeTerms: true }, { budget: 8 });
+  assert.deepEqual(asked.map((p) => p.skill), ["simCoef", "polyAddSub", "transpose", "signed", "algebra", "likeTerms"]);
   assert.equal(c.return_to, "transpose");
   assert.equal(c.kind, "gap_found");
-  assert.match(R.pathText(trail), /加減法 × → 係数をそろえる ○ → 移項 × → 正負の数 ○ → 文字式への代入 ○/);
+  assert.match(R.pathText(trail), /加減法 × → 係数をそろえる ○ → 多項式の加法・減法 ○ → 移項 × → 正負の数 ○ → 文字式への代入 ○ → 同類項をまとめる ○/);
 });
 
-test("原因さがし②：加減法 × → 係数をそろえる × → 等式の性質 × → 正負の数 ○ → 戻る場所「等式の性質」（係数をそろえられない）", () => {
-  const { asked, c } = run(Q["simElim-standard-4"], { simCoef: false, eqProperty: false, signed: true, distrib: true, transpose: true });
-  assert.deepEqual(asked.slice(0, 3).map((p) => p.skill), ["simCoef", "eqProperty", "signed"]);
-  assert.equal(c.return_to, "eqProperty");
+test("原因さがし②：係数をそろえる側は 係数をそろえる × → 分配法則 × → 正負の数 ○ → 戻る場所「分配法則」（係数をそろえられない）", () => {
+  const { asked, c } = run(Q["simElim-standard-4"], { simCoef: false, distrib: false, signed: true, eqProperty: true, polyAddSub: true, transpose: true });
+  assert.deepEqual(asked.slice(0, 3).map((p) => p.skill), ["simCoef", "distrib", "signed"]);
+  assert.equal(c.return_to, "distrib");
+  assert.deepEqual(E.SKILLS.simCoef.prerequisites, ["distrib", "eqProperty"]);
 });
 
-test("原因さがし③：係数がそろった加減法の問題は「係数をそろえる」を確かめない（符号・移項だけ）", () => {
-  const { asked } = run(Q["simElim-basic-1"], { signed: false, transpose: true });
-  assert.ok(!asked.some((p) => p.skill === "simCoef"));
-  assert.equal(asked[0].skill, "signed");
+test("原因さがし③：加減法 → 多項式の加法・減法 → 正負の数 の階層で、3つのつまずきを分ける", () => {
+  assert.equal(E.SKILLS.simElim.prerequisites[0], "polyAddSub", "主前提は多項式の加法・減法");
+  assert.ok(!E.SKILLS.simElim.prerequisites.includes("signed"), "正負の数は 多項式の加法・減法 の下でたどる");
+  assert.ok(E.SKILLS.polyAddSub.prerequisites.includes("signed"));
+  const q = Q["simElim-basic-1"]; // 係数がそろっている → 係数をそろえる は確かめない
+  // (a) 符号そのもの：多項式の加減 × → 同類項 ○ → 正負の数 × → 戻る場所「正負の数」
+  const a = run(q, { polyAddSub: false, likeTerms: true, signed: false, transpose: true });
+  assert.ok(!a.asked.some((p) => p.skill === "simCoef"));
+  assert.deepEqual(a.asked.map((p) => p.skill), ["polyAddSub", "likeTerms", "signed"]);
+  assert.equal(a.c.return_to, "signed");
+  // (b) 項どうしの加減：多項式の加減 × → 同類項 ○・正負の数 ○ → 戻る場所「多項式の加法・減法」
+  const b = run(q, { polyAddSub: false, likeTerms: true, signed: true, transpose: true });
+  assert.equal(b.c.return_to, "polyAddSub");
+  assert.equal(b.c.kind, "gap_found");
+  // (c) 連立方程式特有の式全体の処理：多項式の加減 ○・移項 ○ → 加減法そのもの
+  const c = run(q, { polyAddSub: true, transpose: true });
+  assert.equal(c.c.return_to, "simElim");
+  assert.equal(c.c.kind, "in_skill");
 });
 
 test("途中の工程：どの小問で止まったかで、原因の候補が変わる（符号ミス／一次方程式にした後）", () => {
@@ -178,7 +193,7 @@ test("今日の学習：学校が連立方程式・原因が移項 → 移項を
 });
 
 test("テスト対策：範囲に一次関数と連立方程式を選べる。仕上がりの低いスキルから確かめる", () => {
-  assert.deepEqual(TP.RANGE_UNITS, ["連立方程式", "一次関数"]);
+  assert.deepEqual(TP.RANGE_UNITS, ["式の計算", "連立方程式", "一次関数"]);
   const range = TP.unitSkills("連立方程式").concat(TP.unitSkills("一次関数"));
   const H = history();
   H.add("simElim-basic-1", "incorrect"); H.add("simElim-basic-2", "incorrect");

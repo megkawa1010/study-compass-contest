@@ -18,12 +18,14 @@ function asInput(q) {
   if (q.type === "linear") return `y=${q.answer.a}x${q.answer.b >= 0 ? "+" : ""}${q.answer.b}`;
   if (q.type === "pair") return Object.fromEntries(Object.entries(q.answer).map(([k, v]) => [k, String(v)]));
   if (q.type === "choice") return q.answer;
+  if (q.type === "poly") return q.answer;
   if (q.type === "steps") return Object.fromEntries(q.steps.map((s) => [s.id, asInput(s)]));
 }
 function asWrong(q) {
   if (q.type === "number") return String(q.answer + 1);
   if (q.type === "linear") return `y=${q.answer.a + 1}x+${q.answer.b}`;
   if (q.type === "pair") return Object.fromEntries(Object.entries(q.answer).map(([k, v]) => [k, String(v + 1)]));
+  if (q.type === "poly") return q.answer + "+1";
   if (q.type === "choice") return q.choices.find((c) => c.key !== q.answer).key;
   if (q.type === "steps") { const v = asInput(q); v[q.steps[0].id] = typeof v[q.steps[0].id] === "string" && q.steps[0].type !== "choice" ? "999" : "zz"; return v; }
 }

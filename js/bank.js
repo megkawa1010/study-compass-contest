@@ -435,7 +435,7 @@
   add({ id: "slopeIntercept-standard-2", skill: "slopeIntercept", level: "standard", format: "expression",
     text: "2x + y = 5 を y = ax + b の形になおしたとき、傾きと切片はいくつ？",
     type: "pair", fields: [{ key: "slope", label: "傾き" }, { key: "intercept", label: "切片" }],
-    answer: { slope: -2, intercept: 5 }, prerequisite_skills: ["proportion", "algebra"], skills_used: ["slopeIntercept", "algebra"],
+    answer: { slope: -2, intercept: 5 }, prerequisite_skills: ["proportion", "eqTransform"], skills_used: ["slopeIntercept", "eqTransform"],
     hint: "2x を右へ移すと、符号が変わる。",
     explanation: "y = −2x + 5 なので、傾きは −2、切片は 5 です。" });
   add({ id: "slopeIntercept-standard-3", skill: "slopeIntercept", level: "standard", format: "expression",
@@ -809,9 +809,9 @@
 
   // --- 移項 ---
   eq("transpose-basic-1", "transpose", "basic", "linear-eq-01", "方程式 x + 5 = 12 を解きましょう。", 7,
-    "左辺の +5 を、符号を変えて右辺に移します。", "+5を右辺に移項すると x = 12 − 5 = 7 です。");
+    "左辺の +5 を、符号を変えて右辺に移します。", "+5を右辺に移項すると x = 12 − 5 = 7 です。", { prerequisite_skills: ["signed", "algebra"] });
   eq("transpose-basic-2", "transpose", "basic", "linear-eq-02", "方程式 x − 4 = 9 を解きましょう。", 13,
-    "左辺の −4 を、符号を変えて右辺に移します。", "−4を右辺に移項すると x = 9 + 4 = 13 です。");
+    "左辺の −4 を、符号を変えて右辺に移します。", "−4を右辺に移項すると x = 9 + 4 = 13 です。", { prerequisite_skills: ["signed", "algebra"] });
   eq("transpose-basic-3", "transpose", "basic", "linear-eq-04", "方程式 2x + 3 = 11 を解きましょう。", 4,
     "+3 を右辺に移項 → 2x = 8 → 両辺を 2 で割る。", "+3を移項すると 2x = 8。両辺を2で割ると x = 4 です。",
     { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
@@ -826,16 +826,16 @@
     { prerequisite_skills: ["signed", "eqProperty"], skills_used: ["transpose", "eqProperty", "signed"] });
   eq("transpose-standard-3", "transpose", "standard", "linear-eq-15", "方程式 2x + 5 = 3x − 1 を解きましょう。", 6,
     "x の項を左辺に、数の項を右辺にまとめて移項します。", "移項すると 2x − 3x = −1 − 5、つまり −x = −6 なので x = 6 です。",
-    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty", "signed"] });
+    { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty", "signed"] });
   eq("transpose-standard-4", "transpose", "standard", "linear-eq-16", "方程式 5x − 3 = 2x + 12 を解きましょう。", 5,
     "x の項を左辺に、数の項を右辺にまとめます。", "移項すると 5x − 2x = 12 + 3、つまり 3x = 15 なので x = 5 です。",
-    { prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+    { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
   eq("transpose-retention-1", "transpose", "retention", null, "方程式 8 − x = 3 を解きましょう。", 5,
     "x の項を右辺に、数を左辺に移すと考えやすい。", "8 − 3 = x なので x = 5 です。",
     { evidence_level: "basic", prerequisite_skills: ["signed", "algebra"] });
   eq("transpose-retention-2", "transpose", "retention", null, "方程式 7x − 4 = 3x + 20 を解きましょう。", 6,
     "x の項は左辺、数の項は右辺へ。", "7x − 3x = 20 + 4 → 4x = 24 → x = 6 です。",
-    { evidence_level: "standard", prerequisite_skills: ["signed", "algebra", "eqProperty"], skills_used: ["transpose", "eqProperty"] });
+    { evidence_level: "standard", prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
 
   // --- 分配法則（かっこを外す・中1 文字式。新規） ---
   function dist(id, level, text, a, b, hint, explanation, extra) {
@@ -918,6 +918,158 @@
     explanation: "4x + 200 = 680 → 4x = 480 → x = 120（円）です。" });
 
   // =====================================================================
+  // 中2 式の計算（＋ 中1の土台「同類項をまとめる」と、分配法則の文字2つ）
+  // study-compass-app の「式の計算 基本チェック」18問（math-jh2-polynomial-calculation）を
+  // スキルとレベルに分けて再利用（source に元の ID）。
+  // 足したのは、旧アプリになかった 等式の変形・同類項の定着・文字2つの分配法則・整理してから代入 だけ。
+  // 答えの形 poly：7x + 2y、−10xy、6x^2 などの文字式（js/logic.js の parsePoly。項の順番・書き方の違いは同じ式とみなす）
+  // =====================================================================
+  function poly(id, skill, level, src, text, answer, hint, explanation, extra) {
+    var q = { id: id, skill: skill, level: level, format: "expression", text: text, type: "poly", answer: answer,
+      placeholder: /\^/.test(answer) ? "例：6x^2（2乗は ^2）" : "例：7x + 2y", hint: hint, explanation: explanation };
+    if (src) q.source = "study-compass-app:" + src;
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+
+  // --- 同類項をまとめる（中1の土台） ---
+  poly("likeTerms-basic-1", "likeTerms", "basic", "polynomial-calc-01", "3x + 2x を計算しましょう。", "5x",
+    "x の前の数（係数）どうしを足します。", "係数どうしを足すと 3x + 2x = 5x です。");
+  poly("likeTerms-basic-2", "likeTerms", "basic", "polynomial-calc-02", "4y − 6y を計算しましょう。", "-2y",
+    "y の前の数どうしを引きます。4 − 6 は負の数。", "係数どうしを計算すると 4y − 6y = −2y です。");
+  poly("likeTerms-basic-3", "likeTerms", "basic", "polynomial-calc-03", "7a − 3a + a を計算しましょう。", "5a",
+    "a は 1a と同じ。7 − 3 + 1 を計算します。", "係数をまとめると 7a − 3a + a = 5a です。");
+  add({ id: "likeTerms-basic-4", skill: "likeTerms", level: "basic", format: "expression",
+    text: "式 2x − 5y + 3 で、y の係数はいくつ？",
+    type: "number", answer: -5,
+    hint: "項に分けると 2x、−5y、+3。y の項の数の部分が係数。",
+    explanation: "項は 2x、−5y、3 の3つ。y の係数は −5 です（符号もふくめる）。" });
+  poly("likeTerms-retention-1", "likeTerms", "retention", null, "−4a + 9 + 6a − 2 を計算しましょう。", "2a+7",
+    "a の項どうし、数の項どうしをそれぞれまとめる。", "a の項は −4a + 6a = 2a、数の項は 9 − 2 = 7。2a + 7 です。", { evidence_level: "basic" });
+  add({ id: "likeTerms-retention-2", skill: "likeTerms", level: "retention", evidence_level: "basic", format: "expression",
+    text: "次のうち、7x と同類項なのはどれ？",
+    type: "choice", choices: [{ key: "a", label: "−2x" }, { key: "b", label: "7y" }, { key: "c", label: "7" }, { key: "d", label: "x²" }], answer: "a",
+    hint: "文字の部分（と次数）が同じ項が同類項。数の部分は関係ない。",
+    explanation: "−2x は文字の部分が x で 7x と同じなので同類項です。7y は文字がちがい、x² は次数がちがいます。" });
+  poly("likeTerms-retention-3", "likeTerms", "retention", null, "0.5x + 1.2x − x を計算しましょう。", "0.7x",
+    "係数どうし 0.5 + 1.2 − 1 を計算する。", "0.5 + 1.2 − 1 = 0.7 なので 0.7x です。", { evidence_level: "basic" });
+
+  // --- 分配法則（文字2つ） ---
+  poly("distrib-basic-4", "distrib", "basic", null, "3(x − 2y) のかっこを外しなさい。", "3x-6y",
+    "3 × x と 3 × (−2y)。", "3(x − 2y) = 3x − 6y です。");
+  poly("distrib-basic-5", "distrib", "basic", null, "−2(a + 4b) のかっこを外しなさい。", "-2a-8b",
+    "−2 × a と −2 × 4b。マイナスをかけると符号が変わる。", "−2(a + 4b) = −2a − 8b です。");
+  poly("distrib-retention-2", "distrib", "retention", null, "−(5a − b + 4) のかっこを外しなさい。", "-5a+b-4",
+    "−(…) は、中のすべての項の符号を反対にする。3つとも。", "−(5a − b + 4) = −5a + b − 4 です。", { evidence_level: "basic" });
+
+  // --- 多項式の加法・減法 ---
+  poly("polyAddSub-basic-1", "polyAddSub", "basic", "polynomial-calc-04", "2x + 3y + 5x − y を計算しましょう。", "7x+2y",
+    "x の項どうし、y の項どうしをそれぞれまとめます。", "x の項は 2x + 5x = 7x、y の項は 3y − y = 2y。7x + 2y です。", { usage: "diagnosis" });
+  poly("polyAddSub-basic-2", "polyAddSub", "basic", "polynomial-calc-05", "6a − 2b − a + 5b を計算しましょう。", "5a+3b",
+    "a は 6 − 1、b は −2 + 5 を計算します。", "a の項は 6a − a = 5a、b の項は −2b + 5b = 3b。5a + 3b です。");
+  poly("polyAddSub-basic-3", "polyAddSub", "basic", "polynomial-calc-06", "(3x + 4y) + (2x − y) を計算しましょう。", "5x+3y",
+    "かっこの前が + のときは、そのままかっこを外せます。", "かっこを外すと 3x + 4y + 2x − y。まとめると 5x + 3y です。");
+  poly("polyAddSub-standard-1", "polyAddSub", "standard", "polynomial-calc-07", "(5x − 3y) − (2x − y) を計算しましょう。", "3x-2y",
+    "かっこの前が − のときは、かっこの中の符号がすべて反対になります。", "かっこを外すと 5x − 3y − 2x + y。まとめると 3x − 2y です。", { usage: "diagnosis" });
+  poly("polyAddSub-standard-2", "polyAddSub", "standard", "polynomial-calc-08", "(4a − b) − (a − 3b) を計算しましょう。", "3a+2b",
+    "2つ目のかっこの符号をすべて反対にして 4a − b − a + 3b。", "かっこを外すと 4a − b − a + 3b。まとめると 3a + 2b です。");
+
+  // --- かっこを含む式の計算 ---
+  poly("polyMixed-basic-1", "polyMixed", "basic", "polynomial-calc-09", "3(x − 2y) + 4y を計算しましょう。", "3x-2y",
+    "まずかっこを開く：3 × x と 3 × (−2y)。", "かっこを開くと 3x − 6y + 4y。まとめると 3x − 2y です。");
+  poly("polyMixed-basic-2", "polyMixed", "basic", "polynomial-calc-10", "2(3x + y) − 5x を計算しましょう。", "x+2y",
+    "まずかっこを開く：2 × 3x と 2 × y。", "かっこを開くと 6x + 2y − 5x。まとめると x + 2y です。");
+  poly("polyMixed-basic-3", "polyMixed", "basic", "polynomial-calc-11", "4(2a − b) − 3a を計算しましょう。", "5a-4b",
+    "まずかっこを開く：4 × 2a と 4 × (−b)。", "かっこを開くと 8a − 4b − 3a。まとめると 5a − 4b です。");
+  poly("polyMixed-standard-1", "polyMixed", "standard", "polynomial-calc-12", "5(x − y) − 2(x − 3y) を計算しましょう。", "3x+y",
+    "2つのかっこを先に開く：5x − 5y と −2x + 6y。", "かっこを開くと 5x − 5y − 2x + 6y。まとめると 3x + y です。", { usage: "diagnosis" });
+  poly("polyMixed-standard-2", "polyMixed", "standard", "polynomial-calc-13", "3(2x − y) − (x − 4y) を計算しましょう。", "5x+y",
+    "1つ目は 6x − 3y。2つ目はかっこの前が − なので −x + 4y。", "かっこを開くと 6x − 3y − x + 4y。まとめると 5x + y です。");
+  // 整理してから代入（式の値）。代入そのものは既存の「文字式への代入」を使う
+  function simplifyThenSubst(id, text, simplified, value, s1hint, s1expl, s2text, s2hint, s2expl, explanation) {
+    add({ id: id, skill: "polyMixed", level: "application", format: "expression", text: text, type: "steps",
+      steps: [
+        { id: "s1", skill: "polyMixed", text: "まず式を簡単にすると？", type: "poly", answer: simplified, placeholder: "例：7x + 2y", hint: s1hint, explanation: s1expl },
+        { id: "s2", skill: "algebra", text: s2text, type: "number", answer: value, hint: s2hint, explanation: s2expl }
+      ],
+      prerequisite_skills: ["distrib", "polyAddSub", "algebra"], skills_used: ["polyMixed", "algebra"],
+      hint: "そのまま代入するより、先に式を簡単にすると計算がらく。", explanation: explanation });
+  }
+  simplifyThenSubst("polyMixed-application-1", "x = 2、y = −3 のとき、3(x + 2y) − (x + 4y) の値を求めます。", "2x+2y", -2,
+    "3x + 6y − x − 4y をまとめる。", "3x + 6y − x − 4y = 2x + 2y です。",
+    "x = 2、y = −3 を代入すると、値はいくつ？", "2 × 2 + 2 × (−3)。", "4 − 6 = −2 です。",
+    "式を簡単にすると 2x + 2y。x = 2、y = −3 を代入して 4 − 6 = −2 です。");
+  simplifyThenSubst("polyMixed-application-2", "a = −1、b = 4 のとき、2(3a − b) − (4a − 3b) の値を求めます。", "2a+b", 2,
+    "6a − 2b − 4a + 3b をまとめる。", "6a − 2b − 4a + 3b = 2a + b です。",
+    "a = −1、b = 4 を代入すると、値はいくつ？", "2 × (−1) + 4。", "−2 + 4 = 2 です。",
+    "式を簡単にすると 2a + b。a = −1、b = 4 を代入して −2 + 4 = 2 です。");
+
+  // --- 単項式の乗法・除法 ---
+  poly("monoMulDiv-basic-1", "monoMulDiv", "basic", "polynomial-calc-14", "3x × 4y を計算しましょう。", "12xy",
+    "数どうし、文字どうしをそれぞれかけます。", "数どうしで 3 × 4 = 12、文字は x と y を並べて 12xy です。");
+  poly("monoMulDiv-basic-2", "monoMulDiv", "basic", "polynomial-calc-15", "(−2x) × 5y を計算しましょう。", "-10xy",
+    "負の数 × 正の数は負の数。", "数どうしで −2 × 5 = −10、文字は x と y を並べて −10xy です。", { usage: "diagnosis" });
+  poly("monoMulDiv-standard-1", "monoMulDiv", "standard", "polynomial-calc-16", "2x × 3x を計算しましょう。", "6x^2",
+    "同じ文字どうしのかけ算は 2 乗になります。入力は 6x^2。", "数どうしで 2 × 3 = 6、文字は x × x = x² なので 6x² です。");
+  poly("monoMulDiv-standard-2", "monoMulDiv", "standard", "polynomial-calc-17", "8x²y ÷ 4xy を計算しましょう。", "2x",
+    "わり算は分数の形にして、共通な部分を約分すると考えやすい。", "数どうしで 8 ÷ 4 = 2、文字は y が消えて x が1個残るので 2x です。");
+  add({ id: "monoMulDiv-application-1", skill: "monoMulDiv", level: "application", format: "expression", source: "study-compass-app:polynomial-calc-18",
+    text: "6x²y × 2x ÷ 4xy を、前から順に計算します。",
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "monoMulDiv", text: "まず 6x²y × 2x を計算すると？", type: "poly", answer: "12x^3y", placeholder: "例：6x^2（3乗は ^3）",
+        hint: "数は 6 × 2、x は x² × x で 3 乗。", explanation: "6 × 2 = 12、x² × x = x³ なので 12x³y です。" },
+      { id: "s2", skill: "monoMulDiv", text: "それを 4xy でわると？", type: "poly", answer: "3x^2", placeholder: "例：6x^2",
+        hint: "数は 12 ÷ 4、x は 1 個、y は 1 個消える。", explanation: "12 ÷ 4 = 3、x³ ÷ x = x²、y は消えて 3x² です。" }
+    ],
+    prerequisite_skills: ["signed"], skills_used: ["monoMulDiv"],
+    hint: "かけ算とわり算がまざっているときは、前から順に。",
+    explanation: "先にかけ算をすると 12x³y。それを 4xy でわると 3x² です。" });
+
+  // --- 等式の変形（旧アプリになし。新規） ---
+  function solveY(id, level, text, a, b, hint, explanation, extra) {
+    var q = { id: id, skill: "eqTransform", level: level, format: "expression", text: text, type: "linear", answer: { a: a, b: b },
+      placeholder: "例：y = −2x + 5", hint: hint, explanation: explanation };
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  solveY("eqTransform-basic-1", "basic", "2x + y = 5 を y について解きなさい。", -2, 5,
+    "2x を右辺に移項する。符号が変わる。", "2x を移項して y = −2x + 5 です。", { usage: "diagnosis", prerequisite_skills: ["transpose"] });
+  poly("eqTransform-basic-2", "eqTransform", "basic", null, "x + 3y = 9 を x について解きなさい（x = の右側を答える）。", "-3y+9",
+    "3y を右辺に移項する。", "3y を移項して x = −3y + 9 です。", { prerequisite_skills: ["transpose"], placeholder: "例：x = −2y + 6" });
+  solveY("eqTransform-basic-3", "basic", "y − 4x = 1 を y について解きなさい。", 4, 1,
+    "−4x を右辺に移項すると +4x。", "−4x を移項して y = 4x + 1 です。", { prerequisite_skills: ["transpose", "signed"] });
+  solveY("eqTransform-standard-1", "standard", "3x + 2y = 12 を y について解きなさい。", -1.5, 6,
+    "3x を移項すると 2y = −3x + 12。そのあと両辺を 2 でわる。", "2y = −3x + 12 の両辺を 2 でわって y = −3/2 x + 6 です。",
+    { prerequisite_skills: ["transpose", "eqProperty"], answer_display: "y = −3/2 x + 6" });
+  solveY("eqTransform-standard-2", "standard", "4x − 2y = 6 を y について解きなさい。", 2, -3,
+    "4x を移項すると −2y = −4x + 6。両辺を −2 でわると、全部の符号が変わる。", "−2y = −4x + 6 の両辺を −2 でわって y = 2x − 3 です。",
+    { prerequisite_skills: ["transpose", "eqProperty", "signed"] });
+  add({ id: "eqTransform-application-1", skill: "eqTransform", level: "application", format: "expression",
+    text: "連立方程式を、上の式を y について解いてから代入法で解きます。",
+    figure: { type: "system", eqs: ["2x + y = 7", "3x − 2y = 0"] }, system: [[2, 1, 7], [3, -2, 0]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "eqTransform", text: "上の式を y について解くと？", type: "choice",
+        choices: [{ key: "a", label: "y = −2x + 7" }, { key: "b", label: "y = 2x + 7" }, { key: "c", label: "y = −2x − 7" }, { key: "d", label: "y = 7 − x" }],
+        answer: "a", hint: "2x を右辺に移項する。", explanation: "2x を移項して y = −2x + 7 です。" },
+      { id: "s2", skill: "simSubst", text: "それを下の式に代入して、連立方程式を解きなさい。", type: "pair", fields: [{ key: "x", label: "x =" }, { key: "y", label: "y =" }], answer: { x: 2, y: 3 },
+        hint: "3x − 2(−2x + 7) = 0。かっこの前の −2 に注意。", explanation: "3x + 4x − 14 = 0 → 7x = 14 → x = 2、y = −4 + 7 = 3 です。" }
+    ],
+    prerequisite_skills: ["transpose", "simSubst"], skills_used: ["eqTransform", "simSubst"],
+    hint: "「y = …」の形になっていない式も、等式の変形で代入法が使える形にできる。",
+    explanation: "上の式を y = −2x + 7 にして代入すると x = 2、y = 3 です。" });
+  add({ id: "eqTransform-retention-1", skill: "eqTransform", level: "retention", evidence_level: "basic", format: "expression",
+    text: "x − 8y = 5 を x について解いた式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x = 8y + 5" }, { key: "b", label: "x = −8y + 5" }, { key: "c", label: "x = 8y − 5" }, { key: "d", label: "x = 5 − 8y" }], answer: "a",
+    prerequisite_skills: ["transpose", "signed"],
+    hint: "−8y を右辺に移項すると +8y。",
+    explanation: "−8y を移項して x = 8y + 5 です。" });
+  solveY("eqTransform-retention-2", "retention", "10x + 5y = 15 を y について解きなさい。", -2, 3,
+    "10x を移項して 5y = −10x + 15。両辺を 5 でわる。", "5y = −10x + 15 → y = −2x + 3 です。",
+    { evidence_level: "standard", prerequisite_skills: ["transpose", "eqProperty"] });
+
+  // =====================================================================
   // 中2 連立方程式
   // study-compass-app の「連立方程式 基本チェック」25問（math-jh2-simultaneous-equations）を
   // スキルとレベルに分けて再利用（source に元の ID）。
@@ -947,8 +1099,9 @@
     for (var k in extra) if (k !== "shown") q[k] = extra[k];
     add(q);
   }
-  var ALIGNED = ["signed", "transpose"];                 // 係数がそろっていて、足す・引くだけで消せる
-  var NEEDS_COEF = ["simCoef", "transpose", "signed"];   // 式を何倍かしてから消す
+  // 加減法 → 多項式の加法・減法 → 正負の数。正負の数は「多項式の加法・減法」の前提としてたどる
+  var ALIGNED = ["polyAddSub", "transpose"];                 // 係数がそろっていて、足す・引くだけで消せる
+  var NEEDS_COEF = ["simCoef", "polyAddSub", "transpose"];   // 式を何倍かしてから消す
 
   // --- 連立方程式の意味（新規） ---
   add({ id: "simMeaning-basic-1", skill: "simMeaning", level: "basic", format: "expression",
@@ -1364,7 +1517,7 @@
   add({ id: "simParen-retention-2", skill: "simParen", level: "retention", evidence_level: "basic", format: "expression",
     text: "式 4(x − y) + 3y = 9 を整理すると、どの式になる？",
     type: "choice", choices: [{ key: "a", label: "4x − y = 9" }, { key: "b", label: "4x − 7y = 9" }, { key: "c", label: "4x + 7y = 9" }, { key: "d", label: "4x − y = 36" }], answer: "a",
-    prerequisite_skills: ["distrib", "signed"],
+    prerequisite_skills: ["polyMixed", "distrib"],
     hint: "4(x − y) = 4x − 4y。そのあと −4y + 3y をまとめる。",
     explanation: "4x − 4y + 3y = 9 なので 4x − y = 9 です。" });
   sim("simParen-retention-3", "simParen", "retention", null, [[3, -2, 11], [1, 1, 7]], [5, 2],
@@ -1462,7 +1615,7 @@
   // こうしておくと、まちがえたときに原因さがしが中1の一次方程式までさかのぼれる。
   var SOLVES_EQUATION = ["S2", "form-standard-1", "form-standard-3", "form-retention-2", "form-retention-3",
     "substitution-standard-1", "substitution-standard-4", "substitution-standard-5", "substitution-retention-4",
-    "slopeIntercept-standard-2", "substitution-application-1", "substitution-application-2",
+    "substitution-application-1", "substitution-application-2",
     "form-application-1", "form-application-2", "rate-application-2", "slopeIntercept-application-1", "slopeIntercept-application-2"];
   SOLVES_EQUATION.forEach(function (id) {
     var q = SC.QUESTIONS[id];

@@ -58,6 +58,42 @@
     return hasX ? { a: a, b: b } : null;
   }
 
+  // 文字式（多項式）を { 項の文字: 係数 } にする。読めなければ null。
+  // "7x+2y" / "2y+7x" / "-10xy" / "-10yx" / "6x^2" / "6x²" / "12x^3y" / "x=-2y+6"（先頭の「文字=」は外す）
+  // 項の文字は、文字ごとの次数を並べた名前（x²y → "x2y1"）。同じ項はまとめて、係数 0 の項は消す。
+  function parsePoly(value) {
+    // ² ³ は NFKC で ただの 2 3 になってしまうので、正規化の前に ^2 ^3 にする
+    var s = normalize(String(value == null ? "" : value).replace(/²/g, "^2").replace(/³/g, "^3")).replace(/\*/g, "");
+    s = s.replace(/^[a-z]=/, "");
+    if (!s || s.indexOf("=") !== -1 || /[^0-9a-z+\-./^()]/.test(s)) return null;
+    s = s.replace(/^\((.*)\)$/, "$1");
+    var terms = s.match(/[+-]?[^+-]+/g);
+    if (!terms || terms.join("") !== s) return null; // 「2x+」のように符号だけ残っているものは読まない
+    var out = {};
+    for (var i = 0; i < terms.length; i++) {
+      var m = terms[i].match(/^([+-]?)(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)?)?((?:[a-z](?:\^\d+)?)*)$/);
+      if (!m || (!m[2] && !m[3])) return null;
+      var c = m[2] ? toNumber(m[2]) : 1;
+      if (c === null) return null;
+      if (m[1] === "-") c = -c;
+      var deg = {};
+      (m[3].match(/[a-z](?:\^\d+)?/g) || []).forEach(function (f) { deg[f[0]] = (deg[f[0]] || 0) + (f.length > 1 ? Number(f.slice(2)) : 1); });
+      var key = Object.keys(deg).sort().map(function (v) { return v + deg[v]; }).join("") || "1";
+      out[key] = (out[key] || 0) + c;
+    }
+    Object.keys(out).forEach(function (k) { if (Math.abs(out[k]) < 1e-9) delete out[k]; });
+    return out;
+  }
+  // 画面に出す形："-10xy" → "−10xy"、"6x^2" → "6x²"、"7x+2y" → "7x + 2y"
+  function polyText(s) {
+    return String(s).replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/([^\s=])([+-])/g, "$1 $2 ").replace(/-/g, "−");
+  }
+  function samePoly(a, b) {
+    if (!a || !b) return false;
+    var ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+    return ka.join() === kb.join() && ka.every(function (k) { return same(a[k], b[k]); });
+  }
+
   function isBlank(q, value) {
     if (q.type === "pair") {
       return q.fields.some(function (f) { return normalize(value && value[f.key]) === ""; });
@@ -81,6 +117,7 @@
       });
     }
     if (q.type === "choice") return normalize(value) === q.answer;
+    if (q.type === "poly") return samePoly(parsePoly(value), parsePoly(q.answer));
     if (q.type === "steps") return checkSteps(q, value).every(function (r) { return r.correct; });
     return false;
   }
@@ -348,6 +385,7 @@
   }
   function fmt(q) {
     if (q.type === "pair") return q.fields.map(function (f) { return f.label + " " + q.answer[f.key]; }).join("、");
+    if (q.type === "poly") return polyText(q.answer);
     return String(q.answer).replace("-", "−");
   }
 
@@ -611,7 +649,7 @@
   }
 
   SC.logic = {
-    normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear,
+    normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear, parsePoly: parsePoly, polyText: polyText,
     isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry, lessonIntro: lessonIntro, planCross: planCross,
     diagnose: diagnose, buildPlan: buildPlan, ROUTE: ROUTE
   };

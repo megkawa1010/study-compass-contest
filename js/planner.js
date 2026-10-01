@@ -518,9 +518,11 @@
   function backToLine(skill, currentUnit) {
     var sk = E.SKILLS[skill];
     if (!sk) return null;
-    var unit = skill === "distrib" ? "一次方程式" : sk.unit; // 分配法則は、かっこのある方程式の手前として扱う
     currentUnit = currentUnit || "一次関数";
+    // 分配法則は、一次関数・連立方程式からは「かっこのある方程式」の手前として扱う。式の計算では単元の中の土台
+    var unit = skill === "distrib" ? (currentUnit === "式の計算" ? "既習" : "一次方程式") : sk.unit;
     if (unit === currentUnit || unit === "既習") return null;
+    if (unit === "式の計算") return currentUnit + "の前に、式の計算を少し確認しよう。";
     if (unit === "一次方程式") return currentUnit === "一次関数" ? "一次関数の前に、方程式を少し確認しよう。" : currentUnit + "の前に、一次方程式を少し確認しよう。";
     if (unit === "連立方程式") return currentUnit + "の前に、連立方程式を少し確認しよう。";
     return null;

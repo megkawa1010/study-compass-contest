@@ -195,8 +195,11 @@
       }).join("") + "</div>";
     }
     var inputId = prefix + "-v";
-    var chips = q.type === "linear"
-      ? '<div class="chips" aria-label="入力の補助">' + ["y =", "x", "−", "+", "/"].map(function (c) {
+    // 文字式の答え（poly）は、文字・2乗の入力を補助する
+    var chipKeys = q.type === "linear" ? ["y =", "x", "−", "+", "/"]
+      : q.type === "poly" ? (/[ab]/.test(q.answer) ? ["a", "b", "−", "+"] : /\^/.test(q.answer) ? ["x", "y", "^2", "^3"] : ["x", "y", "−", "+"]) : null;
+    var chips = chipKeys
+      ? '<div class="chips" aria-label="入力の補助">' + chipKeys.map(function (c) {
           return '<button type="button" class="chip" data-action="chip" data-target="' + inputId + '" data-chip="' + esc(c) + '">' + esc(c) + "</button>";
         }).join("") + "</div>"
       : "";
@@ -356,7 +359,7 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">デモ版では「中学2年・数学」の「連立方程式」「一次関数」が選べます。</p>' +
+        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
@@ -921,7 +924,15 @@
         '<p class="small">2直線の交点の座標 ＝ 2つの式を連立方程式として解いた解。まちがえたら、グラフ側（グラフ・式・座標）にも、連立方程式側（加減法）にも戻れる。</p><ul class="small debug-log">' +
         chainList("simGraph", "連立方程式", "連立方程式の側") +
         "<li><strong>2直線の交点</strong>（グラフの側）：" + esc(S.simGraph.prerequisites.filter(function (p) { return S[p].unit !== "連立方程式"; }).map(function (p) { return S[p].label; }).join("・")) + "</li></ul>" +
-        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("一次関数").filter(function (s) { return s.indexOf("simGraph") === 0; }).join("、")) + "</p></section>";
+        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("一次関数").filter(function (s) { return s.indexOf("simGraph") === 0; }).join("、")) + "</p></section>" +
+      // 式の計算は、まっすぐ1本の線ではなく、一次方程式・連立方程式・一次関数のそれぞれ別の所につながる
+      '<section class="card"><h2 class="h-sm">式の計算 → 一次方程式／連立方程式／一次関数</h2><ul class="small debug-log">' +
+        chainList("simElim", "式の計算") + chainList("simParen", "式の計算") +
+        "<li><strong>移項</strong> → 同類項をまとめる（中1の土台。両辺に x がある方程式）</li>" +
+        "<li><strong>係数をそろえる</strong> → 分配法則（中1の土台を文字2つまで広げた）</li>" +
+        "<li><strong>等式の変形</strong>を前提に持つ問題：" + esc(Object.keys(QS).filter(function (id) { return (QS[id].prerequisite_skills || []).indexOf("eqTransform") !== -1; }).join("、") || "−") + "</li>" +
+        "<li><strong>単項式の乗法・除法</strong>：この上に積むスキルはまだない（中3の展開へ）</li></ul>" +
+        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("式の計算").join("、")) + "</p></section>";
     var ex = ST.explorations().slice(-5).reverse().map(function (x) {
       var depth = Math.max.apply(null, x.path.map(function (p) { return p.depth || 0; }));
       var reached = [];
@@ -1077,6 +1088,7 @@
       return "y = " + as + "x" + (b === 0 ? "" : b > 0 ? " + " + n(b) : " − " + n(-b));
     }
     if (q.type === "pair") return q.fields.map(function (f) { return f.label + " " + n(q.answer[f.key]); }).join("、");
+    if (q.type === "poly") return L.polyText(q.answer);
     if (q.type === "choice") {
       var c = q.choices.filter(function (x) { return x.key === q.answer; })[0];
       return c ? c.label : q.answer;

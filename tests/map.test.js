@@ -35,8 +35,11 @@ test("一次方程式のスキル：すべて地図にあり、前提は地図�
 test("一次関数から一次方程式へつながる（式への代入・グラフ式 → 移項）", () => {
   assert.ok(E.SKILLS.substitution.prerequisites.includes("transpose"));
   assert.ok(E.SKILLS.form.prerequisites.includes("transpose"));
-  ["S2", "form-standard-1", "substitution-standard-1", "slopeIntercept-standard-2"].forEach((id) => assert.ok(Q[id].prerequisite_skills.includes("transpose"), id));
+  ["S2", "form-standard-1", "substitution-standard-1"].forEach((id) => assert.ok(Q[id].prerequisite_skills.includes("transpose"), id));
   assert.ok(!Q.B5.prerequisite_skills.includes("transpose"), "傾きと切片から式を書くだけの問題には付けない");
+  // 2x + y = 5 を y = ax + b の形にする問題は「等式の変形」（その前提に移項）
+  assert.ok(Q["slopeIntercept-standard-2"].prerequisite_skills.includes("eqTransform"));
+  assert.ok(E.SKILLS.eqTransform.prerequisites.includes("transpose"));
 });
 
 test("study-compass-app の一次方程式20問をすべて再利用し、スキルとレベルを付けた", () => {
@@ -47,14 +50,14 @@ test("study-compass-app の一次方程式20問をすべて再利用し、スキ
   EQ.forEach((k) => assert.ok(Object.values(B.index[k]).flat().length >= 4, k + " は4問以上"));
 });
 
-test("原因さがしの例：グラフから式 × → 変化の割合 ○ → 座標 ○ → 移項 × → 正負の数 ○・文字式 ○ → 戻る場所「移項」", () => {
-  const { trail, asked, c } = run(Q["form-standard-5"], { rate: true, coord: true, transpose: false, signed: true, algebra: true });
-  assert.deepEqual(asked.map((p) => p.skill), ["rate", "coord", "transpose", "signed", "algebra"]);
+test("原因さがしの例：グラフから式 × → 変化の割合 ○ → 座標 ○ → 移項 × → 正負の数 ○・文字式 ○・同類項 ○ → 戻る場所「移項」", () => {
+  const { trail, asked, c } = run(Q["form-standard-5"], { rate: true, coord: true, transpose: false, signed: true, algebra: true, likeTerms: true }, { budget: 8 });
+  assert.deepEqual(asked.map((p) => p.skill), ["rate", "coord", "transpose", "signed", "algebra", "likeTerms"]);
   assert.equal(c.return_to, "transpose");
   assert.equal(c.kind, "gap_found");
-  assert.deepEqual(c.solid_skills.sort(), ["algebra", "signed"]);
+  assert.deepEqual(c.solid_skills.sort(), ["algebra", "likeTerms", "signed"]);
   assert.match(c.message, /「移項」の理解が、まだ少し不安定な可能性があります/);
-  assert.match(R.pathText(trail), /グラフ・式 × → 変化の割合 ○ → 座標 ○ → 移項 × → 正負の数 ○ → 文字式への代入 ○/);
+  assert.match(R.pathText(trail), /グラフ・式 × → 変化の割合 ○ → 座標 ○ → 移項 × → 正負の数 ○ → 文字式への代入 ○ → 同類項をまとめる ○/);
 });
 
 test("さらに深く：移項 × → 正負の数 × なら、土台の「正負の数」まで戻る", () => {
@@ -63,7 +66,7 @@ test("さらに深く：移項 × → 正負の数 × なら、土台の「正�
 });
 
 test("y から x を求める問題でまちがえたら、移項までさかのぼる", () => {
-  const { asked, c } = run(Q["substitution-standard-1"], { algebra: true, transpose: false, signed: true });
+  const { asked, c } = run(Q["substitution-standard-1"], { algebra: true, transpose: false, signed: true, likeTerms: true });
   assert.ok(asked.some((p) => p.skill === "transpose"));
   assert.equal(c.return_to, "transpose");
 });

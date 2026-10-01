@@ -20,26 +20,42 @@
   var SKILLS = {
     signed:         { label: "正負の数",       unit: "既習",     grade: "中1", prerequisites: [] },
     algebra:        { label: "文字式への代入", unit: "既習",     grade: "中1", prerequisites: ["signed"] },
+    // 同類項（文字1つ）は中1の文字式。一次方程式（両辺に x がある問題）の前提なので、中2の単元ではなく土台に置く
+    likeTerms:      { label: "同類項をまとめる", unit: "既習",   grade: "中1", prerequisites: ["signed"] },
+    // 数 × 多項式。中1の 3(x + 4) から、中2の 3(x − 2y) まで同じスキルとして扱う
     distrib:        { label: "分配法則",       unit: "既習",     grade: "中1", prerequisites: ["signed"] },
     proportion:     { label: "比例",           unit: "既習",     grade: "中1", prerequisites: ["algebra"] },
     coord:          { label: "座標",           unit: "既習",     grade: "中1", prerequisites: ["signed"] },
     // --- 中1 一次方程式 ---
     eqMeaning:      { label: "方程式の意味",   unit: "一次方程式", grade: "中1", prerequisites: ["algebra"] },
     eqProperty:     { label: "等式の性質",     unit: "一次方程式", grade: "中1", prerequisites: ["signed"] },
-    transpose:      { label: "移項",           unit: "一次方程式", grade: "中1", prerequisites: ["signed", "algebra"] },
+    // 両辺に x がある方程式では、移項のあと x の項をまとめる（同類項）
+    transpose:      { label: "移項",           unit: "一次方程式", grade: "中1", prerequisites: ["signed", "algebra", "likeTerms"] },
     eqParen:        { label: "かっこのある方程式", unit: "一次方程式", grade: "中1", prerequisites: ["distrib", "transpose", "signed"] },
     eqFraction:     { label: "分数・小数の方程式", unit: "一次方程式", grade: "中1", prerequisites: ["eqProperty", "transpose"] },
     eqWord:         { label: "方程式の文章題", unit: "一次方程式", grade: "中1", prerequisites: ["eqMeaning", "algebra", "transpose"] },
+    // --- 中2 式の計算 ---
+    // 文字2つの同類項・かっこの前が − の多項式の減法。連立方程式で「式から式を引く」ときにそのまま使う
+    polyAddSub:     { label: "多項式の加法・減法", unit: "式の計算", grade: "中2", prerequisites: ["likeTerms", "signed"] },
+    polyMixed:      { label: "かっこを含む式の計算", unit: "式の計算", grade: "中2", prerequisites: ["distrib", "polyAddSub"] },
+    // いまの地図では、ほかのスキルの前提にはならない（中3の展開・因数分解へつながる）
+    monoMulDiv:     { label: "単項式の乗法・除法", unit: "式の計算", grade: "中2", prerequisites: ["signed"] },
+    // 2x + y = 5 → y = −2x + 5。一次関数の式の形にする・代入法の準備に使う
+    eqTransform:    { label: "等式の変形",     unit: "式の計算", grade: "中2", prerequisites: ["transpose", "eqProperty", "likeTerms"] },
     // --- 中2 連立方程式 ---
     // 2つの式から文字を1つ消して一次方程式にし（加減法・代入法）、あとは一次方程式として解く
     simMeaning:     { label: "連立方程式の意味", unit: "連立方程式", grade: "中2", prerequisites: ["eqMeaning", "algebra"] },
     // 式全体を何倍かする（両辺に同じ数をかける＝等式の性質、すべての項にかける＝分配法則と同じ考え）
-    simCoef:        { label: "係数をそろえる", unit: "連立方程式", grade: "中2", prerequisites: ["eqProperty", "distrib"] },
-    // 足す・引くで1文字を消す。消したあとは一次方程式（移項）。引くときの符号ミスが多い
-    simElim:        { label: "加減法",         unit: "連立方程式", grade: "中2", prerequisites: ["simCoef", "transpose", "signed"] },
+    // 係数をそろえる → 分配法則 → 正負の数（等式の性質は「両辺に同じ数をかける」の確認）
+    simCoef:        { label: "係数をそろえる", unit: "連立方程式", grade: "中2", prerequisites: ["distrib", "eqProperty"] },
+    // 足す・引くで1文字を消す ＝ 式から式を引く（多項式の加法・減法）。消したあとは一次方程式（移項）。
+    // 加減法 → 多項式の加法・減法 → 正負の数 の順にさかのぼると、
+    // 「連立方程式特有の式全体の処理」「項どうしの加減」「符号そのもの」を分けられる
+    simElim:        { label: "加減法",         unit: "連立方程式", grade: "中2", prerequisites: ["polyAddSub", "simCoef", "transpose"] },
     // 式を代入すると、かっこのある一次方程式になる（3x + 2(2x − 1) = 12 など）
     simSubst:       { label: "代入法",         unit: "連立方程式", grade: "中2", prerequisites: ["algebra", "eqParen", "transpose"] },
-    simParen:       { label: "かっこを含む連立方程式", unit: "連立方程式", grade: "中2", prerequisites: ["eqParen", "simElim"] },
+    // 2(x + y) − x = 8 → x + 2y = 8 は、文字2つのかっこの整理（かっこを含む式の計算）
+    simParen:       { label: "かっこを含む連立方程式", unit: "連立方程式", grade: "中2", prerequisites: ["polyMixed", "simElim"] },
     simFraction:    { label: "小数・分数を含む連立方程式", unit: "連立方程式", grade: "中2", prerequisites: ["eqFraction", "simElim"] },
     simWord:        { label: "連立方程式の文章題", unit: "連立方程式", grade: "中2", prerequisites: ["simMeaning", "eqWord", "simElim"] },
     // --- 中2 一次関数 ---
@@ -55,24 +71,27 @@
     // 教科書では一次関数の章で習う。グラフ側（グラフ・式・座標）にも、連立方程式側（加減法）にも戻れる
     simGraph:       { label: "2直線の交点",    unit: "一次関数", grade: "中2", bridge: "連立方程式", prerequisites: ["simElim", "form", "coord"] }
   };
-  // 現在地画面で上から並べる順（土台 → 中1一次方程式 → 中2連立方程式 → 中2一次関数）
-  var SKILL_ORDER = ["signed", "algebra", "distrib", "proportion", "coord",
+  // 現在地画面で上から並べる順（土台 → 中1一次方程式 → 中2式の計算 → 中2連立方程式 → 中2一次関数）
+  var SKILL_ORDER = ["signed", "algebra", "likeTerms", "distrib", "proportion", "coord",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
+    "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
-  var ROOT_ORDER = ["signed", "algebra", "distrib", "coord", "proportion",
+  var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
+    "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
+    "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
     "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form", "simGraph"],
     "連立方程式": ["simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord"],
     "一次方程式": ["eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["連立方程式", "一次関数"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数"];
   var LEVELS = ["basic", "standard", "application", "retention"];
 
   // ---------- 調整値（ここを変えると理解度の動き方が変わる） ----------
@@ -328,6 +347,7 @@
     rate: "review_rate_of_change", distrib: "review_distributive", eqMeaning: "review_equation_meaning", eqProperty: "review_equation_property",
     transpose: "review_transposition", eqParen: "review_paren_equation", eqFraction: "review_fraction_equation", eqWord: "review_equation_word", slopeIntercept: "review_slope_intercept", form: "practice_slope_to_equation",
     simMeaning: "review_simultaneous_meaning", simCoef: "review_align_coefficients", simElim: "review_elimination", simSubst: "review_substitution_method",
+    likeTerms: "review_like_terms", polyAddSub: "review_polynomial_add_sub", polyMixed: "review_polynomial_paren", monoMulDiv: "review_monomial_mul_div", eqTransform: "review_equation_transform",
     simParen: "review_paren_simultaneous", simFraction: "review_fraction_simultaneous", simWord: "review_simultaneous_word", simGraph: "practice_intersection"
   };
 
