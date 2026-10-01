@@ -287,6 +287,23 @@
     return null;
   }
 
+  // 単元のはじめてのコンパスチェック（一次関数は B1〜B5。それ以外の単元は、問題バンクの診断用の問題）。
+  // まちがえたら、定期チェックと同じしくみで原因さがし（追加は最初のチェックの上限まで）をする
+  function unitCheck(unit) {
+    var ids = Object.keys(SC.QUESTIONS).filter(function (id) {
+      var q = SC.QUESTIONS[id];
+      return q.origin === "bank" && q.usage === "diagnosis" && E.SKILLS[q.skill] && E.SKILLS[q.skill].unit === unit;
+    }).sort(function (a, b) {
+      return E.ROOT_ORDER.indexOf(SC.QUESTIONS[a].skill) - E.ROOT_ORDER.indexOf(SC.QUESTIONS[b].skill) || (a < b ? -1 : 1);
+    });
+    var chosen = ids.map(function (id) {
+      var q = SC.QUESTIONS[id];
+      return { skill: q.skill, label: E.SKILLS[q.skill].label, level: q.level, planned_level: q.level, question_id: id,
+        reason: "「" + unit + "」のはじめてのチェック：「" + E.SKILLS[q.skill].label + "」の今の力を確かめる" };
+    });
+    return { chosen: chosen, questions: ids, unit: unit };
+  }
+
   // ホームに出すお知らせ。「今日はあとで」を選んだ日は出さない
   function notice(input) {
     var check = buildCheck(input);
@@ -318,14 +335,20 @@
       var rb = E.STATUS_RANK[b.learning_status] || 0, ra = E.STATUS_RANK[a.learning_status] || 0;
       var diff = Math.round((a.confidence - b.confidence) * 100) / 100;
       var change;
-      if (ra > rb) change = "up";
+      // 前回の記録がない（はじめて確かめた）スキルは、上がった・越えたとは言わない
+      if (b.learning_status === "not_checked" || b.learning_status === "not_learned") change = "first";
+      else if (ra > rb) change = "up";
       else if (ra < rb) change = "down";
       else if (diff >= 0.05) change = "up";
       else if (diff <= -0.05) change = "down";
       else change = ra >= 3 ? "same_good" : "same_weak";
-      return { skill: k, label: E.SKILLS[k].label, before: b, after: a, diff: diff, change: change, crossed: ra > rb && ra >= 3 };
+      return { skill: k, label: E.SKILLS[k].label, before: b, after: a, diff: diff, change: change, crossed: change !== "first" && ra > rb && ra >= 3 };
     });
     var lines = items.map(function (i) {
+      if (i.change === "first") {
+        return (E.STATUS_RANK[i.after.learning_status] || 0) >= 3 ? i.label + "は、今回はじめて確かめました。いまの段階は「" + E.STATUS_VIEW[i.after.learning_status].label + "」です。"
+          : i.label + "は、今回はじめて確かめました。もう少し確認するとよさそうです。";
+      }
       if (i.change === "up") return i.label + "は前回より安定してきました。";
       if (i.change === "same_good") return i.label + "は変わらず安定しています。";
       if (i.change === "same_weak") return i.label + "は、もう少し確認するとよさそうです。";
@@ -384,7 +407,7 @@
 
   SC.compass = {
     CONFIG: CONFIG, PRIORITY_TEXT: PRIORITY_TEXT, RELAX_STAGES: RELAX_STAGES, dateKey: dateKey, baseId: baseId, exclusions: exclusions,
-    pickProbe: pickProbe, pendingFromExplorations: pendingFromExplorations,
+    pickProbe: pickProbe, pendingFromExplorations: pendingFromExplorations, unitCheck: unitCheck,
     buildCheck: buildCheck, notice: notice, snapshotSkills: snapshotSkills, compare: compare,
     planFromStates: planFromStates, planForSkill: planForSkill, planWhy: planWhy
   };

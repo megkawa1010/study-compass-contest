@@ -356,13 +356,13 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">デモ版では「中学2年・数学・一次関数」だけ選べます。</p>' +
+        '<p class="muted small">デモ版では「中学2年・数学」の「連立方程式」「一次関数」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
-          sel("unit", "今勉強している単元", [{ text: "一次関数", selected: true }, { text: "連立方程式（準備中）", disabled: true }]) +
+          sel("unit", "今勉強している単元", E.SELECTABLE_UNITS.map(function (u) { return { text: u, selected: u === s.unit }; })) +
         "</div>" +
-        '<fieldset class="status-group"><legend>一次関数は…</legend>' +
+        '<fieldset class="status-group"><legend>' + esc(s.unit) + "は…</legend>" +
           statuses.map(function (st) {
             return '<label class="radio-chip"><input type="radio" name="study-status" value="' + st[0] + '"' + (s.status === st[0] ? " checked" : "") + "><span>" + st[1] + "</span></label>";
           }).join("") +
@@ -381,7 +381,8 @@
     var total = isBasic ? state.basicCount : state.queue.length - state.basicCount;
     var pct = Math.round((num - 1) / total * 100);
     var phaseLabel = probeInfo && !probeInfo.probe.seed ? "原因をさがす確認"
-      : periodic ? "定期コンパスチェック" : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
+      : periodic ? (state.periodic && state.periodic.kind === "unit_check" ? "コンパスチェック（" + (state.setup.unit || "") + "）"
+        : state.periodic && state.periodic.kind === "range_check" ? "テスト範囲チェック" : "定期コンパスチェック") : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
     return '' +
       '<section class="card narrow question-card">' +
         '<div class="progress-head"><span class="eyebrow">' + phaseLabel + '</span><span class="q-count">' + (isBasic ? "Q" : "追加 ") + num + " / " + total + "</span></div>" +
@@ -705,7 +706,7 @@
     var res = C.compare(entry.before, entry.after, entry.skill_ids);
     var V = E.STATUS_VIEW;
     var TAG = { up: '<span class="delta up">前回より ↑</span>', down: '<span class="delta down">今回は少し ↓</span>',
-      same_good: '<span class="delta">安定</span>', same_weak: '<span class="delta">もう少し</span>' };
+      same_good: '<span class="delta">安定</span>', same_weak: '<span class="delta">もう少し</span>', first: '<span class="delta">はじめて</span>' };
     var items = res.items.map(function (i) {
       var b = V[i.before.learning_status], a = V[i.after.learning_status];
       return '<li class="cr-item change-' + i.change + '">' +
@@ -875,7 +876,7 @@
       var rows = E.SKILL_ORDER.filter(function (k) { return S[k].grade + " " + S[k].unit === u; }).map(function (k) {
         var s = states[k];
         var n = SC.bank.LEVELS.reduce(function (a, lv) { return a + SC.bank.index[k][lv].length; }, 0);
-        return "<tr><td>" + esc(S[k].label) + "<br><span class=\"muted small\">" + k + "</span></td><td>" + esc(S[k].prerequisites.map(function (p) { return S[p].label; }).join("、") || "−") +
+        return "<tr><td>" + esc(S[k].label) + "<br><span class=\"muted small\">" + k + (S[k].bridge ? "・" + esc(S[k].bridge) + "とのかけ橋" : "") + "</span></td><td>" + esc(S[k].prerequisites.map(function (p) { return S[p].label; }).join("、") || "−") +
           "</td><td>" + esc((dependents[k] || []).map(function (d) { return S[d].label; }).join("、") || "−") + "</td><td>" + n + "問</td><td>" +
           esc(s ? (STATUS_NOTE[s.learning_status] || E.STATUS_VIEW[s.learning_status].label) : "−") + "</td></tr>";
       }).join("");
@@ -888,24 +889,51 @@
       if (!pre.length) return [path];
       return pre.reduce(function (acc, p) { return acc.concat(chains(p, path)); }, []);
     }
-    var chainRows = ["substitution", "form"].map(function (k) {
-      var viaEq = chains(k).filter(function (c) { return c.some(function (x) { return S[x].unit === "一次方程式"; }); });
-      return "<li><strong>" + esc(S[k].label) + "</strong>（一次方程式を通る道 " + viaEq.length + " 本）<ul>" +
-        viaEq.map(function (c) { return "<li>" + esc(c.map(function (x) { return S[x].label; }).join(" → ")) + "</li>"; }).join("") + "</ul></li>";
-    }).join("");
-    var withTranspose = Object.keys(QS).filter(function (id) { var q = QS[id]; return S[q.skill].unit === "一次関数" && (q.prerequisite_skills || []).indexOf("transpose") !== -1; });
+    // スキル k から、指定した単元（through）を通って土台まで下りる道。長いので最大 max 本まで表示
+    var MAX_CHAINS = 6;
+    function chainList(k, through, label) {
+      var via = chains(k).filter(function (c) { return c.slice(1).some(function (x) { return S[x].unit === through; }); })
+        // 同じ道の途中までを省いて短く：through の単元に入ったところで止める
+        .map(function (c) { var i = 1; while (i < c.length && S[c[i]].unit !== through) i++; return c.slice(0, i + 1); })
+        .filter(function (c, i, all) { var key = c.join(">"); return all.findIndex(function (d) { return d.join(">") === key; }) === i; });
+      return "<li><strong>" + esc(S[k].label) + "</strong>（" + esc(label || through) + "へ下りる道 " + via.length + " 本）<ul>" +
+        via.slice(0, MAX_CHAINS).map(function (c) { return "<li>" + esc(c.map(function (x) { return S[x].label; }).join(" → ")) + "</li>"; }).join("") +
+        (via.length > MAX_CHAINS ? "<li>ほか " + (via.length - MAX_CHAINS) + " 本</li>" : "") + "</ul></li>";
+    }
+    function questionsWith(unit, prereq) {
+      return Object.keys(QS).filter(function (id) { var q = QS[id]; return S[q.skill] && S[q.skill].unit === unit && (q.prerequisite_skills || []).indexOf(prereq) !== -1; });
+    }
+    // 途中の工程を小問に分けた問題（どこで止まったかがわかる）
+    function stepsOf(unit) {
+      return Object.keys(QS).filter(function (id) { var q = QS[id]; return q.type === "steps" && S[q.skill] && S[q.skill].unit === unit; }).map(function (id) {
+        return id + "（" + QS[id].steps.map(function (st) { return S[st.skill].label; }).join(" → ") + "）";
+      });
+    }
+    var withTranspose = questionsWith("一次関数", "transpose");
+    var links =
+      '<section class="card"><h2 class="h-sm">一次関数 → 一次方程式 のつながり</h2><ul class="small debug-log">' +
+        chainList("substitution", "一次方程式") + chainList("form", "一次方程式") + "</ul>" +
+        '<p class="small muted">方程式を解く必要がある一次関数の問題（前提に「移項」を付けた問題）：' + withTranspose.length + "問（" + esc(withTranspose.join(", ")) + "）</p></section>" +
+      '<section class="card"><h2 class="h-sm">連立方程式 → 一次方程式 のつながり</h2><ul class="small debug-log">' +
+        E.UNITS["連立方程式"].map(function (k) { return chainList(k, "一次方程式"); }).join("") + "</ul>" +
+        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("連立方程式").join("、")) + "</p></section>" +
+      '<section class="card"><h2 class="h-sm">一次関数 ⇄ 連立方程式（2直線の交点）</h2>' +
+        '<p class="small">2直線の交点の座標 ＝ 2つの式を連立方程式として解いた解。まちがえたら、グラフ側（グラフ・式・座標）にも、連立方程式側（加減法）にも戻れる。</p><ul class="small debug-log">' +
+        chainList("simGraph", "連立方程式", "連立方程式の側") +
+        "<li><strong>2直線の交点</strong>（グラフの側）：" + esc(S.simGraph.prerequisites.filter(function (p) { return S[p].unit !== "連立方程式"; }).map(function (p) { return S[p].label; }).join("・")) + "</li></ul>" +
+        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("一次関数").filter(function (s) { return s.indexOf("simGraph") === 0; }).join("、")) + "</p></section>";
     var ex = ST.explorations().slice(-5).reverse().map(function (x) {
       var depth = Math.max.apply(null, x.path.map(function (p) { return p.depth || 0; }));
-      var reachedEq = x.path.some(function (p) { return S[p.skill] && S[p.skill].unit === "一次方程式"; });
-      return "<li>" + esc(R.pathText(x)) + '<br><span class="muted small">' + depth + "段さかのぼった" + (reachedEq ? "・一次方程式まで到達" : "") +
+      var reached = [];
+      x.path.forEach(function (p) { var u = S[p.skill] && S[p.skill].unit; if (u && u !== "既習" && u !== S[x.symptom.skill].unit && reached.indexOf(u) === -1) reached.push(u); });
+      return "<li>" + esc(R.pathText(x)) + '<br><span class="muted small">' + depth + "段さかのぼった" + (reached.length ? "・" + esc(reached.join("・")) + "まで到達" : "") +
         "／戻る場所：" + esc(x.conclusion && x.conclusion.return_to ? S[x.conclusion.return_to].label : "−") + "</span></li>";
     }).join("");
     return '<section class="card"><p class="eyebrow">DEBUG / MAP</p><h1 class="h-md">学習マップ（スキルのつながり）</h1>' +
       '<p class="small muted">' + E.SKILL_ORDER.length + " スキル（" + esc(units.join("／")) + "）。原因さがしは、まちがえた問題が持つ前提 → 2段目からはこの地図の前提、の順にさかのぼる。</p>" +
       '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
       '<section class="card"><h2 class="h-sm">スキルと前提</h2>' + sections + "</section>" +
-      '<section class="card"><h2 class="h-sm">一次関数 → 一次方程式 のつながり</h2><ul class="small debug-log">' + chainRows + "</ul>" +
-        '<p class="small muted">方程式を解く必要がある一次関数の問題（前提に「移項」を付けた問題）：' + withTranspose.length + "問（" + esc(withTranspose.join(", ")) + "）</p></section>" +
+      links +
       '<section class="card"><h2 class="h-sm">最近の原因さがし（どこまでさかのぼったか）</h2>' + (ex ? '<ul class="small debug-log">' + ex + "</ul>" : '<p class="small muted">まだありません</p>') + "</section>";
   }
 
@@ -948,7 +976,7 @@
     var tc = testContext();
     var head = '<section class="card"><p class="eyebrow">DEBUG / TEST</p><h1 class="h-md">テスト対策の確認</h1>' +
       '<p class="small muted">アプリ内の日付：' + esc(new Date(ST.now()).toLocaleString("ja-JP")) + "（" + (ST.get().debug.time_offset_days || 0) + "日進めています）</p>" +
-      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-test-sample">テストを7日後に設定（一次関数の5スキル）</button>' +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="debug-test-sample">テストを7日後に設定（いまの単元：' + esc(ST.currentUnit()) + '）</button>' +
         '<button class="secondary-button" type="button" data-action="debug-day1">日付を1日進める</button>' +
         '<button class="secondary-button" type="button" data-action="debug-days-reset">日付を元に戻す</button>' +
         '<a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>';
@@ -1097,7 +1125,7 @@
       return '<section class="bank-skill"><h2 class="h-sm">' + esc(E.SKILLS[s].label) + '<span class="muted small">（' + list.length + "問）</span></h2>" +
         '<div class="bank-grid">' + list.map(bankItem).join("") + "</div></section>";
     }).join("");
-    return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中2数学・一次関数）</h1>' +
+    return '<section class="card"><p class="eyebrow">QUESTION BANK</p><h1 class="h-md">問題バンク（中1〜中2数学：一次方程式・連立方程式・一次関数）</h1>' +
       '<p class="small muted">全 ' + total + " 問。数学として正しいか、図と答えが合っているかを確かめるためのページです。ふだんの利用者には表示されません。" +
         "「 / 」のあとは将来の目安の問題数。定期チェックで問題が足りなくなったスキルから順に追加します（目安まであと " +
         SC.bank.shortage().reduce(function (a, s) { return a + s.need; }, 0) + " 問）。</p>" +
@@ -1473,16 +1501,25 @@
   function viewTestSetup() {
     var set = ST.settings();
     var today = SC.testprep.dateKey(ST.now());
-    var unit = SC.testprep.UNIT_SKILLS;
-    var base = E.SKILL_ORDER.filter(function (k) { return unit.indexOf(k) === -1; });
+    // テスト範囲は単元ごとに選ぶ（中2：連立方程式・一次関数）。いま学校で学習中の単元にはじめから印を付ける
+    var cur = ST.currentUnit();
+    var rangeUnits = SC.testprep.RANGE_UNITS;
+    var inUnits = [];
+    rangeUnits.forEach(function (u) { inUnits = inUnits.concat(SC.testprep.unitSkills(u)); });
+    var base = E.SKILL_ORDER.filter(function (k) { return inUnits.indexOf(k) === -1; });
     function box(k, on) {
       return '<label class="radio-chip"><input type="checkbox" name="test-range" value="' + k + '"' + (on ? " checked" : "") + "><span>" + esc(E.SKILLS[k].label) + "</span></label>";
     }
+    var unitSets = rangeUnits.map(function (u) {
+      return '<fieldset class="status-group"><legend>テスト範囲（' + esc(u) + "）" +
+        '<button type="button" class="text-button inline" data-action="toggle-range" data-unit="' + esc(u) + '">まとめて選ぶ／外す</button></legend>' +
+        SC.testprep.unitSkills(u).map(function (k) { return box(k, u === cur); }).join("") + "</fieldset>";
+    }).join("");
     return '<section class="card narrow">' +
       '<p class="eyebrow">TEST</p><h1 class="h-md">テストの予定を入れよう</h1>' +
       '<p class="small muted">テストの日と範囲から、残りの日の計画を作ります。いつもの学習データをそのまま使います。</p>' +
       '<div class="form-grid"><label class="field" for="test-date"><span>テストの日</span><input id="test-date" type="date" min="' + today + '"></label></div>' +
-      '<fieldset class="status-group"><legend>テスト範囲（一次関数）</legend>' + unit.map(function (k) { return box(k, true); }).join("") + "</fieldset>" +
+      unitSets +
       '<fieldset class="status-group"><legend>前の学年までの内容も入れる（必要なら）</legend>' + base.map(function (k) { return box(k, false); }).join("") + "</fieldset>" +
       '<p class="small muted">1日の学習時間</p>' +
       optionChips("set-minutes", set.minutes, SC.planner.CONFIG.MINUTES.map(function (m) { return { value: m, label: m + "分" }; })) +
@@ -1517,7 +1554,7 @@
       state.mode = "fallback";
       state.fallbackKey = plan.planKey;
       state.fallbackFocus = plan.focus_skill;
-      state.sessionId = ST.startSession("daily", "一次関数");
+      state.sessionId = ST.startSession("daily", ST.currentUnit());
       ST.addPlan(plan);
       state.lesson = { step: 0, results: {} };
       go("lesson");
@@ -1525,7 +1562,7 @@
     }
     state = freshState();
     state.mode = "daily";
-    state.sessionId = ST.startSession("daily", "一次関数");
+    state.sessionId = ST.startSession("daily", ST.currentUnit());
     var rec = ST.addPlan(plan);
     state.daily = { plan: rec, si: 0, qi: 0, results: {}, from: sessionMode };
     go("daily");
@@ -1624,7 +1661,7 @@
 
   // ---------- 定期コンパスチェック ----------
 
-  // pre：あらかじめ選んだ問題（テスト範囲チェック）。kind："periodic" | "range_check"
+  // pre：あらかじめ選んだ問題（テスト範囲チェック・単元のはじめてのチェック）。kind："periodic" | "range_check" | "unit_check"
   function startPeriodic(pre, kind) {
     var check = pre || C.buildCheck(compassInput());
     if (!check.questions.length) { go("home"); return; }
@@ -1633,8 +1670,9 @@
     state.mode = "periodic";
     state.queue = check.questions.slice();
     state.basicCount = state.queue.length;
-    state.sessionId = ST.startSession("periodic", "一次関数");
-    state.probeBudget = R.CONFIG.BUDGET_PERIODIC;
+    // 単元のはじめてのチェックは、最初のチェックと同じだけ原因さがしの問題を追加してよい
+    state.sessionId = ST.startSession(kind === "unit_check" ? "compass_check" : "periodic", check.unit || ST.currentUnit());
+    state.probeBudget = kind === "unit_check" ? R.CONFIG.BUDGET_INITIAL : R.CONFIG.BUDGET_PERIODIC;
     state.periodic = {
       kind: kind || "periodic",
       skills: skills,
@@ -1704,7 +1742,8 @@
 
   function restart() {
     state = freshState();
-    state.setup.status = ST.schoolProgress("一次関数");
+    state.setup.unit = ST.currentUnit();
+    state.setup.status = ST.schoolProgress(state.setup.unit);
     go("setup");
   }
 
@@ -1725,7 +1764,30 @@
 
   app.addEventListener("change", function (e) {
     if (e.target.name === "study-status") state.setup.status = e.target.value;
+    if (e.target.id === "unit") {
+      // 単元を変えたら、その単元の「習った／途中／まだ」を前回の答えから出しなおす
+      state.setup.unit = e.target.value;
+      state.setup.status = ST.schoolProgress(e.target.value);
+      render();
+    }
   });
+
+  // 単元のはじめてのチェック。一次関数は B1〜B5（原因確認 C1〜C5 つき）、ほかの単元は問題バンクの診断用の問題
+  function startUnitCheck(unit, status) {
+    state = freshState();
+    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status };
+    ST.setCurrentUnit(unit);
+    ST.setSchoolProgress(unit, status);
+    todayCache = null;
+    if (unit === "一次関数") {
+      state.sessionId = ST.startSession("compass_check", unit);
+      go("check");
+      return;
+    }
+    startPeriodic(C.unitCheck(unit), "unit_check"); // state を作り直すので、選んだ単元を入れなおす
+    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status };
+    render();
+  }
 
   app.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -1749,16 +1811,12 @@
       case "restart-now": restart(); break;
       case "to-setup":
         if (state.screen === "home" && Object.keys(state.answers).length) state = freshState();
-        state.setup.status = ST.schoolProgress("一次関数");
+        state.setup.unit = ST.currentUnit();
+        state.setup.status = ST.schoolProgress(state.setup.unit);
         go("setup");
         break;
       case "start-check":
-        var status = state.setup.status;
-        state = freshState();
-        state.setup.status = status;
-        ST.setSchoolProgress("一次関数", status);
-        state.sessionId = ST.startSession("compass_check", "一次関数");
-        go("check");
+        startUnitCheck(state.setup.unit || "一次関数", state.setup.status);
         break;
       case "reset-data":
         if (window.confirm("この端末に記録した回答と理解度を、すべて消します。元に戻せません。消してもいいですか？")) {
@@ -1770,7 +1828,7 @@
       case "debug-days": ST.addDays(3); render(); break;
       case "debug-day1": ST.addDays(1); render(); break;
       case "debug-test-sample":
-        ST.setTestPrep({ test_date: SC.testprep.dateKey(ST.now() + 7 * E.DAY), range_skills: SC.testprep.UNIT_SKILLS.slice() });
+        ST.setTestPrep({ test_date: SC.testprep.dateKey(ST.now() + 7 * E.DAY), range_skills: SC.testprep.unitSkills(ST.currentUnit()) });
         todayCache = null;
         render();
         break;
@@ -1792,6 +1850,14 @@
         })();
         break;
       case "to-test-setup": message = ""; go("testSetup"); break;
+      case "toggle-range":
+        (function () {
+          var ks = SC.testprep.unitSkills(el.getAttribute("data-unit"));
+          var inputs = [].slice.call(document.querySelectorAll('input[name="test-range"]')).filter(function (i) { return ks.indexOf(i.value) !== -1; });
+          var allOn = inputs.every(function (i) { return i.checked; });
+          inputs.forEach(function (i) { i.checked = !allOn; });
+        })();
+        break;
       case "to-test-plan": go("testPlan"); break;
       case "to-parent": go("parent"); break;
       case "save-test":

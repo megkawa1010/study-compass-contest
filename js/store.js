@@ -114,11 +114,17 @@
     return Date.now() + off * E.DAY;
   }
 
-  function schoolProgress(unit) { return get().profile.school_progress[unit || "一次関数"] || "learning"; }
+  // 学校でいま学習中の単元（初期設定で選ぶ。既定：一次関数）
+  function currentUnit() { return get().profile.current_unit || "一次関数"; }
+  function setCurrentUnit(unit) { get().profile.current_unit = unit; persist(); }
+
+  // 単元ごとの進み具合。まだ答えていない単元は「学習中」とみなす（苦手・未学習とは決めない）
+  function schoolProgress(unit) { return get().profile.school_progress[unit || currentUnit()] || "learning"; }
 
   function recompute() {
     var d = get();
-    d.skill_state = E.computeSkillStates(d.answer_history, { schoolProgress: schoolProgress("一次関数"), now: now() });
+    d.skill_state = E.computeSkillStates(d.answer_history, {
+      schoolProgressByUnit: d.profile.school_progress, currentUnit: currentUnit(), schoolProgress: schoolProgress(), now: now() });
     persist();
     return d.skill_state;
   }
@@ -129,7 +135,7 @@
   }
 
   function startSession(type, unit) {
-    var s = { id: E.makeId("ses", now()), type: type, unit: unit || "一次関数", started_at: new Date(now()).toISOString(),
+    var s = { id: E.makeId("ses", now()), type: type, unit: unit || currentUnit(), started_at: new Date(now()).toISOString(),
       finished_at: null, question_ids: [], plan_key: null, self_evaluation: null, skill_snapshot: null };
     get().sessions.push(s);
     persist();
@@ -248,8 +254,9 @@
   }
   // 学校の進み具合（Phase 5 の形）。状況は初期設定の「習った／途中／まだ」から
   function schoolProgressInfo(unit) {
-    unit = unit || "一次関数";
-    return { grade: "中2", subject: "数学", current_unit: unit, school_status: schoolProgress(unit) };
+    unit = unit || currentUnit();
+    return { grade: "中2", subject: "数学", current_unit: unit, school_status: schoolProgress(unit),
+      by_unit: JSON.parse(JSON.stringify(get().profile.school_progress)) };
   }
   // 作ったプランと、その結果（問題ごとの正誤・ふり返り）
   function addPlan(plan) {
@@ -288,7 +295,7 @@
 
   SC.store = {
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
-    schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress,
+    schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress, currentUnit: currentUnit, setCurrentUnit: setCurrentUnit,
     startSession: startSession, session: session, addAnswer: addAnswer, finishSession: finishSession,
     setSelfEvaluation: setSelfEvaluation, previousSnapshot: previousSnapshot, finishedSessions: finishedSessions,
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,

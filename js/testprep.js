@@ -21,7 +21,10 @@
     MAX_FOCUS_PER_DAY: 2         // 1日に中心にするスキルの数
   };
   var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
-  var UNIT_SKILLS = ["change", "substitution", "rate", "slopeIntercept", "form"];
+  // テスト範囲として選べる単元（中2：連立方程式・一次関数）。単元ごとのスキルは js/engine.js
+  var RANGE_UNITS = E.SELECTABLE_UNITS;
+  var UNIT_SKILLS = E.UNITS["一次関数"];
+  function unitSkills(unit) { return (E.UNITS[unit] || []).slice(); }
 
   function label(k) { return E.SKILLS[k] ? E.SKILLS[k].label : k; }
   function dayStart(ms) { var d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime(); }
@@ -116,7 +119,12 @@
   // input: { states, history, sessions, now, rng }
   function rangeCheck(input, skills) {
     var chosen = [], used = [];
-    var list = skills.slice().sort(function (a, b) { return ROOT_ORDER.indexOf(a) - ROOT_ORDER.indexOf(b); }).slice(0, CONFIG.RANGE_CHECK_MAX);
+    // 範囲が広い（例：連立方程式＋一次関数）ときは、仕上がりの低いスキルから上限まで選び、前提に近い順に出す
+    var need = {};
+    readiness(input.states, skills, input.now).forEach(function (r) { need[r.skill] = r.need; });
+    var byRoot = function (a, b) { return ROOT_ORDER.indexOf(a) - ROOT_ORDER.indexOf(b); };
+    var list = skills.slice().sort(function (a, b) { return need[b] - need[a] || byRoot(a, b); })
+      .slice(0, CONFIG.RANGE_CHECK_MAX).sort(byRoot);
     list.forEach(function (k) {
       var s = input.states[k];
       // テスト向けなので、基礎ができていれば標準の問題で確かめる
@@ -145,6 +153,6 @@
     return { schedule: sch, day: sch.days[0] || null };
   }
 
-  SC.testprep = { CONFIG: CONFIG, UNIT_SKILLS: UNIT_SKILLS, daysLeft: daysLeft, readiness: readiness, schedule: schedule,
+  SC.testprep = { CONFIG: CONFIG, UNIT_SKILLS: UNIT_SKILLS, RANGE_UNITS: RANGE_UNITS, unitSkills: unitSkills, daysLeft: daysLeft, readiness: readiness, schedule: schedule,
     rangeCheck: rangeCheck, today: today, dateKey: dateKey };
 })(typeof window !== "undefined" ? window : globalThis);

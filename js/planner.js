@@ -36,7 +36,7 @@
   var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
   var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で" };
   var LEVEL_JA = { basic: "基礎", standard: "標準", application: "応用", retention: "定着の確認" };
-  var UNIT_SKILLS = { "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form"] };
+  var UNIT_SKILLS = E.UNITS; // 単元ごとのスキル（js/engine.js で一元管理）
   var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
 
   // 時間の「枠」。role は中身の決め方（下の resolveRole）
@@ -92,9 +92,11 @@
       return ok / last.length >= CONFIG.PRACTICED_RATIO;
     }
     function done(k, lv) { return st(k)[lv] === "pass" || practiced(k, lv); }
+    // 問題バンクにそのレベルの問題が1問もないスキル（例：連立方程式の意味の標準）は、そのレベルを目標にしない
+    function hasLevel(k, lv) { return !SC.bank || !SC.bank.index[k] || SC.bank.index[k][lv].length > 0; }
     function nextLevel(k, levels) {
       levels = levels || ["basic", "standard", "application"];
-      for (var i = 0; i < levels.length; i++) if (!done(k, levels[i])) return levels[i];
+      for (var i = 0; i < levels.length; i++) if (hasLevel(k, levels[i]) && !done(k, levels[i])) return levels[i];
       return null;
     }
 
@@ -102,7 +104,7 @@
     var p1 = [], p2 = [], p3 = [], p4 = [];
 
     // --- 優先度1：根本のつまずき（原因さがしの「戻る場所」＋ いちばん根元の不安定なスキル） ---
-    var fromExpl = {};
+    var fromExpl = {}, symptomOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）
     (input.explorations || []).forEach(function (x) {
       var c = x.conclusion;
       if (!c || !c.return_to || c.kind === "not_reproduced") return;
@@ -113,6 +115,7 @@
         return;
       }
       fromExpl[c.return_to] = fromExpl[c.return_to] || x.symptom.label;
+      symptomOf[c.return_to] = symptomOf[c.return_to] || x.symptom.skill;
     });
     ROOT_ORDER.forEach(function (k) {
       if (!fromExpl[k] && !weak(k)) return;
@@ -121,7 +124,7 @@
         excluded.push({ skill: k, why: "つまずきの補強は、最近の練習で基礎・標準ともできている" });
         return;
       }
-      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null,
+      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null, symptom_skill: symptomOf[k] || null,
         advanced: lv === "standard" && practiced(k, "basic") && st(k).basic !== "pass" });
     });
 
@@ -238,7 +241,14 @@
       case "current": {
         // つまずきの補強をしたら、学校の単元に戻る。
         // まず「補強したスキルを前提にしていて、まだ不安定な単元のスキル」（例：変化量 → 変化の割合）に、基礎から戻る
-        var reinforced = chosen.filter(function (c) { return c.type === "practice"; }).map(function (c) { return c.skill; });
+        var practiced = chosen.filter(function (c) { return c.type === "practice"; });
+        var reinforced = practiced.map(function (c) { return c.skill; });
+        // 原因さがしの「戻る場所」を補強したなら、最初にまちがえた問題のスキル（学校の単元）に戻る
+        // （例：加減法 × → 移項 を補強 → 加減法へ。加減法の基礎はできていても、まちがえた問題のレベルで）
+        var symptomBack = practiced.map(function (c) { return c.meta && c.meta.symptom_skill; }).filter(function (k) { return k && a.unitSkills.indexOf(k) !== -1; })
+          .map(function (k) { var p = a.p2.filter(function (c) { return c.skill === k; })[0]; return p ? { skill: k, level: p.level } : null; }).filter(Boolean);
+        var fromSymptom = first(symptomBack, "current_unit", function (c) { return "補強した内容を使って、つまずいた「" + label(c.skill) + "」の問題に戻る"; });
+        if (fromSymptom) return fromSymptom;
         // （基礎はできていても、標準・応用に「要確認」があれば、そのレベルに戻る：例 移項 → グラフ・式の標準）
         var backTo = a.p2.filter(function (c) {
           var s = a.st(c.skill);
@@ -399,7 +409,17 @@
         why: c.why, intro: intro,
         questions: picks.map(function (p) { return p.question_id; }), picks: picks
       };
-    }).filter(function (s) { return s.questions.length; });
+    });
+    // 問題が足りず1問も出せなかった枠の時間は、いちばん大事な枠に回す（予定の時間を黙って減らさない）
+    var lost = sessions.filter(function (s) { return !s.questions.length; });
+    sessions = sessions.filter(function (s) { return s.questions.length; });
+    if (lost.length && sessions.length) {
+      var keep = sessions.filter(function (s) { return s.type === "practice" || s.type === "current_unit" || s.type === "challenge" || s.type === "test"; })[0] || sessions[0];
+      lost.forEach(function (s) {
+        keep.minutes += s.minutes;
+        log.push("「" + s.skill_label + "（" + s.level_label + "）」の問題が足りず出せなかったので、" + s.minutes + "分を「" + keep.skill_label + "」に回す（問題不足）");
+      });
+    }
 
     var focusS = sessions.filter(function (s) { return s.type === "practice" || s.type === "current_unit" || s.type === "challenge" || s.type === "test"; })[0] || sessions[0] || null;
     var plan = {
@@ -494,6 +514,18 @@
     return "以前できた内容の定着を確かめるため";
   }
 
+  // 前の単元に戻るときのひとこと。同じ単元・前の学年の土台（正負の数など）のときは何も言わない
+  function backToLine(skill, currentUnit) {
+    var sk = E.SKILLS[skill];
+    if (!sk) return null;
+    var unit = skill === "distrib" ? "一次方程式" : sk.unit; // 分配法則は、かっこのある方程式の手前として扱う
+    currentUnit = currentUnit || "一次関数";
+    if (unit === currentUnit || unit === "既習") return null;
+    if (unit === "一次方程式") return currentUnit === "一次関数" ? "一次関数の前に、方程式を少し確認しよう。" : currentUnit + "の前に、一次方程式を少し確認しよう。";
+    if (unit === "連立方程式") return currentUnit + "の前に、連立方程式を少し確認しよう。";
+    return null;
+  }
+
   // 「なぜ今日はこれ？」— 子どもにもわかる言葉で、3〜4文
   function whyText(a, plan, goal) {
     var lines = [];
@@ -513,11 +545,10 @@
       lines.push(c.symptom
         ? "「" + c.symptom + "」の問題では、さかのぼると「" + practice.skill_label + "」のところで少し迷っているようです。"
         : "「" + practice.skill_label + "」のところで、まだ少し迷うことがあるようです。");
-      // 一次関数でつまずいて、中1の方程式まで戻るときは、子どもにもそれだけ短く伝える
-      var pu = E.SKILLS[practice.skill];
-      if (pu && (pu.unit === "一次方程式" || practice.skill === "distrib") && (!plan.school_progress || plan.school_progress.current_unit !== pu.unit)) {
-        lines.push("一次関数の前に、方程式を少し確認しよう。");
-      }
+      // 学校の単元より前の単元まで戻るときは、子どもにもそれだけ短く伝える
+      // （一次関数 → 中1の方程式、連立方程式 → 中1の一次方程式、一次関数 → 連立方程式）
+      var back = backToLine(practice.skill, plan.school_progress ? plan.school_progress.current_unit : "一次関数");
+      if (back) lines.push(back);
       if (c.advanced) lines.push("最近の練習で基礎はできていたので、今日は形を変えた問題にしてみよう。");
       var nexts = practices.slice(1).map(function (x) { return "「" + x.skill_label + "」"; });
       lines.push(current && current.skill !== practice.skill
@@ -539,5 +570,5 @@
   }
 
   SC.planner = { CONFIG: CONFIG, GOALS: GOALS, ALL_GOALS: ALL_GOALS, TYPE_LABEL: TYPE_LABEL, LEVEL_JA: LEVEL_JA, TEMPLATES: TEMPLATES, PICK_STAGES: PICK_STAGES,
-    analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes };
+    analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes, backToLine: backToLine };
 })(typeof window !== "undefined" ? window : globalThis);

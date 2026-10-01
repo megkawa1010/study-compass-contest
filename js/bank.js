@@ -918,6 +918,347 @@
     explanation: "4x + 200 = 680 → 4x = 480 → x = 120（円）です。" });
 
   // =====================================================================
+  // 中2 連立方程式
+  // study-compass-app の「連立方程式 基本チェック」25問（math-jh2-simultaneous-equations）を
+  // スキルとレベルに分けて再利用（source に元の ID）。
+  // 加減法・代入法の一部は、途中の工程（係数をそろえる → 1文字を消す → 一次方程式を解く）を
+  // 小問に分けて、どこで止まったかを記録できるようにした。
+  // system：検算用に「ax + by = c」の形に直した2つの式（tests/bank.test.js で答えを確かめる）
+  // =====================================================================
+  var XY = [{ key: "x", label: "x =" }, { key: "y", label: "y =" }];
+  function coefText(c, v, first) {
+    if (c === 0) return "";
+    var abs = Math.abs(c);
+    var body = (abs === 1 ? "" : String(abs)) + v;
+    if (first) return (c < 0 ? "−" : "") + body;
+    return (c < 0 ? " − " : " + ") + body;
+  }
+  function eqText(e) {
+    return coefText(e[0], "x", true) + coefText(e[1], "y", e[0] === 0) + " = " + (e[2] < 0 ? "−" + -e[2] : e[2]);
+  }
+  // 連立方程式を解く問題。shown：画面に出す式（省略時は system から作る）
+  function sim(id, skill, level, src, system, ans, hint, explanation, extra) {
+    extra = extra || {};
+    var shown = extra.shown || system.map(eqText);
+    var q = { id: id, skill: skill, level: level, format: "expression",
+      text: "次の連立方程式を解きましょう。", figure: { type: "system", eqs: shown },
+      type: "pair", fields: XY, answer: { x: ans[0], y: ans[1] }, system: system, hint: hint, explanation: explanation };
+    if (src) q.source = "study-compass-app:" + src;
+    for (var k in extra) if (k !== "shown") q[k] = extra[k];
+    add(q);
+  }
+  var ALIGNED = ["signed", "transpose"];                 // 係数がそろっていて、足す・引くだけで消せる
+  var NEEDS_COEF = ["simCoef", "transpose", "signed"];   // 式を何倍かしてから消す
+
+  // --- 連立方程式の意味（新規） ---
+  add({ id: "simMeaning-basic-1", skill: "simMeaning", level: "basic", format: "expression",
+    text: "x = 2、y = 1 は、連立方程式 x + y = 3、x − y = 1 の解ですか？",
+    type: "choice", choices: [{ key: "a", label: "解である" }, { key: "b", label: "解ではない" }], answer: "a",
+    hint: "x と y の値を、2つの式の両方に入れてみよう。",
+    explanation: "2 + 1 = 3、2 − 1 = 1 で、2つの式の両方が成り立つので解です。" });
+  add({ id: "simMeaning-basic-2", skill: "simMeaning", level: "basic", format: "expression", usage: "diagnosis",
+    text: "次のうち、連立方程式 x + y = 5、2x − y = 1 の解はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x = 2、y = 3" }, { key: "b", label: "x = 3、y = 2" }, { key: "c", label: "x = 1、y = 4" }, { key: "d", label: "x = 4、y = 1" }], answer: "a",
+    hint: "1つ目の式だけでなく、2つ目の式にも合うものをさがそう。",
+    explanation: "x = 2、y = 3 なら 2 + 3 = 5、4 − 3 = 1 で両方が成り立ちます。x = 3、y = 2 は2つ目の式が 6 − 2 = 4 になり、成り立ちません。" });
+  add({ id: "simMeaning-basic-3", skill: "simMeaning", level: "basic", format: "expression",
+    text: "2x + y = 7 で、x = 2 のときの y の値はいくつ？",
+    type: "number", answer: 3, prerequisite_skills: ["algebra", "transpose"],
+    hint: "x に 2 を入れると 4 + y = 7。",
+    explanation: "4 + y = 7 なので y = 3。x = 2、y = 3 はこの式の解の1つです（解はほかにもたくさんある）。" });
+  add({ id: "simMeaning-retention-1", skill: "simMeaning", level: "retention", evidence_level: "basic", format: "expression",
+    text: "x = 4、y = −2 は、連立方程式 3x + y = 10、x − y = 7 の解ですか？",
+    type: "choice", choices: [{ key: "a", label: "解である" }, { key: "b", label: "解ではない" }], answer: "b", prerequisite_skills: ["algebra", "signed"],
+    hint: "2つ目の式にも入れてみよう。4 − (−2) は？",
+    explanation: "1つ目は 12 − 2 = 10 で成り立ちますが、2つ目は 4 − (−2) = 6 で 7 になりません。両方が成り立たないので解ではありません。" });
+
+  // --- 係数をそろえる（式を何倍かする工程だけ。新規） ---
+  add({ id: "simCoef-basic-1", skill: "simCoef", level: "basic", format: "expression",
+    text: "式 3x − y = 3 の両辺を 3 倍した式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "9x − 3y = 9" }, { key: "b", label: "9x − 3y = 3" }, { key: "c", label: "9x − y = 9" }, { key: "d", label: "3x − 3y = 9" }], answer: "a",
+    hint: "左辺のすべての項と、右辺の両方に 3 をかける。",
+    explanation: "3x × 3 = 9x、−y × 3 = −3y、右辺も 3 × 3 = 9。9x − 3y = 9 です。右辺にかけ忘れやすいので注意。" });
+  add({ id: "simCoef-basic-2", skill: "simCoef", level: "basic", format: "expression",
+    text: "連立方程式 2x + 3y = 13、3x − y = 3 で、y の係数の絶対値を 3 にそろえるには、下の式を何倍すればよい？",
+    type: "number", answer: 3,
+    hint: "下の式の y の係数は −1。何倍すると −3 になる？",
+    explanation: "下の式を 3 倍すると 9x − 3y = 9。上の式の +3y と足せば y が消えます。" });
+  add({ id: "simCoef-basic-3", skill: "simCoef", level: "basic", format: "expression",
+    text: "連立方程式 2x + 3y = 19、3x + 2y = 16 で、x の係数をそろえるにはどうする？",
+    type: "choice", choices: [{ key: "a", label: "上の式を 3 倍、下の式を 2 倍する" }, { key: "b", label: "上の式を 2 倍、下の式を 3 倍する" }, { key: "c", label: "上の式だけを 3 倍する" }, { key: "d", label: "下の式だけを 2 倍する" }], answer: "a",
+    hint: "x の係数 2 と 3 を、どちらも 6 にするには？",
+    explanation: "上を 3 倍すると 6x、下を 2 倍すると 6x。どちらも 6x になってそろいます。" });
+  add({ id: "simCoef-standard-1", skill: "simCoef", level: "standard", format: "expression",
+    text: "式 x + 2y = 5 の両辺を −2 倍した式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "−2x − 4y = −10" }, { key: "b", label: "−2x − 4y = 10" }, { key: "c", label: "−2x + 2y = −10" }, { key: "d", label: "−2x − 4y = 5" }], answer: "a",
+    prerequisite_skills: ["eqProperty", "distrib", "signed"],
+    hint: "すべての項と右辺に −2 をかける。符号が全部反対になる。",
+    explanation: "x × (−2) = −2x、2y × (−2) = −4y、5 × (−2) = −10。−2x − 4y = −10 です。" });
+  add({ id: "simCoef-retention-1", skill: "simCoef", level: "retention", evidence_level: "standard", format: "expression",
+    text: "連立方程式 4x + 5y = 17、3x − 2y = 7 で y を消すには、どうする？",
+    type: "choice", choices: [{ key: "a", label: "上を 2 倍、下を 5 倍して足す" }, { key: "b", label: "上を 2 倍、下を 5 倍して引く" }, { key: "c", label: "上を 5 倍、下を 2 倍して足す" }, { key: "d", label: "上を 4 倍、下を 3 倍して足す" }], answer: "a",
+    hint: "y の係数 5 と −2 の絶対値を 10 にそろえる。そのあと、符号がちがうなら足す。",
+    explanation: "上を 2 倍で +10y、下を 5 倍で −10y。符号が反対なので、足すと y が消えます。" });
+
+  // --- 加減法 ---
+  sim("simElim-basic-1", "simElim", "basic", "simultaneous-eq-01", [[1, 1, 7], [1, -1, 1]], [4, 3],
+    "2つの式をそのまま足すと、y が消えます。", "2つの式を足すと 2x = 8 なので x = 4。x + y = 7 に代入すると y = 3 です。", { prerequisite_skills: ALIGNED });
+  sim("simElim-basic-2", "simElim", "basic", "simultaneous-eq-02", [[2, 1, 8], [1, -1, 1]], [3, 2],
+    "2つの式を足すと、y が消えます。", "2つの式を足すと 3x = 9 なので x = 3。x − y = 1 に代入すると y = 2 です。", { prerequisite_skills: ALIGNED });
+  sim("simElim-basic-3", "simElim", "basic", "simultaneous-eq-06", [[2, 1, 9], [1, 1, 5]], [4, 1],
+    "y の係数がどちらも 1 なので、上の式から下の式を引いてみよう。", "上の式から下の式を引くと x = 4。x + y = 5 に代入して y = 1 です。", { prerequisite_skills: ALIGNED });
+  sim("simElim-standard-1", "simElim", "standard", "simultaneous-eq-07", [[3, 2, 12], [3, -1, 3]], [2, 3],
+    "x の係数がどちらも 3 なので、引くと x が消えます。2y − (−y) に注意。", "上の式から下の式を引くと 2y − (−y) = 3y、12 − 3 = 9 なので 3y = 9、y = 3。3x − y = 3 に代入して x = 2 です。", { prerequisite_skills: ALIGNED });
+  sim("simElim-standard-2", "simElim", "standard", "simultaneous-eq-12", [[1, 1, 1], [1, -1, 5]], [3, -2],
+    "2つの式を足すと y が消えます。答えが負の数になることもあります。", "足すと 2x = 6 なので x = 3。x + y = 1 に代入すると y = −2 です。", { prerequisite_skills: ALIGNED });
+  sim("simElim-basic-4", "simElim", "basic", "simultaneous-eq-03", [[3, 2, 16], [1, 1, 6]], [4, 2],
+    "下の式を 2 倍すると 2x + 2y = 12 です。", "x + y = 6 を 2 倍して 2x + 2y = 12。3x + 2y = 16 から引くと x = 4、代入して y = 2 です。", { prerequisite_skills: NEEDS_COEF });
+  sim("simElim-standard-3", "simElim", "standard", "simultaneous-eq-08", [[1, 3, 10], [2, 1, 10]], [4, 2],
+    "上の式を 2 倍すると、x の係数がそろいます。", "上の式を 2 倍して 2x + 6y = 20。下の式を引くと 5y = 10 なので y = 2、代入して x = 4 です。", { prerequisite_skills: NEEDS_COEF });
+  sim("simElim-standard-4", "simElim", "standard", "simultaneous-eq-04", [[2, 3, 13], [3, -1, 3]], [2, 3],
+    "下の式を 3 倍すると、y の係数をそろえられます。", "3x − y = 3 を 3 倍して 9x − 3y = 9。上の式と足すと 11x = 22 なので x = 2、代入して y = 3 です。",
+    { prerequisite_skills: NEEDS_COEF, usage: "diagnosis" });
+  // 途中の工程を見る：引くときの符号 → 一次方程式 → 代入して残りを求める
+  add({ id: "simElim-standard-5", skill: "simElim", level: "standard", format: "expression", usage: "diagnosis",
+    text: "連立方程式を、加減法で順に解きます。",
+    figure: { type: "system", eqs: ["2x + 3y = 7", "2x − y = 3"] }, system: [[2, 3, 7], [2, -1, 3]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simElim", text: "上の式から下の式を引くと、どの式になる？", type: "choice",
+        choices: [{ key: "a", label: "4y = 4" }, { key: "b", label: "2y = 4" }, { key: "c", label: "4y = 10" }, { key: "d", label: "2y = 10" }],
+        answer: "a", hint: "3y − (−y) は 3y + y。", explanation: "3y − (−y) = 4y、7 − 3 = 4 なので 4y = 4。引く式の −y の符号に注意します。" },
+      { id: "s2", skill: "eqProperty", text: "y の値は？", type: "number", answer: 1,
+        hint: "4y = 4 の両辺を 4 で割る。", explanation: "y = 4 ÷ 4 = 1 です。" },
+      { id: "s3", skill: "transpose", text: "y = 1 を 2x + 3y = 7 に代入して、x の値を求めると？", type: "number", answer: 2,
+        hint: "2x + 3 = 7。+3 を右辺に移項する。", explanation: "2x + 3 = 7 → 2x = 4 → x = 2 です。" }
+    ],
+    prerequisite_skills: ALIGNED, skills_used: ["simElim", "eqProperty", "transpose"],
+    hint: "x の係数がどちらも 2 なので、引くと x が消える。",
+    explanation: "引くと 4y = 4 で y = 1、代入して x = 2。答えは x = 2、y = 1 です。" });
+  sim("simElim-standard-6", "simElim", "standard", "simultaneous-eq-13", [[2, -3, 13], [1, 2, -4]], [2, -3],
+    "下の式を 2 倍すると、x の係数がそろいます。", "下を 2 倍して 2x + 4y = −8。上の式から引くと −7y = 21 なので y = −3、代入して x = 2 です。", { prerequisite_skills: NEEDS_COEF });
+  // 両方の式を何倍かする問題（旧09・旧22）は、「そろえた2つの式」と「解く」に分ける
+  function bothScaled(id, src, system, ans, choices, hint, explanation, s1hint, s1expl, s2hint, s2expl) {
+    add({ id: id, skill: "simElim", level: "application", format: "expression", source: "study-compass-app:" + src,
+      text: "連立方程式を、加減法で解きます。", figure: { type: "system", eqs: system.map(eqText) }, system: system,
+      type: "steps",
+      steps: [
+        { id: "s1", skill: "simCoef", text: "どちらの式も何倍かして係数をそろえます。そろえた2つの式はどれ？", type: "choice",
+          choices: choices, answer: "a", hint: s1hint, explanation: s1expl },
+        { id: "s2", skill: "simElim", text: "連立方程式を解きなさい。", type: "pair", fields: XY, answer: { x: ans[0], y: ans[1] },
+          hint: s2hint, explanation: s2expl }
+      ],
+      prerequisite_skills: NEEDS_COEF, skills_used: ["simCoef", "simElim"], hint: hint, explanation: explanation });
+  }
+  bothScaled("simElim-application-1", "simultaneous-eq-09", [[2, 3, 19], [3, 2, 16]], [2, 5],
+    [{ key: "a", label: "6x + 9y = 57、6x + 4y = 32" }, { key: "b", label: "6x + 9y = 19、6x + 4y = 16" }, { key: "c", label: "6x + 6y = 57、6x + 6y = 32" }, { key: "d", label: "6x + 9y = 57、6x + 4y = 16" }],
+    "どちらの式も何倍かしないと係数がそろいません。", "上を 3 倍して 6x + 9y = 57、下を 2 倍して 6x + 4y = 32。引くと 5y = 25 なので y = 5、代入して x = 2 です。",
+    "上を 3 倍、下を 2 倍すると x の係数が 6 でそろう。右辺にもかける。", "上を 3 倍して 6x + 9y = 57、下を 2 倍して 6x + 4y = 32 です。",
+    "6x + 9y = 57 から 6x + 4y = 32 を引く。", "引くと 5y = 25 なので y = 5、代入して x = 2 です。");
+  bothScaled("simElim-application-2", "simultaneous-eq-22", [[4, 5, 17], [3, -2, 7]], [3, 1],
+    [{ key: "a", label: "8x + 10y = 34、15x − 10y = 35" }, { key: "b", label: "8x + 10y = 17、15x − 10y = 7" }, { key: "c", label: "8x + 10y = 34、15x + 10y = 35" }, { key: "d", label: "20x + 25y = 85、6x − 4y = 14" }],
+    "y の係数をそろえるには、上を 2 倍、下を 5 倍します。", "上を 2 倍して 8x + 10y = 34、下を 5 倍して 15x − 10y = 35。足すと 23x = 69 なので x = 3、代入して y = 1 です。",
+    "y の係数 5 と −2 の絶対値を 10 にそろえる。符号はそのまま。", "上を 2 倍して 8x + 10y = 34、下を 5 倍して 15x − 10y = 35 です。",
+    "符号が反対なので、足すと y が消える。", "足すと 23x = 69 なので x = 3、代入して y = 1 です。");
+  // 途中の工程を見る：係数をそろえる → 引く → 代入
+  add({ id: "simElim-application-3", skill: "simElim", level: "application", format: "expression",
+    text: "連立方程式を、加減法で順に解きます。",
+    figure: { type: "system", eqs: ["2x + 3y = 12", "x + y = 5"] }, system: [[2, 3, 12], [1, 1, 5]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simCoef", text: "x の係数をそろえるために、下の式を 2 倍した式は？", type: "choice",
+        choices: [{ key: "a", label: "2x + 2y = 10" }, { key: "b", label: "2x + 2y = 5" }, { key: "c", label: "2x + y = 10" }, { key: "d", label: "x + y = 10" }],
+        answer: "a", hint: "右辺の 5 にも 2 をかける。", explanation: "x + y = 5 の両辺を 2 倍して 2x + 2y = 10 です。" },
+      { id: "s2", skill: "simElim", text: "上の式から、2 倍した式を引くと？", type: "choice",
+        choices: [{ key: "a", label: "y = 2" }, { key: "b", label: "5y = 22" }, { key: "c", label: "y = 22" }, { key: "d", label: "−y = 2" }],
+        answer: "a", hint: "3y − 2y、12 − 10。", explanation: "(2x + 3y) − (2x + 2y) = y、12 − 10 = 2 なので y = 2 です。" },
+      { id: "s3", skill: "transpose", text: "y = 2 を x + y = 5 に代入して、x の値を求めると？", type: "number", answer: 3,
+        hint: "x + 2 = 5。", explanation: "x + 2 = 5 → x = 3 です。" }
+    ],
+    prerequisite_skills: NEEDS_COEF, skills_used: ["simCoef", "simElim", "transpose"],
+    hint: "まず、どちらかの文字の係数をそろえる。",
+    explanation: "下を 2 倍して引くと y = 2、代入して x = 3。答えは x = 3、y = 2 です。" });
+  sim("simElim-standard-7", "simElim", "standard", "simultaneous-eq-23", [[5, 3, 21], [2, -1, 4]], [3, 2],
+    "下の式を 3 倍すると、y の係数がそろいます。", "下を 3 倍して 6x − 3y = 12。上の式と足すと 11x = 33 なので x = 3、代入して y = 2 です。", { prerequisite_skills: NEEDS_COEF });
+  sim("simElim-retention-1", "simElim", "retention", null, [[6, 1, 20], [8, -3, 18]], [3, 2],
+    "上の式を 3 倍すると、y の係数の絶対値がそろいます。", "上を 3 倍して 18x + 3y = 60。下の式と足すと 26x = 78 なので x = 3、代入して y = 2 です。", { evidence_level: "standard", prerequisite_skills: NEEDS_COEF });
+  sim("simElim-standard-8", "simElim", "standard", "simultaneous-eq-25", [[3, -2, 8], [1, 4, 12]], [4, 2],
+    "上の式を 2 倍すると、y の係数の絶対値がそろいます。", "上を 2 倍して 6x − 4y = 16。x + 4y = 12 と足すと 7x = 28 なので x = 4、代入して y = 2 です。", { prerequisite_skills: NEEDS_COEF });
+  sim("simElim-retention-2", "simElim", "retention", null, [[9, 2, -6], [6, 1, -6]], [-2, 6],
+    "下の式を 2 倍すると、y の係数がそろいます。右辺の −6 も 2 倍する。", "下を 2 倍して 12x + 2y = −12。上の式から引くと −3x = 6 なので x = −2。6x + y = −6 に代入して y = 6 です。", { evidence_level: "standard", prerequisite_skills: NEEDS_COEF });
+  sim("simElim-retention-3", "simElim", "retention", null, [[1, 6, 22], [1, -6, -2]], [10, 2],
+    "そのまま足すと y が消えます。", "足すと 2x = 20 なので x = 10。x + 6y = 22 に代入して 6y = 12、y = 2 です。", { evidence_level: "basic", prerequisite_skills: ALIGNED });
+
+  // --- 代入法 ---
+  sim("simSubst-basic-1", "simSubst", "basic", "simultaneous-eq-10", [[-1, 1, 2], [3, 1, 14]], [3, 5],
+    "上の式は y が「y = …」の形。下の式の y にそのまま入れられます。", "y = x + 2 を下の式に代入すると 3x + x + 2 = 14。4x = 12 なので x = 3、y = 5 です。",
+    { shown: ["y = x + 2", "3x + y = 14"], prerequisite_skills: ["algebra", "transpose"], usage: "diagnosis" });
+  sim("simSubst-basic-2", "simSubst", "basic", null, [[-2, 1, 0], [1, 1, 9]], [3, 6],
+    "下の式の y に 2x を入れると x + 2x = 9。", "x + 2x = 9 → 3x = 9 → x = 3。y = 2 × 3 = 6 です。",
+    { shown: ["y = 2x", "x + y = 9"], prerequisite_skills: ["algebra", "transpose"] });
+  sim("simSubst-standard-1", "simSubst", "standard", "simultaneous-eq-11", [[1, -2, -1], [2, 3, 12]], [3, 2],
+    "上の式は x が「x = …」の形。下の式の x に入れるとき、かっこをつける。", "x = 2y − 1 を代入すると 2(2y − 1) + 3y = 12、4y − 2 + 3y = 12。7y = 14 なので y = 2、x = 3 です。",
+    { shown: ["x = 2y − 1", "2x + 3y = 12"] });
+  sim("simSubst-standard-2", "simSubst", "standard", null, [[1, -3, -2], [2, -1, 6]], [4, 2],
+    "下の式の x に (3y − 2) を入れる。2 をかけるのを忘れずに。", "2(3y − 2) − y = 6 → 6y − 4 − y = 6 → 5y = 10 → y = 2。x = 3 × 2 − 2 = 4 です。",
+    { shown: ["x = 3y − 2", "2x − y = 6"] });
+  // 途中の工程を見る：代入した式（かっこ） → かっこのある方程式 → 残りの文字
+  add({ id: "simSubst-application-1", skill: "simSubst", level: "application", format: "expression",
+    text: "連立方程式を、代入法で順に解きます。",
+    figure: { type: "system", eqs: ["y = 2x − 1", "3x + 2y = 12"] }, system: [[-2, 1, -1], [3, 2, 12]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simSubst", text: "上の式を下の式に代入すると、どの式になる？", type: "choice",
+        choices: [{ key: "a", label: "3x + 2(2x − 1) = 12" }, { key: "b", label: "3x + 2x − 1 = 12" }, { key: "c", label: "3(2x − 1) + 2y = 12" }, { key: "d", label: "3x + 4x − 1 = 12" }],
+        answer: "a", hint: "y のところに (2x − 1) をかっこごと入れる。", explanation: "2y の y を (2x − 1) にかえて 3x + 2(2x − 1) = 12 です。" },
+      { id: "s2", skill: "eqParen", text: "その方程式を解いて、x の値を求めると？", type: "number", answer: 2,
+        hint: "かっこを外すと 3x + 4x − 2 = 12。", explanation: "3x + 4x − 2 = 12 → 7x = 14 → x = 2 です。" },
+      { id: "s3", skill: "algebra", text: "x = 2 を y = 2x − 1 に代入して、y の値を求めると？", type: "number", answer: 3,
+        hint: "2 × 2 − 1。", explanation: "y = 4 − 1 = 3 です。" }
+    ],
+    prerequisite_skills: ["algebra", "eqParen", "transpose"], skills_used: ["simSubst", "eqParen", "algebra"],
+    hint: "「y = …」の式を、もう1つの式の y に入れる。",
+    explanation: "代入して 3x + 2(2x − 1) = 12、x = 2。y = 3。答えは x = 2、y = 3 です。" });
+  sim("simSubst-retention-1", "simSubst", "retention", null, [[-6, 1, -11], [4, 1, 9]], [2, 1],
+    "下の式の y に (6x − 11) を入れる。", "4x + 6x − 11 = 9 → 10x = 20 → x = 2。y = 6 × 2 − 11 = 1 です。",
+    { shown: ["y = 6x − 11", "4x + y = 9"], evidence_level: "basic", prerequisite_skills: ["algebra", "transpose"] });
+
+  // --- かっこを含む連立方程式 ---
+  sim("simParen-basic-1", "simParen", "basic", "simultaneous-eq-14", [[2, 2, 16], [1, -1, 2]], [5, 3],
+    "まず上の式のかっこを外して整理しよう。", "上の式のかっこを外すと 2x + 2y = 16、両辺を 2 で割って x + y = 8。x − y = 2 と足すと 2x = 10 なので x = 5、y = 3 です。",
+    { shown: ["2(x + y) = 16", "x − y = 2"] });
+  sim("simParen-basic-2", "simParen", "basic", null, [[3, 3, 15], [1, -1, 1]], [3, 2],
+    "上の式は両辺を 3 で割ると x + y = 5。", "x + y = 5 と x − y = 1 を足すと 2x = 6、x = 3。y = 2 です。",
+    { shown: ["3(x + y) = 15", "x − y = 1"] });
+  sim("simParen-standard-1", "simParen", "standard", "simultaneous-eq-15", [[3, 1, 14], [1, 1, 6]], [4, 2],
+    "上の式のかっこを外して、x と y の形に整理します。", "かっこを外すと 3x − 3 + y = 11、整理して 3x + y = 14。x + y = 6 を引くと 2x = 8 なので x = 4、y = 2 です。",
+    { shown: ["3(x − 1) + y = 11", "x + y = 6"] });
+  sim("simParen-retention-1", "simParen", "retention", null, [[1, 2, 8], [1, -1, -1]], [2, 3],
+    "上の式を整理すると 2x + 2y − x = 8、つまり x + 2y = 8。", "x + 2y = 8 から x − y = −1 を引くと 3y = 9、y = 3。x = 2 です。",
+    { shown: ["2(x + y) − x = 8", "x − y = −1"], evidence_level: "standard" });
+
+  // --- 小数・分数を含む連立方程式 ---
+  add({ id: "simFraction-basic-1", skill: "simFraction", level: "basic", format: "expression",
+    text: "式 x/2 + y = 4 の両辺を 2 倍して、分数をなくした式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x + 2y = 8" }, { key: "b", label: "x + 2y = 4" }, { key: "c", label: "x + y = 8" }, { key: "d", label: "2x + 2y = 8" }], answer: "a",
+    prerequisite_skills: ["eqFraction", "distrib"],
+    hint: "x/2 × 2 = x。y にも、右辺にも 2 をかける。",
+    explanation: "x/2 × 2 = x、y × 2 = 2y、4 × 2 = 8。x + 2y = 8 です。" });
+  sim("simFraction-basic-2", "simFraction", "basic", "simultaneous-eq-16", [[0.5, 1, 5], [1, 1, 7]], [4, 3],
+    "分数があるときは、両辺を同じ数倍して分数をなくします。", "上の式を 2 倍して x + 2y = 10。x + y = 7 を引くと y = 3、代入して x = 4 です。",
+    { shown: ["x/2 + y = 5", "x + y = 7"] });
+  sim("simFraction-standard-1", "simFraction", "standard", "simultaneous-eq-17", [[0.2, 0.3, 1.3], [1, 1, 5]], [2, 3],
+    "小数があるときは、両辺を 10 倍して整数にすると計算しやすくなります。", "上の式を 10 倍して 2x + 3y = 13。x + y = 5 を 2 倍した 2x + 2y = 10 を引くと y = 3、代入して x = 2 です。",
+    { shown: ["0.2x + 0.3y = 1.3", "x + y = 5"] });
+  sim("simFraction-retention-1", "simFraction", "retention", null, [[1 / 6, 1 / 8, 2], [1, 1, 14]], [6, 8],
+    "上の式は、分母 6 と 8 の両方で割れる 24 をかける。", "上を 24 倍して 4x + 3y = 48。x + y = 14 を 3 倍した 3x + 3y = 42 を引くと x = 6、y = 8 です。",
+    { shown: ["x/6 + y/8 = 2", "x + y = 14"], evidence_level: "standard" });
+
+  // --- 連立方程式の文章題 ---
+  function word(id, level, src, text, fields, system, ans, hint, explanation, extra) {
+    var q = { id: id, skill: "simWord", level: level, format: "word", text: text, type: "pair", fields: fields,
+      answer: { x: ans[0], y: ans[1] }, system: system, hint: hint, explanation: explanation };
+    if (src) q.source = "study-compass-app:" + src;
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  word("simWord-basic-1", "basic", "simultaneous-eq-21", "大きい数と小さい数があります。2つの数の和は 23、差は 7 です。大きい数を x、小さい数を y として、それぞれを求めましょう。",
+    [{ key: "x", label: "大きい数 x" }, { key: "y", label: "小さい数 y" }], [[1, 1, 23], [1, -1, 7]], [15, 8],
+    "和と差から、そのまま式を2本作れます：x + y = 23、x − y = 7", "x + y = 23、x − y = 7。2つを足すと 2x = 30 なので x = 15、代入して y = 8 です。", { usage: "diagnosis" });
+  word("simWord-standard-1", "standard", "simultaneous-eq-18", "1個150円のりんごと1個90円のみかんを合わせて8個買ったところ、代金は900円でした。りんごを x 個、みかんを y 個として、それぞれの個数を求めましょう。",
+    [{ key: "x", label: "りんご x（個）" }, { key: "y", label: "みかん y（個）" }], [[1, 1, 8], [150, 90, 900]], [3, 5],
+    "個数の関係と、代金の関係で式を2つ作ります。", "個数から x + y = 8、代金から 150x + 90y = 900。上を 90 倍した 90x + 90y = 720 を引くと 60x = 180 なので x = 3、y = 5 です。");
+  word("simWord-standard-2", "standard", "simultaneous-eq-19", "ある施設に大人と子どもが合わせて12人入場し、入場料の合計は4600円でした。大人1人500円、子ども1人300円のとき、大人を x 人、子どもを y 人として、それぞれの人数を求めましょう。",
+    [{ key: "x", label: "大人 x（人）" }, { key: "y", label: "子ども y（人）" }], [[1, 1, 12], [500, 300, 4600]], [5, 7],
+    "人数の関係と、入場料の関係で式を2つ作ります。", "人数から x + y = 12、入場料から 500x + 300y = 4600。上を 300 倍した 300x + 300y = 3600 を引くと 200x = 1000 なので x = 5、y = 7 です。");
+  // 文章題は「式を立てる」と「解く」を小問に分ける（立式で止まったのか、解く途中で止まったのか）
+  add({ id: "simWord-application-1", skill: "simWord", level: "application", format: "word", source: "study-compass-app:simultaneous-eq-05",
+    text: "120円のノートと80円のペンを合わせて10個買い、代金は960円でした。ノートを x 個、ペンを y 個とします。",
+    system: [[1, 1, 10], [120, 80, 960]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simWord", text: "個数と代金の関係から、連立方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "x + y = 10、120x + 80y = 960" }, { key: "b", label: "x + y = 960、120x + 80y = 10" }, { key: "c", label: "x + y = 10、80x + 120y = 960" }, { key: "d", label: "x − y = 10、120x + 80y = 960" }],
+        answer: "a", hint: "個数の合計と、代金の合計で1本ずつ。", explanation: "個数から x + y = 10、代金から 120x + 80y = 960 です。" },
+      { id: "s2", skill: "simElim", text: "連立方程式を解いて、それぞれの個数を求めなさい。", type: "pair",
+        fields: [{ key: "x", label: "ノート x（個）" }, { key: "y", label: "ペン y（個）" }], answer: { x: 4, y: 6 },
+        hint: "代金の式を 40 で割ると 3x + 2y = 24。x + y = 10 を 2 倍して引く。", explanation: "3x + 2y = 24 から 2x + 2y = 20 を引くと x = 4、y = 6 です。" }
+    ],
+    prerequisite_skills: ["simMeaning", "eqWord", "simElim"], skills_used: ["simWord", "simElim"],
+    hint: "まず「何と何が等しいか」を2つ見つけて、式を2本作る。",
+    explanation: "x + y = 10、120x + 80y = 960 を解いて x = 4、y = 6。ノート 4 個、ペン 6 本です。" });
+  add({ id: "simWord-application-2", skill: "simWord", level: "application", format: "word", source: "study-compass-app:simultaneous-eq-20",
+    text: "ある人が時速4kmで歩いた時間を x 時間、時速8kmで走った時間を y 時間とします。合わせて2時間で12km進みました。",
+    system: [[1, 1, 2], [4, 8, 12]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simWord", text: "時間と道のりの関係から、連立方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "x + y = 2、4x + 8y = 12" }, { key: "b", label: "x + y = 12、4x + 8y = 2" }, { key: "c", label: "x + y = 2、8x + 4y = 12" }, { key: "d", label: "4x + y = 2、x + 8y = 12" }],
+        answer: "a", hint: "道のり ＝ 速さ × 時間。", explanation: "時間から x + y = 2、道のりから 4x + 8y = 12 です。" },
+      { id: "s2", skill: "simElim", text: "連立方程式を解いて、それぞれの時間を求めなさい。", type: "pair",
+        fields: [{ key: "x", label: "歩いた x（時間）" }, { key: "y", label: "走った y（時間）" }], answer: { x: 1, y: 1 },
+        hint: "上の式を 4 倍して引く。", explanation: "4x + 4y = 8 を引くと 4y = 4 なので y = 1、x = 1 です。" }
+    ],
+    prerequisite_skills: ["simMeaning", "eqWord", "simElim"], skills_used: ["simWord", "simElim"],
+    hint: "時間の合計と、道のりの合計で式を2本作る。",
+    explanation: "x + y = 2、4x + 8y = 12 を解いて x = 1、y = 1。歩いた時間も走った時間も1時間です。" });
+  word("simWord-retention-1", "retention", "simultaneous-eq-24", "ある店で品物Aと品物Bを合わせて30個仕入れました。Aは1個200円、Bは1個350円で、仕入れの合計は8250円でした。Aを x 個、Bを y 個として、それぞれの個数を求めましょう。",
+    [{ key: "x", label: "A x（個）" }, { key: "y", label: "B y（個）" }], [[1, 1, 30], [200, 350, 8250]], [15, 15],
+    "個数の関係と、仕入れ額の関係で式を2つ作ります。", "個数から x + y = 30、金額から 200x + 350y = 8250。上を 200 倍した 200x + 200y = 6000 を引くと 150y = 2250 なので y = 15、x = 15 です。",
+    { evidence_level: "standard" });
+
+  // --- 2直線の交点（一次関数と連立方程式のかけ橋。新規） ---
+  add({ id: "simGraph-basic-1", skill: "simGraph", level: "basic", format: "graph",
+    text: "グラフの2直線の交点P の座標を答えなさい。",
+    figure: { type: "graph", x: [-1, 4, 1], y: [-1, 6, 1], lines: [line(1, 2), line(-2, 5)], points: [{ x: 1, y: 3, label: "P" }] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 1, y: 3 },
+    lines: [[1, 2], [-2, 5]], prerequisite_skills: ["coord"], skills_used: ["simGraph", "coord"],
+    hint: "2本の直線が交わっている点を、x 軸と y 軸の目もりで読む。",
+    explanation: "交点P は右に 1、上に 3 なので (1, 3) です。この座標は、2直線の式 y = x + 2、y = −2x + 5 の両方をみたします。" });
+  add({ id: "simGraph-basic-2", skill: "simGraph", level: "basic", format: "expression",
+    text: "2直線 y = x + 1 と y = −x + 5 の交点の座標は、次のどれと同じ？",
+    type: "choice", choices: [{ key: "a", label: "連立方程式 y = x + 1、y = −x + 5 の解" }, { key: "b", label: "y = x + 1 の切片" }, { key: "c", label: "2本の直線の傾きの和" }, { key: "d", label: "x + 1 = 0 の解" }], answer: "a",
+    prerequisite_skills: ["simMeaning", "coord"], skills_used: ["simGraph", "simMeaning"],
+    hint: "交点は、どちらの直線の上にもある点。",
+    explanation: "交点は2本の直線の両方の上にある点なので、その座標は2つの式を両方みたす ＝ 連立方程式の解です。" });
+  add({ id: "simGraph-standard-1", skill: "simGraph", level: "standard", format: "expression",
+    text: "2直線 y = 2x − 1 と y = −x + 5 の交点の座標を、計算で求めなさい。",
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 2, y: 3 },
+    lines: [[2, -1], [-1, 5]], prerequisite_skills: ["simSubst", "transpose"], skills_used: ["simGraph", "simSubst", "transpose"],
+    hint: "2つの式を連立方程式として解く。y が同じなので 2x − 1 = −x + 5。",
+    explanation: "2x − 1 = −x + 5 → 3x = 6 → x = 2。y = 2 × 2 − 1 = 3。交点は (2, 3) です。" });
+  add({ id: "simGraph-standard-2", skill: "simGraph", level: "standard", format: "graph",
+    text: "直線ℓ：y = x + 1、直線m：y = −x + 4 です。グラフでは交点の座標を正確に読みとれません。2つの式を連立方程式として解いて、交点の座標を求めなさい。",
+    figure: { type: "graph", x: [-1, 5, 1], y: [-1, 5, 1], lines: [line(1, 1), line(-1, 4)] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 1.5, y: 2.5 },
+    lines: [[1, 1], [-1, 4]], prerequisite_skills: ["simElim", "coord"], skills_used: ["simGraph", "simElim"],
+    hint: "2つの式を足すと x が消える：2y = 5。分数や小数で答えてもよい。",
+    explanation: "足すと 2y = 5 なので y = 5/2（2.5）。x = y − 1 = 3/2（1.5）。交点は (3/2, 5/2) です。" });
+  // グラフ → 式 → 連立方程式 → 交点（どこで止まったかで、グラフ側／連立方程式側のどちらに戻るかが分かる）
+  add({ id: "simGraph-application-1", skill: "simGraph", level: "application", format: "graph",
+    text: "グラフの直線ℓ と直線m の交点の座標を、順に求めます。",
+    figure: { type: "graph", x: [-2, 4, 1], y: [-2, 4, 1], lines: [line(1, -1), line(-1, 2)], points: [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 2 }, { x: 2, y: 0 }] },
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "form", text: "グラフから読みとった、直線ℓ（右上がり）と直線m（右下がり）の式の組はどれ？", type: "choice",
+        choices: [{ key: "a", label: "ℓ：y = x − 1、m：y = −x + 2" }, { key: "b", label: "ℓ：y = x + 1、m：y = −x + 2" }, { key: "c", label: "ℓ：y = −x − 1、m：y = x + 2" }, { key: "d", label: "ℓ：y = x − 1、m：y = −2x + 2" }],
+        answer: "a", hint: "切片（y 軸と交わる点）と、右に1進むと上下にいくつ動くかを読む。", explanation: "ℓ は (0, −1) を通り傾き 1 で y = x − 1、m は (0, 2) を通り傾き −1 で y = −x + 2 です。" },
+      { id: "s2", skill: "simElim", text: "2つの式を連立方程式として解くと、x の値は？", type: "number", answer: 1.5,
+        hint: "x − 1 = −x + 2。分数や小数で答えてもよい。", explanation: "x − 1 = −x + 2 → 2x = 3 → x = 3/2（1.5）です。" },
+      { id: "s3", skill: "simGraph", text: "交点の座標は？", type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 1.5, y: 0.5 },
+        hint: "x = 3/2 を y = x − 1 に代入する。", explanation: "y = 3/2 − 1 = 1/2。交点は (3/2, 1/2) です。" }
+    ],
+    lines: [[1, -1], [-1, 2]], prerequisite_skills: ["form", "simElim", "coord"], skills_used: ["form", "simElim", "simGraph"],
+    hint: "グラフから式を読む → 連立方程式を解く → 交点の座標、の順に。",
+    explanation: "ℓ：y = x − 1、m：y = −x + 2。連立方程式を解いて x = 3/2、y = 1/2。交点は (3/2, 1/2) です。" });
+  add({ id: "simGraph-retention-1", skill: "simGraph", level: "retention", evidence_level: "standard", format: "expression",
+    text: "2直線 y = 6x − 9 と y = x + 11 の交点の座標を求めなさい。",
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 4, y: 15 },
+    lines: [[6, -9], [1, 11]], prerequisite_skills: ["simSubst"], skills_used: ["simGraph", "simSubst"],
+    hint: "6x − 9 = x + 11 を解く。",
+    explanation: "6x − 9 = x + 11 → 5x = 20 → x = 4。y = 4 + 11 = 15。交点は (4, 15) です。" });
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
@@ -928,7 +1269,8 @@
     var sk = E.SKILLS[q.skill];
     q.grade = "中学2年";
     q.subject = "数学";
-    q.unit = "一次関数";
+    // 記録に残す単元。前の学年の土台（既習）は、いま学んでいる一次関数の中で使うものとして扱う
+    q.unit = sk.unit === "既習" ? "一次関数" : sk.unit;
     q.origin = "bank";
     q.skillLabel = sk.label;
     // 前提を書いていない問題は、スキル地図の前提を使う。ただし「移項」（方程式を解く）は、

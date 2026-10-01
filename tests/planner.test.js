@@ -156,7 +156,7 @@ test("「なぜ今日はこれ？」は必ずあり、断定しない", () => {
 
 test("すべてできるようになっても、空のプランにせず「おさらい」を出す", () => {
   const L = learner();
-  const ids = ["change", "substitution", "rate", "slopeIntercept", "form"].flatMap((s) => [...B.index[s].basic, ...B.index[s].standard, ...B.index[s].application]);
+  const ids = E.UNITS["一次関数"].flatMap((s) => [...B.index[s].basic, ...B.index[s].standard, ...B.index[s].application]);
   L.add(T0, ids, ids.map(() => c));
   L.add(T0 + 4 * DAY, ids, ids.map(() => c));
   const p = L.plan(T0 + 30 * DAY);

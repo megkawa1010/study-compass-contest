@@ -146,6 +146,34 @@ test("一次関数の表は、値がすべて一直線上にあり、? の答え
   }
 });
 
+// 連立方程式：答え (x, y) が2つの式の両方をみたす。2直線の交点：答えが両方の直線の上にある
+function solutionOf(q) {
+  if (q.type === "pair" && "x" in q.answer) return q.answer;
+  const last = (q.steps || []).filter((s) => s.type === "pair" && "x" in s.answer).pop();
+  return last ? last.answer : null;
+}
+test("連立方程式の答えは2つの式の両方をみたし、2直線の交点は両方の直線の上にある", () => {
+  const sims = bank.filter((q) => q.system);
+  assert.ok(sims.length >= 25, "連立方程式の問題 " + sims.length);
+  for (const q of sims) {
+    const s = solutionOf(q);
+    if (!s) continue; // 「何倍した式は？」のような工程だけの問題
+    q.system.forEach(([a, b, c], i) => assert.ok(Math.abs(a * s.x + b * s.y - c) < 1e-9, `${q.id} の答えが ${i + 1} つ目の式をみたさない`));
+    // 本文に出す式（{ の中）と、検算用の式が食いちがわない（そのまま出す式だけ確かめる）
+    if (q.figure && q.figure.type === "system") assert.equal(q.figure.eqs.length, 2, q.id);
+  }
+  for (const q of bank.filter((q) => q.lines)) {
+    const s = solutionOf(q);
+    q.lines.forEach(([a, b], i) => assert.ok(Math.abs(a * s.x + b - s.y) < 1e-9, `${q.id} の交点が ${i + 1} 本目の直線の上にない`));
+    if (q.figure && q.figure.type === "graph") assert.deepEqual(q.figure.lines.map((l) => [l.a, l.b]), q.lines, q.id + " 図の直線");
+  }
+});
+
+test("旧アプリ（study-compass-app）の連立方程式25問をすべて再利用している", () => {
+  const src = new Set(bank.map((q) => q.source).filter((s) => s && s.includes("simultaneous-eq-")));
+  for (let i = 1; i <= 25; i++) assert.ok(src.has("study-compass-app:simultaneous-eq-" + String(i).padStart(2, "0")), "simultaneous-eq-" + i);
+});
+
 // 問題に出てくる数（本文・図・選択肢）を集める
 // （グラフの表示範囲 x / y は問題の中身ではないので数えない）
 function numbersOf(q) {
@@ -159,7 +187,8 @@ test("定着用の問題は、同じスキルの他の問題と見た目・数�
   for (const r of bank.filter((q) => q.level === "retention")) {
     const rn = numbersOf(r);
     for (const o of Object.values(Q).filter((q) => q.skill === r.skill && q.id !== r.id)) {
-      assert.notEqual(r.text, o.text, r.id + " と " + o.id + " の本文が同じ");
+      // 連立方程式は本文が共通（「次の連立方程式を解きましょう。」）で、式は図（{ }）にあるので、本文と図をあわせてくらべる
+      assert.notEqual(r.text + JSON.stringify(r.figure || {}), o.text + JSON.stringify(o.figure || {}), r.id + " と " + o.id + " の本文が同じ");
       const on = numbersOf(o);
       const inter = [...rn].filter((n) => on.has(n)).length;
       const union = new Set([...rn, ...on]).size || 1;

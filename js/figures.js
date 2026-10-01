@@ -111,8 +111,17 @@
     return '<div class="fig fig-numberline"><svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="数直線">' + out.join("") + "</svg></div>";
   }
 
+  // ---------- 連立方程式（{ で2つの式をくくる） ----------
+  // { type: "system", eqs: ["2x + 3y = 13", "3x − y = 3"] }
+  function system(fig) {
+    return '<div class="fig fig-system" role="math" aria-label="連立方程式 ' + esc(fig.eqs.join("、")) + '">' +
+      '<span class="brace" aria-hidden="true">{</span><span class="eqs">' +
+      fig.eqs.map(function (e) { return "<span>" + esc(e) + "</span>"; }).join("") + "</span></div>";
+  }
+
   function render(fig) {
     if (!fig) return "";
+    if (fig.type === "system") return system(fig);
     if (fig.type === "table") return table(fig);
     if (fig.type === "graph") return graph(fig);
     if (fig.type === "numberline") return numberline(fig);
