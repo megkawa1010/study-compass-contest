@@ -739,7 +739,7 @@
 
   function viewCompassDebug() {
     var input = compassInput();
-    var chk = C.buildCheck({ states: input.states, history: input.history, sessions: input.sessions, now: input.now, rng: SC.bank.seeded(1) });
+    var chk = C.buildCheck({ states: input.states, history: input.history, sessions: input.sessions, explorations: input.explorations, now: input.now, rng: SC.bank.seeded(1) });
     var n = C.notice(input);
     var cfg = C.CONFIG;
     var L2 = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };

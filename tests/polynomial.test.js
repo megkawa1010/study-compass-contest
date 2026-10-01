@@ -105,3 +105,26 @@ test("はじめてのチェック・未学習・今日の学習のひとこと",
   assert.equal(P.backToLine("distrib", "式の計算"), null, "式の計算の中では、分配法則は単元の土台");
   assert.equal(P.backToLine("transpose", "式の計算"), "式の計算の前に、一次方程式を少し確認しよう。");
 });
+
+test("追加4問の上限：加減法 → 係数 ○ → 多項式の加減 ○ → 移項 × → 正負の数 ○ で上限。文字式・同類項は次回のチェックで最優先", () => {
+  const budget = R.CONFIG.BUDGET_INITIAL;
+  assert.equal(budget, 4);
+  const { trail, asked, c } = run(Q["simElim-standard-4"], { simCoef: true, polyAddSub: true, transpose: false, signed: true }, { budget });
+  assert.deepEqual(asked.map((p) => p.skill), ["simCoef", "polyAddSub", "transpose", "signed"]);
+  assert.equal(c.return_to, "transpose");
+  assert.equal(c.kind, "undetermined");
+  assert.deepEqual(c.pending_skills.sort(), ["algebra", "likeTerms"]);
+  // 次の定期チェック：記録の発生条件に関係なく、持ち越したスキルを P0（前回の原因さがしの続き）で出す
+  const expl = [{ ...JSON.parse(JSON.stringify(trail)), date: new Date(T0).toISOString() }];
+  const chk = C.buildCheck({ states: E.computeSkillStates([], { now: T0 + 864e5 }), history: [], sessions: [], explorations: expl, now: T0 + 864e5, rng: B.seeded(1) });
+  const p0 = chk.candidates.filter((x) => x.priority === 0).map((x) => x.skill).sort();
+  assert.deepEqual(p0, ["algebra", "likeTerms"]);
+  assert.ok(chk.chosen.some((x) => x.skill === "likeTerms"));
+});
+
+test("多項式の加法・減法：基礎と定着は5問以上・形がばらばら（数字だけ変えた問題に偏らない）", () => {
+  assert.ok(B.index.polyAddSub.basic.length >= 5);
+  assert.ok(B.index.polyAddSub.retention.length >= 5);
+  const types = new Set(B.index.polyAddSub.basic.concat(B.index.polyAddSub.retention).map((id) => Q[id].type));
+  assert.ok(types.has("choice") && types.has("poly"));
+});

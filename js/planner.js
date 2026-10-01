@@ -328,8 +328,11 @@
       });
       var ex = Object.keys(avoid).concat(used);
       var levels = FALLBACK_LV[level] || [level];
+      // 定着用の問題は、ふだんの練習では使わない（練習で解いてしまうと、数日後の定着の確認に使えなくなる）。
+      // 使うのは、定着の確認の枠と、練習向け・診断用がすべて足りないとき（段階1以降）だけ
+      var usage = stg.usage && level !== "retention" ? stg.usage.filter(function (u) { return u !== "retention"; }) : stg.usage;
       for (var i = 0; i < levels.length; i++) {
-        var q = SC.bank.pick(skill, levels[i], { history: history, exclude: ex, usage: stg.usage, rng: rng });
+        var q = SC.bank.pick(skill, levels[i], { history: history, exclude: ex, usage: usage, rng: rng });
         if (q) {
           var reused = !!ever[q.id];
           return { question_id: q.id, level: q.level, stage: s, reused: reused,

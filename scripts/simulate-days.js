@@ -1,5 +1,7 @@
 // 開発用：毎日「今日の学習」を続けたときに、問題の再利用・不足がいつ起きるかを調べる
-//   node scripts/simulate-days.js [日数] [分] [単元：一次関数 | 連立方程式]
+//   node scripts/simulate-days.js [日数] [分] [単元：一次関数 | 連立方程式 | 式の計算] [原因のスキル（省略可）]
+// 想定（式の計算）：かっこの前が − の符号でまちがえ、原因が「多項式の加法・減法」。かっこを含む式・等式の変形もまだ不安定。
+// 原因のスキルを指定すると、そのスキルを「まだできない」にして、原因さがしの戻る場所にする（例：連立方程式 polyAddSub）
 // 想定（一次関数）：最初のチェックで「変化量・変化の割合・グラフ式」がまだ不安定な子ども。
 // 想定（連立方程式）：加減法でまちがえ、原因が「移項」。代入法・文章題・小数分数もまだ不安定な子ども。
 // 3日ごとに定期コンパスチェックも行い、チェックの問題不足（緩和・再利用・出題できず）も数える。
@@ -15,7 +17,9 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 const history = [];
 let n = 0;
 const knows = UNIT === "連立方程式"
-  ? { signed: true, algebra: true, distrib: true, eqMeaning: true, eqProperty: true, simMeaning: true, simCoef: true, transpose: false, eqParen: false, eqFraction: true, simElim: false, simSubst: false, simParen: false, simFraction: false, simWord: false }
+  ? { signed: true, algebra: true, likeTerms: true, polyAddSub: true, polyMixed: true, distrib: true, eqMeaning: true, eqProperty: true, simMeaning: true, simCoef: true, transpose: false, eqParen: false, eqFraction: true, simElim: false, simSubst: false, simParen: false, simFraction: false, simWord: false }
+  : UNIT === "式の計算"
+  ? { signed: true, algebra: true, likeTerms: true, distrib: true, eqProperty: true, transpose: true, monoMulDiv: true, polyAddSub: false, polyMixed: false, eqTransform: false }
   : { coord: true, proportion: true, substitution: true, algebra: true, signed: true, slopeIntercept: true, change: false, rate: false, form: false };
 function answer(qid, at, context) {
   const q = Q[qid];
@@ -23,10 +27,15 @@ function answer(qid, at, context) {
   if (q.type === "steps") q.steps.forEach((s) => rec({ level: q.level, unit: q.unit }, qid + "#" + s.id, s.skill));
   else rec(q, qid, q.skill);
 }
-const FIRST = UNIT === "連立方程式" ? SC.compass.unitCheck(UNIT).questions.concat(["simCoef-basic-2", "transpose-basic-2", "signed-basic-2", "algebra-basic-1"]) : ["B1", "B2", "B3", "B4", "B5", "C4", "C5"];
+const CAUSE = process.argv[5] || null;
+if (CAUSE) { knows[CAUSE] = false; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
+const FIRST = UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
+  : UNIT === "連立方程式" ? SC.compass.unitCheck(UNIT).questions.concat(["simCoef-basic-2", "transpose-basic-2", "signed-basic-2", "algebra-basic-1"]) : ["B1", "B2", "B3", "B4", "B5", "C4", "C5"];
 FIRST.forEach((id) => answer(id, T0, "compass_check"));
-const explorations = UNIT === "連立方程式"
-  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "simElim", label: "加減法" }, conclusion: { kind: "gap_found", return_to: "transpose" } }]
+const explorations = UNIT === "式の計算"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "polyMixed", label: "かっこを含む式の計算" }, conclusion: { kind: "gap_found", return_to: CAUSE || "polyAddSub" } }]
+  : UNIT === "連立方程式"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "simElim", label: "加減法" }, conclusion: { kind: "gap_found", return_to: CAUSE || "transpose" } }]
   : [{ date: new Date(T0).toISOString(), symptom: { skill: "rate", label: "変化の割合" }, conclusion: { kind: "gap_found", return_to: "change" } }];
 const sessions = [];
 let chkQ = 0, chkRelax = 0, chkReuse = 0, chkSkip = 0;

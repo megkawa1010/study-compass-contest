@@ -969,10 +969,31 @@
     "a は 6 − 1、b は −2 + 5 を計算します。", "a の項は 6a − a = 5a、b の項は −2b + 5b = 3b。5a + 3b です。");
   poly("polyAddSub-basic-3", "polyAddSub", "basic", "polynomial-calc-06", "(3x + 4y) + (2x − y) を計算しましょう。", "5x+3y",
     "かっこの前が + のときは、そのままかっこを外せます。", "かっこを外すと 3x + 4y + 2x − y。まとめると 5x + 3y です。");
+  // 補強：加減法の前提として必要な「式から式を引く」を、むずかしくしすぎずに確かめる
+  poly("polyAddSub-basic-4", "polyAddSub", "basic", null, "(4x + 5) − (x + 2) を計算しましょう。", "3x+3",
+    "かっこの前が − なので、2つ目のかっこは −x − 2 になる。", "4x + 5 − x − 2 をまとめると 3x + 3 です。");
+  poly("polyAddSub-basic-5", "polyAddSub", "basic", null, "2x + 3y から 2x − y をひくと、どんな式になる？", "4y",
+    "(2x + 3y) − (2x − y)。x は消える。3y − (−y) に注意。", "(2x + 3y) − (2x − y) = 2x + 3y − 2x + y = 4y。連立方程式の加減法で、式から式をひくときと同じ計算です。");
+  add({ id: "polyAddSub-basic-6", skill: "polyAddSub", level: "basic", format: "expression",
+    text: "(5a − 2b) − (3a + b) のかっこを外した式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "5a − 2b − 3a − b" }, { key: "b", label: "5a − 2b − 3a + b" }, { key: "c", label: "5a + 2b − 3a − b" }, { key: "d", label: "5a − 2b + 3a + b" }], answer: "a",
+    hint: "− のついたかっこは、中の符号をすべて反対にする。前のかっこはそのまま。",
+    explanation: "(3a + b) の前が − なので −3a − b。5a − 2b − 3a − b です（まとめると 2a − 3b）。" });
   poly("polyAddSub-standard-1", "polyAddSub", "standard", "polynomial-calc-07", "(5x − 3y) − (2x − y) を計算しましょう。", "3x-2y",
     "かっこの前が − のときは、かっこの中の符号がすべて反対になります。", "かっこを外すと 5x − 3y − 2x + y。まとめると 3x − 2y です。", { usage: "diagnosis" });
   poly("polyAddSub-standard-2", "polyAddSub", "standard", "polynomial-calc-08", "(4a − b) − (a − 3b) を計算しましょう。", "3a+2b",
     "2つ目のかっこの符号をすべて反対にして 4a − b − a + 3b。", "かっこを外すと 4a − b − a + 3b。まとめると 3a + 2b です。");
+  // 定着：数日後でも自力で処理できるか。学習時の問題と見た目・数を変える（項の順番・負の式を引く・A − B・小数）
+  poly("polyAddSub-retention-1", "polyAddSub", "retention", null, "−y + 6x − 8 + 9y − x + 11 を計算しましょう。", "5x+8y+3",
+    "項の順番がばらばら。x の項・y の項・数の項に分けて集める。", "x の項は 6x − x = 5x、y の項は −y + 9y = 8y、数は −8 + 11 = 3。5x + 8y + 3 です。", { evidence_level: "basic" });
+  poly("polyAddSub-retention-2", "polyAddSub", "retention", null, "(2m + 7n) − (−3m + 2n) を計算しましょう。", "5m+5n",
+    "負の項を引くと、たし算になる。−(−3m) = +3m。", "2m + 7n + 3m − 2n をまとめると 5m + 5n です。", { evidence_level: "standard" });
+  poly("polyAddSub-retention-3", "polyAddSub", "retention", null, "A = 9p − 4q、B = p − 8q のとき、A − B を計算しましょう。", "8p+4q",
+    "A − B = (9p − 4q) − (p − 8q)。かっこをつけてから計算する。", "9p − 4q − p + 8q をまとめると 8p + 4q です。", { evidence_level: "standard" });
+  poly("polyAddSub-retention-4", "polyAddSub", "retention", null, "−5x + 6y から −5x − 7y をひくと、どんな式になる？", "13y",
+    "(−5x + 6y) − (−5x − 7y)。−5x − (−5x) = 0 で x が消える。", "−5x + 6y + 5x + 7y = 13y。加減法で x を消すときと同じ計算です。", { evidence_level: "basic" });
+  poly("polyAddSub-retention-5", "polyAddSub", "retention", null, "(0.5x + 1.2y) − (0.3x − 0.4y) を計算しましょう。", "0.2x+1.6y",
+    "小数でも同じ。2つ目のかっこの符号を反対にしてから、x と y に分けてまとめる。", "0.5x + 1.2y − 0.3x + 0.4y をまとめると 0.2x + 1.6y です。", { evidence_level: "standard" });
 
   // --- かっこを含む式の計算 ---
   poly("polyMixed-basic-1", "polyMixed", "basic", "polynomial-calc-09", "3(x − 2y) + 4y を計算しましょう。", "3x-2y",

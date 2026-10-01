@@ -261,6 +261,8 @@
       if (!c || !c.pending_skills || !c.pending_skills.length) return;
       var at = Date.parse(x.date);
       if (now - at > 14 * E.DAY) return;
+      // 「次回」のチェックに回す：原因さがしをした当日は、続きのチェックを出さない（同じ日に何度もチェックさせない）
+      if (dateKey(at) === dateKey(now)) return;
       c.pending_skills.forEach(function (skill) {
         if (seen[skill]) return;
         var checkedSince = history.some(function (a) { return a.skill === skill && a.context !== "lesson" && t(a) > at; });
