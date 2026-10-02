@@ -83,7 +83,7 @@ test("学校の進み具合を使う：まだ習っていない単元は、は�
   const L = learner();
   L.add(T0, ["C1", "C2", "C3", "B1"], [c, c, c, c]); // 既習の内容だけ記録がある
   const p = L.plan(T0 + HOUR, { school: { ...SCHOOL, school_status: "notyet" } });
-  const cur = p.sessions.filter((s) => s.type === "current_unit");
+  const cur = p.sessions.filter((s) => s.type === "preview"); // まだ習っていない単元は「先取り」として出す（学校の単元とは分ける）
   assert.ok(cur.length);
   cur.forEach((s) => assert.equal(s.level, "basic"));
   assert.match(p.why, /先取り/);

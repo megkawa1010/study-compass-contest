@@ -92,6 +92,40 @@
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数"];
+
+  // ---------- 学校のようす（どこまで習ったか） ----------
+  // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
+  //            next_test: { date, units }, updated_at }
+  // 子どもは「どこまで進んだ？」でスキルを1つ選ぶだけ。ここで単元のスキル全部の状態に広げる。
+  // current_skill がない「学習中」の単元は、どこまでか分からないので、全部 current（未学習にはしない）。
+  function expandUnit(unit, status, currentSkill) {
+    var list = UNITS[unit] || [], out = {};
+    var at = currentSkill ? list.indexOf(currentSkill) : -1;
+    list.forEach(function (k, i) {
+      if (status === "learned") out[k] = "learned";
+      else if (status === "not_learned") out[k] = "not_learned";
+      else if (at === -1) out[k] = "current";
+      else out[k] = i < at ? "learned" : i === at ? "current" : "not_learned";
+    });
+    return out;
+  }
+  // そのスキルが学校で「習った／いま学習中／まだ」か。学校のようすで管理していない単元（中1・土台）は null（＝習った扱い）
+  function schoolSkillStatus(skill, school) {
+    if (!school || !school.units || !SKILLS[skill]) return null;
+    var u = school.units[SKILLS[skill].unit];
+    if (!u) return null;
+    if (u.skills && u.skills[skill]) return u.skills[skill];
+    return expandUnit(SKILLS[skill].unit, u.status, u.current_skill)[skill] || null;
+  }
+  // 先取りしてよい「次の1スキル」：いまの単元で、学校で学習中のスキルのすぐ次（単元がまだ始まっていなければ最初のスキル）
+  function nextPreviewSkill(school) {
+    if (!school || !school.current_unit || !school.units) return null;
+    var unit = school.current_unit, u = school.units[unit];
+    if (!u || u.status === "learned") return null;
+    var list = UNITS[unit] || [];
+    for (var i = 0; i < list.length; i++) if (schoolSkillStatus(list[i], school) === "not_learned") return list[i];
+    return null;
+  }
   var LEVELS = ["basic", "standard", "application", "retention"];
 
   // ---------- 調整値（ここを変えると理解度の動き方が変わる） ----------
@@ -137,6 +171,8 @@
       correct: r.status === "correct",
       hint_used: !!r.hintUsed,
       unknown_selected: r.status === "unknown",
+      // 学校でまだ習っていないスキルの問題（先取り）。まちがえても理解度の計算に入れない
+      preview: !!r.preview,
       answered_at: new Date(ctx.now).toISOString(),
       self_evaluation: null
     };
@@ -197,6 +233,10 @@
 
   // ひとつのスキルの履歴（古い順）から状態を作る
   function computeOne(skillId, attempts, opts) {
+    // 先取り（学校でまだ習っていないときに解いた問題）のまちがいは、苦手の証拠にしない。
+    // 確かさも下げない。できた先取りは、ふつうの記録として数える
+    var previewMisses = attempts.filter(function (a) { return a.preview && !a.correct; }).length;
+    attempts = attempts.filter(function (a) { return !(a.preview && !a.correct); });
     var byLevel = { basic: [], standard: [], application: [], retention: [] };
     var acc = CONFIG.prior;
     var conf = null;
@@ -295,6 +335,8 @@
       correct_count: correctCount,
       retention_count: retentionPasses,   // 数日後の確認で自力正解した日数
       recent_check_errors: recentErrors,  // 直近3回のチェックの誤答数
+      preview_misses: previewMisses,      // 先取りでまちがえた回数（理解度には入れない）
+      school_status: schoolSkillStatus(skillId, opts.school) || "learned",
       suspected_root_causes: [],
       first_pass_at: firstPassAt === null ? null : new Date(firstPassAt).toISOString(),
       last_checked: last ? last.answered_at : null,
@@ -312,6 +354,10 @@
     var byUnit = opts.schoolProgressByUnit || {};
     var progress = byUnit[unit] || (unit === (opts.currentUnit || "一次関数") ? opts.schoolProgress : null);
     var notYet = progress === "notyet";
+    // 学校のようすで「どこまで」が分かっていれば、スキル単位で判断する（その先のスキルは未学習）
+    var schoolSt = schoolSkillStatus(skillId, opts.school);
+    if (schoolSt === "not_learned") notYet = true;
+    else if (schoolSt === "learned" || schoolSt === "current") notYet = false;
     if (!count) return notYet ? "not_learned" : "not_checked";
     if (retainedOk) return "retained";
     if (levels.application === "pass") return "applying";
@@ -438,7 +484,8 @@
   }
 
   SC.engine = {
-    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
+    SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
+    expandUnit: expandUnit, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot
   };
 })(typeof window !== "undefined" ? window : globalThis);

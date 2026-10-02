@@ -30,6 +30,7 @@
   var TEST_VIEW = /(?:^|[?&])debug=test(?:&|$)/.test(window.location.search.slice(1));
   var PARENT_DEBUG = /(?:^|[?&])debug=parent(?:&|$)/.test(window.location.search.slice(1));
   var MAP_VIEW = /(?:^|[?&])debug=map(?:&|$)/.test(window.location.search.slice(1));
+  var SCHOOL_VIEW = /(?:^|[?&])debug=school(?:&|$)/.test(window.location.search.slice(1));
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -64,7 +65,7 @@
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan", "parent"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan", "parent", "school"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
@@ -225,6 +226,73 @@
     return readFrom(q, draft);
   }
 
+  // ---------- 学校のようす（どこまで習ったか・次のテスト） ----------
+
+  var SCHOOL_STALE_DAYS = 7; // これ以上更新がなければ、ホームで「学校はどこまで進んだ？」と聞く
+  // 「一次関数・変化の割合まで」のような1行
+  function schoolText(s) {
+    s = s || ST.school();
+    var u = s.units[s.current_unit] || {};
+    if (u.status === "not_learned") return s.current_unit + "（まだ始まっていない）";
+    if (u.status === "learned") return s.current_unit + "（習い終わった）";
+    return s.current_unit + (u.current_skill ? "・" + E.SKILLS[u.current_skill].label + "まで" : "（どこまでかは未登録）");
+  }
+  function testDaysText(s) {
+    s = s || ST.school();
+    if (!s.next_test || !s.next_test.date) return "";
+    var left = SC.testprep.daysLeft(s.next_test.date, ST.now());
+    return left > 0 ? "次のテストまで" + left + "日" : left === 0 ? "今日はテスト" : "";
+  }
+  function schoolStale(s) {
+    if (!s.updated_at) return true;
+    return ST.now() - Date.parse(s.updated_at) >= SCHOOL_STALE_DAYS * E.DAY;
+  }
+  // ホームの小さなカード。7日以上更新がないときは「学校はどこまで進んだ？」（強制はしない）
+  function schoolCard() {
+    var s = ST.school();
+    var days = testDaysText(s);
+    if (schoolStale(s) && s.snooze_date !== C.dateKey(ST.now())) {
+      return '<section class="card notice-card school-card"><p class="eyebrow">SCHOOL</p><h2 class="h-sm">学校はどこまで進んだ？</h2>' +
+        '<p class="small">いまの登録：' + esc(schoolText(s)) + (days ? "／" + esc(days) : "") + "</p>" +
+        '<p class="small muted">学校の進み方に合わせて、まだ習っていないところは「苦手」にせず、今日の学習も学校に合わせます。</p>' +
+        '<div class="actions"><button class="primary-button" type="button" data-action="to-school">更新する</button>' +
+        '<button class="secondary-button" type="button" data-action="school-snooze">今日はあとで</button></div></section>';
+    }
+    return '<section class="card school-card compact"><div class="school-line"><span class="eyebrow">学校のようす</span>' +
+      "<strong>" + esc(schoolText(s)) + "</strong>" + (days ? '<span class="small muted">' + esc(days) + "</span>" : "") +
+      '<button class="text-button inline" type="button" data-action="to-school">更新する</button></div></section>';
+  }
+
+  function viewSchool() {
+    var s = ST.school();
+    var dr = state.schoolDraft || (state.schoolDraft = {
+      unit: s.current_unit,
+      skill: s.units[s.current_unit].status === "not_learned" ? "__notyet" : (s.units[s.current_unit].current_skill || ""),
+      testDate: s.next_test ? s.next_test.date : "", testUnits: s.next_test ? s.next_test.units.slice() : [s.current_unit]
+    });
+    var today = SC.testprep.dateKey(ST.now());
+    var options = E.UNITS[dr.unit].map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; })
+      .concat([{ value: "__notyet", label: "この単元はまだ始まっていない" }]);
+    return '<section class="card narrow"><p class="eyebrow">SCHOOL</p><h1 class="h-md">学校のようす</h1>' +
+      '<p class="small muted">学校で今どこをやっているかを教えてね。まだ習っていないところは「苦手」にしないで、今日の学習を学校に合わせます。</p>' +
+      '<div class="form-grid"><label class="field" for="school-unit"><span>学校で今やっている単元</span><select id="school-unit">' +
+        E.SELECTABLE_UNITS.map(function (u) { return "<option" + (u === dr.unit ? " selected" : "") + ">" + esc(u) + "</option>"; }).join("") + "</select></label></div>" +
+      '<fieldset class="status-group"><legend>' + esc(dr.unit) + "は、学校ではどこまで進んだ？</legend>" +
+        options.map(function (o) {
+          return '<label class="radio-chip"><input type="radio" name="school-skill" value="' + esc(o.value) + '"' + (dr.skill === o.value ? " checked" : "") + "><span>" + esc(o.label) + "</span></label>";
+        }).join("") + "</fieldset>" +
+      '<p class="small muted">' + esc(dr.unit) + "より前の単元は「習った」、後の単元は「まだ」として記録します。</p>" +
+      '<fieldset class="status-group"><legend>次のテスト（なければ空のままで大丈夫）</legend>' +
+        '<label class="field" for="school-test-date"><span>テストの日</span><input id="school-test-date" type="date" min="' + today + '" value="' + esc(dr.testDate || "") + '"></label>' +
+        '<p class="small muted">テスト範囲</p>' +
+        E.SELECTABLE_UNITS.map(function (u) {
+          return '<label class="radio-chip"><input type="checkbox" name="school-test-unit" value="' + esc(u) + '"' + (dr.testUnits.indexOf(u) !== -1 ? " checked" : "") + "><span>" + esc(u) + "</span></label>";
+        }).join("") + "</fieldset>" +
+      (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
+      '<button class="primary-button big full" type="button" data-action="save-school">この内容で保存する</button>' +
+      '<button class="text-button" type="button" data-action="home">← ホームにもどる</button></section>';
+  }
+
   // ---------- 画面 ----------
 
   function viewHome() {
@@ -232,7 +300,7 @@
     var last = sessions[sessions.length - 1];
     // 記録があれば、ホームの中心は「今日の学習」。はじめての人には、まずコンパスチェック
     var hasRecords = ST.get().answer_history.length > 0;
-    return (hasRecords ? todayCard(buildToday()) : "") + compassNotice() +
+    return (hasRecords ? todayCard(buildToday()) : "") + compassNotice() + (hasRecords ? schoolCard() : "") +
       '<section class="hero' + (hasRecords ? " hero-sub" : "") + '">' +
         '<div class="hero-copy">' +
           '<p class="eyebrow">STUDY COMPASS</p>' +
@@ -275,7 +343,7 @@
 
   function compassInput() {
     var d = ST.get();
-    return { states: d.skill_state, history: d.answer_history, sessions: d.sessions, explorations: d.explorations, now: ST.now(), snoozeDate: ST.snoozeDate() };
+    return { states: d.skill_state, history: d.answer_history, sessions: d.sessions, explorations: d.explorations, now: ST.now(), snoozeDate: ST.snoozeDate(), school: ST.school() };
   }
 
   // 定期コンパスチェックのお知らせ。強制はしない（今チェックする / 今日はあとで）
@@ -318,6 +386,7 @@
         '<a class="secondary-button link-button" href="./?debug=plan">今日の学習の確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=parent">保護者向けの根拠</a>' +
         '<a class="secondary-button link-button" href="./?debug=map">学習マップ</a>' +
+        '<a class="secondary-button link-button" href="./?debug=school">学校のようす</a>' +
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
       "</div></section>";
@@ -854,7 +923,8 @@
         '<div><span>学習した日</span><strong>' + w.active_days + ' 日</strong><small>この7日間</small></div>' +
         '<div><span>学習の目安</span><strong>' + w.minutes + ' 分</strong><small>予定時間の合計</small></div>' +
         '<div><span>いまの単元</span><strong>' + esc(w.unit) + "</strong><small>学校：" + ({ done: "習った", learning: "学習中", notyet: "これから" }[w.school_status] || "") + "</small></div>" +
-      "</div></section>" +
+      "</div>" +
+      '<p class="small pr-school">学校の進度：「' + esc(schoolText()) + "」" + (testDaysText() ? "　" + esc(testDaysText()) : "") + "</p></section>" +
       '<section class="card"><h2 class="h-sm">最近できるようになったこと</h2>' + growth + "</section>" +
       (r.focus ? '<section class="card"><h2 class="h-sm">いま確認しているところ</h2><p class="pr-focus">「' + esc(r.focus.label) + "」</p><p>" + esc(r.focus.why) + "</p></section>" : "") +
       '<section class="card"><h2 class="h-sm">つまずきの可能性</h2>' + stumbles + "</section>" +
@@ -863,6 +933,55 @@
         r.map.map(function (m) { return '<li><span class="pr-mark">' + m.mark + "</span><strong>" + esc(m.label) + unitTag(m.skill) + "</strong><span class=\"muted small\">" + esc(m.word) + "</span></li>"; }).join("") + "</ul></section>" +
       '<p class="small muted center">このページでは、毎回の正誤や点数、ほかの子との比較は表示しません。</p>' +
       '<button class="text-button" type="button" data-action="home">← ホームにもどる</button>';
+  }
+
+  // ---------- 学校のようすの確認ページ（?debug=school） ----------
+
+  function viewSchoolDebug() {
+    var s = ST.school(), states = ST.get().skill_state;
+    var S = E.SKILLS, MARK = { learned: "習った", current: "学習中", not_learned: "まだ" };
+    function list(ks) { return ks.length ? ks.map(function (k) { return S[k].label; }).join("、") : "−"; }
+    var all = [], byStatus = { learned: [], current: [], not_learned: [] };
+    E.SELECTABLE_UNITS.forEach(function (u) { E.UNITS[u].forEach(function (k) { all.push(k); byStatus[E.schoolSkillStatus(k, s)].push(k); }); });
+    var preview = E.nextPreviewSkill(s);
+    var unitRows = E.SELECTABLE_UNITS.map(function (u) {
+      var x = s.units[u];
+      return "<tr><td>" + esc(u) + (u === s.current_unit ? "（いま）" : "") + "</td><td>" + esc(x.status) + "</td><td>" + esc(x.current_skill ? S[x.current_skill].label : "−") + "</td><td>" +
+        E.UNITS[u].map(function (k) { return esc(S[k].label) + "：" + MARK[x.skills[k]]; }).join("<br>") + "</td></tr>";
+    }).join("");
+    var stateRows = byStatus.not_learned.map(function (k) {
+      var st = states[k] || {};
+      return "<tr><td>" + esc(S[k].label) + (k === preview ? "（先取り候補）" : "") + "</td><td>" + esc(st.learning_status || "−") + "</td><td>" + (st.confidence !== undefined ? st.confidence.toFixed(2) : "−") +
+        "</td><td>" + (st.preview_misses || 0) + "</td></tr>";
+    }).join("");
+    var hasRecords = ST.get().answer_history.length > 0;
+    var plan = hasRecords ? buildToday(true) : null;
+    var schoolSessions = plan && plan.sessions ? plan.sessions.filter(function (x) { return x.type === "current_unit" || x.type === "preview"; }) : [];
+    var dbg = plan && plan.debug ? plan.debug : null;
+    var nt = s.next_test;
+    var since = s.updated_at ? Math.floor((ST.now() - Date.parse(s.updated_at)) / E.DAY) : null;
+    return '<section class="card"><p class="eyebrow">DEBUG / SCHOOL</p><h1 class="h-md">学校のようす</h1>' +
+      '<p class="small muted">アプリ内の日付：' + esc(new Date(ST.now()).toLocaleString("ja-JP")) + "／表示：「" + esc(schoolText(s)) + "」" + (testDaysText(s) ? "／" + esc(testDaysText(s)) : "") + "</p>" +
+      '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">いまの登録</h2><ul class="small debug-log">' +
+        "<li>current_unit：" + esc(s.current_unit) + "</li>" +
+        "<li>updated_at：" + esc(s.updated_at || "（未登録）") + (since !== null ? "（" + since + "日前）" : "") + "／更新のお知らせ：" + (schoolStale(s) ? (s.snooze_date === C.dateKey(ST.now()) ? "今日はあとで" : "表示する") : "表示しない（" + SCHOOL_STALE_DAYS + "日未満）") + "</li>" +
+        "<li>次のテスト：" + (nt ? esc(nt.date) + "／範囲 " + esc(nt.units.join("・")) + "／" + esc(testDaysText(s) || "終わった") : "なし") + "</li></ul>" +
+        '<div class="table-wrap"><table><thead><tr><th>単元</th><th>status</th><th>current_skill</th><th>スキルごと</th></tr></thead><tbody>' + unitRows + "</tbody></table></div></section>" +
+      '<section class="card"><h2 class="h-sm">スキル単位</h2><ul class="small debug-log">' +
+        "<li>習った（learned）：" + esc(list(byStatus.learned)) + "</li>" +
+        "<li>学習中（current）：" + esc(list(byStatus.current)) + "</li>" +
+        "<li>まだ（not_learned）：" + esc(list(byStatus.not_learned)) + "</li>" +
+        "<li>先取りしてよい次のスキル：" + esc(preview ? S[preview].label : "なし") + "</li></ul>" +
+        '<p class="small muted">まだ習っていないスキル：苦手にしない・確かさを下げない（先取りのまちがいは理解度の計算に入れない）・定期チェックと原因さがしの対象にしない。</p>' +
+        (stateRows ? '<div class="table-wrap"><table><thead><tr><th>まだのスキル</th><th>learning_status</th><th>確かさ</th><th>先取りでまちがえた回数（計算に入れない）</th></tr></thead><tbody>' + stateRows + "</tbody></table></div>" : "") + "</section>" +
+      '<section class="card"><h2 class="h-sm">今日の学習の「学校」の枠</h2>' +
+        (plan ? (schoolSessions.length ? '<ul class="small debug-log">' + schoolSessions.map(function (x) {
+          return "<li>" + esc(x.type_label) + "：" + esc(x.skill_label) + "（" + esc(x.level_label) + "）" + x.minutes + "分・" + x.questions.length + "問／" + esc(x.why) + "</li>";
+        }).join("") + "</ul>" : '<p class="small muted">今日の学習には、学校の単元・先取りの枠が入っていません（つまずきの補強などが優先）。</p>') +
+          (dbg && dbg.school ? '<ul class="small debug-log"><li>学校の単元の候補（習った）：' + esc(list(dbg.school.learned)) + "</li><li>学校の単元の候補（学習中）：" + esc(list(dbg.school.current)) +
+            "</li><li>先取り：" + esc(dbg.school.preview ? S[dbg.school.preview].label : "なし") + "</li><li>除外した未学習スキル：" + esc(list(dbg.school.excluded_not_learned)) + "</li></ul>" : "")
+          : '<p class="small muted">まだ記録がないので、今日の学習は作っていません。</p>') + "</section>";
   }
 
   // ---------- 学習マップの確認ページ（?debug=map） ----------
@@ -1150,12 +1269,12 @@
   var lastScreenKey = "";
   var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult,
     daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); },
-    testSetup: viewTestSetup, testPlan: viewTestPlan, parent: viewParent };
+    testSetup: viewTestSetup, testPlan: viewTestPlan, parent: viewParent, school: viewSchool };
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : viewParentDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW) {
+      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1267,7 +1386,7 @@
       if (q && q.type !== "steps") known[q.skill] = state.answers[qid].status === "correct";
     });
     return {
-      states: d.skill_state, now: ST.now(), budgetLeft: state.probeBudget, known: known,
+      states: d.skill_state, now: ST.now(), budgetLeft: state.probeBudget, known: known, school: ST.school(),
       pickQuestion: function (skill) {
         var r = C.pickProbe({ history: d.answer_history, sessions: d.sessions, now: ST.now() }, skill, state.queue);
         return r ? r.question_id : null;
@@ -1293,6 +1412,7 @@
   // q をまちがえたので、skill から原因をさがしはじめる。seeds は、すでに問題の列に並んでいる原因確認問題
   function startTrail(q, skill, seeds) {
     if (state.trails.some(function (t) { return t.symptom.skill === skill; })) return; // 同じスキルは1本だけ
+    if (ST.schoolSkillStatus(skill) === "not_learned") return; // 学校でまだ習っていないところは、原因さがしをしない（未学習は苦手ではない）
     var trail = R.start({ question: q, skill: skill, seeds: seeds || [], now: ST.now() });
     state.trails.push(trail);
     var ti = state.trails.length - 1;
@@ -1515,6 +1635,10 @@
     var today = SC.testprep.dateKey(ST.now());
     // テスト範囲は単元ごとに選ぶ（中2：連立方程式・一次関数）。いま学校で学習中の単元にはじめから印を付ける
     var cur = ST.currentUnit();
+    // 学校のようすで登録した次のテスト（日付・範囲）を初期値にする。ここで変えてもよい
+    var nt = ST.school().next_test;
+    var ntOk = nt && nt.date && SC.testprep.daysLeft(nt.date, ST.now()) >= 0;
+    var defUnits = ntOk && nt.units && nt.units.length ? nt.units : [cur];
     var rangeUnits = SC.testprep.RANGE_UNITS;
     var inUnits = [];
     rangeUnits.forEach(function (u) { inUnits = inUnits.concat(SC.testprep.unitSkills(u)); });
@@ -1525,12 +1649,13 @@
     var unitSets = rangeUnits.map(function (u) {
       return '<fieldset class="status-group"><legend>テスト範囲（' + esc(u) + "）" +
         '<button type="button" class="text-button inline" data-action="toggle-range" data-unit="' + esc(u) + '">まとめて選ぶ／外す</button></legend>' +
-        SC.testprep.unitSkills(u).map(function (k) { return box(k, u === cur); }).join("") + "</fieldset>";
+        SC.testprep.unitSkills(u).map(function (k) { return box(k, defUnits.indexOf(u) !== -1); }).join("") + "</fieldset>";
     }).join("");
     return '<section class="card narrow">' +
       '<p class="eyebrow">TEST</p><h1 class="h-md">テストの予定を入れよう</h1>' +
       '<p class="small muted">テストの日と範囲から、残りの日の計画を作ります。いつもの学習データをそのまま使います。</p>' +
-      '<div class="form-grid"><label class="field" for="test-date"><span>テストの日</span><input id="test-date" type="date" min="' + today + '"></label></div>' +
+      '<div class="form-grid"><label class="field" for="test-date"><span>テストの日</span><input id="test-date" type="date" min="' + today + '" value="' + (ntOk ? esc(nt.date) : "") + '"></label></div>' +
+      (ntOk ? '<p class="small muted">「学校のようす」で登録したテストの日と範囲を入れてあります。変えてもかまいません。</p>' : "") +
       unitSets +
       '<fieldset class="status-group"><legend>前の学年までの内容も入れる（必要なら）</legend>' + base.map(function (k) { return box(k, false); }).join("") + "</fieldset>" +
       '<p class="small muted">1日の学習時間</p>' +
@@ -1608,6 +1733,7 @@
         '<h1 class="h-md">' + esc(sess.type_label) + '<span class="min-tag">' + sess.minutes + "分</span></h1>" +
         '<p class="muted small">' + esc(sess.skill_label) + "（" + esc(sess.level_label) + "）・" + (d.qi + 1) + " / " + sess.questions.length + " 問目</p>" +
         intro +
+        (sess.type === "preview" ? '<p class="preview-note">先取り：学校でこれから習うところです。まちがえても「苦手」にはなりません。</p>' : "") +
         '<div class="practice">' +
           '<p class="practice-label">やってみよう</p>' +
           '<p class="question small-q">' + esc(q.text) + "</p>" + SC.figures.render(q.figure) +
@@ -1615,7 +1741,7 @@
             ? feedbackBlock(res === "correct" ? "correct" : "revealed", { explain: q.explanation || q.explain || "" })
             : '<form class="answer-form" data-form="daily" novalidate>' + inputFields(q, "d") +
                 (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
-                (res === "tried" ? '<div class="soft-feedback"><strong>おしい！ここはもう少し確認してみよう。</strong><p>ヒント：' + esc(q.hint) + "</p></div>" : "") +
+                (res === "tried" ? '<div class="soft-feedback"><strong>' + (sess.type === "preview" ? "まだ習っていない内容に挑戦しました。今はできなくても大丈夫。" : "おしい！ここはもう少し確認してみよう。") + "</strong><p>ヒント：" + esc(q.hint) + "</p></div>" : "") +
                 (state.hintOpen && res !== "tried" ? '<div class="hint"><strong>ヒント</strong><p>' + esc(q.hint) + "</p></div>" : "") +
                 '<div class="actions"><button class="primary-button" type="submit">答える</button>' +
                   (res === "tried" ? '<button class="secondary-button" type="button" data-action="daily-reveal">答えと考え方を見る</button>'
@@ -1776,6 +1902,18 @@
 
   app.addEventListener("change", function (e) {
     if (e.target.name === "study-status") state.setup.status = e.target.value;
+    // 学校のようす：単元を変えたら、その単元の「どこまで」を出しなおす
+    if (e.target.id === "school-unit") {
+      var sc = ST.school(), u = e.target.value;
+      state.schoolDraft.unit = u;
+      state.schoolDraft.skill = sc.units[u].status === "not_learned" ? "__notyet" : (sc.units[u].current_skill || "");
+      render();
+    }
+    if (e.target.name === "school-skill") state.schoolDraft.skill = e.target.value;
+    if (e.target.id === "school-test-date") state.schoolDraft.testDate = e.target.value;
+    if (e.target.name === "school-test-unit") {
+      state.schoolDraft.testUnits = [].slice.call(document.querySelectorAll('input[name="school-test-unit"]:checked')).map(function (i) { return i.value; });
+    }
     if (e.target.id === "unit") {
       // 単元を変えたら、その単元の「習った／途中／まだ」を前回の答えから出しなおす
       state.setup.unit = e.target.value;
@@ -1796,7 +1934,7 @@
       go("check");
       return;
     }
-    startPeriodic(C.unitCheck(unit), "unit_check"); // state を作り直すので、選んだ単元を入れなおす
+    startPeriodic(C.unitCheck(unit, ST.school()), "unit_check"); // state を作り直すので、選んだ単元を入れなおす
     state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status };
     render();
   }
@@ -1862,6 +2000,22 @@
         })();
         break;
       case "to-test-setup": message = ""; go("testSetup"); break;
+      case "to-school": state.schoolDraft = null; message = ""; go("school"); break;
+      case "school-snooze": ST.setSchoolSnooze(C.dateKey(ST.now())); render(); break;
+      case "save-school":
+        (function () {
+          var dr = state.schoolDraft;
+          if (!dr.skill) { message = "どこまで進んだかを1つ選んでね。"; render(); return; }
+          if (dr.testDate && SC.testprep.daysLeft(dr.testDate, ST.now()) < 0) { message = "テストの日は、今日より後の日を選んでね。"; render(); return; }
+          if (dr.testDate && !dr.testUnits.length) { message = "テスト範囲の単元を1つ以上選んでね。"; render(); return; }
+          var notyet = dr.skill === "__notyet";
+          ST.setSchool(dr.unit, notyet ? null : dr.skill, { unitStatus: notyet ? "not_learned" : "learning",
+            nextTest: dr.testDate ? { date: dr.testDate, units: dr.testUnits.slice() } : null });
+          state.schoolDraft = null;
+          todayCache = null;
+          go("home");
+        })();
+        break;
       case "toggle-range":
         (function () {
           var ks = SC.testprep.unitSkills(el.getAttribute("data-unit"));

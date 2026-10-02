@@ -88,7 +88,7 @@
   }
 
   // ---------- 次に確かめること ----------
-  // ctx: { states, now, budgetLeft, pickQuestion(skill) → 問題ID | null,
+  // ctx: { states, now, budgetLeft, school（学校のようす）, pickQuestion(skill) → 問題ID | null,
   //        known: { スキル: true/false }（同じチェックの中ですでにわかっている結果） }
   // 返り値：{ skill, question_id, purpose, seed } または null（このとき trail は結論まで進む）
   function next(trail, ctx) {
@@ -109,6 +109,12 @@
       for (var i = 0; i < cands.length; i++) {
         var p = cands[i];
         // 同じチェックの中ですでに結果がわかっているスキルは、問題を出さずにその結果を使う
+        // 学校でまだ習っていない前提は、原因さがしの対象にしない（未学習は苦手ではない）
+        if (E.schoolSkillStatus(p, ctx.school) === "not_learned") {
+          trail.tested[p] = "not_learned";
+          trail.log.push("「" + label(p) + "」は学校でまだ習っていないので、確かめない");
+          continue;
+        }
         var known = ctx.known ? ctx.known[p] : undefined;
         if (known === true) {
           trail.tested[p] = true;

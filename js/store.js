@@ -114,24 +114,91 @@
     return Date.now() + off * E.DAY;
   }
 
-  // 学校でいま学習中の単元（初期設定で選ぶ。既定：一次関数）
-  function currentUnit() { return get().profile.current_unit || "一次関数"; }
-  function setCurrentUnit(unit) { get().profile.current_unit = unit; persist(); }
+  // ---------- 学校のようす（profile.school） ----------
+  // { current_unit, units: { 単元: { status, current_skill, skills } }, next_test: { date, units }, updated_at, snooze_date }
+  // 以前の形（profile.current_unit・profile.school_progress = { 単元: done/learning/notyet }）も、同じ内容で書いておく
+  var TO_OLD = { learned: "done", learning: "learning", not_learned: "notyet" };
+  var FROM_OLD = { done: "learned", learning: "learning", notyet: "not_learned" };
+  var UNIT_ORDER = E.SELECTABLE_UNITS; // 中2で学校が進む順（式の計算 → 連立方程式 → 一次関数）
 
-  // 単元ごとの進み具合。まだ答えていない単元は「学習中」とみなす（苦手・未学習とは決めない）
-  function schoolProgress(unit) { return get().profile.school_progress[unit || currentUnit()] || "learning"; }
+  // 以前のデータから作る。答えていない単元は、いまの単元より前なら「習った」、後なら「まだ」
+  function schoolFromOld(p) {
+    var cur = p.current_unit || "一次関数", at = UNIT_ORDER.indexOf(cur), units = {};
+    UNIT_ORDER.forEach(function (u, i) {
+      var old = p.school_progress && p.school_progress[u];
+      var status = old ? FROM_OLD[old] : i < at ? "learned" : i === at ? "learning" : "not_learned";
+      units[u] = { status: status, current_skill: null };
+    });
+    return { current_unit: cur, units: units, next_test: null, updated_at: null, snooze_date: null };
+  }
+  function normalizeSchool(s) {
+    UNIT_ORDER.forEach(function (u) {
+      var x = s.units[u] = s.units[u] || { status: "not_learned", current_skill: null };
+      x.skills = E.expandUnit(u, x.status, x.status === "learning" ? x.current_skill : null);
+    });
+    return s;
+  }
+  function school() {
+    var p = get().profile;
+    if (!p.school) { p.school = normalizeSchool(schoolFromOld(p)); persist(); }
+    return p.school;
+  }
+  // 古い形にも書きもどす（既存の処理・以前のデータとの互換のため）
+  function syncOld() {
+    var p = get().profile, s = school();
+    p.current_unit = s.current_unit;
+    UNIT_ORDER.forEach(function (u) { p.school_progress[u] = TO_OLD[s.units[u].status]; });
+  }
+  // 学校のようすを更新する。unit：いまの単元、currentSkill：「どこまで進んだ？」で選んだスキル（なければ単元の中は分からない）
+  // 前の単元は「習った」、後の単元は「まだ」に、ふつうは自動でそろえる（opts.keepOthers なら変えない）
+  function setSchool(unit, currentSkill, opts) {
+    opts = opts || {};
+    var s = school(), at = UNIT_ORDER.indexOf(unit);
+    s.current_unit = unit;
+    UNIT_ORDER.forEach(function (u, i) {
+      var x = s.units[u];
+      if (u === unit) { x.status = opts.unitStatus || "learning"; x.current_skill = x.status === "learning" ? (currentSkill || null) : null; }
+      else if (!opts.keepOthers) { x.status = i < at ? "learned" : "not_learned"; x.current_skill = null; }
+    });
+    if (opts.nextTest !== undefined) s.next_test = opts.nextTest;
+    s.updated_at = new Date(now()).toISOString();
+    s.snooze_date = null;
+    normalizeSchool(s);
+    syncOld();
+    recompute();
+    return s;
+  }
+  function setSchoolSnooze(dateKey) { school().snooze_date = dateKey; persist(); }
+  function schoolSkillStatus(skill) { return E.schoolSkillStatus(skill, school()); }
+
+  // 学校でいま学習中の単元
+  function currentUnit() { return (get().profile.school && get().profile.school.current_unit) || get().profile.current_unit || "一次関数"; }
+  function setCurrentUnit(unit) {
+    var s = school();
+    if (s.current_unit !== unit) setSchool(unit, null, { unitStatus: s.units[unit] ? s.units[unit].status === "learned" ? "learned" : "learning" : "learning" });
+    else { get().profile.current_unit = unit; persist(); }
+  }
+
+  // 単元ごとの進み具合（以前の形：done / learning / notyet）
+  function schoolProgress(unit) {
+    var s = school(), u = s.units[unit || currentUnit()];
+    if (u) return TO_OLD[u.status];
+    return get().profile.school_progress[unit || currentUnit()] || "learning";
+  }
 
   function recompute() {
     var d = get();
     d.skill_state = E.computeSkillStates(d.answer_history, {
-      schoolProgressByUnit: d.profile.school_progress, currentUnit: currentUnit(), schoolProgress: schoolProgress(), now: now() });
+      schoolProgressByUnit: d.profile.school_progress, currentUnit: currentUnit(), schoolProgress: schoolProgress(), school: school(), now: now() });
     persist();
     return d.skill_state;
   }
 
+  // 初期設定の「習った／途中／まだ」から（単元の中のどこまでかは、あとで「学校のようす」で）
   function setSchoolProgress(unit, value) {
+    var s = school(), keep = s.units[unit] && s.units[unit].status === FROM_OLD[value] ? s.units[unit].current_skill : null;
     get().profile.school_progress[unit] = value;
-    recompute();
+    setSchool(unit, keep, { unitStatus: FROM_OLD[value] || "learning" });
   }
 
   function startSession(type, unit) {
@@ -150,7 +217,10 @@
 
   function addAnswer(q, result, ctx) {
     var d = get();
-    var rec = E.makeAnswerRecord(q, result, { userId: d.user_id, sessionId: ctx.sessionId, context: ctx.context, now: now() });
+    // 学校でまだ習っていないスキルの問題は「先取り」として記録する（まちがえても理解度に入れない）
+    var r2 = {}; for (var k in result) r2[k] = result[k];
+    if (schoolSkillStatus(q.skill) === "not_learned") r2.preview = true;
+    var rec = E.makeAnswerRecord(q, r2, { userId: d.user_id, sessionId: ctx.sessionId, context: ctx.context, now: now() });
     d.answer_history.push(rec);
     var s = ctx.sessionId && session(ctx.sessionId);
     if (s && ctx.context !== "lesson" && s.question_ids.indexOf(q.id) === -1) s.question_ids.push(q.id);
@@ -256,7 +326,8 @@
   function schoolProgressInfo(unit) {
     unit = unit || currentUnit();
     return { grade: "中2", subject: "数学", current_unit: unit, school_status: schoolProgress(unit),
-      by_unit: JSON.parse(JSON.stringify(get().profile.school_progress)) };
+      by_unit: JSON.parse(JSON.stringify(get().profile.school_progress)),
+      detail: JSON.parse(JSON.stringify(school())) }; // スキル単位の「習った／学習中／まだ」と次のテスト
   }
   // 作ったプランと、その結果（問題ごとの正誤・ふり返り）
   function addPlan(plan) {
@@ -296,6 +367,7 @@
   SC.store = {
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
     schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress, currentUnit: currentUnit, setCurrentUnit: setCurrentUnit,
+    school: school, setSchool: setSchool, setSchoolSnooze: setSchoolSnooze, schoolSkillStatus: schoolSkillStatus,
     startSession: startSession, session: session, addAnswer: addAnswer, finishSession: finishSession,
     setSelfEvaluation: setSelfEvaluation, previousSnapshot: previousSnapshot, finishedSessions: finishedSessions,
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,

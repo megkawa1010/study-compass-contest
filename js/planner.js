@@ -34,7 +34,7 @@
   var GOALS = { daily_learning: "いつもの勉強", catch_up: "苦手を戻る", review: "復習", challenge: "もう少し先へ" };
   // テスト対策はホームの目標ボタンには出さず、テストの予定を入れたときだけ使う
   var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
-  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で" };
+  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り" };
   var LEVEL_JA = { basic: "基礎", standard: "標準", application: "応用", retention: "定着の確認" };
   var UNIT_SKILLS = E.UNITS; // 単元ごとのスキル（js/engine.js で一元管理）
   var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
@@ -74,6 +74,11 @@
     var log = [];
 
     function st(k) { return states[k] || { attempt_count: 0, learning_status: "not_checked" }; }
+    // 学校のようす（スキル単位）。学校でまだ習っていないスキルは、先取りの1スキルを除いて候補にしない
+    var detail = school.detail || null;
+    function schoolSt(k) { return E.schoolSkillStatus(k, detail); }
+    function notLearned(k) { return schoolSt(k) === "not_learned"; }
+    var previewSkill = E.nextPreviewSkill(detail);
     function weak(k) { var s = st(k); return s.learning_status === "needs_review" || s.learning_status === "learning"; }
     function rank(k) { return RANK[st(k).learning_status] || 0; }
 
@@ -119,6 +124,7 @@
     });
     ROOT_ORDER.forEach(function (k) {
       if (!fromExpl[k] && !weak(k)) return;
+      if (notLearned(k)) return; // まだ習っていないところは、つまずきの補強にしない
       var lv = nextLevel(k, ["basic", "standard"]);
       if (!lv) {
         excluded.push({ skill: k, why: "つまずきの補強は、最近の練習で基礎・標準ともできている" });
@@ -130,7 +136,22 @@
 
     // --- 優先度2：学校で学習中の単元 ---
     var status = school.school_status || "learning";
+    var schoolLog = { learned: [], current: [], preview: null, excluded_not_learned: [] };
     unitSkills.forEach(function (k) {
+      if (detail) {
+        var ss = schoolSt(k);
+        if (ss === "not_learned") {
+          // 次の1スキルだけ「先取り」。それより先は今日は扱わない
+          if (k === previewSkill) { p2.push({ skill: k, level: "basic", preview: true }); schoolLog.preview = k; }
+          else { excluded.push({ skill: k, why: "学校でまだ習っていない（先取りは次の1スキルまで）" }); schoolLog.excluded_not_learned.push(k); }
+          return;
+        }
+        (ss === "current" ? schoolLog.current : schoolLog.learned).push(k);
+        var lv0 = nextLevel(k, ["basic", "standard", "application"]);
+        if (!lv0) { excluded.push({ skill: k, why: "学校の単元のスキルだが、基礎・標準・応用ともできている" }); return; }
+        p2.push({ skill: k, level: lv0, school: ss });
+        return;
+      }
       if (status === "notyet") {
         // まだ習っていない単元は「先取り」。最初の方のスキルの基礎だけ
         if (rank(k) < 3) p2.push({ skill: k, level: "basic", preview: true });
@@ -140,12 +161,12 @@
       if (!lv) { excluded.push({ skill: k, why: "学校の単元のスキルだが、基礎・標準・応用ともできている" }); return; }
       p2.push({ skill: k, level: lv });
     });
-    if (status === "notyet") p2 = p2.slice(0, 2);
+    if (status === "notyet" && !detail) p2 = p2.slice(0, 2);
 
     // --- 優先度3：定着の確認 ---
     E.SKILL_ORDER.forEach(function (k) {
       var s = st(k);
-      if (!s.attempt_count || !s.first_pass_at) return;
+      if (!s.attempt_count || !s.first_pass_at || notLearned(k)) return;
       // まだ標準・応用に「要確認」があるスキルは、定着の確認より先にそこを確かめる
       if (weak(k) || s.standard === "needs_review" || s.application === "needs_review") return;
       var since = now - Date.parse(s.first_pass_at);
@@ -157,7 +178,7 @@
 
     // --- 優先度4：得意の発展（できているスキルを、標準・応用へ） ---
     E.SKILL_ORDER.forEach(function (k) {
-      if (weak(k) || rank(k) < 3) return;
+      if (weak(k) || rank(k) < 3 || notLearned(k)) return;
       var lv = nextLevel(k, ["standard", "application"]);
       if (!lv) return;
       if (E.SKILLS[k].unit === "既習") return; // 既習スキルは標準・応用の問題を持たない
@@ -190,7 +211,7 @@
     });
 
     return { p1: p1, p2: p2, p3: p3, p4: p4, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills,
-      nextLevel: nextLevel, test: test || null };
+      nextLevel: nextLevel, test: test || null, school: schoolLog, previewSkill: previewSkill };
   }
 
   // スキル k が、前提をたどると r にたどりつくか
@@ -209,6 +230,8 @@
       for (var i = 0; i < list.length; i++) {
         var c = list[i];
         if (allowSameSkill ? used(c.skill, c.level) : used(c.skill)) continue;
+        // 学校でまだ習っていない次の1スキルは「先取り」としてはっきり分ける
+        if (c.preview) return { skill: c.skill, level: "basic", type: "preview", why: "学校でこれから習う内容を、少しだけ先取り（まちがえても苦手にはしない）", meta: c };
         return { skill: c.skill, level: c.level, type: type, why: why(c), meta: c };
       }
       return null;
@@ -268,7 +291,8 @@
       }
       case "advance":
         return first(a.p4, "challenge", function (c) { return "「" + label(c.skill) + "」はできているので、" + LEVEL_JA[c.level] + "へ"; }) ||
-          first(a.p2.filter(function (c) { return c.level !== "basic"; }), "challenge", function () { return "学校の単元を一段上へ"; });
+          first(a.p2.filter(function (c) { return c.level !== "basic" && !c.preview; }), "challenge", function () { return "学校の単元を一段上へ"; }) ||
+          first(a.p2.filter(function (c) { return c.preview; }), "preview", function () { return ""; });
       case "review":
         return first(a.p3, "review", function (c) { return "定着の確認（" + c.why + "）"; }) ||
           first(a.p4.map(function (c) { return { skill: c.skill, level: "standard" === c.level ? "basic" : "standard" }; }), "review", function () { return "できているところの復習"; });
@@ -404,7 +428,7 @@
         picks.push(p);
         if (SC.QUESTIONS[p.question_id].type === "steps") i++; // 小問つきの応用は2問分と数える
       }
-      var intro = (c.type === "practice" || c.type === "current_unit" || c.type === "challenge") && SC.logic ? SC.logic.lessonIntro(c.skill, c.level) : null;
+      var intro = (c.type === "practice" || c.type === "current_unit" || c.type === "challenge" || c.type === "preview") && SC.logic ? SC.logic.lessonIntro(c.skill, c.level) : null;
       return {
         minutes: c.minutes, type: c.type, type_label: TYPE_LABEL[c.type], role: c.role,
         skill: c.skill, skill_label: label(c.skill), level: c.level, level_label: LEVEL_JA[c.level],
@@ -441,7 +465,7 @@
     plan.cross = crossText(plan, focusS);
     plan.reason = reasonText(a, plan, focusS);
     plan.why = input.test ? testWhy(a, plan, input.test) : whyText(a, plan, goal);
-    plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: TEMPLATES[minutes], log: log };
+    plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: TEMPLATES[minutes], log: log, school: a.school, preview_skill: a.previewSkill };
     return plan;
   }
 
@@ -501,6 +525,7 @@
     if (s.type === "practice") return s.level === "standard" ? s.skill_label + "を、形が変わっても使えるようになる" : (SC.logic && SC.logic.planCross(s.skill)) || s.skill_label + "を使えるようになる";
     if (s.type === "challenge") return s.skill_label + "を" + (s.level === "application" ? "組み合わせて使えるようになる" : "形が変わっても使えるようになる");
     if (s.type === "review" || s.type === "check") return "前にできたところを、忘れないようにする";
+    if (s.type === "preview") return "学校でこれから習う" + s.skill_label + "を、少しのぞいてみる";
     if (s.type === "test") return s.skill_label + "を、テストに出る形でも使えるようにする";
     return s.skill_label + "の" + LEVEL_JA[s.level] + "を越える";
   }
@@ -544,6 +569,7 @@
     var practice = practices[0];
     var current = s.filter(function (x) { return x.type === "current_unit"; })[0];
     var challenge = s.filter(function (x) { return x.type === "challenge"; })[0];
+    var preview = s.filter(function (x) { return x.type === "preview"; })[0];
     var review = s.filter(function (x) { return x.type === "review" && x.level === "retention"; })[0];
     if (practice) {
       var c = a.p1.filter(function (x) { return x.skill === practice.skill; })[0] || {};
@@ -565,6 +591,7 @@
         ? "「" + (plan.school_progress.current_unit || "一次関数") + "」は学校でこれから習うところなので、はじめの部分を少しだけ先取りします。"
         : "学校で習っている「" + current.skill_label + "」を、" + current.level_label + "の問題で進めます。");
     }
+    if (preview) lines.push("学校でこれから習う「" + preview.skill_label + "」を、少しだけ先取りします。まだ習っていない内容なので、できなくても大丈夫です。");
     if (challenge) lines.push("「" + challenge.skill_label + "」はよくできているので、" + (challenge.level === "application" ? "文章題などの応用" : "形を変えた問題") + "にも挑戦します。");
     if (review) lines.push("前にできた「" + review.skill_label + "」を、忘れていないか少しだけ確かめます。");
     if (!lines.length) lines.push("今日の一歩を、少しずつ進めていこう。");

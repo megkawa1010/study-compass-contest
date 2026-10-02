@@ -157,6 +157,8 @@
       var due = dueOf(s, act, now);
       var entry = { skill: skill, label: E.SKILLS[skill].label, order: order, confidence: s ? s.confidence : 0,
         status: s ? s.learning_status : "not_checked", due: due, reasons: [], priority: null };
+      // 学校でまだ習っていないスキルは、定期チェックに出さない（未学習は苦手ではない）
+      if (E.schoolSkillStatus(skill, input.school) === "not_learned") { entry.why_not = "学校でまだ習っていない"; notDue.push(entry); return; }
       if (!due) { entry.why_not = s && s.learning_status === "not_learned" ? "未学習" : "まだ記録がない"; notDue.push(entry); return; }
       if (!due.byDays && !due.byAttempts) {
         entry.why_not = "前回の確認から" + CONFIG.COMPASS_CHECK_DAYS + "日たっておらず、練習も" + CONFIG.COMPASS_CHECK_MIN_ATTEMPTS + "問未満";
@@ -182,6 +184,7 @@
     });
     // 前回の原因さがしで確かめきれなかった前提スキルは、発生条件に関係なく最優先で確かめる
     pendingFromExplorations(input.explorations, history, now).forEach(function (p) {
+      if (E.schoolSkillStatus(p.skill, input.school) === "not_learned") return;
       var s = states[p.skill];
       var existing = candidates.filter(function (c) { return c.skill === p.skill; })[0];
       var reason = { p: 0, text: PRIORITY_TEXT[0] + "（「" + E.SKILLS[p.from].label + "」の前提）" };
@@ -293,10 +296,12 @@
 
   // 単元のはじめてのコンパスチェック（一次関数は B1〜B5。それ以外の単元は、問題バンクの診断用の問題）。
   // まちがえたら、定期チェックと同じしくみで原因さがし（追加は最初のチェックの上限まで）をする
-  function unitCheck(unit) {
+  // school：学校のようす。学校でまだ習っていないスキルの問題は出さない
+  function unitCheck(unit, school) {
     var ids = Object.keys(SC.QUESTIONS).filter(function (id) {
       var q = SC.QUESTIONS[id];
-      return q.origin === "bank" && q.usage === "diagnosis" && E.SKILLS[q.skill] && E.SKILLS[q.skill].unit === unit;
+      return q.origin === "bank" && q.usage === "diagnosis" && E.SKILLS[q.skill] && E.SKILLS[q.skill].unit === unit &&
+        E.schoolSkillStatus(q.skill, school) !== "not_learned";
     }).sort(function (a, b) {
       return E.ROOT_ORDER.indexOf(SC.QUESTIONS[a].skill) - E.ROOT_ORDER.indexOf(SC.QUESTIONS[b].skill) || (a < b ? -1 : 1);
     });
