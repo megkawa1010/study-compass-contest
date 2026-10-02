@@ -34,7 +34,21 @@
   var GOALS = { daily_learning: "いつもの勉強", catch_up: "苦手を戻る", review: "復習", challenge: "もう少し先へ" };
   // テスト対策はホームの目標ボタンには出さず、テストの予定を入れたときだけ使う
   var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
-  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り", reason_review: "根拠の確認" };
+  // 子ども向けの表示名（内部の type はそのまま）。戻る勉強は「もどって確認」（つまずき・苦手を強調しない）
+  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "もどって確認", current_unit: "学校の学習", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り", reason_review: "理由を確認" };
+  // 戻る場所の、子ども向けの言い方（図形は「何を確かめるか」が分かる言葉に）
+  var FRIENDLY = { angleNames: "角の位置関係", lineAngles: "対頂角と一直線の角", parallelAngles: "平行線と角の関係", triangleSum: "三角形の角の和", exteriorAngle: "三角形の外角", angleBasics: "角の基本" };
+  function typeLabel(c) { return c.type === "review" && c.level === "retention" ? "定着チェック" : TYPE_LABEL[c.type]; }
+  // 今日の学習の一覧に出す、パートごとのひとこと
+  function partNote(c) {
+    if (c.type === "practice" && c.meta) {
+      var what = FRIENDLY[c.skill] || "「" + label(c.skill) + "」";
+      return c.meta.symptom_skill && c.meta.symptom_skill !== c.skill ? "「" + label(c.meta.symptom_skill) + "」の前に、" + what + "を少し確認しよう。" : what + "を少し確認しよう。";
+    }
+    if (c.type === "reason_review") return "角度は求められています。理由だけ少し確認しよう。";
+    if (c.type === "review" && c.level === "retention") return "前にできたところを、忘れていないか確かめよう。";
+    return null;
+  }
   // 図形：原因さがしの結果から、今日の学習に入れる種類
   //   reason_review：角度は出せるが根拠が弱い → 5分だけ根拠の確認（取り違えた根拠を、別の図で）
   //   geometry_root_review：図形の性質そのものが不安定（図形側に戻った）→ 10分の戻る勉強（位置関係 → 根拠 → 簡単な角度）
@@ -783,13 +797,13 @@
         if (SC.QUESTIONS[p.question_id].type === "steps") i++; // 小問つきの応用は2問分と数える
       }
       var intro = (c.type === "practice" || c.type === "current_unit" || c.type === "challenge" || c.type === "preview") && SC.logic ? SC.logic.lessonIntro(c.skill, c.level) : null;
-      if (kind === "reason_review") intro = { title: "根拠の確認（5分）", body: [REASON_TEXT, "角度の計算はくり返さず、「どの性質を使ったか」だけを、別の図で確かめます。"] };
-      if (kind === "geometry_root_review") intro = { title: "「" + label(c.skill) + "」に戻る", body: ["まず位置関係を見つけて、次に根拠を選び、最後に簡単な角度を求めます。", "むずかしい角度の計算には、まだ戻りません。"] };
+      if (kind === "reason_review") intro = { title: "理由を確認（5分）", body: [REASON_TEXT, "角度の計算はくり返さず、「どの性質を使ったか」だけを、別の図で確かめます。"] };
+      if (kind === "geometry_root_review") intro = { title: "もどって確認：" + label(c.skill), body: [partNote(c), "まず位置関係を見つけて、次に根拠を選び、最後に簡単な角度を求めます。むずかしい角度の計算には、まだ戻りません。"] };
       return {
         kind: kind,
-        minutes: c.minutes, type: c.type, type_label: TYPE_LABEL[c.type], role: c.role,
+        minutes: c.minutes, type: c.type, type_label: typeLabel(c), note: partNote(c), role: c.role,
         skill: c.skill, skill_label: label(c.skill), level: c.level, level_label: LEVEL_JA[c.level],
-        title: TYPE_LABEL[c.type] + "：" + label(c.skill) + "（" + LEVEL_JA[c.level] + "）",
+        title: typeLabel(c) + "：" + label(c.skill) + "（" + LEVEL_JA[c.level] + "）",
         why: c.why, intro: intro,
         questions: picks.map(function (p) { return p.question_id; }), picks: picks,
         mark: c.type === "test" && c.meta ? c.meta.mark : null // テスト範囲の仕上がり（◎ ○ △ ？）

@@ -276,7 +276,7 @@
 
   function purposeText(trail, skill) {
     if (skill === trail.frontier) return "「" + label(skill) + "」をもう一度、別の問題で確かめます";
-    return "「" + label(trail.frontier) + "」の前にある「" + label(skill) + "」を確かめます（つまずきの原因さがし）";
+    return "「" + label(trail.frontier) + "」の前にある「" + label(skill) + "」も確かめます";
   }
 
   // ---------- 答えを受け取る ----------

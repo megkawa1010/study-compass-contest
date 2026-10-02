@@ -455,22 +455,43 @@
       "</section>";
   }
 
+  // チェックの進み具合：基本チェック（最初に決まった問題）と追加確認（原因さがし・形を変えた問題）を分けて数える
+  function isExtraAt(i) {
+    var qid = state.queue[i];
+    return !!(state.probes && state.probes[qid]) || (state.mode !== "periodic" && i >= state.basicCount);
+  }
+  function checkProgress() {
+    var out = { extra: isExtraAt(state.idx), baseNum: 0, baseTotal: 0, extraNum: 0, extraMax: state.extraMax || 0, afterExtra: state.idx > 0 && isExtraAt(state.idx - 1) };
+    state.queue.forEach(function (qid, i) {
+      if (isExtraAt(i)) { if (i <= state.idx) out.extraNum++; }
+      else { out.baseTotal++; if (i <= state.idx) out.baseNum++; }
+    });
+    // 最大数は、追加できる上限（原因さがしの上限＋最初のチェックの形を変えた問題・原因確認）。実際に出た数より小さくはしない
+    out.extraMax = Math.max(out.extraMax, state.queue.filter(function (_, i) { return isExtraAt(i); }).length);
+    return out;
+  }
+
   function viewCheck() {
     var id = state.queue[state.idx];
     var q = QS[id];
     var periodic = state.mode === "periodic";
     var probeInfo = state.probes && state.probes[id];
-    var isBasic = state.idx < state.basicCount;
-    var num = isBasic ? state.idx + 1 : state.idx - state.basicCount + 1;
-    var total = isBasic ? state.basicCount : state.queue.length - state.basicCount;
-    var pct = Math.round((num - 1) / total * 100);
-    var phaseLabel = probeInfo && !probeInfo.probe.seed ? "原因をさがす確認"
+    // 問題番号：最初に決まった「基本チェック」の数は固定（追加しても分母を増やさない）。
+    // 原因さがしなどで足した問題は「追加確認 k / 最大N」として別に数える（子どもに「終わらない」と感じさせない）
+    var pg = checkProgress();
+    var isBasic = !pg.extra;
+    var num = pg.extra ? pg.extraNum : pg.baseNum, total = pg.extra ? pg.extraMax : pg.baseTotal;
+    var pct = Math.round((num - 1) / Math.max(total, 1) * 100);
+    var phaseLabel = pg.extra ? "もう少しだけ確認しよう"
       : periodic ? (state.periodic && state.periodic.kind === "unit_check" ? "コンパスチェック（" + (state.setup.unit || "") + "）"
-        : state.periodic && state.periodic.kind === "range_check" ? "テスト範囲チェック" : "定期コンパスチェック") : isBasic ? "コンパスチェック" : q.phase === "standard" ? "形を変えた問題" : "原因をさがす確認";
+        : state.periodic && state.periodic.kind === "range_check" ? "テスト範囲チェック" : "定期コンパスチェック") : "コンパスチェック";
+    var stepNote = pg.extra && pg.extraNum === 1 ? '<p class="small muted progress-note">答えをたしかめるために、少しだけ問題を足します（最大' + pg.extraMax + "問）。</p>"
+      : !pg.extra && pg.afterExtra ? '<p class="small muted progress-note">基本チェックにもどります（あと' + (pg.baseTotal - pg.baseNum + 1) + "問）。</p>" : "";
     return '' +
       '<section class="card narrow question-card">' +
-        '<div class="progress-head"><span class="eyebrow">' + phaseLabel + '</span><span class="q-count">' + (isBasic ? "Q" : "追加 ") + num + " / " + total + "</span></div>" +
-        '<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + (num - 1) + '"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="progress-head"><span class="eyebrow">' + phaseLabel + '</span><span class="q-count">' + (pg.extra ? "追加確認 " + num + " / 最大" + total : "基本チェック " + num + " / " + total) + "</span></div>" +
+        '<div class="progress' + (pg.extra ? " extra" : "") + '" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + (num - 1) + '"><i style="width:' + pct + '%"></i></div>' +
+        stepNote +
         '<p class="skill-tag">確認するスキル：' + esc(q.skillLabel) + "</p>" +
         (probeInfo && !probeInfo.probe.seed ? '<p class="purpose probe-purpose">' + esc(probeInfo.probe.purpose) + "</p>"
           : q.purpose && !isBasic ? '<p class="purpose">' + esc(q.purpose) + "</p>" : "") +
@@ -805,7 +826,7 @@
       : "";
     return '' +
       '<section class="result-head"><p class="eyebrow">COMPASS CHECK</p><h1 class="h-md">今回わかったこと</h1>' +
-        '<p class="muted small">' + entry.questions.length + " 問で、" + esc(entry.skills.join("・")) + " を確かめました。点数ではなく、前回からの変化を見ています。</p></section>" +
+        '<p class="muted small">' + (entry.extra_count == null ? entry.questions.length + " 問" : "基本チェック " + (entry.questions.length - entry.extra_count) + " 問" + (entry.extra_count ? "（＋追加確認 " + entry.extra_count + " 問）" : "")) + "で、" + esc(entry.skills.join("・")) + " を確かめました。点数ではなく、前回からの変化を見ています。</p></section>" +
       crossed +
       '<section class="card"><ul class="cr-list">' + items + "</ul></section>" +
       trailsCard(ST.explorationsFor(state.sessionId)) +
@@ -1589,6 +1610,7 @@
       state.queue = state.queue.slice(0, state.basicCount).concat(state.followUps.map(function (f) { return f.id; }));
       // まちがえた基礎問題ごとに道すじをはじめる。先に決まっている原因確認（C1〜C5）が最初の確認になる
       state.probeBudget = R.CONFIG.BUDGET_INITIAL;
+      state.extraMax = state.followUps.length + R.CONFIG.BUDGET_INITIAL;
       SC.BASIC_ORDER.forEach(function (bid) {
         var a = state.answers[bid];
         if (!a || a.status === "correct") return;
@@ -1889,7 +1911,7 @@
     var timeline = plan.fallback ? "" :
       '<ol class="timeline compact">' + plan.sessions.map(function (s) {
         return '<li><span class="min">' + s.minutes + "分</span><div><strong>" + esc(s.type_label) + "</strong><p class=\"small muted\">" +
-          esc(s.skill_label) + "（" + esc(s.level_label) + "）・" + s.questions.length + "問</p></div></li>";
+          esc(s.skill_label) + "（" + esc(s.level_label) + "）・" + s.questions.length + "問</p>" + (s.note ? '<p class="small">' + esc(s.note) + "</p>" : "") + "</div></li>";
       }).join("") + "</ol>";
     return '<section class="card today-card' + (full ? " narrow" : "") + '">' +
       '<p class="eyebrow">' + (tc ? "TEST" : "TODAY") + "</p>" +
@@ -2088,6 +2110,7 @@
     // 単元のはじめてのチェックは、最初のチェックと同じだけ原因さがしの問題を追加してよい
     state.sessionId = ST.startSession(kind === "unit_check" ? "compass_check" : "periodic", check.unit || ST.currentUnit());
     state.probeBudget = kind === "unit_check" ? R.CONFIG.BUDGET_INITIAL : R.CONFIG.BUDGET_PERIODIC;
+    state.extraMax = state.probeBudget;
     state.periodic = {
       kind: kind || "periodic",
       skills: skills,
@@ -2118,6 +2141,7 @@
       session_id: state.sessionId,
       date: new Date(ST.now()).toISOString(),
       questions: state.queue.slice(),
+      extra_count: state.queue.filter(function (_, i) { return isExtraAt(i); }).length, // 追加確認（原因さがし）の問題数
       skills: p.skills.map(function (k) { return E.SKILLS[k].label; }),
       skill_ids: p.skills,
       reasons: reasons,

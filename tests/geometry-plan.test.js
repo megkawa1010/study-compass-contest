@@ -158,3 +158,21 @@ test("時間が短い日：20分なら、根拠の確認は学校の範囲・戻
   const school = p.sessions.filter((s) => s.type === "current_unit").reduce((m, s) => m + s.minutes, 0);
   assert.ok(school >= 10, desc(p));
 });
+
+test("子ども向けの表示名：もどって確認・学校の学習・理由を確認・定着チェック・先取り（「つまずき補強」は使わない）", () => {
+  const h = base();
+  const q = Q["parallelAngles-basic-1"];
+  const res = answer(h, q.id, { s1: "108", s2: "straight" }, T0 + 9000);
+  answer(h, "angleNames-basic-1", "f", T0 + 9500);
+  const sim = R.simulate(q, res, { angleNames: false, lineAngles: true }, { now: T0 + 9000 });
+  const p = plan(h, [{ ...sim.trail, date: new Date(T0 + 9000).toISOString() }]);
+  const back = p.sessions.find((s) => s.type === "practice");
+  assert.equal(back.type_label, "もどって確認");
+  assert.equal(back.note, "「平行線と角」の前に、角の位置関係を少し確認しよう。");
+  assert.equal(p.sessions.find((s) => s.type === "current_unit").type_label, "学校の学習");
+  const h2 = base();
+  answer(h2, q.id, { s2: "alternate" }, T0 + 9000);
+  assert.equal(part(plan(h2, []), "reason_review").type_label, "理由を確認");
+  assert.ok(!JSON.stringify([p.sessions, plan(h2, []).sessions].map((ss) => ss.map((s) => [s.type_label, s.title, s.note]))).includes("つまずき補強"));
+  assert.equal(P.TYPE_LABEL.preview, "先取り");
+});
