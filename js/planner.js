@@ -34,7 +34,13 @@
   var GOALS = { daily_learning: "いつもの勉強", catch_up: "苦手を戻る", review: "復習", challenge: "もう少し先へ" };
   // テスト対策はホームの目標ボタンには出さず、テストの予定を入れたときだけ使う
   var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
-  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り" };
+  var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "つまずき補強", current_unit: "学校の単元", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り", reason_review: "根拠の確認" };
+  // 図形：原因さがしの結果から、今日の学習に入れる種類
+  //   reason_review：角度は出せるが根拠が弱い → 5分だけ根拠の確認（取り違えた根拠を、別の図で）
+  //   geometry_root_review：図形の性質そのものが不安定（図形側に戻った）→ 10分の戻る勉強（位置関係 → 根拠 → 簡単な角度）
+  //   calculation_root_review：根拠は合っていて計算で止まった → これまでどおり計算側へ戻る（図形の練習は増やさない）
+  var GEO_MIN = { reason: 5, root: 10 };
+  var REASON_TEXT = "角度は求められています。今日は理由だけ少し確認しよう。";
   var LEVEL_JA = { basic: "基礎", standard: "標準", application: "応用", retention: "定着の確認" };
   var UNIT_SKILLS = E.UNITS; // 単元ごとのスキル（js/engine.js で一元管理）
   var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
@@ -100,7 +106,7 @@
     var p1 = [], p2 = [], p3 = [], p4 = [];
 
     // --- 優先度1：根本のつまずき（原因さがしの「戻る場所」＋ いちばん根元の不安定なスキル） ---
-    var fromExpl = {}, symptomOf = {}, depthOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）・さかのぼった深さ
+    var fromExpl = {}, symptomOf = {}, depthOf = {}, geoKindOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）・さかのぼった深さ
     (input.explorations || []).forEach(function (x) {
       var c = x.conclusion;
       if (!c || !c.return_to || c.kind === "not_reproduced") return;
@@ -111,6 +117,7 @@
         return;
       }
       fromExpl[c.return_to] = fromExpl[c.return_to] || x.symptom.label;
+      if (x.geometry && !geoKindOf[c.return_to]) geoKindOf[c.return_to] = E.SKILLS[c.return_to].concept || c.return_to === "angleBasics" ? "geometry_root_review" : "calculation_root_review";
       symptomOf[c.return_to] = symptomOf[c.return_to] || x.symptom.skill;
       var dep = (x.path || []).reduce(function (m, q) { return Math.max(m, q.depth || 0); }, 0);
       depthOf[c.return_to] = Math.max(depthOf[c.return_to] || 0, dep);
@@ -123,9 +130,31 @@
         excluded.push({ skill: k, why: "つまずきの補強は、最近の練習で基礎・標準ともできている" });
         return;
       }
-      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null, symptom_skill: symptomOf[k] || null, depth: depthOf[k] || 0,
+      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null, symptom_skill: symptomOf[k] || null, depth: depthOf[k] || 0, geo_kind: geoKindOf[k] || null,
         advanced: lv === "standard" && practiced(k, "basic") && st(k).basic !== "pass" });
     });
+
+    // --- 根拠の確認（図形）：最後の根拠の答えがまちがいのスキルだけ。毎日固定では入れない ---
+    //   1回まちがえたら次の学習で5分確認 → 正解したら通常の学習へ戻す → またまちがえたら、また入れる
+    //   角度もまだ不安定なスキルは、根拠だけの確認ではなく戻る勉強で扱う。学校でまだ習っていないスキルは入れない（未学習は苦手ではない）
+    var reasonCands = [], reasonLog = [];
+    E.SKILL_ORDER.forEach(function (k) {
+      if (!E.SKILLS[k].concept) return;
+      var rs = history.filter(function (x) { return x.skill === k && x.aspect === "reason" && !x.preview; }).sort(function (x, y) { return t(x) - t(y); });
+      if (!rs.length) return;
+      var last = rs[rs.length - 1];
+      if (notLearned(k)) { reasonLog.push({ skill: k, why: "学校でまだ習っていないので、根拠の確認はしない" }); return; }
+      if (last.correct) { if (rs.some(function (x) { return !x.correct; })) reasonLog.push({ skill: k, why: "最後の根拠は正解（もう確認しなくてよい）" }); return; }
+      var v = st(k).value;
+      if (v && v.attempts && (RANK[v.status] || 0) < RANK.understood) { reasonLog.push({ skill: k, why: "角度もまだ不安定なので、根拠だけの確認ではなく戻る勉強で" }); return; }
+      var conf = [];
+      for (var i = rs.length - 1; i >= 0 && !rs[i].correct; i--) if (rs[i].confusion && conf.indexOf(rs[i].confusion) === -1) conf.push(rs[i].confusion);
+      var missed = rs.filter(function (x) { return !x.correct; }).map(function (x) { return baseId(x.question_id); });
+      reasonCands.push({ skill: k, level: "basic", confusions: conf, missed_questions: missed, last_miss: last.answered_at,
+        why: "最後の根拠がまちがい" + (conf.length ? "（" + conf.join("・") + "）" : "") });
+      reasonLog.push({ skill: k, why: "根拠の確認の候補：" + "最後の根拠がまちがい" + (conf.length ? "（" + conf.join("・") + "）" : ""), candidate: true });
+    });
+    reasonCands.sort(function (x, y) { return Date.parse(y.last_miss) - Date.parse(x.last_miss); });
 
     // --- 優先度2：学校で学習中の単元 ---
     var status = school.school_status || "learning";
@@ -199,7 +228,7 @@
       else if (s.learning_status === "not_learned" && status !== "notyet") excluded.push({ skill: k, why: "学校でまだ習っていない" });
     });
 
-    return { p1: p1, p2: p2, p3: p3, p4: p4, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills,
+    return { p1: p1, p2: p2, p3: p3, p4: p4, reason: reasonCands, reasonLog: reasonLog, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills,
       nextLevel: nextLevel, test: test || null, school: schoolLog, previewSkill: previewSkill, notLearned: notLearned };
   }
 
@@ -390,13 +419,20 @@
     var retentionOk = !!retentionCand && (minutes >= 30 || level === "none" || stage === "confirm");
     if (retentionCand && !retentionOk) excluded.push({ skill: retentionCand.skill, kind: "retention", why: "20分でつまずきの補強があるので、定着の確認は次の日に" });
     var checkOk = (level !== "none" || (test && stage !== "understand")) && (minutes >= 30 || level === "moderate" || level === "mild");
+    // 根拠の確認（5分）：戻る勉強のスキルとは別のスキル。前日は新しいことをしない日なので、テスト範囲のスキルだけ
+    var reasonCand = (a.reason || []).filter(function (c) { return (!root || c.skill !== root.skill) && (!test || stage !== "confirm" || inRange(c.skill)); })[0] || null;
 
     // --- 枠：重み・最小・最大 ---
     var blocks = [];
     function block(id, w, min, max, info) { if (max >= min && max > 0) blocks.push({ id: id, w: w, min: min, max: max, units: 0, info: info }); }
     var rootMax = ALLOC.rootMax[level === "none" ? "mild" : level][minutes];
     if (test && TEST.rootMax[stage]) rootMax = Math.min(rootMax, TEST.rootMax[stage][minutes]); // テストが近いほど短く。ただし0にはしない
-    if (root) block("root", 0.2 + 0.5 * sev.score, 5, Math.max(5, rootMax), { skill: root.skill });
+    // 図形の性質そのものに戻るときは、原則10分（短い日・テストが近い日は、いつもの上限まで縮める）
+    var geoRoot = root && root.geo_kind === "geometry_root_review";
+    var geoRootM = geoRoot ? Math.max(5, Math.min(GEO_MIN.root, test && TEST.rootMax[stage] ? TEST.rootMax[stage][minutes] : GEO_MIN.root)) : 0;
+    if (root) block("root", 0.2 + 0.5 * sev.score, geoRoot ? geoRootM : 5, geoRoot ? geoRootM : Math.max(5, rootMax), { skill: root.skill });
+    // 根拠の確認：5分だけ（学校の範囲を大きく圧迫しない。時間が足りない日は、定着の確認の次に削る）
+    if (reasonCand) block("reason", 0.1, GEO_MIN.reason, GEO_MIN.reason, { skill: reasonCand.skill });
     if (testCands.length) {
       var tmin = Math.max(5, Math.round(minutes * TEST.minRatio[stage] / 5) * 5);
       var tmax = ALLOC.perSkillMax[minutes] * Math.min(3, testCands.length); // 1スキル15分まで。足りない分は、範囲の中の「おさらい」へ
@@ -420,7 +456,7 @@
     blocks.forEach(function (b) { b.target = total * b.w / wsum; b.units = b.min / 5; });
     var left = total - blocks.reduce(function (s, b) { return s + b.units; }, 0);
     // 最小の合計が時間を超えたら、優先度の低い枠から削る
-    var dropOrder = ["maintain", "challenge", "preview", "retention", "check", "school", "test", "root"];
+    var dropOrder = ["maintain", "challenge", "preview", "retention", "reason", "check", "school", "test", "root"];
     while (left < 0) {
       var cut = dropOrder.map(function (id) { return blocks.filter(function (b) { return b.id === id && b.units > 0; })[0]; }).filter(Boolean)[0];
       if (!cut) break;
@@ -453,7 +489,8 @@
         push(pre, "basic", "review", "「" + label(root.skill) + "」の前にある、できている内容を思い出す", 5, "warmup");
         rm -= 5;
       }
-      var rwhy = test && stage !== "understand" ? "テストが近くても、根本のつまずきは短く確認（" + (root.symptom ? root.symptom + " から" : "まだ不安定") + "）"
+      var rwhy = geoRoot ? "図形の性質のところで迷っているので、位置関係 → 根拠 → 簡単な角度の順に戻る（" + (root.symptom ? root.symptom + " から" : "まだ不安定") + "）"
+        : test && stage !== "understand" ? "テストが近くても、根本のつまずきは短く確認（" + (root.symptom ? root.symptom + " から" : "まだ不安定") + "）"
         : root.symptom ? "原因さがしで見つかった戻る場所（" + root.symptom + " から）" : "まだ不安定な、いちばん根元のスキル";
       var second = rootCands[1];
       if (rm > cap && second) {
@@ -461,6 +498,7 @@
         push(second.skill, second.level, "practice", "次に不安定なスキルも少し", rm - cap, "reinforce", second);
       } else push(root.skill, root.level, "practice", rwhy, rm, "reinforce", root);
     }
+    if (get("reason").minutes) push(reasonCand.skill, "basic", "reason_review", REASON_TEXT, get("reason").minutes, "reason", reasonCand);
     if (tb.minutes) {
       // テスト範囲：優先順位の高いスキルから、1スキル cap 分まで
       var tLeft = tb.minutes;
@@ -513,7 +551,8 @@
       candidates: {
         root: rootCands.map(function (c) { return c.skill; }), school: schoolCands.map(function (c) { return c.skill + ":" + (c.school || "") + ":" + c.level; }),
         test: testCands.map(function (c) { return c.skill; }),
-        retention: retentionCand ? retentionCand.skill : null, preview: previewCand ? previewCand.skill : null, challenge: challengeCand ? challengeCand.skill : null
+        retention: retentionCand ? retentionCand.skill : null, preview: previewCand ? previewCand.skill : null, challenge: challengeCand ? challengeCand.skill : null,
+        reason: reasonCand ? reasonCand.skill : null
       },
       blocks: blocks.map(function (b) { return { id: b.id, weight: Math.round(b.w * 100) / 100, target: b.target, min: b.min, max: b.max, minutes: b.minutes, skill: b.info.skill || null }; }),
       excluded: excluded,
@@ -636,6 +675,64 @@
 
   function questionCount(m) { return m <= 5 ? 2 : m <= 10 ? 3 : m <= 15 ? 4 : 5; }
 
+  // ---------- 図形：根拠の確認・戻る勉強の問題 ----------
+  function parseConfusion(z) { var m = /^(.+)_for_(.+)$/.exec(z || ""); return m ? { chosen: m[1], answer: m[2] } : null; }
+  function reasonStepOf(q) { return (q.steps || []).filter(function (st) { return st.aspect === "reason"; })[0] || null; }
+  function recentIds(input, days) {
+    var out = {};
+    (input.history || []).forEach(function (a) { if (input.now - t(a) < days * E.DAY) out[baseId(a.question_id)] = true; });
+    return out;
+  }
+  // 根拠の確認：同じ問題をもう一度ではなく、同じ取り違えを別の図で。
+  //   ① 「この2つの角の関係は？」（位置の名前を答える短い問題）で、正しい関係が答えになるもの
+  //   ② 根拠を選ぶ小問があり、正しい根拠が同じで、まちがえた根拠も選択肢にあるもの
+  //   ないときは、同じスキルの根拠つきの問題
+  function reasonPicks(c, input, used) {
+    var recent = recentIds(input, CONFIG.AVOID_CHECK_DAYS);
+    var avoid = function (id) { return used.indexOf(id) !== -1 || recent[id] || (c.missed_questions || []).indexOf(id) !== -1; };
+    var confs = (c.confusions || []).map(parseConfusion).filter(Boolean);
+    var all = Object.keys(SC.QUESTIONS).map(function (id) { return SC.QUESTIONS[id]; }).filter(function (q) { return q.origin === "bank" && !avoid(q.id); });
+    var relation = null, reasonQ = null, short = null;
+    // ⓪ 根拠だけを選ぶ短い問題（角度は問題文で示し、計算させない）。同じスキル → ほかのスキルの順
+    var sameFirst = function (x, y) { return (x.skill === c.skill ? 0 : 1) - (y.skill === c.skill ? 0 : 1); };
+    confs.some(function (z) {
+      short = all.filter(function (q) { return q.reason_only && q.answer === z.answer && q.choices.some(function (ch) { return ch.key === z.chosen; }); }).sort(sameFirst)[0] || null;
+      return !!short;
+    });
+    if (!short && !confs.length) short = all.filter(function (q) { return q.reason_only && q.skill === c.skill; })[0] || null;
+    confs.some(function (z) {
+      relation = relation || all.filter(function (q) { return q.position && q.position.with && q.answer === z.answer; })[0] || null;
+      reasonQ = reasonQ || all.filter(function (q) {
+        var st = reasonStepOf(q);
+        return st && st.answer === z.answer && st.choices.some(function (ch) { return ch.key === z.chosen; });
+      }).sort(function (x, y) { return (x.skill === c.skill ? 0 : 1) - (y.skill === c.skill ? 0 : 1) || (x.level === "basic" ? 0 : 1) - (y.level === "basic" ? 0 : 1); })[0] || null;
+      return relation && reasonQ;
+    });
+    if (!reasonQ) reasonQ = all.filter(function (q) { return q.skill === c.skill && reasonStepOf(q); })[0] || null;
+    var out = [];
+    if (short) out.push({ question_id: short.id, level: short.level, stage: 0, reused: false, why: "取り違えた根拠（" + confs.map(function (z) { return z.chosen + "→" + z.answer; }).join("・") + "）を、別の図で選ぶ（計算なし）" });
+    if (relation && out.length < 2) out.push({ question_id: relation.id, level: relation.level, stage: 0, reused: false, why: "取り違えた関係（" + confs.map(function (z) { return z.chosen + "→" + z.answer; }).join("・") + "）を、別の図で「この2つの角の関係は？」" });
+    if (reasonQ && out.length < 2 && !short) out.push({ question_id: reasonQ.id, level: reasonQ.level, stage: 0, reused: false, why: "同じ根拠を、別の図で選ぶ" });
+    return out;
+  }
+  // 図形の性質に戻る勉強：① 位置関係を見つける（戻る場所のスキルの基礎）→ ② 根拠を選ぶ → ③ 簡単な角度（まちがえた問題のスキルの基礎）
+  //   いきなり複雑な角度計算へ戻さない（標準・応用は使わない）
+  function geometryRootPicks(c, input, used, rng) {
+    var out = [];
+    var p1 = pickFor(c.skill, "basic", input, used, rng);
+    if (p1) { p1.why = "① 位置関係・性質を見つける" + (p1.why ? "／" + p1.why : ""); out.push(p1); used.push(p1.question_id); }
+    var recent = recentIds(input, CONFIG.AVOID_LESSON_DAYS);
+    var skills = [c.skill, c.symptom_skill].filter(Boolean);
+    // 根拠だけの短い問題を先に（計算させない）。なければ根拠の小問がある基礎の問題
+    var rq = Object.keys(SC.QUESTIONS).map(function (id) { return SC.QUESTIONS[id]; }).filter(function (q) {
+      return q.origin === "bank" && skills.indexOf(q.skill) !== -1 && q.level === "basic" && (q.reason_only || reasonStepOf(q)) && used.indexOf(q.id) === -1 && !recent[q.id];
+    }).sort(function (x, y) { return (x.reason_only ? 0 : 1) - (y.reason_only ? 0 : 1) || skills.indexOf(x.skill) - skills.indexOf(y.skill); })[0];
+    if (rq) { out.push({ question_id: rq.id, level: rq.level, stage: 0, reused: false, why: "② 根拠を選ぶ" }); used.push(rq.id); }
+    var p3 = c.symptom_skill ? pickFor(c.symptom_skill, "basic", input, used, rng) : null;
+    if (p3 && SC.QUESTIONS[p3.question_id].level === "basic") { p3.why = "③ 簡単な角度を求める（「" + label(c.symptom_skill) + "」の基礎）"; out.push(p3); used.push(p3.question_id); }
+    return out;
+  }
+
   // ---------- 今日の学習を組み立てる ----------
   // input: { states, history, explorations, school, minutes, goal, now, rng }
   function build(input) {
@@ -676,6 +773,9 @@
     var sessions = chosen.map(function (c) {
       var n = questionCount(c.minutes);
       var picks = [];
+      var kind = c.type === "reason_review" ? "reason_review" : c.meta && c.meta.geo_kind && c.type === "practice" ? c.meta.geo_kind : null;
+      if (kind === "reason_review") { picks = reasonPicks(c.meta, input, used); picks.forEach(function (p) { used.push(p.question_id); }); n = 0; }
+      else if (kind === "geometry_root_review") { picks = geometryRootPicks(c.meta, input, used, rng); n = picks.length ? 0 : n; }
       for (var i = 0; i < n; i++) {
         // テストが近い日：最近まちがえた問題（そのあと正解していないもの）を先にもう一度
         var retry = c.meta && c.meta.retry ? c.meta.retry.filter(function (id) { return used.indexOf(id) === -1; })[0] : null;
@@ -687,7 +787,10 @@
         if (SC.QUESTIONS[p.question_id].type === "steps") i++; // 小問つきの応用は2問分と数える
       }
       var intro = (c.type === "practice" || c.type === "current_unit" || c.type === "challenge" || c.type === "preview") && SC.logic ? SC.logic.lessonIntro(c.skill, c.level) : null;
+      if (kind === "reason_review") intro = { title: "根拠の確認（5分）", body: [REASON_TEXT, "角度の計算はくり返さず、「どの性質を使ったか」だけを、別の図で確かめます。"] };
+      if (kind === "geometry_root_review") intro = { title: "「" + label(c.skill) + "」に戻る", body: ["まず位置関係を見つけて、次に根拠を選び、最後に簡単な角度を求めます。", "むずかしい角度の計算には、まだ戻りません。"] };
       return {
+        kind: kind,
         minutes: c.minutes, type: c.type, type_label: TYPE_LABEL[c.type], role: c.role,
         skill: c.skill, skill_label: label(c.skill), level: c.level, level_label: LEVEL_JA[c.level],
         title: TYPE_LABEL[c.type] + "：" + label(c.skill) + "（" + LEVEL_JA[c.level] + "）",
@@ -737,8 +840,27 @@
       alloc.final = plan.sessions.map(function (x) { return { minutes: x.minutes, type: x.type, skill: x.skill, level: x.level }; });
       plan.alloc = { severity: alloc.severity, text: allocWhy(alloc, plan) };
     }
-    plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: alloc ? null : TEMPLATES[minutes], log: log, school: a.school, preview_skill: a.previewSkill, alloc: alloc };
+    plan.debug = { geometry: geometryDebug(a, input, plan), candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: alloc ? null : TEMPLATES[minutes], log: log, school: a.school, preview_skill: a.previewSkill, alloc: alloc };
     return plan;
+  }
+
+  // ?debug=plan 用：図形の value / reason の状態・取り違え・原因さがし・今日の学習に入れた種類
+  function geometryDebug(a, input, plan) {
+    var states = [];
+    E.SKILL_ORDER.forEach(function (k) {
+      var s = a.st(k);
+      if (!E.SKILLS[k].concept || !s.value || (!s.value.attempts && !s.reason.attempts)) return;
+      states.push({ skill: k, value: s.value, reason: s.reason, overall: s.overall });
+    });
+    var expl = (input.explorations || []).filter(function (x) { return x.geometry && input.now - Date.parse(x.date) <= CONFIG.EXPLORATION_DAYS * E.DAY; }).slice(-5).map(function (x) {
+      var c = x.conclusion || {};
+      return { symptom: x.symptom.skill, entry: x.geometry.entry, return_to: c.return_to || null, kind: c.kind,
+        type: c.kind === "reason_only" ? "reason_review" : c.return_to ? (E.SKILLS[c.return_to].concept || c.return_to === "angleBasics" ? "geometry_root_review" : "calculation_root_review") : null };
+    });
+    var parts = plan.sessions.filter(function (x) { return x.kind; }).map(function (x) {
+      return { kind: x.kind, skill: x.skill, minutes: x.minutes, why: x.why, picks: x.picks.map(function (p) { return p.question_id + "：" + (p.why || ""); }) };
+    });
+    return { states: states, explorations: expl, reason: a.reasonLog, parts: parts };
   }
 
   // 画面では「」でくくって出すので、ここでは「」を付けない
@@ -779,5 +901,5 @@
   }
 
   SC.planner = { CONFIG: CONFIG, GOALS: GOALS, ALL_GOALS: ALL_GOALS, TYPE_LABEL: TYPE_LABEL, LEVEL_JA: LEVEL_JA, TEMPLATES: TEMPLATES, PICK_STAGES: PICK_STAGES,
-    analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes, backToLine: backToLine, ALLOC: ALLOC, severityOf: severityOf };
+    analyze: analyze, build: build, pickFor: pickFor, reasonPicks: reasonPicks, GEO_MIN: GEO_MIN, nearestMinutes: nearestMinutes, backToLine: backToLine, ALLOC: ALLOC, severityOf: severityOf };
 })(typeof window !== "undefined" ? window : globalThis);

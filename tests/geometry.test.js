@@ -6,7 +6,7 @@ const { SC } = globalThis;
 const G = SC.geometry, Q = SC.QUESTIONS, L = SC.logic, E = SC.engine;
 const GEO = Object.values(Q).filter((q) => q.figure && q.figure.type === "geometry");
 // 角度を求める図形の問題（relation で検算する）。位置の名前（同位角はどれ？）・角の表し方を答える問題は除く
-const SOLVE = GEO.filter((q) => q.relation);
+const SOLVE = GEO.filter((q) => q.relation && !q.reason_only); // 根拠だけの短い問題（x の値を問題文で示す）は除く
 // 図形の角の単元（＋土台の「角の基本」）の全問題
 const UNIT = Object.values(Q).filter((q) => q.origin === "bank" && (E.SKILLS[q.skill].unit === "図形の角" || q.skill === "angleBasics"));
 const SAMPLES = ["lineAngles-basic-1", "parallelAngles-basic-1", "triangleSum-basic-1", "exteriorAngle-basic-1", "polygonInterior-basic-1", "angleEq-standard-1"];
@@ -187,6 +187,15 @@ test("問題バンク：約70問・約4割が角度＋根拠の小問・はじ�
     s.choices.forEach((c) => assert.equal(c.label, G.REASONS[c.key], q.id + " " + c.key));
     assert.ok(s.choices.some((c) => c.key === s.answer));
   }));
+  // 根拠だけの短い問題：選択肢は REASONS のことば。チェック・ふだんの練習の索引には入らない
+  const short = UNIT.filter((q) => q.reason_only);
+  assert.ok(short.length >= 10);
+  short.forEach((q) => {
+    assert.equal(q.aspect, "reason");
+    q.choices.forEach((c) => assert.equal(c.label, G.REASONS[c.key], q.id));
+    assert.ok(!Object.values(SC.bank.index[q.skill]).flat().includes(q.id), q.id + " は索引に入れない");
+    assert.deepEqual(G.audit(q).warnings, [], q.id);
+  });
   // はじめてのチェック：5問・5スキル
   require("../js/compass.js");
   const chk = SC.compass.unitCheck("図形の角");

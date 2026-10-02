@@ -1298,7 +1298,30 @@
         '<p class="small"><strong>なぜ今日はこれ？：</strong>' + esc(plan.why) + "</p>" +
         '<h3 class="small">時間配分と選んだ問題（合計 ' + plan.total_minutes + "分）</h3>" +
         '<div class="table-wrap"><table><thead><tr><th>時間</th><th>種類</th><th>スキル</th><th>理由</th><th>問題</th></tr></thead><tbody>' + sessRows + "</tbody></table></div>" +
-        '<h3 class="small">生成の記録</h3><ol class="small muted debug-log">' + dbg.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>";
+        '<h3 class="small">生成の記録</h3><ol class="small muted debug-log">' + dbg.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>" +
+      geometryPlanDebug(dbg.geometry);
+  }
+
+  // 図形：value / reason の状態・取り違え・原因さがし・今日の学習に入れた種類・時間・理由
+  var GEO_KIND_JA = { reason_review: "根拠の確認（reason_review）", geometry_root_review: "図形の性質に戻る（geometry_root_review）", calculation_root_review: "計算側に戻る（calculation_root_review）" };
+  function geometryPlanDebug(g) {
+    if (!g) return "";
+    var st = function (x) { return x.attempts ? esc(E.STATUS_VIEW[x.status].label) + " " + x.correct + "/" + x.attempts + (x.confidence != null ? "・確かさ " + x.confidence : "") : "−"; };
+    var rows = g.states.map(function (x) {
+      return "<tr><td>" + esc(E.SKILLS[x.skill].label) + "</td><td>" + st(x.value) + "</td><td>" + st(x.reason) + "</td><td>" + esc(Object.keys(x.reason.confusions || {}).map(function (k) { return k + "×" + x.reason.confusions[k]; }).join("、") || "−") +
+        "</td><td>" + esc(E.STATUS_VIEW[x.overall.status].label + (x.overall.note ? "（" + x.overall.note + "）" : "")) + "</td></tr>";
+    }).join("");
+    var ex = g.explorations.map(function (x) {
+      return "<li>" + esc(E.SKILLS[x.symptom].label) + "：入口 " + esc(x.entry) + " → " + esc(x.return_to ? E.SKILLS[x.return_to].label : "戻る場所なし") + "（" + esc(GEO_KIND_JA[x.type] || x.kind || "") + "）</li>";
+    }).join("");
+    var parts = g.parts.map(function (p) {
+      return "<tr><td>" + esc(GEO_KIND_JA[p.kind]) + "</td><td>" + esc(E.SKILLS[p.skill].label) + "</td><td>" + p.minutes + "分</td><td>" + esc(p.why) + "</td><td>" + esc(p.picks.join("／")) + "</td></tr>";
+    }).join("");
+    return '<section class="card"><h2 class="h-sm">図形：今日の学習への接続</h2>' +
+      '<h3 class="small">geometry value / reason state</h3>' + (rows ? '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>value（角度）</th><th>reason（根拠）</th><th>reason confusion</th><th>総合</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : '<p class="small muted">図形の記録はまだありません</p>') +
+      '<h3 class="small">geometry root cause（最近の原因さがし）</h3>' + (ex ? '<ul class="small debug-log">' + ex + "</ul>" : '<p class="small muted">なし</p>') +
+      '<h3 class="small">根拠の確認の候補</h3>' + (g.reason.length ? '<ul class="small debug-log">' + g.reason.map(function (r) { return "<li>" + esc(E.SKILLS[r.skill].label) + "：" + esc(r.why) + "</li>"; }).join("") + "</ul>" : '<p class="small muted">なし（根拠をまちがえた記録がない）</p>') +
+      '<h3 class="small">今日の学習に入れた種類</h3>' + (parts ? '<div class="table-wrap"><table><thead><tr><th>種類</th><th>スキル</th><th>時間</th><th>選んだ理由</th><th>問題</th></tr></thead><tbody>' + parts + "</tbody></table></div>" : '<p class="small muted">今日は図形の補強なし</p>') + "</section>";
   }
 
   // ---------- 図形の図の確認ページ（?debug=figure） ----------
@@ -1382,7 +1405,7 @@
     var res = q.type === "steps" ? L.checkSteps(q, v) : [{ id: "v", correct: L.check(q, v) }];
     var ctx = { sessionId: null, context: "lesson" };
     if (q.type === "steps") q.steps.forEach(function (st, i) { ST.addAnswer(stepRecord(q, st), stepResult(st, res[i], res[i].correct ? "correct" : "incorrect", false), ctx); });
-    else ST.addAnswer(q, { status: res[0].correct ? "correct" : "incorrect", hintUsed: false }, ctx);
+    else ST.addAnswer(q, plainResult(q, res[0].correct ? "correct" : "incorrect", false, v), ctx);
     figTry = { res: res, v: v };
     render();
   }
@@ -1500,6 +1523,15 @@
   function stepRecord(q, st) {
     return { id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit, aspect: st.aspect };
   }
+  // 小問のない問題の記録。根拠だけの問題（aspect: "reason"）は、選んだ根拠と取り違えも残す
+  function plainResult(q, status, hint, value) {
+    var r = { status: status, hintUsed: hint };
+    if (q.aspect === "reason" && value != null && value !== "") {
+      r.chosen = value;
+      r.confusion = status === "incorrect" && SC.geometry ? SC.geometry.confusionOf(q, value) : null;
+    }
+    return r;
+  }
   function stepResult(st, r, s, hint) {
     var chosen = r && r.chosen != null ? r.chosen : null;
     return { status: s, hintUsed: hint, chosen: chosen, confusion: SC.geometry && s === "incorrect" ? SC.geometry.confusionOf(st, chosen) : null };
@@ -1521,7 +1553,8 @@
       });
       if (stepResults) state.answers[id].steps = L.analyzeSteps(q, stepResults);
     } else {
-      ST.addAnswer(q, { status: status, hintUsed: hint }, ctx);
+      ST.addAnswer(q, plainResult(q, status, hint, status === "unknown" ? null : state.lastValue), ctx);
+      state.lastValue = null;
     }
     state.idx += 1;
     state.hintOpen = false;
@@ -1577,6 +1610,7 @@
       recordAnswer(res.every(function (r) { return r.correct; }) ? "correct" : "incorrect", res);
       return;
     }
+    state.lastValue = v;
     recordAnswer(L.check(q, v) ? "correct" : "incorrect");
   }
 
@@ -1990,7 +2024,7 @@
   }
 
   // 1問目の答えだけを記録する（ヒントを見て答え直した分は、学習の過程として数えない）
-  function recordDaily(q, status, stepResults) {
+  function recordDaily(q, status, stepResults, value) {
     var sess = dailyCurrent().sess;
     // 確認のパート・定着の確認は「チェック」として記録（理解度のレベル判定に使う）。それ以外は練習
     var context = sess.type === "check" || sess.level === "retention" ? "daily_check" : "lesson";
@@ -2003,7 +2037,7 @@
         ST.addAnswer(stepRecord(q, st), stepResult(st, r, s, hint), ctx);
       });
     } else {
-      ST.addAnswer(q, { status: status, hintUsed: hint }, ctx);
+      ST.addAnswer(q, plainResult(q, status, hint, value), ctx);
     }
   }
 
@@ -2018,7 +2052,7 @@
     message = "";
     var stepRes = q.type === "steps" ? L.checkSteps(q, v) : null;
     var ok = stepRes ? stepRes.every(function (r) { return r.correct; }) : L.check(q, v);
-    if (d.results[cur.qid] === undefined) recordDaily(q, ok ? "correct" : "incorrect", stepRes);
+    if (d.results[cur.qid] === undefined) recordDaily(q, ok ? "correct" : "incorrect", stepRes, v);
     d.results[cur.qid] = ok ? "correct" : "tried";
     if (!ok) draft = {};
     state.hintOpen = false;
