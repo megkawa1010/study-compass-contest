@@ -874,7 +874,56 @@
         '<p class="small muted">上限：深さ ' + R.CONFIG.MAX_DEPTH + " 段／1スキルで確かめる前提 " + R.CONFIG.MAX_PROBES_PER_STEP + " 個／追加の問題 最初のチェック " + R.CONFIG.BUDGET_INITIAL +
         "問・定期チェック " + R.CONFIG.BUDGET_PERIODIC + "問／記録から「できている」とみなすのは " + R.CONFIG.SOLID_FRESH_DAYS + "日以内に確認したスキル。" +
         "確かめきれなかった前提は、次の定期チェックで最優先（P0）になります。</p></section>" +
-      '<section class="bank-skill"><h2 class="h-sm">これまでの定期チェック（新しい順・最大5件）</h2>' + (hist || '<p class="small muted">まだありません</p>') + "</section>";
+      '<section class="bank-skill"><h2 class="h-sm">これまでの定期チェック（新しい順・最大5件）</h2>' + (hist || '<p class="small muted">まだありません</p>') + "</section>" +
+      geometryRootDebug();
+  }
+
+  // ---------- 図形の原因さがし（value / reason で入口を変える） ----------
+  var ENTRY_JA = { reason_only: "理由だけ記録（原因さがしなし）", calc: "計算側", concept: "図形の性質側", none: "なし", not_learned: "未学習（原因さがしなし）" };
+  function okMark(v) { return v === true ? "○" : v === false ? "×" : "聞いていない"; }
+  function skillList(ks) { return ks && ks.length ? ks.map(function (k) { return E.SKILLS[k].label; }).join("・") : "−"; }
+  // 1本の道すじの図形の情報：value・reason の結果／入口／図形側・計算側の前提／確認したスキル／スキップした側と理由／戻る場所
+  function geoTrailDetail(t) {
+    var g = t.geometry, c = t.conclusion || {};
+    var checked = t.path.filter(function (p) { return p.via === "probe" || p.via === "history" || p.via === "session"; })
+      .map(function (p) { return p.label + " " + (p.correct ? "○" : "×") + (p.via === "history" ? "（記録から）" : p.via === "session" ? "（今回の答えから）" : ""); });
+    var rows = [
+      ["value（角度・値）", okMark(g.value_ok) + (g.first_miss_step ? "（最初に止まった小問：" + g.first_miss_step + "）" : "")],
+      ["reason（根拠）", okMark(g.reason_ok) + (g.confusions && g.confusions.length ? "（取り違え：" + g.confusions.map(function (z) { return z.confusion; }).join("、") + "）" : "")],
+      ["選ばれた入口", ENTRY_JA[g.entry] + "：" + g.why],
+      ["図形側の前提", skillList(g.concept_prereqs)],
+      ["計算側の前提", skillList(g.calc_prereqs)],
+      ["実際に確認したスキル", checked.length ? checked.join(" → ") : "なし"],
+      ["スキップした側", g.skipped && g.skipped.length ? g.skipped.map(function (x) { return (x.side === "calc" ? "計算側" : "図形側") + "：" + x.why; }).join("／") : "なし"],
+      ["戻る場所", c.return_to ? E.SKILLS[c.return_to].label : c.kind === "reason_only" ? "なし（根拠の確認を今日の学習の候補へ：" + E.SKILLS[c.reason_practice].label + "）" : c.kind === "value_slip" ? "なし（計算の見直し）" : "−"],
+      ["次回に回す", skillList(c.pending_skills)]
+    ];
+    return '<div class="table-wrap"><table><tbody>' + rows.map(function (r) { return "<tr><th>" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</tbody></table></div>";
+  }
+  function geometryRootDebug() {
+    var recent = ST.explorations().filter(function (x) { return x.geometry; }).slice(-5).reverse().map(function (x) {
+      return '<div class="card bank-item"><p class="small"><strong>' + esc(new Date(x.date).toLocaleString("ja-JP")) + "</strong>　" + esc(x.symptom.label) + "（" + esc(x.symptom.question_id) + "）</p>" + geoTrailDetail(x) + "</div>";
+    }).join("");
+    // 例：同じしくみを、決まった「本当の理解」で動かした結果（tests/geometry-rootcause.test.js と同じ）
+    function steps(q, wrong) { return L.checkSteps(q, q.steps.reduce(function (v, st) { v[st.id] = wrong[st.id] !== undefined ? wrong[st.id] : String(st.answer); return v; }, {})); }
+    var EX = [
+      ["A 角度○・根拠×", "parallelAngles-basic-1", { s2: "alternate" }, {}],
+      ["B 角度×・根拠○", "angleEq-basic-3", { s1: "40" }, { likeTerms: true, transpose: false, signed: true, algebra: true }],
+      ["C 角度×・根拠×", "parallelAngles-basic-1", { s1: "108", s2: "straight" }, { angleNames: false, lineAngles: true }],
+      ["D 式○・x の計算×", "angleEq-standard-1", { s1: "40", s2: "vertical" }, { likeTerms: false, signed: true, transpose: true, algebra: true }],
+      ["E 式を立てる×", "angleEq-standard-1", { s0: "c", s1: "60" }, { lineAngles: false, angleBasics: true }],
+      ["G 上限をこえそう（定期チェック：2問まで）", "parallelAngles-basic-1", { s1: "108", s2: "straight" }, { angleNames: false, lineAngles: false, angleBasics: false }, R.CONFIG.BUDGET_PERIODIC]
+    ];
+    var demo = EX.map(function (e) {
+      var q = QS[e[1]], r = R.simulate(q, steps(q, e[2]), e[3], { now: ST.now(), budget: e[4] });
+      return '<div class="card bank-item"><p class="small"><strong>' + esc(e[0]) + "</strong>　" + esc(e[1]) + "（答え：" + esc(JSON.stringify(e[2])) + "／本当にできる：" +
+        esc(Object.keys(e[3]).filter(function (k) { return e[3][k]; }).map(function (k) { return E.SKILLS[k].label; }).join("・") || "−") + "）</p>" +
+        (r.trail ? geoTrailDetail(r.trail) + '<p class="small">' + esc(r.trail.conclusion.message) + "</p>" : '<p class="small muted">' + esc(ENTRY_JA[r.entry.entry]) + "</p>") + "</div>";
+    }).join("");
+    return '<section class="bank-skill"><h2 class="h-sm">図形の原因さがし（角度 value・根拠 reason で入口を変える）</h2>' +
+      '<p class="small muted">角度○・根拠× → 理由だけ記録／角度×・根拠○ → 計算側だけ／角度×・根拠× → 図形の性質側から（できていれば計算側）。小問は最初に止まった小問が入口。学校で未学習のスキルは原因さがしをしない。</p>' +
+      "<h3 class=\"small\">最近の図形の原因さがし</h3>" + (recent || '<p class="small muted">まだありません</p>') +
+      "<h3 class=\"small\">例（決まった答えで動かした結果）</h3>" + demo + "</section>";
   }
 
   var KIND_LABEL = { gap_found: "前提に原因がありそう", root: "土台まで戻った", in_skill: "前提はできている", not_reproduced: "別の問題ではできた", undetermined: "確かめきれていない" };
@@ -884,11 +933,12 @@
       return '<div class="card bank-item">' +
         '<p class="small"><strong>' + esc(new Date(x.date).toLocaleString("ja-JP")) + "</strong>　症状：" + esc(x.symptom.label) + "（" + esc(x.symptom.question_id) + "）" +
         ' <span class="lv lv-pass">' + esc(KIND_LABEL[c.kind] || "") + "</span></p>" +
-        '<p class="small">' + esc(R.pathText(x)) + "</p>" +
+        '<p class="small">' + esc(x.path ? R.pathText(x) : "") + "</p>" +
+        (x.geometry ? geoTrailDetail(x) : "") +
         (c.return_to ? '<p class="small">戻る場所：<strong>' + esc(E.SKILLS[c.return_to].label) + "</strong>" +
           (c.solid_skills && c.solid_skills.length ? "／できている前提：" + esc(c.solid_skills.map(function (k) { return E.SKILLS[k].label; }).join("、")) : "") +
           (c.pending_skills && c.pending_skills.length ? "／次回に回す：" + esc(c.pending_skills.map(function (k) { return E.SKILLS[k].label; }).join("、")) : "") + "</p>" : "") +
-        '<details><summary class="small">判断の記録</summary><ol class="small muted debug-log">' + x.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></details>" +
+        '<details><summary class="small">判断の記録</summary><ol class="small muted debug-log">' + (x.log || []).map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></details>" +
       "</div>";
     }).join("");
   }
@@ -1301,16 +1351,17 @@
     var rows = steps.map(function (st, i) {
       var r = res[i], v = figTry.v[st.id];
       var shown = st.type === "choice" ? ((st.choices.filter(function (c) { return c.key === v; })[0] || {}).label || v) : v;
-      return "<li><p>" + esc(st.text) + '<span class="muted small">［' + (st.aspect === "reason" ? "根拠" : "角度") + "］</span></p>" +
+      return "<li><p>" + esc(st.text) + '<span class="muted small">［' + (st.aspect === "reason" ? "根拠" : st.side === "concept" ? "式" : st.side === "calc" ? "計算" : "角度") + "］</span></p>" +
         '<p class="' + (r.correct ? "geo-ok" : "geo-warn") + '">' + (r.correct ? "○ " : "× ") + esc(shown) + (r.correct ? "" : "（答え：" + esc(answerText(st)) + "）") + "</p>" +
         '<p class="small muted">' + esc(st.explanation || "") + "</p></li>";
     }).join("");
     var valueOk = res.filter(function (r) { return r.aspect !== "reason"; }).every(function (r) { return r.correct; });
     var reasons = res.filter(function (r) { return r.aspect === "reason"; });
     var reasonOk = reasons.length ? reasons.every(function (r) { return r.correct; }) : null;
-    var route = E.geometryRoute(valueOk, reasonOk);
-    var key = route.trail || (route.reason_practice ? "reason" : "none");
-    var side = route.trail ? E.prereqSide(q.skill, route.trail).map(function (k) { return E.SKILLS[k].label; }).join("・") : "";
+    // 原因さがしの入口（定期チェックと同じ R.geometryEntry）
+    var ge = R.geometryEntry(q, res, { school: ST.school() });
+    var key = ge.entry === "reason_only" ? "reason" : ge.entry === "calc" || ge.entry === "concept" ? ge.entry : "none";
+    var side = ge.entry === "calc" ? skillList(ge.calc_prereqs) : ge.entry === "concept" ? skillList(ge.concept_prereqs) + (ge.then_calc ? "（できていれば計算側：" + skillList(ge.calc_prereqs) + "）" : "") : "";
     var st = ST.get().skill_state[q.skill] || {};
     var asp = st.value ? "<li>角度を求める力（value）：" + esc(E.STATUS_VIEW[st.value.status].label) + "・確かさ " + st.value.confidence + "・" + st.value.correct + "/" + st.value.attempts + "</li>" +
       "<li>理由の理解（reason）：" + esc(E.STATUS_VIEW[st.reason.status].label) + "・" + st.reason.correct + "/" + st.reason.attempts +
@@ -1319,7 +1370,8 @@
     return head + '<ol class="bank-steps">' + rows + "</ol>" +
       feedbackBlock(valueOk && reasonOk !== false ? "correct" : "revealed", { explain: q.explanation || "" }) +
       '<h2 class="h-sm">記録と、このあと</h2><ul class="small debug-log">' +
-        "<li>角度 " + (valueOk ? "○" : "×") + "／根拠 " + (reasonOk === null ? "聞いていない" : reasonOk ? "○" : "×") + " → " + esc(ROUTE_JA[key]) + (side ? "（" + esc(side) + "）" : route.trail ? "（前提なし：この問題の解き直し）" : "") + "</li>" +
+        "<li>角度 " + (valueOk ? "○" : "×") + "／根拠 " + (reasonOk === null ? "聞いていない" : reasonOk ? "○" : "×") + " → " + esc(ROUTE_JA[key]) + (side && side !== "−" ? "（" + esc(side) + "）" : ge.entry === "calc" ? "（計算の前提なし：計算の見直し）" : "") + "</li>" +
+        (ge.first_miss_step ? "<li>最初に止まった小問：" + esc(ge.first_miss_step) + "（" + esc(ge.why) + "）</li>" : "") +
         asp + "</ul>" +
       '<div class="actions"><button class="secondary-button" type="button" data-action="figtry-reset">もう一度解く</button></div>' + back;
   }
@@ -1479,7 +1531,10 @@
     // 原因さがし：原因確認の問題なら道すじへ。定期チェックでまちがえたら、その前提をさかのぼりはじめる
     var correctNow = status === "correct";
     var wasProbe = onProbeAnswered(id, correctNow);
-    if (state.mode === "periodic" && !wasProbe && !correctNow) {
+    if (state.mode === "periodic" && !wasProbe && R.isGeometry(q.skill)) {
+      // 図形：角度（value）と根拠（reason）の結果で、原因さがしの入口を変える
+      startGeometryTrail(q, stepResults || (status === "unknown" ? false : correctNow));
+    } else if (state.mode === "periodic" && !wasProbe && !correctNow) {
       var stepSkill = q.type === "steps" && state.answers[id].steps ? state.answers[id].steps.suspected_skill : null;
       startTrail(q, stepSkill || q.skill, []);
     }
@@ -1569,6 +1624,17 @@
     var ti = state.trails.length - 1;
     R.takeSeeds(trail).forEach(function (p) { state.probes[p.question_id] = { trail: ti, probe: p, done: false }; });
     advanceTrail(ti);
+  }
+
+  // 図形の問題：角度○・根拠× は理由だけ記録（原因さがしの問題は出さない）。角度× は入口（図形側／計算側）を決めてさかのぼる。
+  // 学校でまだ習っていない図形スキルは、苦手にせず原因さがしもしない
+  function startGeometryTrail(q, results) {
+    var g = R.geometryEntry(q, results, { school: ST.school() });
+    if (g.entry === "none" || g.entry === "not_learned") return;
+    if (state.trails.some(function (t) { return t.symptom.skill === g.skill; })) return; // 同じスキルは1本だけ
+    if (g.entry === "reason_only") { state.trails.push(R.reasonOnly(q, g, ST.now())); return; }
+    state.trails.push(R.start({ question: q, geometry: g, now: ST.now() }));
+    advanceTrail(state.trails.length - 1);
   }
 
   // 原因さがしの問題に答えたら、道すじに結果を渡して次へ。原因さがしの問題でなければ false

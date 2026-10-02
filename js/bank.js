@@ -3258,6 +3258,27 @@
       hint: "まず y、次に平行線の性質。", explanation: "y = 180 − 128 = 52°。y の対頂角と x は同位角なので x = 52° です。" });
   })();
 
+  // ---------- 角度を式で表す：「どの式が成り立つ？」の小問（s0）を先に置く ----------
+  //   s0（式を立てる：図形の関係を式にする）は side: "concept"、s1（x を求める）は side: "calc"。
+  //   原因さがしは「最初に止まった小問」で入口を変える：s0 × → 図形の性質側／s0 ○・s1 × → 一次方程式（計算側）
+  var EQUATION_STEP = {
+    "angleEq-basic-1": [["3x + x = 90", "3x = x", "3x + x = 180", "3x + x = 360"], 2, "3x と x を合わせると一直線なので、3x + x = 180 です。"],
+    "angleEq-basic-2": [["x + 18 = 70", "x + 18 + 70 = 180", "x + 18 + 70 = 360", "x + 18 = 90"], 0, "(x + 18)° と 70° は対頂角なので等しく、x + 18 = 70 です。"],
+    "angleEq-standard-1": [["(2x + 10) + (x + 20) = 360", "(2x + 10) + (x + 20) = 180", "2x + 10 = x + 20", "(2x + 10) + (x + 20) = 90"], 1, "2つの角を合わせると一直線なので、(2x + 10) + (x + 20) = 180 です。"],
+    "angleEq-standard-3": [["2x + (x + 40) = x", "2x + (x + 40) + x = 90", "2x + (x + 40) + x = 360", "2x + (x + 40) + x = 180"], 3, "三角形の内角の和は 180° なので、2x + (x + 40) + x = 180 です。"],
+    "angleEq-standard-4": [["(2x + 5) + (3x − 25) = 180", "2x + 5 = 3x − 25", "(2x + 5) + (3x − 25) = 360", "2x + 5 + 3x − 25 = 90"], 1, "2つの角は錯角なので等しく、2x + 5 = 3x − 25 です。"],
+    "angleEq-application-1": [["3x − 20 = 2x + 15", "(3x − 20) + (2x + 15) = 180", "(3x − 20) + (2x + 15) = 360", "3x − 20 = 180 − (2x + 15)"], 0, "2つの角は同位角なので等しく、3x − 20 = 2x + 15 です。"]
+  };
+  items.forEach(function (q) {
+    var e = EQUATION_STEP[q.id];
+    if (!e) return;
+    var keys = ["a", "b", "c", "d"];
+    q.steps.unshift({ id: "s0", skill: "angleEq", aspect: "value", side: "concept", text: "どの式が成り立つ？", type: "choice", answer: keys[e[1]],
+      choices: e[0].map(function (t, i) { return { key: keys[i], label: t }; }),
+      hint: "2つの角の関係（等しい？ 合わせて 180°？）を式にする。", explanation: e[2] });
+    q.steps.forEach(function (st) { if (st.id === "s1") st.side = "calc"; });
+  });
+
   // はじめてのチェック（5問）：角の性質・平行線・三角形・外角・角度の方程式
   items.forEach(function (q) {
     if (["lineAngles-basic-1", "angleEq-standard-1", "parallelAngles-basic-1", "triangleSum-basic-1", "exteriorAngle-basic-1"].indexOf(q.id) !== -1) q.usage = "diagnosis";
@@ -3280,7 +3301,16 @@
     q.skillLabel = sk.label;
     // 前提を書いていない問題は、スキル地図の前提を使う。ただし「移項」（方程式を解く）は、
     // 実際に解く問題（下の SOLVES_EQUATION）にだけ付ける
-    q.prerequisite_skills = q.prerequisite_skills || sk.prerequisites.filter(function (p) { return p !== "transpose" || E.SKILLS[q.skill].unit === "一次方程式"; });
+    // 図形のスキルは、前提を「図形の性質側（concept）」と「計算側（calc）」に分けて持つ。
+    // 計算側の前提（同類項・移項・かっこのある方程式など）は、実際に方程式を解く問題にだけ付ける（角度を式で表す、または問題に書いたもの）
+    var geoSk = !!sk.concept;
+    q.prerequisite_skills = q.prerequisite_skills || (geoSk ? sk.concept.concat(q.skill === "angleEq" ? sk.calc : [])
+      : sk.prerequisites.filter(function (p) { return p !== "transpose" || E.SKILLS[q.skill].unit === "一次方程式"; }));
+    if (geoSk) {
+      var isGeoP = function (p) { return !!E.SKILLS[p].concept || p === "angleBasics"; };
+      q.concept_prerequisites = q.concept_prerequisites || q.prerequisite_skills.filter(isGeoP);
+      q.calculation_prerequisites = q.calculation_prerequisites || q.prerequisite_skills.filter(function (p) { return !isGeoP(p); });
+    }
     q.skills_used = q.skills_used || [q.skill];
     q.on_incorrect = q.on_incorrect || [];
     q.on_correct = q.on_correct || [];

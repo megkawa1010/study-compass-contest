@@ -42,17 +42,88 @@
   // まちがえた問題そのもの（1段目）は、その問題が持つ前提だけを見る（例：傾きと切片から式を書く問題に、
   // 方程式を解く力は関係ないので、地図上の前提でも確かめない）。問題が前提を持たないときと、2段目からはスキル地図の前提。
   function prereqOrder(trail, skill) {
-    var fromQuestion = skill === trail.symptom.skill ? (trail.symptom.prerequisite_skills || []) : [];
-    var fromGraph = E.SKILLS[skill] ? E.SKILLS[skill].prerequisites : [];
-    var list = fromQuestion.length ? fromQuestion : fromGraph;
+    var list;
+    if (trail.geometry) {
+      // 図形：いまたどっている側（図形の性質側 concept／計算側 calc）の前提だけを見る
+      var side = trail.geometry.sides[trail.geometry.side_idx];
+      if (skill === trail.symptom.skill) list = side === "calc" ? trail.geometry.calc_prereqs : trail.geometry.concept_prereqs;
+      else list = isGeometry(skill) ? E.prereqSide(skill, side) : E.SKILLS[skill].prerequisites;
+    } else {
+      var fromQuestion = skill === trail.symptom.skill ? (trail.symptom.prerequisite_skills || []) : [];
+      var fromGraph = E.SKILLS[skill] ? E.SKILLS[skill].prerequisites : [];
+      list = fromQuestion.length ? fromQuestion : fromGraph;
+    }
     return uniq(list).filter(function (p) { return p !== skill && E.SKILLS[p]; });
+  }
+
+  // ---------- 図形：value（角度・値）と reason（根拠）の結果から、原因さがしの入口を決める ----------
+  //   角度○・根拠×       → reason_only：理由だけ記録。原因さがしはしない（根拠の確認を今日の学習の候補に）
+  //   角度×・根拠○       → calc：根拠はわかっているので、計算側（問題ごとの calculation_prerequisites）だけ
+  //   角度×・根拠×       → concept：図形の性質側から。そこができていれば、必要なときだけ計算側
+  //   根拠を聞かない問題 → concept（同じく、必要なときだけ計算側）
+  //   小問に side があれば、最初に止まった値の小問で決める（式を選ぶ ×：concept／x を求める ×：calc）
+  function isGeometry(skill) { return !!(E.SKILLS[skill] && E.SKILLS[skill].concept); }
+  function geoLists(q, skill) {
+    var mine = skill === q.skill;
+    return {
+      concept: (mine && q.concept_prerequisites) || E.prereqSide(skill, "concept"),
+      calc: (mine && q.calculation_prerequisites) || (mine ? [] : E.prereqSide(skill, "calc"))
+    };
+  }
+  // results：L.checkSteps の結果（小問ごと）。小問のない問題は true / false
+  // opts.school：学校のようす（学校でまだ習っていない図形スキルは not_learned：苦手にせず、原因さがしもしない）
+  function geometryEntry(q, results, opts) {
+    opts = opts || {};
+    if (!Array.isArray(results)) results = [{ id: null, skill: q.skill, correct: !!results, aspect: "value" }];
+    var steps = q.steps || [];
+    function stepOf(r) { return steps.filter(function (st) { return st.id === r.id; })[0] || {}; }
+    var vals = results.filter(function (r) { return (r.aspect || "value") !== "reason"; });
+    var reas = results.filter(function (r) { return r.aspect === "reason"; });
+    var out = {
+      question_id: q.id,
+      value_ok: vals.every(function (r) { return r.correct; }),
+      reason_ok: reas.length ? reas.every(function (r) { return r.correct; }) : null,
+      first_miss_step: (results.filter(function (r) { return !r.correct; })[0] || {}).id || null,
+      entry: "none", skill: null, why: "", then_calc: false, confusions: []
+    };
+    reas.forEach(function (r) {
+      if (r.correct) return;
+      var st = stepOf(r);
+      out.confusions.push({ skill: r.skill, step: r.id, chosen: r.chosen == null ? null : r.chosen, answer: st.answer,
+        confusion: SC.geometry && r.chosen != null ? SC.geometry.confusionOf(st, r.chosen) : null });
+    });
+    if (out.value_ok) {
+      if (out.reason_ok === false) {
+        out.entry = "reason_only"; out.skill = reas.filter(function (r) { return !r.correct; })[0].skill;
+        out.why = "角度は求められているので、図形の性質側の深い原因さがしはしない。根拠だけを記録";
+      }
+      return finish();
+    }
+    var fv = vals.filter(function (r) { return !r.correct; })[0], st = stepOf(fv);
+    out.skill = fv.skill || q.skill;
+    if (st.side === "concept") { out.entry = "concept"; out.why = "式を立てる（図形の関係を式にする）小問で止まった"; }
+    else if (st.side === "calc") { out.entry = "calc"; out.why = "式は立てられたが、x を求める計算で止まった"; }
+    else if (out.reason_ok === true) { out.entry = "calc"; out.why = "根拠は正しく選べた（図形の性質はわかっている）が、値をまちがえた"; }
+    else if (out.reason_ok === false) { out.entry = "concept"; out.then_calc = true; out.why = "角度も根拠もまちがえた"; }
+    else { out.entry = "concept"; out.then_calc = true; out.why = "根拠を聞いていない問題なので、図形の性質側から"; }
+    return finish();
+    function finish() {
+      var lists = geoLists(q, out.skill || q.skill);
+      out.concept_prereqs = lists.concept.slice();
+      out.calc_prereqs = lists.calc.slice();
+      if (out.skill && out.entry !== "none" && E.schoolSkillStatus(out.skill, opts.school) === "not_learned") {
+        out.entry = "not_learned";
+        out.why = "学校でまだ習っていない（先取り）なので、苦手にせず原因さがしもしない";
+      }
+      return out;
+    }
   }
 
   // ---------- 道すじをはじめる ----------
   // opts: { question, skill?（応用問題で止まった小問のスキル）, seeds?（先に出すと決まっている原因確認問題ID）, now }
   function start(opts) {
     var q = opts.question;
-    var skill = opts.skill || q.skill;
+    var skill = opts.skill || (opts.geometry && opts.geometry.skill) || q.skill;
     var trail = {
       id: E.makeId("trl", opts.now || Date.now()),
       symptom: {
@@ -72,6 +143,35 @@
       conclusion: null
     };
     trail.tested[skill] = false;
+    var g = opts.geometry;
+    if (g) {
+      trail.geometry = { question_id: g.question_id, value_ok: g.value_ok, reason_ok: g.reason_ok, first_miss_step: g.first_miss_step,
+        entry: g.entry, why: g.why, concept_prereqs: g.concept_prereqs, calc_prereqs: g.calc_prereqs, confusions: g.confusions,
+        sides: g.entry === "calc" ? ["calc"] : g.then_calc ? ["concept", "calc"] : ["concept"], side_idx: 0, skipped: [] };
+      trail.log.push("入口：" + (g.entry === "calc" ? "計算側" : "図形の性質側") + "（" + g.why + "）");
+      if (g.entry === "calc") trail.geometry.skipped.push({ side: "concept", why: "根拠が正しい・式が立てられている＝図形の性質はわかっているので、図形側は確かめない" });
+    }
+    return trail;
+  }
+
+  // 角度○・根拠× のとき：原因さがしの問題は出さず、理由だけを記録した道すじ（結論ずみ）
+  function reasonOnly(q, g, now) {
+    var trail = start({ question: q, skill: g.skill, now: now });
+    trail.path[0].correct = true;
+    trail.path[0].label = label(g.skill) + "（角度）";
+    trail.path.push({ skill: g.skill, label: label(g.skill) + "（根拠）", question_id: q.id, correct: false, via: "reason", depth: 0 });
+    trail.tested = {};
+    trail.geometry = { question_id: q.id, value_ok: true, reason_ok: false, first_miss_step: g.first_miss_step, entry: "reason_only", why: g.why,
+      concept_prereqs: g.concept_prereqs, calc_prereqs: g.calc_prereqs, confusions: g.confusions, sides: [], side_idx: 0,
+      skipped: [{ side: "concept", why: "角度は求められているので、図形の性質側の深い原因さがしはしない" }, { side: "calc", why: "値は正しいので、計算側は確かめない" }] };
+    var RS = SC.geometry ? SC.geometry.REASONS : {};
+    var c = g.confusions[0] || {};
+    trail.status = "done";
+    trail.conclusion = { kind: "reason_only", gap_skill: null, return_to: null, solid_skills: [], pending_skills: [], reason_practice: g.skill, confusions: g.confusions,
+      message: "「" + label(g.skill) + "」の角度は正しく求められています。理由" + (c.chosen && RS[c.chosen] ? "（選んだ根拠「" + RS[c.chosen] + "」→ 正しくは「" + (RS[c.answer] || c.answer) + "」）" : "") +
+        "がまだ不安定なので、根拠を短く確認しましょう。" };
+    trail.log.push("角度は正しく、根拠だけまちがえた → 原因さがしはせず、根拠を記録（" + (c.confusion || "") + "）");
+    trail.log.push("結論：" + trail.conclusion.message);
     return trail;
   }
 
@@ -148,6 +248,16 @@
         break;
       }
       if (moved) continue; // 1段さかのぼったので、新しいスキルの前提を見直す
+      // 図形：図形の性質側がすべてできていたら、必要なときだけ計算側へ
+      var g = trail.geometry;
+      if (!probe && g && trail.frontier === trail.symptom.skill && g.side_idx < g.sides.length - 1) {
+        var here = prereqOrder(trail, trail.frontier);
+        if (!trail.pending.length && here.every(function (p) { return trail.tested[p] === true || trail.tested[p] === "not_learned"; })) {
+          g.side_idx++;
+          trail.log.push("図形の性質側（" + list(here) + "）はできていた → 計算側を確かめる");
+          continue;
+        }
+      }
       if (probe) {
         trail.log.push("「" + label(trail.frontier) + "」の前提「" + label(probe.skill) + "」を " + probe.question_id + " で確かめる");
         return probe;
@@ -208,6 +318,21 @@
     var gap = trail.frontier;
     var prereqs = prereqOrder(trail, gap);
     var solid = prereqs.filter(function (p) { return trail.tested[p] === true; });
+    var g = trail.geometry;
+    if (g) {
+      if (g.sides.indexOf("calc") === -1 && g.entry === "concept") g.skipped.push({ side: "calc", why: "式を立てる小問で止まったので、計算側は確かめない" });
+      else if (g.sides[g.side_idx] === "concept" && g.sides.indexOf("calc") !== -1)
+        g.skipped.push({ side: "calc", why: trail.pending.length ? "図形の性質側を確かめきれなかったので、計算側は次回以降" : "図形の性質側に戻る場所が見つかったので、計算側はいまは確かめない" });
+      // 図形の性質側もできていて、さかのぼる計算もない（たし算・ひき算だけの問題）
+      if (gap === trail.symptom.skill && !trail.pending.length && trail.reproduced !== false && g.calc_prereqs.length === 0 && g.sides[g.side_idx] === "calc") {
+        trail.status = "done";
+        solid = Object.keys(trail.tested).filter(function (k) { return trail.tested[k] === true; });
+        trail.conclusion = { kind: "value_slip", gap_skill: null, return_to: null, solid_skills: solid, pending_skills: [],
+          message: "「" + label(gap) + "」の" + (g.reason_ok ? "根拠は正しく選べています" : "図形の性質の前提はできています") + "。角度を求める計算（たし算・ひき算）を見直すと、解けるようになりそうです。" };
+        trail.log.push("結論：" + trail.conclusion.message);
+        return trail;
+      }
+    }
     var kind;
     if (trail.reproduced === false) kind = "not_reproduced";
     else if (trail.pending.length) kind = "undetermined";
@@ -298,7 +423,52 @@
     return best;
   }
 
+  // 根拠の確認（今日の学習の候補）：最近の reason_only の道すじと、skill_state の reason が不安定なスキル
+  function reasonPractice(explorations, states, now) {
+    var out = [], seen = {};
+    (explorations || []).slice().reverse().forEach(function (x) {
+      var c = x.conclusion;
+      if (!c || c.kind !== "reason_only" || seen[c.reason_practice]) return;
+      if (now && x.date && now - Date.parse(x.date) > 14 * E.DAY) return;
+      seen[c.reason_practice] = true;
+      out.push({ skill: c.reason_practice, from: "exploration", confusions: (c.confusions || []).map(function (z) { return z.confusion; }) });
+    });
+    Object.keys(states || {}).forEach(function (k) {
+      var s = states[k];
+      if (seen[k] || !s.overall || !s.overall.reason_practice) return;
+      seen[k] = true;
+      out.push({ skill: k, from: "skill_state", confusions: Object.keys(s.reason.confusions || {}) });
+    });
+    return out;
+  }
+
+  // 開発・確認用：図形の1問の結果と「本当の理解（knows）」から、道すじを最後まで進める（?debug=compass・テスト）
+  // opts: { budget, states, school, now, pickQuestion }
+  function simulate(q, results, knows, opts) {
+    opts = opts || {};
+    var now = opts.now || Date.now();
+    var g = geometryEntry(q, results, { school: opts.school });
+    if (g.entry === "none" || g.entry === "not_learned") return { entry: g, trail: null, asked: [] };
+    if (g.entry === "reason_only") return { entry: g, trail: reasonOnly(q, g, now), asked: [] };
+    var trail = start({ question: q, geometry: g, now: now });
+    var budget = opts.budget == null ? CONFIG.BUDGET_INITIAL : opts.budget, asked = [], used = [q.id];
+    var pick = opts.pickQuestion || function (skill) {
+      var p = SC.bank.pick(skill, "basic", { exclude: used, rng: SC.bank.seeded(1) }) || SC.bank.pick(skill, "retention", { exclude: used, rng: SC.bank.seeded(1) }) ||
+        SC.bank.pick(skill, "standard", { exclude: used, rng: SC.bank.seeded(1) });
+      return p ? p.id : null;
+    };
+    for (var i = 0; i < 20; i++) {
+      var p = next(trail, { states: opts.states || {}, now: now, budgetLeft: budget, school: opts.school, pickQuestion: pick });
+      if (!p) break;
+      used.push(p.question_id); budget--; asked.push(p);
+      answer(trail, p, !!knows[p.skill]);
+    }
+    if (trail.status === "open") conclude(trail);
+    return { entry: g, trail: trail, asked: asked };
+  }
+
   SC.rootcause = {
+    geometryEntry: geometryEntry, reasonOnly: reasonOnly, reasonPractice: reasonPractice, simulate: simulate, isGeometry: isGeometry,
     CONFIG: CONFIG, SKIP: SKIP, skipDecision: skipDecision,
     start: start, next: next, answer: answer, conclude: conclude, takeSeeds: takeSeeds,
     solidByHistory: solidByHistory, pathText: pathText, deepestReturn: deepestReturn, ROOT_ORDER: ROOT_ORDER

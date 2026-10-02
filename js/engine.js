@@ -536,7 +536,8 @@
     var r = attempts.filter(function (a) { return a.aspect === "reason"; });
     var vs = computeOne(skillId, v, opts), rs = computeOne(skillId, r, opts);
     var confusions = {};
-    r.forEach(function (a) { if (!a.correct && a.confusion) confusions[a.confusion] = (confusions[a.confusion] || 0) + 1; });
+    // 先取り（学校でまだ習っていない）でまちがえた根拠は、取り違えとして数えない
+    r.forEach(function (a) { if (!a.correct && a.confusion && !a.preview) confusions[a.confusion] = (confusions[a.confusion] || 0) + 1; });
     var value = { status: vs.learning_status, confidence: vs.confidence, attempts: vs.attempt_count, correct: vs.correct_count };
     var reason = { status: rs.learning_status, confidence: rs.confidence, attempts: rs.attempt_count, correct: rs.correct_count, confusions: confusions };
     return { value: value, reason: reason, overall: overallOf(value, reason) };
