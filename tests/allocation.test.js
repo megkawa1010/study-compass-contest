@@ -93,7 +93,7 @@ test("つまずきが深いと戻る勉強が増える。それでも学校の�
   assert.ok(pd.debug.alloc.severity_score > pm.debug.alloc.severity_score);
   assert.ok(back(pd) > back(pm), "深い " + desc(pd) + " ／ 浅い " + desc(pm));
   assert.ok(sum(pd, ["current_unit"]) >= 10, desc(pd));
-  // 苦手を戻る日でも、学校の範囲は0分にしない
+  // 前にもどって確認する日でも、学校の範囲は0分にしない
   const pc = plan(deep, { explorations: [EXPL_T], goal: "catch_up" });
   assert.ok(sum(pc, ["current_unit"]) >= 10, desc(pc));
 });

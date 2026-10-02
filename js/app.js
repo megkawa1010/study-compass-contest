@@ -567,7 +567,7 @@
     function item(k, mark) {
       var extra = k.withHint ? "（ヒントありでできた）" : "";
       return '<li><span class="mark">' + mark + "</span><div><strong>" + esc(k.label) + extra + "</strong><p>" + esc(k.note) + "</p>" +
-        (k.roots.length ? '<p class="root">つまずき候補：' + esc(k.roots.join("、")) + "</p>" : "") + "</div></li>";
+        (k.roots.length ? '<p class="root">確認したいところ：' + esc(k.roots.join("、")) + "</p>" : "") + "</div></li>";
     }
 
     return '' +
@@ -667,7 +667,7 @@
           '<div class="hs-top"><strong>' + esc(s.skill) + "</strong>" + unitTag(k) + '<span class="hs-status">' + v.label + "</span>" + delta + "</div>" +
           (s.attempt_count ? '<div class="hs-meter"><span class="meter wide"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span></div>' +
             '<div class="hs-levels">' + levels + "</div>" : "") +
-          (s.suspected_root_causes.length ? '<p class="root">つまずき候補：' + esc(s.suspected_root_causes.join("、")) + "（可能性）</p>" : "") +
+          (s.suspected_root_causes.length ? '<p class="root">確認したいところ：' + esc(s.suspected_root_causes.join("、")) + "（可能性）</p>" : "") +
         "</div></li>";
     }).join("");
     return '<section class="card history-card">' +
@@ -1744,7 +1744,7 @@
     var shown = (trails || []).filter(function (t) { return t.conclusion; });
     if (!shown.length) return "";
     var told = {}; // 同じ「戻る場所」にたどりついた道すじは、説明を1回だけにする
-    return '<section class="card trail-card"><h2 class="h-sm"><span class="spark" aria-hidden="true">✦</span> つまずきの道すじ</h2>' +
+    return '<section class="card trail-card"><h2 class="h-sm"><span class="spark" aria-hidden="true">✦</span> 確認した道すじ</h2>' +
       '<p class="small muted">まちがえた問題から、前にある内容をさかのぼって確かめました。○ のところまでは戻らなくてよさそうです。</p>' +
       shown.map(function (t) {
         var c = t.conclusion;

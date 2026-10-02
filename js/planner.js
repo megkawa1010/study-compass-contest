@@ -31,7 +31,7 @@
     LONG_GAP_DAYS: 14            // 定着していても、この日数あいたら確かめ直す
   };
 
-  var GOALS = { daily_learning: "いつもの勉強", catch_up: "苦手を戻る", review: "復習", challenge: "もう少し先へ" };
+  var GOALS = { daily_learning: "いつもの勉強", catch_up: "前にもどって確認", review: "復習", challenge: "もう少し先へ" };
   // テスト対策はホームの目標ボタンには出さず、テストの予定を入れたときだけ使う
   var ALL_GOALS = { daily_learning: GOALS.daily_learning, catch_up: GOALS.catch_up, review: GOALS.review, challenge: GOALS.challenge, test_preparation: "テスト対策" };
   // 子ども向けの表示名（内部の type はそのまま）。戻る勉強は「もどって確認」（つまずき・苦手を強調しない）
@@ -358,7 +358,7 @@
   function allocate(a, input, minutes, goal, log) {
     var sev = severityOf(a, input);
     var level = sev.level;
-    // 目標による調整：苦手を戻る日は1段重く・先取りなし／もう少し先へは1段軽く／復習は定着を長めに
+    // 目標による調整：前にもどって確認する日は1段重く・先取りなし／もう少し先へは1段軽く／復習は定着を長めに
     var order = ["none", "mild", "moderate", "severe"];
     if (goal === "catch_up" && level !== "none") level = order[Math.min(3, order.indexOf(level) + 1)];
     if (goal === "challenge" && level !== "none") level = order[Math.max(1, order.indexOf(level) - 1)];
@@ -601,7 +601,7 @@
   function whyAlloc(a, plan, goal, alloc) {
     if (alloc.test && alloc.test.stage !== "understand") return whyTest(a, plan, alloc);
     var lines = [];
-    var opener = { catch_up: "今日は「苦手を戻る」日。", review: "今日は「復習」の日。", challenge: "今日は「もう少し先へ」の日。" }[goal];
+    var opener = { catch_up: "今日は「前にもどって確認」する日。", review: "今日は「復習」の日。", challenge: "今日は「もう少し先へ」の日。" }[goal];
     var s = plan.sessions;
     var practice = s.filter(function (x) { return x.type === "practice"; })[0];
     var review = s.filter(function (x) { return x.type === "review" && x.level === "retention"; })[0];

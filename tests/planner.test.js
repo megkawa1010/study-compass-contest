@@ -65,7 +65,7 @@ test("今日使える時間で中身が変わる（20分と45分）", () => {
   assert.ok(p45.sessions.some((s) => s.type === "current_unit"), "45分なら学校の単元も入る");
 });
 
-test("学習目標で中身が変わる（苦手を戻る／もう少し先へ／復習）", () => {
+test("学習目標で中身が変わる（前にもどって確認／もう少し先へ／復習）", () => {
   const L = learner(); demo(L);
   const now = T0 + 4 * DAY;
   const daily = L.plan(now, { minutes: 45, explorations: [EXPL_CHANGE] });
@@ -73,10 +73,10 @@ test("学習目標で中身が変わる（苦手を戻る／もう少し先へ�
   const challenge = L.plan(now, { minutes: 45, goal: "challenge", explorations: [EXPL_CHANGE] });
   const review = L.plan(now, { minutes: 45, goal: "review", explorations: [EXPL_CHANGE] });
   const mins = (p, type) => p.sessions.filter((s) => s.type === type).reduce((a, s) => a + s.minutes, 0);
-  assert.ok(mins(catchUp, "practice") > mins(daily, "practice"), "苦手を戻る日は補強の時間が長い");
+  assert.ok(mins(catchUp, "practice") > mins(daily, "practice"), "前にもどって確認する日は、もどって確認の時間が長い");
   assert.ok(mins(challenge, "challenge") > mins(daily, "challenge"), "もう少し先への日は発展の時間が長い");
   assert.ok(mins(review, "review") + mins(review, "check") > mins(daily, "review") + mins(daily, "check"), "復習の日は復習の時間が長い");
-  [catchUp, challenge, review].forEach((p) => assert.match(p.why, /^今日は「.+」の?日。/));
+  [catchUp, challenge, review].forEach((p) => assert.match(p.why, /^今日は「.+」(の|する)?日。/));
 });
 
 test("学校の進み具合を使う：まだ習っていない単元は、はじめの基礎だけ先取り", () => {
