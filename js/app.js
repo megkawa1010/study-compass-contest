@@ -328,7 +328,7 @@
       '<details class="card about">' +
         "<summary>このデモについて</summary>" +
         "<ul>" +
-          "<li>コンテスト版として、中学2年 数学「一次関数」だけを収録しています。</li>" +
+          "<li>コンテスト版として、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」を収録しています。</li>" +
           "<li>点数を出すのではなく、問題ごとに「どのスキル・どの前提知識を見たか」から、つまずきの場所を推定します。</li>" +
           "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は、このデモでは使っていません。</li>" +
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
@@ -433,7 +433,7 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」が選べます。</p>' +
+        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
@@ -444,6 +444,13 @@
             return '<label class="radio-chip"><input type="radio" name="study-status" value="' + st[0] + '"' + (s.status === st[0] ? " checked" : "") + "><span>" + st[1] + "</span></label>";
           }).join("") +
         "</fieldset>" +
+        // 習っている途中なら「どこまで進んだ？」（まだ習っていないところはチェックに出さない・苦手にしない）
+        (s.status === "learning"
+          ? '<fieldset class="status-group"><legend>学校ではどこまで進んだ？</legend>' +
+              E.schoolOptions(s.unit).map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; }).concat([{ value: "", label: "どこまでかわからない" }]).map(function (o) {
+                return '<label class="radio-chip"><input type="radio" name="study-skill" value="' + esc(o.value) + '"' + ((s.skill || "") === o.value ? " checked" : "") + "><span>" + esc(o.label) + "</span></label>";
+              }).join("") + "</fieldset>"
+          : "") +
         '<button class="primary-button big full" type="button" data-action="start-check">現在地をチェックする</button>' +
       "</section>";
   }
@@ -1720,7 +1727,7 @@
       shown.map(function (t) {
         var c = t.conclusion;
         return '<div class="trail"><ol class="trail-path">' + t.path.map(function (p) {
-          var note = p.via === "history" ? "記録から" : p.via === "session" ? "今回の答えから" : p.via === "symptom" ? "まちがえた問題" : "";
+          var note = p.via === "history" ? "記録から" : p.via === "session" ? "今回の答えから" : p.via === "symptom" ? (p.correct ? "正解" : "まちがえた問題") : p.via === "reason" ? "まちがえた根拠" : "";
           return '<li class="tp ' + (p.correct ? "ok" : "ng") + (p.via === "history" || p.via === "session" ? " hist" : "") + '">' +
             '<span class="tp-mark" aria-hidden="true">' + (p.correct ? "○" : "×") + "</span>" +
             '<span class="tp-label">' + esc(p.label) + (note ? "<small>" + note + "</small>" : "") + "</span></li>";
@@ -1918,7 +1925,7 @@
     var unitSets = rangeUnits.map(function (u) {
       return '<fieldset class="status-group"><legend>テスト範囲（' + esc(u) + "）" +
         '<button type="button" class="text-button inline" data-action="toggle-range" data-unit="' + esc(u) + '">まとめて選ぶ／外す</button></legend>' +
-        SC.testprep.unitSkills(u).map(function (k) { return box(k, defUnits.indexOf(u) !== -1); }).join("") + "</fieldset>";
+        SC.testprep.unitSkills(u).map(function (k) { return box(k, defUnits.indexOf(u) !== -1 && ST.schoolSkillStatus(k) !== "not_learned"); }).join("") + "</fieldset>";
     }).join("");
     return '<section class="card narrow">' +
       '<p class="eyebrow">TEST</p><h1 class="h-md">テストの予定を入れよう</h1>' +
@@ -2171,7 +2178,8 @@
   });
 
   app.addEventListener("change", function (e) {
-    if (e.target.name === "study-status") state.setup.status = e.target.value;
+    if (e.target.name === "study-status") { state.setup.status = e.target.value; render(); }
+    if (e.target.name === "study-skill") state.setup.skill = e.target.value;
     // 学校のようす：単元を変えたら、その単元の「どこまで」を出しなおす
     if (e.target.id === "school-unit") {
       var sc = ST.school(), u = e.target.value;
@@ -2188,16 +2196,19 @@
       // 単元を変えたら、その単元の「習った／途中／まだ」を前回の答えから出しなおす
       state.setup.unit = e.target.value;
       state.setup.status = ST.schoolProgress(e.target.value);
+      state.setup.skill = ST.school().units[e.target.value] ? ST.school().units[e.target.value].current_skill || "" : "";
       render();
     }
   });
 
   // 単元のはじめてのチェック。一次関数は B1〜B5（原因確認 C1〜C5 つき）、ほかの単元は問題バンクの診断用の問題
-  function startUnitCheck(unit, status) {
+  function startUnitCheck(unit, status, skill) {
     state = freshState();
-    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status };
+    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status, skill: skill || "" };
     ST.setCurrentUnit(unit);
     ST.setSchoolProgress(unit, status);
+    // 「どこまで進んだ？」で選んだスキルまでを学習済みに（その先は未学習：チェックに出さない・苦手にしない）
+    if (status === "learning") ST.setSchool(unit, skill || null, { unitStatus: "learning" });
     todayCache = null;
     if (unit === "一次関数") {
       state.sessionId = ST.startSession("compass_check", unit);
@@ -2205,7 +2216,7 @@
       return;
     }
     startPeriodic(C.unitCheck(unit, ST.school()), "unit_check"); // state を作り直すので、選んだ単元を入れなおす
-    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status };
+    state.setup = { grade: "中学2年", subject: "数学", unit: unit, status: status, skill: skill || "" };
     render();
   }
 
@@ -2237,7 +2248,7 @@
         go("setup");
         break;
       case "start-check":
-        startUnitCheck(state.setup.unit || "一次関数", state.setup.status);
+        startUnitCheck(state.setup.unit || "一次関数", state.setup.status, state.setup.skill);
         break;
       case "reset-data":
         if (window.confirm("この端末に記録した回答と理解度を、すべて消します。元に戻せません。消してもいいですか？")) {

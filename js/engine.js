@@ -132,7 +132,7 @@
     "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角"];
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },

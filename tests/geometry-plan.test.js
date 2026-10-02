@@ -54,6 +54,7 @@ test("1 角度○・根拠× → 根拠の確認5分（取り違えた根拠を�
   assert.equal(r.minutes, 5);
   assert.match(r.why, /角度は求められています。今日は理由だけ少し確認しよう。/);
   assert.match(r.intro.body[0], /角度は求められています/);
+  assert.match(p.why, /「平行線と角」は角度は求められています。今日は理由だけ5分/);
   // 同じ問題ではなく、同じ取り違え（錯角 ↔ 同位角）を別の図で。最初は計算のない「根拠だけ」の問題
   assert.ok(!r.questions.includes("parallelAngles-basic-1"));
   const first = Q[r.questions[0]];
@@ -61,7 +62,7 @@ test("1 角度○・根拠× → 根拠の確認5分（取り違えた根拠を�
   assert.equal(first.answer, "corresponding");
   assert.ok(first.choices.some((c) => c.key === "alternate"));
   assert.ok(r.questions.length <= 2);
-  assert.ok(r.questions.every((id) => Q[id].reason_only || (Q[id].position && Q[id].position.with)), "角度の計算をさせる問題は入れない：" + r.questions);
+  assert.ok(r.questions.every((id) => Q[id].reason_only), "根拠だけの短い問題だけ（ほかのスキルの記録・定着用の問題を使わない）：" + r.questions);
   // 学校の範囲は大きく圧迫しない
   const schoolMin = p.sessions.filter((s) => s.type === "current_unit").reduce((m, s) => m + s.minutes, 0);
   assert.ok(schoolMin >= 10, desc(p));

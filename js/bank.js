@@ -2122,6 +2122,13 @@
   eq("transpose-standard-6", "transpose", "standard", null, "方程式 9 − 2x = x + 3 を解きましょう。", 2,
     "x の項を右辺に集めると考えやすい：9 − 3 = x + 2x。", "6 = 3x → x = 2 です。",
     { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
+  // 移項 標準（図形の角を学校の単元にしたあと、10日試算で不足が出たので補強）
+  eq("transpose-standard-7", "transpose", "standard", null, "方程式 −3x − 4 = x + 8 を解きましょう。", -3,
+    "x の項を左辺、数を右辺に集める：−3x − x = 8 + 4。", "−4x = 12 → x = −3 です。",
+    { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
+  eq("transpose-standard-8", "transpose", "standard", null, "方程式 −x + 10 = 4x − 5 を解きましょう。", 3,
+    "x の項を右辺に集めると、x の係数が正になる：10 + 5 = 4x + x。", "15 = 5x → x = 3 です。",
+    { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
   sim("simParen-basic-6", "simParen", "basic", null, [[5, -5, 10], [1, 1, 6]], [4, 2],
     "上の式は両辺を 5 でわると x − y = 2。", "x − y = 2 と x + y = 6 を足すと 2x = 8、x = 4。y = 2 です。",
     { shown: ["5(x − y) = 10", "x + y = 6"] });

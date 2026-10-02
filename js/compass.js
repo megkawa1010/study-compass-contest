@@ -329,7 +329,9 @@
   // ---------- 結果の読み取り ----------
   function pickState(s) {
     return { learning_status: s.learning_status, confidence: s.confidence, basic: s.basic, standard: s.standard,
-      application: s.application, retention: s.retention };
+      application: s.application, retention: s.retention,
+      // 図形：角度（value）と根拠（reason）の状態のひとこと（例：角度を求める力は理解だが、理由の理解はまだ安定していない）
+      geo_note: s.overall && s.overall.note && s.reason && s.reason.attempts ? s.overall.note : null };
   }
   function snapshotSkills(states, skills) {
     var out = {};
@@ -353,7 +355,8 @@
       else change = ra >= 3 ? "same_good" : "same_weak";
       return { skill: k, label: E.SKILLS[k].label, before: b, after: a, diff: diff, change: change, crossed: change !== "first" && ra > rb && ra >= 3 };
     });
-    var lines = items.map(function (i) {
+    var lines = items.map(function (i) { return line(i) + (i.after.geo_note ? "（" + i.after.geo_note + "）" : ""); });
+    function line(i) {
       if (i.change === "first") {
         return (E.STATUS_RANK[i.after.learning_status] || 0) >= 3 ? i.label + "は、今回はじめて確かめました。いまの段階は「" + E.STATUS_VIEW[i.after.learning_status].label + "」です。"
           : i.label + "は、今回はじめて確かめました。もう少し確認するとよさそうです。";
@@ -362,7 +365,7 @@
       if (i.change === "same_good") return i.label + "は変わらず安定しています。";
       if (i.change === "same_weak") return i.label + "は、もう少し確認するとよさそうです。";
       return i.label + "は今回少し不安定でした。1回の結果なので、次のチェックでもう一度確かめます。";
-    });
+    }
     return { items: items, comment: lines.join("\n"), crossed: items.filter(function (i) { return i.crossed; }) };
   }
 

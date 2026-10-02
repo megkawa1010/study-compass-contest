@@ -600,6 +600,8 @@
     }
     var main = allocWhy(alloc, plan);
     if (main) lines.push(main);
+    var rr = s.filter(function (x) { return x.type === "reason_review"; })[0];
+    if (rr) lines.splice(practice ? 1 : 0, 0, "「" + rr.skill_label + "」は角度は求められています。今日は理由だけ5分、少し確認しよう。");
     if (preview && !(school && !practice)) lines.push("学校でこれから習う「" + preview.skill_label + "」を少しだけ先取りします。まだ習っていない内容なので、できなくても大丈夫です。");
     else if (preview) lines.push("まだ習っていない内容なので、できなくても大丈夫です。");
     if (review) lines.push("前にできた「" + review.skill_label + "」を、忘れていないか少しだけ確かめます。");
@@ -684,35 +686,29 @@
     return out;
   }
   // 根拠の確認：同じ問題をもう一度ではなく、同じ取り違えを別の図で。
-  //   ① 「この2つの角の関係は？」（位置の名前を答える短い問題）で、正しい関係が答えになるもの
-  //   ② 根拠を選ぶ小問があり、正しい根拠が同じで、まちがえた根拠も選択肢にあるもの
-  //   ないときは、同じスキルの根拠つきの問題
+  //   使うのは、根拠だけを選ぶ短い問題（reason_only・aspect: "reason"）だけ。
+  //   位置の名前の問題（同位角・錯角のスキル）や角度を求める問題を使うと、ほかのスキルの記録（value）が動いたり、
+  //   定着の確認用の問題を使ってしまったりするので使わない（本番導線の確認で見つかった）
   function reasonPicks(c, input, used) {
     var recent = recentIds(input, CONFIG.AVOID_CHECK_DAYS);
     var avoid = function (id) { return used.indexOf(id) !== -1 || recent[id] || (c.missed_questions || []).indexOf(id) !== -1; };
     var confs = (c.confusions || []).map(parseConfusion).filter(Boolean);
     var all = Object.keys(SC.QUESTIONS).map(function (id) { return SC.QUESTIONS[id]; }).filter(function (q) { return q.origin === "bank" && !avoid(q.id); });
-    var relation = null, reasonQ = null, short = null;
-    // ⓪ 根拠だけを選ぶ短い問題（角度は問題文で示し、計算させない）。同じスキル → ほかのスキルの順
+    // ① 取り違えた根拠が正解で、まちがえた根拠も選択肢にある問題（同じスキル → ほかのスキル）② 同じ正しい根拠の別の図 ③ 同じスキルの根拠だけの問題
+    var short = all.filter(function (q) { return q.reason_only; });
     var sameFirst = function (x, y) { return (x.skill === c.skill ? 0 : 1) - (y.skill === c.skill ? 0 : 1); };
-    confs.some(function (z) {
-      short = all.filter(function (q) { return q.reason_only && q.answer === z.answer && q.choices.some(function (ch) { return ch.key === z.chosen; }); }).sort(sameFirst)[0] || null;
-      return !!short;
+    var ranked = [];
+    confs.forEach(function (z) {
+      short.filter(function (q) { return q.answer === z.answer && q.choices.some(function (ch) { return ch.key === z.chosen; }); }).sort(sameFirst).forEach(function (q) { ranked.push(q); });
+      short.filter(function (q) { return q.answer === z.answer; }).sort(sameFirst).forEach(function (q) { ranked.push(q); });
     });
-    if (!short && !confs.length) short = all.filter(function (q) { return q.reason_only && q.skill === c.skill; })[0] || null;
-    confs.some(function (z) {
-      relation = relation || all.filter(function (q) { return q.position && q.position.with && q.answer === z.answer; })[0] || null;
-      reasonQ = reasonQ || all.filter(function (q) {
-        var st = reasonStepOf(q);
-        return st && st.answer === z.answer && st.choices.some(function (ch) { return ch.key === z.chosen; });
-      }).sort(function (x, y) { return (x.skill === c.skill ? 0 : 1) - (y.skill === c.skill ? 0 : 1) || (x.level === "basic" ? 0 : 1) - (y.level === "basic" ? 0 : 1); })[0] || null;
-      return relation && reasonQ;
-    });
-    if (!reasonQ) reasonQ = all.filter(function (q) { return q.skill === c.skill && reasonStepOf(q); })[0] || null;
+    short.filter(function (q) { return q.skill === c.skill; }).forEach(function (q) { ranked.push(q); });
     var out = [];
-    if (short) out.push({ question_id: short.id, level: short.level, stage: 0, reused: false, why: "取り違えた根拠（" + confs.map(function (z) { return z.chosen + "→" + z.answer; }).join("・") + "）を、別の図で選ぶ（計算なし）" });
-    if (relation && out.length < 2) out.push({ question_id: relation.id, level: relation.level, stage: 0, reused: false, why: "取り違えた関係（" + confs.map(function (z) { return z.chosen + "→" + z.answer; }).join("・") + "）を、別の図で「この2つの角の関係は？」" });
-    if (reasonQ && out.length < 2 && !short) out.push({ question_id: reasonQ.id, level: reasonQ.level, stage: 0, reused: false, why: "同じ根拠を、別の図で選ぶ" });
+    ranked.forEach(function (q) {
+      if (out.length >= 2 || out.some(function (p) { return p.question_id === q.id; })) return;
+      out.push({ question_id: q.id, level: q.level, stage: 0, reused: false,
+        why: out.length === 0 && confs.length ? "取り違えた根拠（" + confs.map(function (z) { return z.chosen + "→" + z.answer; }).join("・") + "）を、別の図で選ぶ（計算なし）" : "同じ根拠を、もう1つ別の図で選ぶ（計算なし）" });
+    });
     return out;
   }
   // 図形の性質に戻る勉強：① 位置関係を見つける（戻る場所のスキルの基礎）→ ② 根拠を選ぶ → ③ 簡単な角度（まちがえた問題のスキルの基礎）
