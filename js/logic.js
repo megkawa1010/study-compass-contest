@@ -104,6 +104,7 @@
     if (q.type === "steps") {
       return q.steps.some(function (st) { return isBlank(st, value && value[st.id]); });
     }
+    if (q.type === "order") return !Array.isArray(value) || value.length < q.cards.length;
     return normalize(value) === "";
   }
 
@@ -122,6 +123,8 @@
     if (q.type === "choice") return normalize(value) === normalize(q.answer);
     if (q.type === "poly") return samePoly(parsePoly(value), parsePoly(q.answer));
     if (q.type === "steps") return checkSteps(q, value).every(function (r) { return r.correct; });
+    // 並べかえ（証明の組み立て）：見本と同じ順番かではなく、依存関係（depends_on）を壊していないか
+    if (q.type === "order") return SC.proof ? SC.proof.orderCheck(q, value).ok : JSON.stringify(value) === JSON.stringify(q.answer);
     return false;
   }
 
@@ -131,7 +134,9 @@
       var v = values ? values[st.id] : undefined;
       var r = { id: st.id, skill: st.skill, answered: !isBlank(st, v), correct: check(st, v) };
       // 図形：角度の値（value）か根拠（reason）か。根拠の小問は、選んだ選択肢も残す
-      if (st.aspect) { r.aspect = st.aspect; if (st.aspect === "reason") r.chosen = v == null ? null : v; }
+      if (st.aspect) r.aspect = st.aspect;
+      // 選択肢の小問は、選んだ答えを残す（根拠の取り違え・証明の選択肢の種類（kind）の診断に使う）
+      if (st.type === "choice" || st.aspect === "reason") r.chosen = v == null ? null : v;
       return r;
     });
   }

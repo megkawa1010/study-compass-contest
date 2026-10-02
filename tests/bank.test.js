@@ -21,6 +21,7 @@ function asInput(q) {
   if (q.type === "choice") return q.answer;
   if (q.type === "poly") return q.answer;
   if (q.type === "steps") return Object.fromEntries(q.steps.map((s) => [s.id, asInput(s)]));
+  if (q.type === "order") return q.answer.slice();
 }
 function asWrong(q) {
   if (q.type === "number") return String(q.answer + 1);
@@ -28,6 +29,7 @@ function asWrong(q) {
   if (q.type === "pair") return Object.fromEntries(Object.entries(q.answer).map(([k, v]) => [k, String(v + 1)]));
   if (q.type === "poly") return q.answer + "+1";
   if (q.type === "choice") return q.choices.find((c) => c.key !== q.answer).key;
+  if (q.type === "order") return q.answer.slice().reverse();
   if (q.type === "steps") { const v = asInput(q); v[q.steps[0].id] = typeof v[q.steps[0].id] === "string" && q.steps[0].type !== "choice" ? "999" : "zz"; return v; }
 }
 

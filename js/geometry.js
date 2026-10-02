@@ -60,7 +60,11 @@
     exterior: "三角形の外角は、となり合わない2つの内角の和に等しい",
     polygonSum: "n角形の内角の和は 180° ×（n − 2）",
     exteriorSum: "多角形の外角の和は360°",
-    auxParallel: "平行な補助線を引くと、錯角が等しい"
+    auxParallel: "平行な補助線を引くと、錯角が等しい",
+    // 証明（図形②）の根拠
+    hypothesis: "仮定",
+    common: "共通",
+    congruent_parts: "合同な図形の対応する辺（角）は等しい"
   };
   // まちがえた根拠から、取り違えの種類を作る（例：同位角と答えるべきところで錯角 → "alternate_for_corresponding"）
   function confusionOf(step, chosen) {

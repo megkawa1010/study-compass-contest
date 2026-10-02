@@ -32,6 +32,7 @@
   var MAP_VIEW = /(?:^|[?&])debug=map(?:&|$)/.test(window.location.search.slice(1));
   var SCHOOL_VIEW = /(?:^|[?&])debug=school(?:&|$)/.test(window.location.search.slice(1));
   var FIGURE_VIEW = /(?:^|[?&])debug=figure(?:&|$)/.test(window.location.search.slice(1));
+  var PROOF_VIEW = /(?:^|[?&])debug=proof(?:&|$)/.test(window.location.search.slice(1));
   // ?debug=figure&try=問題ID：その問題をふだんと同じ入力欄で解き、記録・解説・状態の変化まで確かめる
   var FIGURE_TRY = FIGURE_VIEW ? decodeURIComponent((window.location.search.match(/[?&]try=([^&]+)/) || [])[1] || "") : "";
   var figTry = null;
@@ -166,6 +167,13 @@
     return q && q.level === "retention" ? "ヒントを見る（定着の確認は次回に）" : "ヒントを見る";
   }
 
+  // 問題の図と、証明の紙（行ごとに ［1］［2］… の穴）
+  function qFigure(q) {
+    return SC.figures.render(q.figure) +
+      (q.proof_sheet ? '<div class="proof-sheet" aria-label="証明"><p class="proof-intro">' + esc(q.proof_sheet[0]) + "</p><ol>" +
+        q.proof_sheet.slice(1).map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></div>" : "");
+  }
+
   // ---------- 入力欄 ----------
 
   // 入力中の値の置き場所。小問つきの問題は、小問ごとに分けて持つ
@@ -184,6 +192,18 @@
       return '<ol class="step-list">' + q.steps.map(function (st, i) {
         return '<li><p class="step-text">' + esc(st.text) + "</p>" + inputFields(st, prefix + "-" + st.id, st.id, first && i === 0) + "</li>";
       }).join("") + "</ol>";
+    }
+    if (q.type === "order") {
+      var picked = Array.isArray(cur.value) ? cur.value : [];
+      var labelOf = function (k) { return (q.cards.filter(function (c) { return c.key === k; })[0] || {}).label || k; };
+      return '<div class="order-input">' +
+        '<ol class="order-picked">' + picked.map(function (k) { return "<li>" + esc(labelOf(k)) + "</li>"; }).join("") +
+          (picked.length < q.cards.length ? '<li class="order-next">' + (picked.length ? "次のカードをタップ" : "1行目になるカードをタップ") + "</li>" : "") + "</ol>" +
+        '<div class="choices order-cards">' + q.cards.filter(function (c) { return picked.indexOf(c.key) === -1; }).map(function (c) {
+          return '<button type="button" class="choice order-card" data-action="order-pick" data-card="' + esc(c.key) + '"' + stepAttr + ">" + esc(c.label) + "</button>";
+        }).join("") + "</div>" +
+        '<div class="order-tools"><button type="button" class="secondary-button soft" data-action="order-undo"' + stepAttr + (picked.length ? "" : " disabled") + ">1つ戻す</button>" +
+          '<button type="button" class="secondary-button soft" data-action="order-reset"' + stepAttr + (picked.length ? "" : " disabled") + ">最初から</button></div></div>";
     }
     if (q.type === "choice") {
       return '<div class="choices" role="radiogroup">' + q.choices.map(function (c) {
@@ -394,6 +414,7 @@
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
         '<a class="secondary-button link-button" href="./?debug=figure">図形の図</a>' +
+        '<a class="secondary-button link-button" href="./?debug=proof">証明</a>' +
       "</div></section>";
   }
 
@@ -496,7 +517,7 @@
         (probeInfo && !probeInfo.probe.seed ? '<p class="purpose probe-purpose">' + esc(probeInfo.probe.purpose) + "</p>"
           : q.purpose && !isBasic ? '<p class="purpose">' + esc(q.purpose) + "</p>" : "") +
         '<h1 class="question">' + esc(q.text) + "</h1>" +
-        SC.figures.render(q.figure) +
+        qFigure(q) +
         '<form class="answer-form" data-form="check" novalidate>' +
           inputFields(q, "q") +
           (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
@@ -1371,7 +1392,7 @@
       var relText = rel ? (rel.ok ? '<span class="geo-ok">一致</span>（relation から ' + rel.value + "／答え " + rel.expected + "）" : '<span class="geo-warn">' + esc(rel.messages.join("、")) + "</span>") : "−";
       var steps = q.steps ? q.steps.map(function (st) { return st.id + "：" + (st.aspect === "reason" ? "根拠" : "角度") + "［" + E.SKILLS[st.skill].label + "］"; }).join("／") : "";
       return '<article class="card" id="' + esc(id) + '"><p class="eyebrow">' + esc(id) + "</p><p>" + esc(q.text) + "</p>" +
-        '<div class="geo-debug"><div>' + SC.figures.render(q.figure) + "</div><div>" +
+        '<div class="geo-debug"><div>' + qFigure(q) + "</div><div>" +
         '<div class="table-wrap"><table><thead><tr><th>角</th><th>役わり</th><th>描画</th><th>本当</th><th>差</th><th>分類</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
         '<p class="small"><strong>relation の検算：</strong>' + relText + "</p>" +
         '<p class="small"><strong>図そのものの整合性：</strong>' + (a.checks.length ? a.checks.map(function (c) { return '<span class="' + (c.ok ? "geo-ok" : "geo-warn") + '">' + (c.ok ? "○ " : "× ") + esc(c.name) + "（" + esc(c.detail) + "）</span>"; }).join("<br>") : "−") + "</p>" +
@@ -1391,7 +1412,7 @@
   var ROUTE_JA = { none: "原因さがしはしない", reason: "原因さがしはせず、理由の練習を今日の学習の候補へ", calc: "計算側だけ原因さがし", concept: "図形の性質側から原因さがし" };
   function viewFigureTry(q) {
     var head = '<section class="card narrow"><p class="eyebrow">DEBUG / FIGURE / ' + esc(q.id) + "</p>" +
-      '<p class="question small-q">' + esc(q.text) + "</p>" + SC.figures.render(q.figure);
+      '<p class="question small-q">' + esc(q.text) + "</p>" + qFigure(q);
     var back = '<div class="actions"><a class="secondary-button link-button" href="./?debug=figure">図の一覧へ</a></div></section>';
     if (!figTry) {
       return head + '<form class="answer-form" data-form="figtry" novalidate>' + inputFields(q, "f") +
@@ -1406,6 +1427,12 @@
         '<p class="' + (r.correct ? "geo-ok" : "geo-warn") + '">' + (r.correct ? "○ " : "× ") + esc(shown) + (r.correct ? "" : "（答え：" + esc(answerText(st)) + "）") + "</p>" +
         '<p class="small muted">' + esc(st.explanation || "") + "</p></li>";
     }).join("");
+    if (q.type === "order" && Array.isArray(figTry.v)) {
+      var oc = SC.proof.orderCheck(q, figTry.v), lab = function (k) { return (q.cards.filter(function (c) { return c.key === k; })[0] || {}).label || k; };
+      rows = "<li><p>あなたの順番</p><ol>" + figTry.v.map(function (k) { return "<li>" + esc(lab(k)) + "</li>"; }).join("") + "</ol>" +
+        '<p class="' + (oc.ok ? "geo-ok" : "geo-warn") + '">' + (oc.ok ? "○ 依存関係を満たしている（見本と順番がちがっても正解）" : "× " + esc(SC.proof.ORDER_JA[oc.tag] || oc.tag) +
+          (oc.violation ? "（" + esc(oc.violation.line) + " の前に " + esc(oc.violation.missing.join("・")) + " が必要）" : "")) + "</p></li>";
+    }
     var valueOk = res.filter(function (r) { return r.aspect !== "reason"; }).every(function (r) { return r.correct; });
     var reasons = res.filter(function (r) { return r.aspect === "reason"; });
     var reasonOk = reasons.length ? reasons.every(function (r) { return r.correct; }) : null;
@@ -1414,14 +1441,16 @@
     var key = ge.entry === "reason_only" ? "reason" : ge.entry === "calc" || ge.entry === "concept" ? ge.entry : "none";
     var side = ge.entry === "calc" ? skillList(ge.calc_prereqs) : ge.entry === "concept" ? skillList(ge.concept_prereqs) + (ge.then_calc ? "（できていれば計算側：" + skillList(ge.calc_prereqs) + "）" : "") : "";
     var st = ST.get().skill_state[q.skill] || {};
-    var asp = st.value ? "<li>角度を求める力（value）：" + esc(E.STATUS_VIEW[st.value.status].label) + "・確かさ " + st.value.confidence + "・" + st.value.correct + "/" + st.value.attempts + "</li>" +
+    // 証明は「主張（claim）」、図形①は「角度（value）」
+    var isProof = !!(q.proof || q.proof_stage), vName = isProof ? "主張" : "角度", vPower = isProof ? "主張する力（claim）" : "角度を求める力（value）";
+    var asp = st.value ? "<li>" + vPower + "：" + esc(E.STATUS_VIEW[st.value.status].label) + "・確かさ " + st.value.confidence + "・" + st.value.correct + "/" + st.value.attempts + "</li>" +
       "<li>理由の理解（reason）：" + esc(E.STATUS_VIEW[st.reason.status].label) + "・" + st.reason.correct + "/" + st.reason.attempts +
         (Object.keys(st.reason.confusions).length ? "・取り違え " + esc(JSON.stringify(st.reason.confusions)) : "") + "</li>" +
       "<li>総合：" + esc(E.STATUS_VIEW[st.overall.status].label) + (st.overall.note ? "（" + esc(st.overall.note) + "）" : "") + "</li>" : "";
     return head + '<ol class="bank-steps">' + rows + "</ol>" +
       feedbackBlock(valueOk && reasonOk !== false ? "correct" : "revealed", { explain: q.explanation || "" }) +
       '<h2 class="h-sm">記録と、このあと</h2><ul class="small debug-log">' +
-        "<li>角度 " + (valueOk ? "○" : "×") + "／根拠 " + (reasonOk === null ? "聞いていない" : reasonOk ? "○" : "×") + " → " + esc(ROUTE_JA[key]) + (side && side !== "−" ? "（" + esc(side) + "）" : ge.entry === "calc" ? "（計算の前提なし：計算の見直し）" : "") + "</li>" +
+        "<li>" + vName + " " + (valueOk ? "○" : "×") + "／根拠 " + (reasonOk === null ? "聞いていない" : reasonOk ? "○" : "×") + " → " + esc(ROUTE_JA[key]) + (side && side !== "−" ? "（" + esc(side) + "）" : ge.entry === "calc" ? "（計算の前提なし：計算の見直し）" : "") + "</li>" +
         (ge.first_miss_step ? "<li>最初に止まった小問：" + esc(ge.first_miss_step) + "（" + esc(ge.why) + "）</li>" : "") +
         asp + "</ul>" +
       '<div class="actions"><button class="secondary-button" type="button" data-action="figtry-reset">もう一度解く</button></div>' + back;
@@ -1430,12 +1459,58 @@
     var q = QS[FIGURE_TRY], v = readInput(q);
     if (L.isBlank(q, v)) { message = "答えを入力してね。"; render(); return; }
     message = "";
-    var res = q.type === "steps" ? L.checkSteps(q, v) : [{ id: "v", correct: L.check(q, v) }];
+    var res = q.type === "steps" ? L.checkSteps(q, v) : plainResults(q, v, L.check(q, v));
     var ctx = { sessionId: null, context: "lesson" };
     if (q.type === "steps") q.steps.forEach(function (st, i) { ST.addAnswer(stepRecord(q, st), stepResult(st, res[i], res[i].correct ? "correct" : "incorrect", false), ctx); });
     else ST.addAnswer(q, plainResult(q, res[0].correct ? "correct" : "incorrect", false, v), ctx);
     figTry = { res: res, v: v };
     render();
+  }
+
+  // ---------- 証明の確認ページ（?debug=proof） ----------
+  // 証明ごとに：行（役割・主張・根拠・依存関係・スキル）・検証・穴うめの誤答ごとの診断の入口・並べかえの採点の例
+  var ROLE_JA2 = { hyp_fact: "仮定", figure_fact: "図から使える事実", condition: "合同条件", use: "合同から言えること" };
+  function viewProofDebug() {
+    var PF = SC.proof, items = Object.keys(QS).map(function (id) { return QS[id]; }).filter(function (q) { return q.proof || q.proof_stage; });
+    var sk = function (k) { return E.SKILLS[k] ? E.SKILLS[k].label : k; };
+    var diag = function (g) { return g.entry === "reason_only" ? "根拠だけ記録（理由を確認）" : g.entry === "none" ? "−" : sk(g.skill) + (g.concept_prereqs.length ? " → " + g.concept_prereqs.map(sk).join(" → ") : "（そのもの）"); };
+    var cards = items.map(function (q) {
+      var v = q.proof ? PF.verify(q) : null;
+      var lines = q.proof ? q.proof.lines.map(function (l) {
+        return "<tr><td>" + l.id + "</td><td>" + esc(ROLE_JA2[l.role]) + "</td><td>" + esc(PF.claimText(l.claim)) + "</td><td>" + esc(l.reason) + "</td><td>" + esc((l.depends_on || []).join("・") || "−") + "</td><td>" + esc(sk(PF.ROLE_SKILL[l.role])) + "</td></tr>";
+      }).join("") : "";
+      // 穴うめ：誤答ごとに、どこを入口にするか
+      var wrongs = (q.steps || []).map(function (st) {
+        return st.choices.filter(function (c) { return c.key !== st.answer; }).map(function (c) {
+          var vals = {}; q.steps.forEach(function (x) { vals[x.id] = x.id === st.id ? c.key : x.answer; });
+          var g = PF.entry(q, L.checkSteps(q, vals));
+          return "<li>" + esc(st.id) + " に「" + esc(c.label) + "」（" + esc(c.kind || "−") + "）→ " + esc(diag(g)) + "</li>";
+        }).join("");
+      }).join("");
+      if (q.type === "choice") wrongs = q.choices.filter(function (c) { return c.key !== q.answer; }).map(function (c) {
+        return "<li>「" + esc(c.label) + "」（" + esc(c.kind || "−") + "）→ " + esc(diag(PF.entry(q, [{ id: null, skill: q.skill, correct: false, aspect: "claim", chosen: c.key }]))) + "</li>";
+      }).join("");
+      var orders = "";
+      if (q.type === "order") {
+        var ids = q.proof.lines.map(function (l) { return l.id; });
+        var tries = [ids, [ids[2], ids[0], ids[1], ids[3], ids[4]], [ids[0], ids[1], ids[3], ids[2], ids[4]], [ids[0], ids[1], ids[2], ids[4], ids[3]]];
+        orders = tries.map(function (o) {
+          var c = PF.orderCheck(q, o), g = c.ok ? null : PF.entry(q, PF.orderResults(q, o));
+          return "<li>" + esc(o.join(" → ")) + "：" + (c.ok ? '<span class="geo-ok">正解</span>' : '<span class="geo-warn">' + esc(PF.ORDER_JA[c.tag]) + "</span> → " + esc(diag(g))) + "</li>";
+        }).join("");
+      }
+      return '<article class="card" id="' + esc(q.id) + '"><p class="eyebrow">' + esc(q.id) + "（" + esc(q.type) + "）</p><p>" + esc(q.text) + "</p>" +
+        '<div class="geo-debug"><div>' + (q.figure ? qFigure(q) : "") + "</div><div>" +
+        (lines ? '<div class="table-wrap"><table><thead><tr><th>行</th><th>役割</th><th>主張</th><th>根拠</th><th>先に必要</th><th>スキル</th></tr></thead><tbody>' + lines + "</tbody></table></div>" : "") +
+        (v ? '<p class="small"><strong>検証：</strong>' + (v.ok ? '<span class="geo-ok">OK（' + v.checks.length + "項目）</span>" : '<span class="geo-warn">' + esc(v.messages.join("／")) + "</span>") + "</p>" : "") +
+        (wrongs ? '<p class="small"><strong>誤答ごとの入口</strong></p><ul class="small debug-log">' + wrongs + "</ul>" : "") +
+        (orders ? '<p class="small"><strong>並べかえの採点（依存関係）</strong></p><ul class="small debug-log">' + orders + "</ul>" : "") +
+        '<a class="secondary-button link-button" href="./?debug=figure&try=' + encodeURIComponent(q.id) + '">この問題を解いてみる</a>' +
+        "</div></div></article>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / PROOF</p><h1 class="h-md">証明（図形②：合同と証明）</h1>' +
+      '<p class="small muted">' + items.length + "問。証明は行ごとに 役割・主張（claim）・根拠（reason）・依存関係（depends_on）を持ち、最初に止まった行の役割と、選んだ答えの種類（kind）で入口を決める。並べかえは依存関係を壊していなければ正解。</p>" +
+      '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' + cards;
   }
 
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
@@ -1467,7 +1542,7 @@
         '<span class="lv">' + (FORMAT_LABEL[q.format] || "") + "</span>" +
         '<span class="bank-id">' + esc(q.id) + (q.origin === "core" ? "（既存）" : "") + "</span></div>" +
       '<p class="bank-text">' + esc(q.text) + "</p>" +
-      SC.figures.render(q.figure) +
+      qFigure(q) +
       (q.type === "choice" ? '<ol class="bank-choices">' + q.choices.map(function (c) { return "<li>" + esc(c.label) + "</li>"; }).join("") + "</ol>" : "") +
       (q.type === "steps"
         ? '<ol class="bank-steps">' + q.steps.map(function (st) {
@@ -1519,8 +1594,8 @@
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW || FIGURE_VIEW) {
-      app.innerHTML = '<div class="screen">' + (FIGURE_VIEW ? viewFigureDebug() : BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW || FIGURE_VIEW || PROOF_VIEW) {
+      app.innerHTML = '<div class="screen">' + (PROOF_VIEW ? viewProofDebug() : FIGURE_VIEW ? viewFigureDebug() : BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1554,6 +1629,12 @@
   // 小問のない問題の記録。根拠だけの問題（aspect: "reason"）は、選んだ根拠と取り違えも残す
   function plainResult(q, status, hint, value) {
     var r = { status: status, hintUsed: hint };
+    if (q.type === "order" && Array.isArray(value)) {
+      r.chosen = value.join(",");
+      r.confusion = status === "incorrect" && SC.proof ? SC.proof.orderCheck(q, value).tag : null;
+      return r;
+    }
+    if (q.type === "choice" && value != null && value !== "" && q.aspect !== "reason") r.chosen = value;
     if (q.aspect === "reason" && value != null && value !== "") {
       r.chosen = value;
       r.confusion = status === "incorrect" && SC.geometry ? SC.geometry.confusionOf(q, value) : null;
@@ -1566,9 +1647,16 @@
   }
 
   // stepResults: 小問つきの問題のとき、小問ごとの正誤（L.checkSteps の結果）
+  // 小問のない問題の結果（入口の判定用）。並べかえは依存関係を破った行、選択は選んだ選択肢の種類（kind）
+  function plainResults(q, value, correct) {
+    if (q.type === "order" && SC.proof && Array.isArray(value)) return SC.proof.orderResults(q, value);
+    return [{ id: null, skill: q.skill, correct: correct, aspect: q.aspect || "claim", chosen: value == null || value === "" ? null : value }];
+  }
+
   function recordAnswer(status, stepResults) {
     var id = state.queue[state.idx];
     var q = QS[id];
+    var answeredValue = state.lastValue;
     var hint = !!state.hintOpen;
     var ctx = { sessionId: state.sessionId, context: "compass_check" };
     state.answers[id] = { status: status, hintUsed: hint, at: new Date(ST.now()).toISOString() };
@@ -1594,7 +1682,7 @@
     var wasProbe = onProbeAnswered(id, correctNow);
     if (state.mode === "periodic" && !wasProbe && R.isGeometry(q.skill)) {
       // 図形：角度（value）と根拠（reason）の結果で、原因さがしの入口を変える
-      startGeometryTrail(q, stepResults || (status === "unknown" ? false : correctNow));
+      startGeometryTrail(q, stepResults || (status === "unknown" ? false : plainResults(q, answeredValue, correctNow)));
     } else if (state.mode === "periodic" && !wasProbe && !correctNow) {
       var stepSkill = q.type === "steps" && state.answers[id].steps ? state.answers[id].steps.suspected_skill : null;
       startTrail(q, stepSkill || q.skill, []);
@@ -2035,7 +2123,7 @@
         (sess.type === "preview" ? '<p class="preview-note">先取り：学校でこれから習うところです。まちがえても「苦手」にはなりません。</p>' : "") +
         '<div class="practice">' +
           '<p class="practice-label">やってみよう</p>' +
-          '<p class="question small-q">' + esc(q.text) + "</p>" + SC.figures.render(q.figure) +
+          '<p class="question small-q">' + esc(q.text) + "</p>" + qFigure(q) +
           (doneQ
             ? feedbackBlock(res === "correct" ? "correct" : "revealed", { explain: q.explanation || q.explain || "" })
             : '<form class="answer-form" data-form="daily" novalidate>' + inputFields(q, "d") +
@@ -2359,6 +2447,18 @@
         break;
       case "choose":
         box(el.getAttribute("data-step")).value = el.getAttribute("data-choice");
+        render();
+        break;
+      case "order-pick":
+        (function (b) { b.value = (Array.isArray(b.value) ? b.value : []).concat(el.getAttribute("data-card")); })(box(el.getAttribute("data-step")));
+        render();
+        break;
+      case "order-undo":
+        (function (b) { if (Array.isArray(b.value)) b.value = b.value.slice(0, -1); })(box(el.getAttribute("data-step")));
+        render();
+        break;
+      case "order-reset":
+        box(el.getAttribute("data-step")).value = [];
         render();
         break;
       case "to-plan":

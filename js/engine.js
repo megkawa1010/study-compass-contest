@@ -94,7 +94,24 @@
     // 180 ×（n − 2）。和から n を求めるときは、かっこのある方程式
     polygonInterior:{ label: "多角形の内角",   unit: "図形の角", grade: "中2", concept: ["triangleSum"], calc: ["eqParen"] },
     // 外角の和は360°（内角と外角で一直線）。正多角形の1つの外角から n を求めるときは等式の性質
-    polygonExterior:{ label: "多角形の外角",   unit: "図形の角", grade: "中2", concept: ["polygonInterior", "lineAngles"], calc: ["eqProperty"] }
+    polygonExterior:{ label: "多角形の外角",   unit: "図形の角", grade: "中2", concept: ["polygonInterior", "lineAngles"], calc: ["eqProperty"] },
+    // --- 中2 合同と証明（図形②） ---
+    // 証明は1本の正誤にしない。行ごとに「役割」（仮定・図から使える事実・合同条件・合同から言えること）と
+    // 「主張（claim）」「根拠（reason）」を持ち、最初に止まった行で診断する（js/proof.js）。どれも図形の性質側（concept）だけ
+    // 合同な図形で、対応する頂点・辺・角を見つける（△ABC ≡ △DEF の順番）
+    congCorr:       { label: "対応する辺・角", unit: "合同と証明", grade: "中2", concept: ["angleBasics"], calc: [] },
+    // 3つの等しさから、使える合同条件を選ぶ（2辺と「その間」の角か、など）
+    congCond:       { label: "三角形の合同条件", unit: "合同と証明", grade: "中2", concept: ["congCorr"], calc: [] },
+    // 証明に使える事実を、図から見つける（共通な辺・角、対頂角、平行線の錯角・同位角）。
+    // 対頂角・錯角そのものの理解は図形①のスキル（直線の角・平行線と角）へさかのぼる（同じ概念のスキルは作らない）。
+    // 学校の進み具合では「三角形の合同条件」と一緒に扱う
+    proofFigureFacts: { label: "図から使えることを見つける", unit: "合同と証明", grade: "中2", follows: "congCond", concept: ["congCorr", "lineAngles", "parallelAngles"], calc: [] },
+    // 「〜ならば…」の仮定と結論を分ける。結論を仮定・事実として使わない
+    proofHypConc:   { label: "仮定と結論",     unit: "合同と証明", grade: "中2", concept: [], calc: [] },
+    // 合同を示したあと、対応する辺・角が等しいことを使う。学校の進み具合では「証明の組み立て」と一緒に扱う
+    congUse:        { label: "合同から言えること", unit: "合同と証明", grade: "中2", follows: "proofBuild", concept: ["congCorr"], calc: [] },
+    // 行をどの順番で組み立てるか（依存関係）
+    proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -114,14 +131,16 @@
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
-    "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"];
+    "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
+    "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "angleBasics",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
-    "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"];
+    "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
+    "proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -129,7 +148,9 @@
     "連立方程式": ["simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord"],
     "一次方程式": ["eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord"],
     // 教科書の順（対頂角 → 同位角・錯角 → 平行線 → 三角形 → 多角形）
-    "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"]
+    "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"],
+    // 教科書の順（合同な図形 → 合同条件 → 仮定と結論 → 証明）
+    "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角"];
@@ -452,7 +473,9 @@
     simParen: "review_paren_simultaneous", simFraction: "review_fraction_simultaneous", simWord: "review_simultaneous_word", simGraph: "practice_intersection",
     angleBasics: "review_angle_basics", lineAngles: "review_vertical_straight_angles", angleEq: "review_angle_equation", angleNames: "review_angle_names",
     parallelAngles: "review_parallel_angles", triangleSum: "review_triangle_sum", exteriorAngle: "review_exterior_angle", angleCombo: "practice_angle_combination",
-    polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior"
+    polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior",
+    congCorr: "review_congruent_correspondence", congCond: "review_congruence_conditions", proofFigureFacts: "practice_proof_figure_facts",
+    proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order"
   };
 
   function nextAction(skillId, s, rootIds, now) {
@@ -529,10 +552,11 @@
   }
 
   // ---------- 図形スキル：value（角度を求める力）と reason（理由の理解）を別々に育てる ----------
-  // 回答は aspect: "value" | "reason"（なければ value）。reason の回答には chosen（選んだ根拠）と confusion（取り違えの種類）を持てる。
+  // 回答は aspect: "value"（角度）／"claim"（証明の主張）／"reason"（根拠）。なければ value。reason の回答には chosen（選んだ根拠）と confusion（取り違えの種類）を持てる。
   // 根拠を聞いていない問題では reason の記録が無いので、reason は上がりも下がりもしない。
   function aspectState(skillId, attempts, opts) {
-    var v = attempts.filter(function (a) { return (a.aspect || "value") === "value"; });
+    // 主張（claim・証明）も値（value・角度）も、根拠でないものは同じ面として育てる
+    var v = attempts.filter(function (a) { return a.aspect !== "reason"; });
     var r = attempts.filter(function (a) { return a.aspect === "reason"; });
     var vs = computeOne(skillId, v, opts), rs = computeOne(skillId, r, opts);
     var confusions = {};

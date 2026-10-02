@@ -3363,6 +3363,214 @@
       { type: "angleSum", values: ["a", "b"], total: "r" }, "点Rを通って ℓ に平行な直線を引くと、x は 33° と 42° の錯角に分かれるからです。");
   })();
 
+  // =====================================================================
+  // 中2 合同と証明（図形②）：代表的な証明 6題（穴うめ）＋並べかえ 3題＋1段階だけの短い問題 6題
+  //   証明の検証・並べかえの採点・診断の入口は js/proof.js。図は合同な三角形を本当に合同に描く（答えは測ることではなく論理で決まる）
+  //   穴うめの選択肢は kind を持つ：correct / corr_shift（対応のずれ）/ misread（図の読み取り）/ goal_used（まだ示していない結論の側を使った）/ SSA など
+  // =====================================================================
+  var PR_REASON = { hypothesis: "仮定", common: "共通", vertical: "対頂角は等しい", alternate: "平行線の錯角は等しい", corresponding: "平行線の同位角は等しい",
+    congruent_parts: "合同な図形の対応する辺（角）は等しい", SSS: "3組の辺がそれぞれ等しい", SAS: "2組の辺とその間の角がそれぞれ等しい",
+    ASA: "1組の辺とその両端の角がそれぞれ等しい", SSA: "2組の辺と1組の角がそれぞれ等しい" };
+  var PR_SKILL = { hyp_fact: "proofHypConc", figure_fact: "proofFigureFacts", condition: "congCond", use: "congUse" };
+  function peq(a, b) { return { eq: [a, b] }; }
+  function pcong(a, b) { return { cong: [a, b] }; }
+  function pClaim(c) { return c.cong ? "△" + c.cong[0] + " ≡ △" + c.cong[1] : c.eq[0] + " ＝ " + c.eq[1]; }
+  // 穴うめの証明。blanks：[{ line, part: "claim"|"reason", choices: [[key, label, kind], ...] }]（正解は kind "correct"）
+  function proofFill(id, level, def, fig, text, blanks, hint, explanation) {
+    var byId = {};
+    def.lines.forEach(function (l) { byId[l.id] = l; });
+    var steps = blanks.map(function (b, i) {
+      var l = byId[b.line], ans = b.choices.filter(function (c) { return c[2] === "correct"; })[0][0];
+      // 合同条件の行の根拠（どの条件か）は、条件を選ぶこと自体が中身なので claim として記録する
+      var aspect = b.part === "reason" && l.role !== "condition" ? "reason" : "claim";
+      return { id: b.line + (b.part === "claim" ? "c" : "r"), line: b.line, part: b.part, role: l.role, skill: PR_SKILL[l.role], aspect: aspect, type: "choice", answer: ans,
+        text: "［" + (i + 1) + "］に入るのは？（" + (b.part === "claim" ? "何が等しい・合同か" : l.role === "condition" ? "合同条件" : "根拠") + "）",
+        choices: b.choices.map(function (c) { return { key: c[0], label: c[1], kind: c[2] }; }),
+        hint: b.part === "claim" ? "図の印と、この行の役割（" + { hyp_fact: "仮定", figure_fact: "図から使える事実", condition: "合同", use: "合同から言えること" }[l.role] + "）から考える。" : "この行は、どうしてそう言える？",
+        explanation: pClaim(l.claim) + "（" + PR_REASON[l.reason] + "）" };
+    });
+    // 証明の紙：行ごとに、穴（［1］…）を入れて表示する
+    var sheet = def.lines.map(function (l) {
+      var c = blanks.map(function (b, i) { return b.line === l.id && b.part === "claim" ? "［" + (i + 1) + "］" : null; }).filter(Boolean)[0];
+      var r = blanks.map(function (b, i) { return b.line === l.id && b.part === "reason" ? "［" + (i + 1) + "］" : null; }).filter(Boolean)[0];
+      // 合同から言えることの行は「合同な図形の対応する辺（角）は等しいので、AC ＝ DB」。根拠が穴のときだけ（［n］）を付ける
+      if (l.role === "use") return (r ? "合同な図形の［" + r.slice(1, -1) + "］ので、" : "合同な図形の対応する辺（角）は等しいので、") + (c || pClaim(l.claim));
+      return (c || pClaim(l.claim)) + "（" + (r || PR_REASON[l.reason]) + "）";
+    });
+    geo({ id: id, skill: "proofBuild", level: level, text: text, figure: fig, proof: def, proof_sheet: [def.intro].concat(sheet), type: "steps", steps: steps, hint: hint, explanation: explanation });
+  }
+  // 並べかえ：カードを順にタップ。採点は依存関係（js/proof.js の orderCheck）
+  function proofOrder(id, def, fig, text, cardOrder, hint, explanation) {
+    var byId = {};
+    def.lines.forEach(function (l) { byId[l.id] = l; });
+    geo({ id: id, skill: "proofBuild", level: "standard", aspect: "claim", text: text, figure: fig, proof: def, type: "order",
+      cards: cardOrder.map(function (k) { var l = byId[k]; return { key: k, label: l.role === "use" ? "合同な図形の対応する辺（角）は等しいので、" + pClaim(l.claim) : pClaim(l.claim) + "（" + PR_REASON[l.reason] + "）" }; }),
+      answer: def.lines.map(function (l) { return l.id; }), hint: hint, explanation: explanation });
+  }
+  function seg2(a, b) { return [a, b]; }
+
+  // ---------- P1：共通な辺（2組の辺とその間の角） ----------
+  var P1 = { intro: "△ABC と △DCB において、",
+    hyp: [peq("AB", "DC"), peq("∠ABC", "∠DCB")], goal: peq("AC", "DB"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AB", "DC"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("∠ABC", "∠DCB"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("BC", "CB"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABC", "DCB"), reason: "SAS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("AC", "DB"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP1() {
+    return { type: "geometry", points: { A: [95, 70], B: [60, 210], C: [270, 210], D: [235, 70] },
+      segments: [["A", "B"], ["A", "C"], ["D", "B"], ["D", "C"], ["B", "C"]],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("D", "C")], marks: 1 }],
+      angles: [ang("b", "B", "A", "C", { label: "" }), ang("c", "C", "D", "B", { label: "" })], equalAngles: [{ angles: ["b", "c"], marks: 1 }] };
+  }
+  proofFill("proof-sas-common-1", "standard", P1, figP1(), "図で AB ＝ DC、∠ABC ＝ ∠DCB です。AC ＝ DB を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L1", part: "reason", choices: [["hypothesis", "仮定", "correct"], ["common", "共通", "misread"], ["congruent_parts", "合同な図形の対応する辺（角）は等しい", "goal_used"]] },
+    { line: "L3", part: "claim", choices: [["bc", "BC ＝ CB", "correct"], ["ab", "AB ＝ DB", "misread"], ["ac", "AC ＝ DB", "goal_used"]] },
+    { line: "L3", part: "reason", choices: [["common", "共通", "correct"], ["hypothesis", "仮定", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L4", part: "reason", choices: [["SAS", PR_REASON.SAS, "correct"], ["SSS", PR_REASON.SSS, "SSS"], ["ASA", PR_REASON.ASA, "ASA"], ["SSA", PR_REASON.SSA + "（合同とはいえない）", "SSA"]] },
+    { line: "L5", part: "claim", choices: [["acdb", "AC ＝ DB", "correct"], ["acdc", "AC ＝ DC", "corr_shift"], ["abdb", "AB ＝ DB", "misread"]] }
+  ], "BC は2つの三角形の両方にある辺。", "AB ＝ DC（仮定）、∠ABC ＝ ∠DCB（仮定）、BC ＝ CB（共通）。2組の辺とその間の角がそれぞれ等しいので △ABC ≡ △DCB。対応する辺なので AC ＝ DB です。");
+  proofOrder("proof-order-sas-common-1", P1, figP1(), "図で AB ＝ DC、∠ABC ＝ ∠DCB です。AC ＝ DB を証明します。証明の行を、正しい順番にタップしよう。",
+    ["L4", "L3", "L5", "L1", "L2"], "先に3つの等しいことをそろえてから、合同を言う。", "3つの等しいこと（順番は自由）→ △ABC ≡ △DCB → AC ＝ DB の順です。");
+
+  // ---------- P2：対頂角（2組の辺とその間の角） ----------
+  var P2 = { intro: "△AOC と △BOD において、",
+    hyp: [peq("AO", "BO"), peq("CO", "DO")], goal: peq("AC", "BD"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AO", "BO"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("CO", "DO"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("∠AOC", "∠BOD"), reason: "vertical" },
+      { id: "L4", role: "condition", claim: pcong("AOC", "BOD"), reason: "SAS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("AC", "BD"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP2() {
+    return { type: "geometry", points: { A: [70, 60], O: [170, 140], B: [270, 220], C: [80, 210], D: [260, 70] },
+      segments: [["A", "B"], ["C", "D"], ["A", "C"], ["B", "D"]],
+      equalSides: [{ segments: [seg2("A", "O"), seg2("B", "O")], marks: 1 }, { segments: [seg2("C", "O"), seg2("D", "O")], marks: 2 }] };
+  }
+  proofFill("proof-sas-vertical-1", "standard", P2, figP2(), "線分ABとCDが点Oで交わり、AO ＝ BO、CO ＝ DO です。AC ＝ BD を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "claim", choices: [["codo", "CO ＝ DO", "correct"], ["acbd", "AC ＝ BD", "goal_used"], ["aodo", "AO ＝ DO", "misread"]] },
+    { line: "L3", part: "claim", choices: [["aocbod", "∠AOC ＝ ∠BOD", "correct"], ["aoccob", "∠AOC ＝ ∠COB", "misread"], ["oacobd", "∠OAC ＝ ∠OBD", "goal_used"]] },
+    { line: "L3", part: "reason", choices: [["vertical", "対頂角は等しい", "correct"], ["alternate", "平行線の錯角は等しい", "misread"], ["common", "共通", "misread"]] },
+    { line: "L4", part: "claim", choices: [["aocbod", "△AOC ≡ △BOD", "correct"], ["aocdob", "△AOC ≡ △DOB", "corr_shift"], ["aocobd", "△AOC ≡ △OBD", "corr_shift"]] },
+    { line: "L4", part: "reason", choices: [["SAS", PR_REASON.SAS, "correct"], ["ASA", PR_REASON.ASA, "ASA"], ["SSS", PR_REASON.SSS, "SSS"]] }
+  ], "O で向かい合っている角に注目。", "AO ＝ BO（仮定）、CO ＝ DO（仮定）、∠AOC ＝ ∠BOD（対頂角）。2組の辺とその間の角がそれぞれ等しいので △AOC ≡ △BOD、AC ＝ BD です。");
+
+  // ---------- P3：平行線の錯角と対頂角（1組の辺とその両端の角） ----------
+  var P3 = { intro: "△ABO と △DCO において、",
+    hyp: [{ parallel: ["AB", "CD"] }, peq("AO", "DO")], goal: peq("BO", "CO"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AO", "DO"), reason: "hypothesis" },
+      { id: "L2", role: "figure_fact", claim: peq("∠BAO", "∠CDO"), reason: "alternate" },
+      { id: "L3", role: "figure_fact", claim: peq("∠AOB", "∠DOC"), reason: "vertical" },
+      { id: "L4", role: "condition", claim: pcong("ABO", "DCO"), reason: "ASA", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("BO", "CO"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP3() {
+    return { type: "geometry", points: { A: [60, 60], B: [210, 60], D: [270, 220], C: [120, 220], O: [165, 140] },
+      lines: [{ id: "ab", through: ["A", "B"], extend: 0 }, { id: "cd", through: ["C", "D"], extend: 0 }],
+      segments: [["A", "D"], ["B", "C"]], parallel: [{ lines: ["ab", "cd"], marks: 1, at: 0.6 }],
+      equalSides: [{ segments: [seg2("A", "O"), seg2("D", "O")], marks: 1 }] };
+  }
+  proofFill("proof-asa-parallel-1", "standard", P3, figP3(), "AB // CD、AO ＝ DO です。BO ＝ CO を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "claim", choices: [["bacdo", "∠BAO ＝ ∠CDO", "correct"], ["baoaob", "∠BAO ＝ ∠AOB", "misread"], ["bacdc", "∠BAO ＝ ∠DCO", "corr_shift"]] },
+    { line: "L2", part: "reason", choices: [["alternate", "平行線の錯角は等しい", "correct"], ["corresponding", "平行線の同位角は等しい", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L3", part: "reason", choices: [["vertical", "対頂角は等しい", "correct"], ["alternate", "平行線の錯角は等しい", "misread"], ["hypothesis", "仮定", "misread"]] },
+    { line: "L4", part: "reason", choices: [["ASA", PR_REASON.ASA, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["SSS", PR_REASON.SSS, "SSS"]] },
+    { line: "L5", part: "claim", choices: [["boco", "BO ＝ CO", "correct"], ["bodo", "BO ＝ DO", "corr_shift"], ["abcd", "AB ＝ DO", "misread"]] }
+  ], "平行線 AB、CD と、横切る直線 AD でできる角。", "AO ＝ DO（仮定）、∠BAO ＝ ∠CDO（錯角）、∠AOB ＝ ∠DOC（対頂角）。1組の辺とその両端の角がそれぞれ等しいので △ABO ≡ △DCO、BO ＝ CO です。");
+  proofOrder("proof-order-asa-parallel-1", P3, figP3(), "AB // CD、AO ＝ DO です。BO ＝ CO を証明します。証明の行を、正しい順番にタップしよう。",
+    ["L5", "L2", "L4", "L1", "L3"], "合同を言うのは、3つの等しいことがそろってから。", "等しいこと3つ（順番は自由）→ △ABO ≡ △DCO → BO ＝ CO です。");
+
+  // ---------- P4：3組の辺（たこ形） ----------
+  var P4 = { intro: "△ABC と △ADC において、",
+    hyp: [peq("AB", "AD"), peq("CB", "CD")], goal: peq("∠BAC", "∠DAC"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AB", "AD"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("CB", "CD"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("AC", "AC"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABC", "ADC"), reason: "SSS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("∠BAC", "∠DAC"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP4() {
+    return { type: "geometry", points: { A: [160, 40], B: [70, 150], C: [160, 240], D: [250, 150] },
+      segments: [["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"], ["A", "C"]],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("A", "D")], marks: 1 }, { segments: [seg2("C", "B"), seg2("C", "D")], marks: 2 }] };
+  }
+  proofFill("proof-sss-1", "standard", P4, figP4(), "AB ＝ AD、CB ＝ CD です。∠BAC ＝ ∠DAC を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "reason", choices: [["hypothesis", "仮定", "correct"], ["common", "共通", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L3", part: "claim", choices: [["acac", "AC ＝ AC", "correct"], ["bdbd", "BD ＝ BD", "misread"], ["abcd", "AB ＝ CD", "corr_shift"]] },
+    { line: "L4", part: "reason", choices: [["SSS", PR_REASON.SSS, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["ASA", PR_REASON.ASA, "ASA"]] },
+    { line: "L5", part: "claim", choices: [["badac", "∠BAC ＝ ∠DAC", "correct"], ["bcadca", "∠BAC ＝ ∠DCA", "corr_shift"], ["abcadc", "∠ABC ＝ ∠BAC", "misread"]] },
+    { line: "L5", part: "reason", choices: [["congruent_parts", "合同な図形の対応する辺（角）は等しい", "correct"], ["hypothesis", "仮定", "goal_used"], ["common", "共通", "misread"]] }
+  ], "AC は2つの三角形の両方にある辺。", "AB ＝ AD、CB ＝ CD（仮定）、AC ＝ AC（共通）。3組の辺がそれぞれ等しいので △ABC ≡ △ADC、∠BAC ＝ ∠DAC です。");
+  proofOrder("proof-order-sss-1", P4, figP4(), "AB ＝ AD、CB ＝ CD です。∠BAC ＝ ∠DAC を証明します。証明の行を、正しい順番にタップしよう。",
+    ["L3", "L5", "L1", "L4", "L2"], "結論（対応する角が等しい）は、合同を言ったあと。", "等しいこと3つ（順番は自由）→ △ABC ≡ △ADC → ∠BAC ＝ ∠DAC です。");
+
+  // ---------- P5：共通な辺と両端の角（1組の辺とその両端の角） ----------
+  var P5 = { intro: "△ABD と △CBD において、",
+    hyp: [peq("∠ABD", "∠CBD"), peq("∠ADB", "∠CDB")], goal: peq("AB", "CB"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("∠ABD", "∠CBD"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("∠ADB", "∠CDB"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("BD", "BD"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABD", "CBD"), reason: "ASA", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("AB", "CB"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  proofFill("proof-asa-common-1", "standard", P5, { type: "geometry", points: { B: [70, 140], D: [270, 140], A: [170, 50], C: [170, 230] },
+      segments: [["A", "B"], ["A", "D"], ["C", "B"], ["C", "D"], ["B", "D"]],
+      angles: [ang("b1", "B", "A", "D", { label: "" }), ang("b2", "B", "D", "C", { label: "" }), ang("d1", "D", "B", "A", { label: "" }), ang("d2", "D", "C", "B", { label: "" })],
+      equalAngles: [{ angles: ["b1", "b2"], marks: 1 }, { angles: ["d1", "d2"], marks: 2 }] },
+    "∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB です。AB ＝ CB を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L1", part: "claim", choices: [["abdcbd", "∠ABD ＝ ∠CBD", "correct"], ["abcb", "AB ＝ CB", "goal_used"], ["abdadb", "∠ABD ＝ ∠ADB", "misread"]] },
+    { line: "L3", part: "reason", choices: [["common", "共通", "correct"], ["hypothesis", "仮定", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L4", part: "reason", choices: [["ASA", PR_REASON.ASA, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["SSA", PR_REASON.SSA + "（合同とはいえない）", "SSA"]] },
+    { line: "L5", part: "claim", choices: [["abcb", "AB ＝ CB", "correct"], ["abcd", "AB ＝ CD", "corr_shift"], ["adab", "AD ＝ AB", "misread"]] }
+  ], "BD は2つの三角形の両方にある辺。その両端の角が等しい。", "∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB（仮定）、BD ＝ BD（共通）。1組の辺とその両端の角がそれぞれ等しいので △ABD ≡ △CBD、AB ＝ CB です。");
+
+  // ---------- P6：共通な角（2組の辺とその間の角） ----------
+  var P6 = { intro: "△ABE と △ACD において、",
+    hyp: [peq("AB", "AC"), peq("AE", "AD")], goal: peq("BE", "CD"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AB", "AC"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("AE", "AD"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("∠BAE", "∠CAD"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABE", "ACD"), reason: "SAS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("BE", "CD"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  proofFill("proof-sas-angle-1", "standard", P6, { type: "geometry",
+      points: { A: [160, 40], B: [70, 220], C: [250, 220], D: { along: ["A", "B", 0.55] }, E: { along: ["A", "C", 0.55] } },
+      segments: [["A", "B"], ["A", "C"], ["B", "E"], ["C", "D"]], labels: ["A", "B", "C", "D", "E"],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("A", "C")], marks: 1 }, { segments: [seg2("A", "E"), seg2("A", "D")], marks: 2 }] },
+    "点Dは辺AB上、点Eは辺AC上にあり、AB ＝ AC、AE ＝ AD です。BE ＝ CD を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L3", part: "claim", choices: [["baecad", "∠BAE ＝ ∠CAD", "correct"], ["abeacd", "∠ABE ＝ ∠ACD", "goal_used"], ["baebad", "∠BAE ＝ ∠BAD", "misread"]] },
+    { line: "L3", part: "reason", choices: [["common", "共通", "correct"], ["vertical", "対頂角は等しい", "misread"], ["hypothesis", "仮定", "misread"]] },
+    { line: "L4", part: "claim", choices: [["abeacd", "△ABE ≡ △ACD", "correct"], ["abeadc", "△ABE ≡ △ADC", "corr_shift"], ["abecad", "△ABE ≡ △CAD", "corr_shift"]] },
+    { line: "L5", part: "claim", choices: [["becd", "BE ＝ CD", "correct"], ["bead", "BE ＝ AD", "corr_shift"], ["bdce", "BD ＝ CE", "misread"]] }
+  ], "∠A は2つの三角形の両方にある角。", "AB ＝ AC、AE ＝ AD（仮定）、∠BAE ＝ ∠CAD（共通）。2組の辺とその間の角がそれぞれ等しいので △ABE ≡ △ACD、BE ＝ CD です。");
+
+  // ---------- 1段階だけの短い問題（どの段階で止まるかを1つずつ） ----------
+  function stageQ(q) { q.proof_stage = true; q.format = q.format || "word"; geo(q); }
+  stageQ({ id: "proofHypConc-basic-1", skill: "proofHypConc", level: "basic",
+    text: "「AB ＝ DC、∠ABC ＝ ∠DCB ならば、AC ＝ DB」の結論はどれ？", type: "choice", answer: "acdb",
+    choices: [{ key: "abdc", label: "AB ＝ DC", kind: "conclusion_as_hypothesis" }, { key: "abcdcb", label: "∠ABC ＝ ∠DCB", kind: "conclusion_as_hypothesis" }, { key: "acdb", label: "AC ＝ DB", kind: "correct" }],
+    hint: "「ならば」の前が仮定、後が結論。", explanation: "「ならば」のあとの AC ＝ DB が結論です。AB ＝ DC と ∠ABC ＝ ∠DCB は仮定です。" });
+  stageQ({ id: "congCorr-basic-1", skill: "congCorr", level: "basic",
+    text: "△ABC ≡ △DEF のとき、辺 BC に対応する辺はどれ？", type: "choice", answer: "ef",
+    choices: [{ key: "de", label: "DE", kind: "corr_shift" }, { key: "ef", label: "EF", kind: "correct" }, { key: "df", label: "DF", kind: "corr_shift" }],
+    hint: "≡ の記号の前後で、同じ位置にある頂点どうしが対応する。", explanation: "B と E、C と F が対応するので、BC に対応するのは EF です。" });
+  stageQ({ id: "congCond-basic-1", skill: "congCond", level: "basic",
+    text: "△ABC と △DEF で、AB ＝ DE、BC ＝ EF、∠B ＝ ∠E のとき、使える合同条件はどれ？", type: "choice", answer: "SAS",
+    choices: [{ key: "SSS", label: PR_REASON.SSS, kind: "SSS" }, { key: "SAS", label: PR_REASON.SAS, kind: "correct" }, { key: "ASA", label: PR_REASON.ASA, kind: "ASA" }],
+    hint: "等しい角は、等しい2辺の間にある？", explanation: "∠B は辺 AB と BC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。" });
+  stageQ({ id: "congCond-basic-2", skill: "congCond", level: "basic",
+    text: "△ABC と △DEF で、AB ＝ DE、AC ＝ DF、∠B ＝ ∠E のとき、合同といえる？", type: "choice", answer: "no",
+    choices: [{ key: "SAS", label: "いえる（2組の辺とその間の角）", kind: "SSA" }, { key: "no", label: "いえない（角が2辺の間にない）", kind: "correct" }],
+    hint: "∠B は辺 AB と AC の間の角？", explanation: "∠B は AB と AC の間の角ではありません（間の角は ∠A）。この3つだけでは合同とはいえません。" });
+  stageQ({ id: "congUse-basic-1", skill: "congUse", level: "basic",
+    text: "△ABC ≡ △DEF がわかっています。∠C と等しい角はどれ？", type: "choice", answer: "f",
+    choices: [{ key: "e", label: "∠E", kind: "corr_shift" }, { key: "f", label: "∠F", kind: "correct" }, { key: "d", label: "∠D", kind: "corr_shift" }],
+    hint: "合同な図形の対応する角は等しい。C に対応する頂点は？", explanation: "C と F が対応するので、∠C ＝ ∠F です。" });
+  stageQ({ id: "proofFigureFacts-basic-1", skill: "proofFigureFacts", level: "basic", format: "figure",
+    text: "線分ABとCDが点Oで交わっています。△AOC と △BOD の証明に使える、等しい角を見つけよう。", figure: figP2(), type: "steps",
+    steps: [{ id: "s1", skill: "proofFigureFacts", aspect: "claim", type: "choice", answer: "aocbod", text: "等しい角はどれ？",
+        choices: [{ key: "aocbod", label: "∠AOC ＝ ∠BOD", kind: "correct" }, { key: "aoccob", label: "∠AOC ＝ ∠COB", kind: "misread" }, { key: "oacobd", label: "∠OAC ＝ ∠OBD", kind: "goal_used" }],
+        hint: "O で向かい合う角。", explanation: "∠AOC と ∠BOD は O で向かい合う角です。" },
+      { id: "s2", skill: "proofFigureFacts", aspect: "reason", type: "choice", answer: "vertical", text: "そう言える理由は？",
+        choices: [{ key: "vertical", label: "対頂角は等しい" }, { key: "common", label: "共通" }, { key: "alternate", label: "平行線の錯角は等しい" }],
+        hint: "向かい合う角。", explanation: "対頂角は等しいので ∠AOC ＝ ∠BOD です。" }],
+    hint: "証明では、仮定のほかに「図からわかる等しいこと」も使う。", explanation: "∠AOC ＝ ∠BOD（対頂角は等しい）を、証明に使えます。" });
+
   // はじめてのチェック（5問）：角の性質・平行線・三角形・外角・角度の方程式
   items.forEach(function (q) {
     if (["lineAngles-basic-1", "angleEq-standard-1", "parallelAngles-basic-1", "triangleSum-basic-1", "exteriorAngle-basic-1"].indexOf(q.id) !== -1) q.usage = "diagnosis";

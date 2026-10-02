@@ -513,3 +513,11 @@ br.pc { display: none; }
 /* ちがう単元のスキルの目印（中1・一次方程式 など） */
 .unit-tag { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; color: var(--hint); background: rgba(140, 200, 255, .12); border-radius: 6px; padding: 1px 6px; vertical-align: middle; }
 .status-group > .field, .status-group > p { flex-basis: 100%; }
+/* 証明（図形②）：証明の紙と、並べかえのカード */
+.proof-sheet { margin: 4px auto 14px; padding: 10px 14px; max-width: 380px; background: var(--inset); border: 1px solid var(--line); border-radius: 12px; font-size: 15px; line-height: 1.8; }
+.proof-sheet .proof-intro { margin: 0 0 2px; color: var(--text-soft); }
+.proof-sheet ol { margin: 0; padding-left: 22px; }
+.order-picked { margin: 0 0 10px; padding-left: 24px; min-height: 28px; line-height: 1.7; }
+.order-picked .order-next { list-style: none; margin-left: -18px; color: var(--text-soft); font-size: 13px; }
+.order-tools { display: flex; gap: 8px; margin-top: 8px; }
+.order-tools .secondary-button { flex: 1; }

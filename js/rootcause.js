@@ -74,6 +74,8 @@
   // opts.school：学校のようす（学校でまだ習っていない図形スキルは not_learned：苦手にせず、原因さがしもしない）
   function geometryEntry(q, results, opts) {
     opts = opts || {};
+    // 証明の問題（図形②）は、行の役割・主張・根拠で入口を決める（js/proof.js）
+    if ((q.proof || q.proof_stage) && SC.proof) return SC.proof.entry(q, results, opts);
     if (!Array.isArray(results)) results = [{ id: null, skill: q.skill, correct: !!results, aspect: "value" }];
     var steps = q.steps || [];
     function stepOf(r) { return steps.filter(function (st) { return st.id === r.id; })[0] || {}; }
@@ -147,6 +149,7 @@
     if (g) {
       trail.geometry = { question_id: g.question_id, value_ok: g.value_ok, reason_ok: g.reason_ok, first_miss_step: g.first_miss_step,
         entry: g.entry, why: g.why, concept_prereqs: g.concept_prereqs, calc_prereqs: g.calc_prereqs, confusions: g.confusions,
+        direct: !!g.direct, direct_message: g.direct_message || null, proof: g.proof || null,
         sides: g.entry === "calc" ? ["calc"] : g.then_calc ? ["concept", "calc"] : ["concept"], side_idx: 0, skipped: [] };
       trail.log.push("入口：" + (g.entry === "calc" ? "計算側" : "図形の性質側") + "（" + g.why + "）");
       if (g.entry === "calc") trail.geometry.skipped.push({ side: "concept", why: "根拠が正しい・式が立てられている＝図形の性質はわかっているので、図形側は確かめない" });
@@ -319,8 +322,16 @@
     var prereqs = prereqOrder(trail, gap);
     var solid = prereqs.filter(function (p) { return trail.tested[p] === true; });
     var g = trail.geometry;
+    // 証明：さかのぼる前提がなく、止まった行のスキルそのものに戻る（例：合同条件の選び方・仮定を拾う）
+    if (g && g.direct && gap === trail.symptom.skill && !trail.pending.length && trail.reproduced !== false) {
+      trail.status = "done";
+      trail.conclusion = { kind: "in_skill", gap_skill: gap, return_to: gap, solid_skills: solid, pending_skills: [], message: g.direct_message };
+      trail.log.push("結論：" + trail.conclusion.message);
+      return trail;
+    }
+    if (g && g.proof) g.sides = ["concept"];
     if (g) {
-      if (g.sides.indexOf("calc") === -1 && g.entry === "concept") g.skipped.push({ side: "calc", why: "式を立てる小問で止まったので、計算側は確かめない" });
+      if (g.sides.indexOf("calc") === -1 && g.entry === "concept" && !g.proof) g.skipped.push({ side: "calc", why: "式を立てる小問で止まったので、計算側は確かめない" });
       else if (g.sides[g.side_idx] === "concept" && g.sides.indexOf("calc") !== -1)
         g.skipped.push({ side: "calc", why: trail.pending.length ? "図形の性質側を確かめきれなかったので、計算側は次回以降" : "図形の性質側に戻る場所が見つかったので、計算側はいまは確かめない" });
       // 図形の性質側もできていて、さかのぼる計算もない（たし算・ひき算だけの問題）
