@@ -1978,6 +1978,13 @@
     "かっこを外すと 6a − 3b。b の項をまとめる。", "6a − 3b + 4b をまとめると 6a + b です。");
   poly("polyMixed-basic-11", "polyMixed", "basic", null, "x − 3(x − 2y) を計算しましょう。", "-2x+6y",
     "かっこの前が −3。−3 × x と −3 × (−2y)。", "x − 3x + 6y をまとめると −2x + 6y です。");
+  // 学校で学習中・なかなか安定せず毎日同じ基礎を練習するケースで、3日目から再利用が出ていたぶん
+  poly("polyMixed-basic-12", "polyMixed", "basic", null, "4(x + 2y) − 3y を計算しましょう。", "4x+5y",
+    "かっこを外すと 4x + 8y。y の項をまとめる。", "4x + 8y − 3y をまとめると 4x + 5y です。");
+  poly("polyMixed-basic-13", "polyMixed", "basic", null, "−5(a − b) + 7a を計算しましょう。", "2a+5b",
+    "−5 × a と −5 × (−b)。負 × 負 は正。", "−5a + 5b + 7a をまとめると 2a + 5b です。");
+  poly("polyMixed-basic-14", "polyMixed", "basic", null, "3m + 2(m − 4n) を計算しましょう。", "5m-8n",
+    "かっこが後ろ。2(m − 4n) = 2m − 8n。", "3m + 2m − 8n をまとめると 5m − 8n です。");
   poly("polyAddSub-basic-7", "polyAddSub", "basic", null, "(6x + y) + (−2x + 5y) を計算しましょう。", "4x+6y",
     "かっこの前が + なので、そのまま外す。6x と −2x、y と 5y。", "6x + y − 2x + 5y をまとめると 4x + 6y です。");
   add({ id: "simWord-basic-5", skill: "simWord", level: "basic", format: "word",
