@@ -89,5 +89,5 @@ test("今日の学習：根元が一次方程式なら「一次関数の前に�
   const p = P.build({ states: E.computeSkillStates(h, { now }), history: h, explorations: expl, school: { current_unit: "一次関数", school_status: "learning" }, minutes: 30, now, rng: B.seeded(1) });
   const pr = p.sessions.find((s) => s.type === "practice");
   assert.equal(pr.skill, "transpose");
-  assert.match(p.why, /一次関数の前に、方程式を少し確認しよう/);
+  assert.match(p.why, /一次関数の前に、方程式を少し確認/);
 });

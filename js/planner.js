@@ -109,7 +109,7 @@
     var p1 = [], p2 = [], p3 = [], p4 = [];
 
     // --- 優先度1：根本のつまずき（原因さがしの「戻る場所」＋ いちばん根元の不安定なスキル） ---
-    var fromExpl = {}, symptomOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）
+    var fromExpl = {}, symptomOf = {}, depthOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）・さかのぼった深さ
     (input.explorations || []).forEach(function (x) {
       var c = x.conclusion;
       if (!c || !c.return_to || c.kind === "not_reproduced") return;
@@ -121,6 +121,8 @@
       }
       fromExpl[c.return_to] = fromExpl[c.return_to] || x.symptom.label;
       symptomOf[c.return_to] = symptomOf[c.return_to] || x.symptom.skill;
+      var dep = (x.path || []).reduce(function (m, q) { return Math.max(m, q.depth || 0); }, 0);
+      depthOf[c.return_to] = Math.max(depthOf[c.return_to] || 0, dep);
     });
     ROOT_ORDER.forEach(function (k) {
       if (!fromExpl[k] && !weak(k)) return;
@@ -130,7 +132,7 @@
         excluded.push({ skill: k, why: "つまずきの補強は、最近の練習で基礎・標準ともできている" });
         return;
       }
-      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null, symptom_skill: symptomOf[k] || null,
+      p1.push({ skill: k, level: lv, source: fromExpl[k] ? "exploration" : "weak", symptom: fromExpl[k] || null, symptom_skill: symptomOf[k] || null, depth: depthOf[k] || 0,
         advanced: lv === "standard" && practiced(k, "basic") && st(k).basic !== "pass" });
     });
 
@@ -211,7 +213,7 @@
     });
 
     return { p1: p1, p2: p2, p3: p3, p4: p4, excluded: excluded, log: log, st: st, weak: weak, rank: rank, done: done, practiced: practiced, unitSkills: unitSkills,
-      nextLevel: nextLevel, test: test || null, school: schoolLog, previewSkill: previewSkill };
+      nextLevel: nextLevel, test: test || null, school: schoolLog, previewSkill: previewSkill, notLearned: notLearned };
   }
 
   // スキル k が、前提をたどると r にたどりつくか
@@ -327,6 +329,254 @@
     return null;
   }
 
+  // ---------- 時間の配分（戻る勉強・学校の範囲・定着の確認・先取り） ----------
+  // 固定の枠ではなく、その日の状態から「重み」を決め、5分単位で時間を割り当てる。
+  //   1. つまずきの大きさ（severity）を、確かさ・最近の誤答・原因さがしの深さ・前の単元か・不安定なスキルの数から出す
+  //   2. 枠ごとに 重み・最小・最大 を決める（学校の範囲は最小を必ず残す＝戻る勉強だけの日にしない）
+  //   3. 5分ずつ、「重みから見た目標」にいちばん足りない枠へ配る
+  //   4. 長い枠は、同じスキルを続けすぎないよう2つのスキルに分ける
+  var ALLOC = {
+    // 戻る勉強の上限（つまずきの大きさ × 時間）
+    rootMax: { mild: { 20: 5, 30: 5, 45: 10, 60: 10 }, moderate: { 20: 5, 30: 10, 45: 15, 60: 20 }, severe: { 20: 10, 30: 15, 45: 20, 60: 25 } },
+    schoolMin: { 20: 10, 30: 10, 45: 15, 60: 20 }, // 学校の範囲に必ず残す時間
+    perSkillMax: { 20: 15, 30: 15, 45: 15, 60: 20 }, // 1つのスキルを続ける上限
+    previewMax: { 20: 0, 30: 10, 45: 10, 60: 15 },
+    retentionMax: { 20: 5, 30: 5, 45: 5, 60: 10 },
+    weights: { school: 0.45, check: 0.15, retention: 0.12, preview: 0.25, challenge: 0.08 },
+    severity: { mild: 0.3, moderate: 0.55 } // これ未満が mild / moderate、以上が severe
+  };
+  var SEVERITY_JA = { none: "なし", mild: "小さい", moderate: "中くらい", severe: "大きい" };
+
+  function severityOf(a, input) {
+    var root = a.p1[0];
+    if (!root) return { level: "none", score: 0, factors: null };
+    var history = input.history || [];
+    var s = a.st(root.skill);
+    var conf = s.attempt_count ? s.confidence : 0.3;
+    var recent = history.filter(function (x) { return x.skill === root.skill && !(x.preview && !x.correct); }).sort(function (x, y) { return t(x) - t(y); }).slice(-4);
+    var recentErr = recent.filter(function (x) { return !x.correct; }).length;
+    var curUnit = (input.school && input.school.current_unit) || "一次関数";
+    var unitAt = function (k) { var u = E.SKILLS[k].unit; return u === "既習" ? 0 : u === "一次方程式" ? 1 : 2 + E.SELECTABLE_UNITS.indexOf(u); };
+    var crossUnit = unitAt(root.skill) < unitAt(E.UNITS[curUnit] ? E.UNITS[curUnit][0] : root.skill) ? 1 : 0;
+    var errRate = recent.length ? recentErr / recent.length : 0.5;
+    var factors = { skill: root.skill, confidence: Math.round(conf * 100) / 100, recent_errors: recentErr, recent_answers: recent.length, depth: root.depth || 0, weak_skills: a.p1.length, cross_unit: crossUnit };
+    // 確かさは記録が少ないうちは低く出るので、「理解」の目安（0.65）に対してどれだけ足りないかで見る。
+    // いちばん効くのは、最近の答えの誤答の割合
+    var score = 0.3 * (1 - Math.min(1, conf / 0.65)) + 0.25 * errRate + 0.15 * Math.min(root.depth || 0, 3) / 3 + 0.1 * Math.min(a.p1.length - 1, 2) / 2 + 0.1 * crossUnit;
+    score = Math.round(Math.min(1, Math.max(0, score)) * 100) / 100;
+    return { level: score < ALLOC.severity.mild ? "mild" : score < ALLOC.severity.moderate ? "moderate" : "severe", score: score, factors: factors };
+  }
+
+  function allocate(a, input, minutes, goal, log) {
+    var sev = severityOf(a, input);
+    var level = sev.level;
+    // 目標による調整：苦手を戻る日は1段重く・先取りなし／もう少し先へは1段軽く／復習は定着を長めに
+    var order = ["none", "mild", "moderate", "severe"];
+    if (goal === "catch_up" && level !== "none") level = order[Math.min(3, order.indexOf(level) + 1)];
+    if (goal === "challenge" && level !== "none") level = order[Math.max(1, order.indexOf(level) - 1)];
+
+    // --- 候補 ---
+    var rootCands = a.p1.slice(0, 2);
+    var root = rootCands[0] || null;
+    var schoolAll = a.p2.filter(function (c) { return !c.preview; });
+    // 学校の範囲：まちがえた問題のスキル（補強のあと戻る）→ 学校で学習中のスキル → そのほか習ったスキル
+    var symptom = root && root.symptom_skill && a.unitSkills.indexOf(root.symptom_skill) !== -1 ? root.symptom_skill : null;
+    // （補強するスキルを前提にしていて、まだ不安定な学校のスキルは、そのレベルで優先：例 変化量 → 変化の割合）
+    var shakyOnRoot = function (c) {
+      var s = a.st(c.skill);
+      return !!root && (a.weak(c.skill) || s.standard === "needs_review" || s.application === "needs_review") && dependsOn(c.skill, root.skill);
+    };
+    var rankOf = function (c) { return c.skill === symptom ? 0 : shakyOnRoot(c) ? 1 : c.school === "current" ? 2 : 3; };
+    var schoolCands = schoolAll.map(function (c) {
+      if (!shakyOnRoot(c)) return c;
+      var s = a.st(c.skill), o = {};
+      for (var k in c) o[k] = c[k];
+      o.level = a.weak(c.skill) ? "basic" : s.standard === "needs_review" ? "standard" : s.application === "needs_review" ? "application" : c.level;
+      return o;
+    }).sort(function (x, y) { return rankOf(x) - rankOf(y); }).filter(function (c) { return !root || c.skill !== root.skill; });
+    // 学校の範囲で次に進むレベルがない（ひととおりできている）ときも、学校の範囲は外さない：
+    // 学校で習ったスキルのうち確かさのいちばん低いものを、形を変えて（標準）
+    if (!schoolCands.length) {
+      var keepSchool = a.unitSkills.filter(function (k) { return a.st(k).attempt_count && !a.notLearned(k) && (!root || k !== root.skill); })
+        .sort(function (x, y) { return a.st(x).confidence - a.st(y).confidence; })[0];
+      if (keepSchool) {
+        schoolCands = [{ skill: keepSchool, level: a.rank(keepSchool) >= 3 ? "standard" : "basic", school: "maintain" }];
+        log.push("学校の範囲は、ひととおりできているので「" + label(keepSchool) + "」を形を変えておさらい（学校の範囲を0分にしない）");
+      }
+    }
+    var previewCand = a.p2.filter(function (c) { return c.preview; })[0] || null;
+    var retentionCand = a.p3[0] || null;
+    var busy = function (k) { return (root && k === root.skill) || schoolCands.slice(0, 2).some(function (c) { return c.skill === k; }); };
+    var challengeCand = a.p4.filter(function (c) { return a.unitSkills.indexOf(c.skill) !== -1 && !busy(c.skill); })[0] || null;
+    // おさらい：ほかの枠が上限でいっぱいのときの受け皿（同じスキルを長く続けないため）。できているところを形を変えて
+    // 候補はいくつか持ち、1つのスキルは MAINTAIN_CHUNK 分までにして、ほかのスキルに分ける
+    var maintainCands = a.p4.filter(function (c) { return !busy(c.skill) && (!challengeCand || c.skill !== challengeCand.skill); })
+      // （前の学年の土台は問題が少なく、定着の確認に残したいので、おさらいには使わない）
+      .concat(E.SKILL_ORDER.filter(function (k) { return E.SKILLS[k].unit !== "既習" && a.st(k).attempt_count && a.rank(k) >= 3 && !a.weak(k) && !busy(k) && !a.notLearned(k); })
+        .sort(function (x, y) { return a.st(x).confidence - a.st(y).confidence; }).map(function (k) { return { skill: k, level: "standard" }; }))
+      .filter(function (c, i, all) { return all.findIndex(function (d) { return d.skill === c.skill; }) === i; }).slice(0, 3);
+    var maintainCand = maintainCands[0] || null;
+    var MAINTAIN_CHUNK = minutes >= 60 ? 15 : 10;
+    var excluded = [];
+
+    // 先取りは余裕があるときだけ（つまずきなし、または小さくて45分以上）。学校の範囲が尽きていれば先取りが学校の代わり
+    var previewOk = !!previewCand && minutes >= 30 && goal !== "catch_up" && goal !== "review" &&
+      (level === "none" || (level === "mild" && minutes >= 45) || !schoolCands.length);
+    if (previewCand && !previewOk) excluded.push({ skill: previewCand.skill, kind: "preview", why: minutes < 30 ? "20分の日は先取りしない" : goal === "catch_up" || goal === "review" ? "今日の目標では先取りしない" : "つまずきの補強と学校の範囲を優先（先取りは余裕があるときだけ）" });
+    var retentionOk = !!retentionCand && (minutes >= 30 || level === "none");
+    if (retentionCand && !retentionOk) excluded.push({ skill: retentionCand.skill, kind: "retention", why: "20分でつまずきの補強があるので、定着の確認は次の日に" });
+    var checkOk = level !== "none" && (minutes >= 30 || level === "moderate" || level === "mild");
+
+    // --- 枠：重み・最小・最大 ---
+    var blocks = [];
+    function block(id, w, min, max, info) { if (max >= min && max > 0) blocks.push({ id: id, w: w, min: min, max: max, units: 0, info: info }); }
+    if (root) block("root", 0.2 + 0.5 * sev.score, 5, ALLOC.rootMax[level === "none" ? "mild" : level][minutes], { skill: root.skill });
+    if (schoolCands.length) block("school", ALLOC.weights.school * (goal === "catch_up" ? 0.8 : 1), Math.min(ALLOC.schoolMin[minutes], minutes - (root ? 5 : 0)),
+      ALLOC.perSkillMax[minutes] * Math.min(2, schoolCands.length), { skill: schoolCands[0].skill });
+    if (retentionOk) block("retention", ALLOC.weights.retention * (goal === "review" ? 2.5 : 1), 5, goal === "review" ? 10 : ALLOC.retentionMax[minutes], { skill: retentionCand.skill });
+    if (previewOk) block("preview", ALLOC.weights.preview * (goal === "challenge" ? 1.5 : 1), 5, ALLOC.previewMax[minutes] || 10, { skill: previewCand.skill });
+    if (checkOk && (root || schoolCands.length)) block("check", ALLOC.weights.check, 5, 5, {});
+    if (challengeCand && (level === "none" || level === "mild")) block("challenge", ALLOC.weights.challenge * (goal === "challenge" ? 3 : 1), 0, 10, { skill: challengeCand.skill });
+    if (maintainCand) block("maintain", 0.03, 0, MAINTAIN_CHUNK * maintainCands.length, { skill: maintainCand.skill });
+    if (!schoolCands.length) log.push("学校の範囲で今日進める内容がない（ひととおりできている）ので、学校の枠はほかに回す");
+
+    // --- 5分ずつ配る ---
+    var total = minutes / 5;
+    var wsum = blocks.reduce(function (s, b) { return s + b.w; }, 0) || 1;
+    blocks.forEach(function (b) { b.target = total * b.w / wsum; b.units = b.min / 5; });
+    var left = total - blocks.reduce(function (s, b) { return s + b.units; }, 0);
+    // 最小の合計が時間を超えたら、優先度の低い枠から削る
+    var dropOrder = ["maintain", "challenge", "preview", "retention", "check", "school", "root"];
+    while (left < 0) {
+      var cut = dropOrder.map(function (id) { return blocks.filter(function (b) { return b.id === id && b.units > 0; })[0]; }).filter(Boolean)[0];
+      if (!cut) break;
+      var keep = cut.id === "school" || cut.id === "root" ? 1 : 0;
+      if (cut.units > keep) { cut.units--; left++; } else break;
+    }
+    while (left > 0) {
+      var open = blocks.filter(function (b) { return b.units * 5 < b.max; });
+      // どの枠も上限なら、学校の範囲・戻る勉強に足す（それもなければ、ある枠に）
+      if (!open.length) open = blocks.filter(function (b) { return b.id === "school" || b.id === "root"; });
+      if (!open.length) open = blocks.slice();
+      if (!open.length) break;
+      open.sort(function (x, y) { return (y.target - y.units) - (x.target - x.units) || y.w - x.w; });
+      open[0].units++;
+      left--;
+    }
+    blocks.forEach(function (b) { b.minutes = b.units * 5; b.target = Math.round(b.target * 50) / 10; });
+
+    // --- 枠 → 学習のパート ---
+    var chosen = [];
+    var cap = ALLOC.perSkillMax[minutes];
+    function push(skill, level, type, why, m, role, meta) { if (m > 0) chosen.push({ skill: skill, level: level, type: type, why: why, minutes: m, role: role, meta: meta || null }); }
+    var get = function (id) { return blocks.filter(function (b) { return b.id === id; })[0] || { minutes: 0 }; };
+    var rb = get("root"), sb = get("school");
+    if (rb.minutes) {
+      var rm = rb.minutes;
+      // 戻る勉強が15分以上でつまずきが中以上なら、最初の5分は「できている前提」を思い出すウォームアップ
+      var pre = (E.SKILLS[root.skill].prerequisites || []).filter(function (p) { return a.rank(p) >= 3 && !a.weak(p); })[0];
+      if (rm >= 15 && pre && (level === "moderate" || level === "severe")) {
+        push(pre, "basic", "review", "「" + label(root.skill) + "」の前にある、できている内容を思い出す", 5, "warmup");
+        rm -= 5;
+      }
+      var second = rootCands[1];
+      if (rm > cap && second) {
+        push(root.skill, root.level, "practice", root.symptom ? "原因さがしで見つかった戻る場所（" + root.symptom + " から）" : "まだ不安定な、いちばん根元のスキル", cap, "reinforce", root);
+        push(second.skill, second.level, "practice", "次に不安定なスキルも少し", rm - cap, "reinforce", second);
+      } else {
+        push(root.skill, root.level, "practice", root.symptom ? "原因さがしで見つかった戻る場所（" + root.symptom + " から）" : "まだ不安定な、いちばん根元のスキル", rm, "reinforce", root);
+      }
+    }
+    if (sb.minutes) {
+      var sm = sb.minutes, c0 = schoolCands[0], c1 = schoolCands[1];
+      var swhy = function (c) {
+        return c.skill === symptom ? "補強した内容を使って、つまずいた「" + label(c.skill) + "」の問題に戻る"
+          : c.school === "current" ? "学校でいま習っている内容" : c.school === "maintain" ? "学校の範囲はひととおりできているので、形を変えておさらい" : "学校で習った範囲から、次に進むレベル";
+      };
+      if (sm > cap && c1) {
+        push(c0.skill, c0.level, "current_unit", swhy(c0), cap, "current", c0);
+        push(c1.skill, c1.level, "current_unit", swhy(c1), sm - cap, "current", c1);
+      } else push(c0.skill, c0.level, "current_unit", swhy(c0), sm, "current", c0);
+    }
+    if (get("challenge").minutes) push(challengeCand.skill, challengeCand.level, "challenge", "「" + label(challengeCand.skill) + "」はできているので、" + LEVEL_JA[challengeCand.level] + "へ", get("challenge").minutes, "advance", challengeCand);
+    // おさらいは、ほかのパートと同じスキルを避け、1スキル MAINTAIN_CHUNK 分ずつに分ける
+    var mLeft = get("maintain").minutes || 0;
+    maintainCands.filter(function (c) { return !chosen.some(function (x) { return x.skill === c.skill; }); }).forEach(function (c) {
+      if (mLeft <= 0) return;
+      var m = Math.min(MAINTAIN_CHUNK, mLeft);
+      push(c.skill, c.level === "basic" ? "standard" : c.level, "review", "同じスキルを続けすぎないよう、できているところを形を変えておさらい", m, "maintain", c);
+      mLeft -= m;
+    });
+    if (mLeft > 0 && chosen.length) chosen[chosen.length - 1].minutes += mLeft;
+    if (get("retention").minutes) push(retentionCand.skill, "retention", "review", "定着の確認（" + retentionCand.why + "）", get("retention").minutes, "retention", retentionCand);
+    if (get("preview").minutes) push(previewCand.skill, "basic", "preview", "学校でこれから習う内容を、少しだけ先取り（まちがえても苦手にはしない）", get("preview").minutes, "preview", previewCand);
+    if (get("check").minutes) {
+      var focus = chosen.filter(function (c) { return c.type === "practice"; })[0] || chosen.filter(function (c) { return c.type === "current_unit"; })[0];
+      if (focus) push(focus.skill, focus.level, "check", "今日の「" + label(focus.skill) + "」ができたか、別の問題で確かめる", 5, "check");
+      else if (chosen.length) chosen[0].minutes += 5;
+    }
+
+    var alloc = {
+      available_minutes: minutes, goal: goal, severity: level, severity_raw: sev.level, severity_score: sev.score, factors: sev.factors,
+      candidates: {
+        root: rootCands.map(function (c) { return c.skill; }), school: schoolCands.map(function (c) { return c.skill + ":" + (c.school || "") + ":" + c.level; }),
+        retention: retentionCand ? retentionCand.skill : null, preview: previewCand ? previewCand.skill : null, challenge: challengeCand ? challengeCand.skill : null
+      },
+      blocks: blocks.map(function (b) { return { id: b.id, weight: Math.round(b.w * 100) / 100, target: b.target, min: b.min, max: b.max, minutes: b.minutes, skill: b.info.skill || null }; }),
+      excluded: excluded,
+      final: chosen.map(function (c) { return { minutes: c.minutes, type: c.type, skill: c.skill, level: c.level }; })
+    };
+    log.push("配分：つまずき「" + SEVERITY_JA[level] + "」（" + sev.score + "）／" + blocks.map(function (b) { return b.id + " " + b.minutes + "分（重み " + Math.round(b.w * 100) / 100 + "）"; }).join("、"));
+    return { chosen: chosen, alloc: alloc };
+  }
+
+  // 「なぜこの配分？」— 子どもにもわかる言葉で
+  function allocWhy(alloc, plan) {
+    var s = plan.sessions;
+    var practice = s.filter(function (x) { return x.type === "practice"; })[0];
+    var school = s.filter(function (x) { return x.type === "current_unit"; })[0];
+    var preview = s.filter(function (x) { return x.type === "preview"; })[0];
+    var curUnit = plan.school_progress ? plan.school_progress.current_unit : "一次関数";
+    if (practice && school) {
+      var back = backToLine(practice.skill, curUnit);
+      var head = back ? back.replace(/少し確認しよう。$/, "少し確認してから、") : "「" + practice.skill_label + "」を少し確認してから、";
+      return head + "学校で習っている「" + school.skill_label + "」に戻ろう。" +
+        (alloc.severity === "severe" ? "今日は戻る勉強を少し多めにしたけど、学校の内容も進めるよ。" : "");
+    }
+    if (practice) return "「" + practice.skill_label + "」を確認する日。学校の内容は、ここができてから進めよう。";
+    if (school && preview) return "学校の「" + school.skill_label + "」はよくできているので、今日は少し先の「" + preview.skill_label + "」ものぞいてみよう。";
+    if (school) return "学校で習っている「" + school.skill_label + "」を中心に進めよう。";
+    if (preview) return "学校でこれから習う「" + preview.skill_label + "」を、少しだけ先取りしてみよう。";
+    return "";
+  }
+
+  // ふだんの日の「なぜ今日はこれ？」：つまずきの理由 → 配分の理由 → 定着・先取り
+  function whyAlloc(a, plan, goal, alloc) {
+    var lines = [];
+    var opener = { catch_up: "今日は「苦手を戻る」日。", review: "今日は「復習」の日。", challenge: "今日は「もう少し先へ」の日。" }[goal];
+    var s = plan.sessions;
+    var practice = s.filter(function (x) { return x.type === "practice"; })[0];
+    var review = s.filter(function (x) { return x.type === "review" && x.level === "retention"; })[0];
+    var preview = s.filter(function (x) { return x.type === "preview"; })[0];
+    var school = s.filter(function (x) { return x.type === "current_unit"; })[0];
+    if (practice) {
+      var c = a.p1.filter(function (x) { return x.skill === practice.skill; })[0] || {};
+      lines.push(c.symptom ? "「" + c.symptom + "」の問題では、さかのぼると「" + practice.skill_label + "」のところで少し迷っているようです。"
+        : "「" + practice.skill_label + "」のところで、まだ少し迷うことがあるようです。");
+    }
+    var main = allocWhy(alloc, plan);
+    if (main) lines.push(main);
+    if (preview && !(school && !practice)) lines.push("学校でこれから習う「" + preview.skill_label + "」を少しだけ先取りします。まだ習っていない内容なので、できなくても大丈夫です。");
+    else if (preview) lines.push("まだ習っていない内容なので、できなくても大丈夫です。");
+    if (review) lines.push("前にできた「" + review.skill_label + "」を、忘れていないか少しだけ確かめます。");
+    if (lines.length < 3) {
+      var strong = E.SKILL_ORDER.filter(function (k) { return a.rank(k) >= 3 && !a.weak(k); }).sort(function (x, y) { return a.st(y).confidence - a.st(x).confidence; }).slice(0, 2);
+      if (strong.length) lines.unshift(strong.map(function (k) { return "「" + label(k) + "」"; }).join("と") + "はよくできています。");
+    }
+    if (!lines.length) lines.push("今日の一歩を、少しずつ進めていこう。");
+    return (opener || "") + lines.slice(0, 4).join("");
+  }
+
   // ---------- 問題を選ぶ（練習向けを優先、最近の診断・チェックで出した問題は避ける） ----------
   var PICK_STAGES = [
     { stage: 0, usage: ["practice", "multi_use", "retention"], checkDays: CONFIG.AVOID_CHECK_DAYS, lessonDays: CONFIG.AVOID_LESSON_DAYS, label: "通常（練習向けの問題・最近の診断/チェック/練習で出していない）" },
@@ -379,24 +629,28 @@
     var log = a.log.slice();
     if (input.test && input.test.kind === "final_review") return buildFinalReview(input, a, minutes, rng, log);
     var tmpl = TEMPLATES[minutes].map(function (x) { return { role: (GOAL_ROLES[goal][x.role] || x.role), baseRole: x.role, m: x.m }; });
-    log.push(minutes + "分の枠：" + TEMPLATES[minutes].map(function (x) { return x.role + " " + x.m + "分"; }).join(" / ") +
-      (goal !== "daily_learning" ? "（「" + GOALS[goal] + "」のため役割を入れかえ：" + tmpl.map(function (x) { return x.role; }).join(" / ") + "）" : ""));
-    // 苦手を戻る日は、学校の単元の時間を5分つまずき補強へ
-    if (goal === "catch_up") {
-      var rf = tmpl.filter(function (x) { return x.role === "reinforce"; })[0], cur = tmpl.filter(function (x) { return x.baseRole === "current"; })[0];
-      if (rf && cur && cur.m > 5) { rf.m += 5; cur.m -= 5; log.push("苦手を戻る日なので、学校の単元から5分をつまずき補強へ"); }
+    var chosen = [], alloc = null;
+    if (!input.test) {
+      // ふだんの日：その日の状態から、戻る勉強・学校の範囲・定着の確認・先取りに時間を配る
+      var al = allocate(a, input, minutes, goal, log);
+      chosen = al.chosen;
+      alloc = al.alloc;
+      tmpl.forEach(function (x) { x.empty = false; }); // 時間はすでに配り終えている
+    } else {
+      // テスト対策の日：これまでどおり、テスト向けの枠で
+      log.push(minutes + "分の枠：" + TEMPLATES[minutes].map(function (x) { return x.role + " " + x.m + "分"; }).join(" / ") +
+        "（「" + ALL_GOALS[goal] + "」のため役割を入れかえ：" + tmpl.map(function (x) { return x.role; }).join(" / ") + "）");
+      // 枠ごとに中身を決める。中身がない枠は、あとで前後の枠に時間を回す
+      tmpl.forEach(function (x) {
+        var r = resolveRole(x.role, a, chosen);
+        if (!r) { log.push("「" + x.role + "」の枠（" + x.m + "分）は当てはまる内容がないので、ほかの枠に回す"); x.empty = true; return; }
+        r.minutes = x.m; r.role = x.role;
+        chosen.push(r);
+      });
     }
-
-    // 枠ごとに中身を決める。中身がない枠は、あとで前後の枠に時間を回す
-    var chosen = [];
-    tmpl.forEach(function (x) {
-      var r = resolveRole(x.role, a, chosen);
-      if (!r) { log.push("「" + x.role + "」の枠（" + x.m + "分）は当てはまる内容がないので、ほかの枠に回す"); x.empty = true; return; }
-      r.minutes = x.m; r.role = x.role;
-      chosen.push(r);
-    });
     // どの枠にも当てはまらない（＝今の範囲はひととおりできている）ときは、確かさの低い順に「おさらい」
     if (!chosen.length) {
+      tmpl.forEach(function (x) { x.empty = true; });
       var pool = (a.test ? a.test.range : a.unitSkills.length ? a.unitSkills : E.SKILL_ORDER).filter(function (k) { return a.st(k).attempt_count; })
         .sort(function (x, y) { return a.st(x).confidence - a.st(y).confidence; });
       tmpl.forEach(function (x, i) {
@@ -464,8 +718,13 @@
     };
     plan.cross = crossText(plan, focusS);
     plan.reason = reasonText(a, plan, focusS);
-    plan.why = input.test ? testWhy(a, plan, input.test) : whyText(a, plan, goal);
-    plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: TEMPLATES[minutes], log: log, school: a.school, preview_skill: a.previewSkill };
+    plan.why = input.test ? testWhy(a, plan, input.test) : alloc ? whyAlloc(a, plan, goal, alloc) : whyText(a, plan, goal);
+    if (alloc) {
+      // 最終の配分は、問題が足りずに出せなかったパートの時間を回したあとの値
+      alloc.final = plan.sessions.map(function (x) { return { minutes: x.minutes, type: x.type, skill: x.skill, level: x.level }; });
+      plan.alloc = { severity: alloc.severity, text: allocWhy(alloc, plan) };
+    }
+    plan.debug = { candidates: { p1: a.p1, p2: a.p2, p3: a.p3, p4: a.p4 }, excluded: a.excluded, template: alloc ? null : TEMPLATES[minutes], log: log, school: a.school, preview_skill: a.previewSkill, alloc: alloc };
     return plan;
   }
 
@@ -602,5 +861,5 @@
   }
 
   SC.planner = { CONFIG: CONFIG, GOALS: GOALS, ALL_GOALS: ALL_GOALS, TYPE_LABEL: TYPE_LABEL, LEVEL_JA: LEVEL_JA, TEMPLATES: TEMPLATES, PICK_STAGES: PICK_STAGES,
-    analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes, backToLine: backToLine };
+    analyze: analyze, build: build, pickFor: pickFor, nearestMinutes: nearestMinutes, backToLine: backToLine, ALLOC: ALLOC, severityOf: severityOf };
 })(typeof window !== "undefined" ? window : globalThis);

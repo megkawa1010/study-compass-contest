@@ -185,7 +185,7 @@ test("今日の学習：学校が連立方程式・原因が移項 → 移項を
   assert.ok(kinds.includes("practice:transpose"), kinds.join(" "));
   assert.ok(kinds.includes("current_unit:simElim"), kinds.join(" "));
   assert.ok(kinds.indexOf("practice:transpose") < kinds.indexOf("current_unit:simElim"));
-  assert.match(p.why, /連立方程式の前に、一次方程式を少し確認しよう/);
+  assert.match(p.why, /連立方程式の前に、一次方程式を少し確認/);
   assert.equal(P.backToLine("transpose", "一次関数"), "一次関数の前に、方程式を少し確認しよう。");
   assert.equal(P.backToLine("simElim", "一次関数"), "一次関数の前に、連立方程式を少し確認しよう。");
   assert.equal(P.backToLine("simElim", "連立方程式"), null);

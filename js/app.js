@@ -1134,6 +1134,28 @@
 
   // ---------- 今日の学習の確認ページ（?debug=plan） ----------
 
+  // 時間配分（戻る勉強・学校の範囲・定着の確認・先取り）の根拠
+  function allocDebug(al) {
+    if (!al) return '<section class="card"><h2 class="h-sm">時間の配分</h2><p class="small muted">テスト対策の日は、テスト向けの枠で組み立てています。</p></section>';
+    var S = E.SKILLS, BLOCK = { root: "戻る勉強", school: "学校の範囲", retention: "定着の確認", preview: "先取り", check: "確認", challenge: "もう少し先へ", maintain: "おさらい" };
+    var nm = function (k) { return k && S[k] ? S[k].label : k ? String(k) : "−"; };
+    var f = al.factors;
+    var rows = al.blocks.map(function (b) {
+      return "<tr><td>" + esc(BLOCK[b.id] || b.id) + "</td><td>" + esc(nm(b.skill)) + "</td><td>" + b.weight + "</td><td>" + b.target + "分</td><td>" + b.min + "〜" + b.max + "分</td><td><strong>" + b.minutes + "分</strong></td></tr>";
+    }).join("");
+    return '<section class="card"><h2 class="h-sm">時間の配分</h2>' +
+      '<ul class="small debug-log">' +
+        "<li>available_minutes：" + al.available_minutes + "分／目標：" + esc(al.goal) + "</li>" +
+        "<li>つまずきの大きさ：" + esc(al.severity) + "（スコア " + al.severity_score + (al.severity !== al.severity_raw ? "、目標で " + esc(al.severity_raw) + " から調整" : "") + "）" +
+          (f ? "／根拠：" + esc(nm(f.skill)) + "・確かさ " + f.confidence + "・最近 " + f.recent_answers + " 回中 " + f.recent_errors + " 回まちがい・さかのぼった深さ " + f.depth + "・不安定なスキル " + f.weak_skills + "・前の単元 " + (f.cross_unit ? "はい" : "いいえ") : "") + "</li>" +
+        "<li>戻る勉強の候補（root cause）：" + esc(al.candidates.root.map(nm).join("、") || "なし") + "</li>" +
+        "<li>学校の範囲の候補：" + esc(al.candidates.school.map(function (x) { var p = x.split(":"); return nm(p[0]) + "（" + ({ current: "学習中", learned: "習った", maintain: "おさらい" }[p[1]] || "") + "・" + (SC.planner.LEVEL_JA[p[2]] || p[2]) + "）"; }).join("、") || "なし") + "</li>" +
+        "<li>定着の確認の候補：" + esc(nm(al.candidates.retention)) + "／先取りの候補：" + esc(nm(al.candidates.preview)) + "／もう少し先へ：" + esc(nm(al.candidates.challenge)) + "</li></ul>" +
+      '<div class="table-wrap"><table><thead><tr><th>枠</th><th>スキル</th><th>重み</th><th>重みから見た時間</th><th>最小〜最大</th><th>配分</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+      '<p class="small">最終の配分：' + esc(al.final.map(function (x) { return x.minutes + "分 " + (SC.planner.TYPE_LABEL[x.type] || x.type) + "：" + nm(x.skill); }).join(" ／ ")) + "</p>" +
+      (al.excluded.length ? '<p class="small muted">入れなかった候補：' + esc(al.excluded.map(function (x) { return nm(x.skill) + "（" + x.why + "）"; }).join("、")) + "</p>" : "") + "</section>";
+  }
+
   function viewPlanDebug() {
     var input = plannerInput();
     var plan = buildToday(true);
@@ -1176,6 +1198,7 @@
         "<tr><th>原因さがしの結論（14日以内）</th><td>" + esc(input.explorations.filter(function (x) { return x.conclusion && x.conclusion.return_to; }).map(function (x) { return x.symptom.label + "→" + E.SKILLS[x.conclusion.return_to].label; }).join("、") || "なし") + "</td></tr>" +
       "</tbody></table></div>" +
       '<h3 class="h-sm">skill_state</h3><div class="table-wrap"><table><thead><tr><th>スキル</th><th>状態</th><th>確かさ</th><th>基 標 応 定</th></tr></thead><tbody>' + stateRows + "</tbody></table></div></section>" +
+      allocDebug(dbg.alloc) +
       '<section class="card"><h2 class="h-sm">優先候補</h2>' +
         '<h3 class="small">P1 根本のつまずき</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p1, function (c) { return (c.symptom ? "原因さがし（" + c.symptom + " から）" : "不安定なスキル") + (c.advanced ? "／練習で基礎ができたので標準へ" : ""); }) + "</tbody></table></div>" +
         '<h3 class="small">P2 学校で学習中の単元</h3><div class="table-wrap"><table><tbody>' + candRows(cand.p2, function (c) { return c.preview ? "先取り（まだ習っていない）" : "次に進むレベル"; }) + "</tbody></table></div>" +

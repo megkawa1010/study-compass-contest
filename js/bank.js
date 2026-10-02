@@ -2015,6 +2015,128 @@
     hint: "累乗（2乗）を先に計算してから、前から順にかけ算・わり算。",
     explanation: "(−2x)² = 4x²、4x² × 3y = 12x²y、12x²y ÷ 6x = 2xy です。" });
 
+  // --- 今日の学習の時間配分を変えたあとの試算（学校の範囲に長めに時間を使う日）で、また足りなくなったところ ---
+  poly("distrib-basic-6", "distrib", "basic", null, "−4(2x − 3) のかっこを外しなさい。", "-8x+12",
+    "−4 × 2x と −4 × (−3)。", "−4(2x − 3) = −8x + 12 です。");
+  poly("distrib-basic-7", "distrib", "basic", null, "5(a − 2b + 1) のかっこを外しなさい。", "5a-10b+5",
+    "3つの項すべてに 5 をかける。", "5(a − 2b + 1) = 5a − 10b + 5 です。");
+  add({ id: "simGraph-basic-6", skill: "simGraph", level: "basic", format: "graph",
+    text: "グラフの2直線の交点R の座標を答えなさい。",
+    figure: { type: "graph", x: [-2, 3, 1], y: [-4, 4, 1], lines: [line(3, -3), line(-1, 1)], points: [{ x: 1, y: 0, label: "R" }] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 1, y: 0 },
+    lines: [[3, -3], [-1, 1]], prerequisite_skills: ["coord"], skills_used: ["simGraph", "coord"],
+    hint: "交点は x 軸の上にある。x 軸の上の点は、y 座標が 0。",
+    explanation: "交点R は x 軸の上の右に 1 の点なので (1, 0) です。" });
+  add({ id: "simGraph-basic-7", skill: "simGraph", level: "basic", format: "expression",
+    text: "連立方程式 x + y = 3、x − y = 1 の解を、グラフで表すとどこ？",
+    type: "choice", choices: [{ key: "a", label: "2直線 x + y = 3、x − y = 1 の交点" }, { key: "b", label: "直線 x + y = 3 と y 軸の交点" }, { key: "c", label: "2直線の傾きが等しいところ" }, { key: "d", label: "原点" }], answer: "a",
+    prerequisite_skills: ["simMeaning", "coord"], skills_used: ["simGraph", "simMeaning"],
+    hint: "解は、2つの式の両方をみたす (x, y)。グラフでは、2本の直線の両方の上にある点。",
+    explanation: "2つの式の両方をみたす点は、2直線の交点です。連立方程式の解 ＝ 交点の座標です。" });
+  eq("eqProperty-standard-3", "eqProperty", "standard", null, "方程式 (3/4)x = −6 を解きましょう。", -8,
+    "両辺に 4/3 をかける。", "x = −6 × 4/3 = −8 です。", { prerequisite_skills: ["signed"] });
+  eq("eqProperty-standard-4", "eqProperty", "standard", null, "方程式 −0.2x = 1.4 を解きましょう。", -7,
+    "両辺を −0.2 でわる（両辺に −5 をかける）。", "x = 1.4 ÷ (−0.2) = −7 です。", { prerequisite_skills: ["signed"] });
+  add({ id: "substitution-standard-6", skill: "substitution", level: "standard", format: "expression",
+    text: "一次関数 y = −2x + 5 で、y = −3 のときの x の値は？", type: "number", answer: 4,
+    prerequisite_skills: ["algebra", "transpose"], skills_used: ["substitution", "transpose"],
+    hint: "y に −3 を入れると −3 = −2x + 5。この方程式を解く。", explanation: "−3 = −2x + 5 → 2x = 8 → x = 4 です。" });
+  add({ id: "substitution-standard-7", skill: "substitution", level: "standard", format: "expression",
+    text: "一次関数 y = (1/2)x + 3 で、x = −4 のときの y の値は？", type: "number", answer: 1,
+    prerequisite_skills: ["algebra", "signed"], skills_used: ["substitution", "algebra"],
+    hint: "(1/2) × (−4) を先に計算する。", explanation: "y = −2 + 3 = 1 です。" });
+  poly("likeTerms-retention-4", "likeTerms", "retention", null, "−b + 7b − 11b を計算しましょう。", "-5b",
+    "係数どうし −1 + 7 − 11 を計算する。", "−1 + 7 − 11 = −5 なので −5b です。", { evidence_level: "basic" });
+  add({ id: "simGraph-basic-8", skill: "simGraph", level: "basic", format: "graph",
+    text: "グラフの2直線の交点S の座標を答えなさい。",
+    figure: { type: "graph", x: [-4, 2, 1], y: [-1, 5, 1], lines: [line(1, 4), line(-1, 0)], points: [{ x: -2, y: 2, label: "S" }] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: -2, y: 2 },
+    lines: [[1, 4], [-1, 0]], prerequisite_skills: ["coord", "signed"], skills_used: ["simGraph", "coord"],
+    hint: "交点は原点から左にいくつ、上にいくつ？",
+    explanation: "交点S は左に 2、上に 2 なので (−2, 2) です。" });
+  add({ id: "simGraph-standard-4", skill: "simGraph", level: "standard", format: "expression",
+    text: "2直線 y = 3x + 1 と y = x + 5 の交点の座標を、計算で求めなさい。",
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 2, y: 7 },
+    lines: [[3, 1], [1, 5]], prerequisite_skills: ["simSubst", "transpose"], skills_used: ["simGraph", "simSubst"],
+    hint: "y が同じなので 3x + 1 = x + 5。", explanation: "3x + 1 = x + 5 → 2x = 4 → x = 2。y = 7。交点は (2, 7) です。" });
+  add({ id: "simGraph-standard-5", skill: "simGraph", level: "standard", format: "expression",
+    text: "2直線 y = −x + 9 と y = 2x − 3 の交点の座標を、計算で求めなさい。",
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 4, y: 5 },
+    lines: [[-1, 9], [2, -3]], prerequisite_skills: ["simSubst", "transpose"], skills_used: ["simGraph", "simSubst"],
+    hint: "−x + 9 = 2x − 3 を解く。", explanation: "−x + 9 = 2x − 3 → −3x = −12 → x = 4。y = 5。交点は (4, 5) です。" });
+  word("simWord-standard-3", "standard", null, "1冊120円のノートと1本60円のペンを合わせて7つ買ったら、代金は600円でした。ノートを x 冊、ペンを y 本として、それぞれの数を求めましょう。",
+    [{ key: "x", label: "ノート x（冊）" }, { key: "y", label: "ペン y（本）" }], [[1, 1, 7], [120, 60, 600]], [3, 4],
+    "個数の関係と、代金の関係で式を2つ作ります。", "x + y = 7、120x + 60y = 600。上を 60 倍した 60x + 60y = 420 を引くと 60x = 180 なので x = 3、y = 4 です。");
+  add({ id: "simGraph-standard-6", skill: "simGraph", level: "standard", format: "graph",
+    text: "直線ℓ：y = x + 2、直線m：y = −x + 5 です。グラフでは交点を正確に読みとれません。計算で交点の座標を求めなさい。",
+    figure: { type: "graph", x: [-1, 5, 1], y: [-1, 6, 1], lines: [line(1, 2), line(-1, 5)] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 1.5, y: 3.5 },
+    lines: [[1, 2], [-1, 5]], prerequisite_skills: ["simElim", "coord"], skills_used: ["simGraph", "simElim"],
+    hint: "2つの式を足すと 2y = 7。分数や小数で答えてもよい。", explanation: "足すと 2y = 7 なので y = 7/2（3.5）。x = y − 2 = 3/2（1.5）。交点は (3/2, 7/2) です。" });
+  add({ id: "simGraph-application-2", skill: "simGraph", level: "application", format: "graph",
+    text: "グラフの直線ℓ と直線m の交点の座標を、順に求めます。",
+    figure: { type: "graph", x: [-1, 5, 1], y: [-1, 5, 1], lines: [line(-1, 4), line(0.5, 1)], points: [{ x: 0, y: 4 }, { x: 4, y: 0 }, { x: 0, y: 1 }, { x: 4, y: 3 }] },
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "form", text: "グラフから読みとった、直線ℓ（右下がり）と直線m（右上がり）の式の組はどれ？", type: "choice",
+        choices: [{ key: "a", label: "ℓ：y = −x + 4、m：y = (1/2)x + 1" }, { key: "b", label: "ℓ：y = −x + 4、m：y = 2x + 1" }, { key: "c", label: "ℓ：y = x + 4、m：y = (1/2)x + 1" }, { key: "d", label: "ℓ：y = −4x + 4、m：y = (1/2)x + 1" }],
+        answer: "a", hint: "m は右に 2 進むと上に 1。傾きは 1/2。", explanation: "ℓ は (0, 4) を通り傾き −1、m は (0, 1) を通り傾き 1/2 です。" },
+      { id: "s2", skill: "simElim", text: "2つの式を連立方程式として解くと、x の値は？", type: "number", answer: 2,
+        hint: "−x + 4 = (1/2)x + 1。両辺を 2 倍すると分数が消える。", explanation: "−2x + 8 = x + 2 → −3x = −6 → x = 2 です。" },
+      { id: "s3", skill: "simGraph", text: "交点の座標は？", type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 2, y: 2 },
+        hint: "x = 2 を y = −x + 4 に代入する。", explanation: "y = −2 + 4 = 2。交点は (2, 2) です。" }
+    ],
+    lines: [[-1, 4], [0.5, 1]], prerequisite_skills: ["form", "simElim", "coord"], skills_used: ["form", "simElim", "simGraph"],
+    hint: "グラフから式を読む → 連立方程式を解く → 交点の座標、の順に。",
+    explanation: "ℓ：y = −x + 4、m：y = (1/2)x + 1。解くと x = 2、y = 2。交点は (2, 2) です。" });
+  add({ id: "simGraph-basic-9", skill: "simGraph", level: "basic", format: "graph",
+    text: "グラフの2直線の交点T の座標を答えなさい。",
+    figure: { type: "graph", x: [-1, 4, 1], y: [-2, 6, 1], lines: [line(2, -1), line(-1, 5)], points: [{ x: 2, y: 3, label: "T" }] },
+    type: "pair", fields: [{ key: "x", label: "x 座標" }, { key: "y", label: "y 座標" }], answer: { x: 2, y: 3 },
+    lines: [[2, -1], [-1, 5]], prerequisite_skills: ["coord"], skills_used: ["simGraph", "coord"],
+    hint: "交点から x 軸・y 軸へまっすぐ目もりを読む。", explanation: "交点T は右に 2、上に 3 なので (2, 3) です。" });
+  add({ id: "simGraph-basic-10", skill: "simGraph", level: "basic", format: "expression",
+    text: "2直線ℓ・m のグラフの交点の座標は (3, −1) です。ℓ と m の式を連立方程式として解くと、解は？",
+    type: "pair", fields: [{ key: "x", label: "x =" }, { key: "y", label: "y =" }], answer: { x: 3, y: -1 },
+    prerequisite_skills: ["simMeaning", "coord"], skills_used: ["simGraph", "simMeaning"],
+    hint: "交点の座標 ＝ 連立方程式の解。", explanation: "交点 (3, −1) は2つの式の両方をみたすので、解は x = 3、y = −1 です。" });
+  add({ id: "simWord-application-3", skill: "simWord", level: "application", format: "word",
+    text: "りんご3個とみかん2個で540円、りんご1個とみかん4個で380円でした。りんご1個を x 円、みかん1個を y 円とします。",
+    system: [[3, 2, 540], [1, 4, 380]],
+    type: "steps",
+    steps: [
+      { id: "s1", skill: "simWord", text: "連立方程式を作るとどれ？", type: "choice",
+        choices: [{ key: "a", label: "3x + 2y = 540、x + 4y = 380" }, { key: "b", label: "3x + 2y = 380、x + 4y = 540" }, { key: "c", label: "x + y = 540、x + y = 380" }, { key: "d", label: "2x + 3y = 540、4x + y = 380" }],
+        answer: "a", hint: "りんごの個数 × x ＋ みかんの個数 × y ＝ 代金。", explanation: "1つ目の買い方から 3x + 2y = 540、2つ目から x + 4y = 380 です。" },
+      { id: "s2", skill: "simElim", text: "連立方程式を解きなさい。", type: "pair",
+        fields: [{ key: "x", label: "りんご x（円）" }, { key: "y", label: "みかん y（円）" }], answer: { x: 140, y: 60 },
+        hint: "上の式を 2 倍して、下の式を引くと y が消える。", explanation: "6x + 4y = 1080 から x + 4y = 380 を引くと 5x = 700、x = 140。y = 60 です。" }
+    ],
+    prerequisite_skills: ["simMeaning", "eqWord", "simElim"], skills_used: ["simWord", "simElim"],
+    hint: "2つの買い方それぞれで、式を1本ずつ。",
+    explanation: "3x + 2y = 540、x + 4y = 380 を解いて x = 140、y = 60。りんご140円、みかん60円です。" });
+  poly("distrib-basic-8", "distrib", "basic", null, "6(x − 4) のかっこを外しなさい。", "6x-24",
+    "6 × x と 6 × (−4)。", "6(x − 4) = 6x − 24 です。");
+  poly("distrib-basic-9", "distrib", "basic", null, "−3(−a + 2b) のかっこを外しなさい。", "3a-6b",
+    "−3 × (−a) は +3a。", "−3(−a + 2b) = 3a − 6b です。");
+  eq("transpose-standard-6", "transpose", "standard", null, "方程式 9 − 2x = x + 3 を解きましょう。", 2,
+    "x の項を右辺に集めると考えやすい：9 − 3 = x + 2x。", "6 = 3x → x = 2 です。",
+    { prerequisite_skills: ["signed", "likeTerms", "eqProperty"], skills_used: ["transpose", "likeTerms", "eqProperty"] });
+  sim("simParen-basic-6", "simParen", "basic", null, [[5, -5, 10], [1, 1, 6]], [4, 2],
+    "上の式は両辺を 5 でわると x − y = 2。", "x − y = 2 と x + y = 6 を足すと 2x = 8、x = 4。y = 2 です。",
+    { shown: ["5(x − y) = 10", "x + y = 6"] });
+  add({ id: "simFraction-basic-5", skill: "simFraction", level: "basic", format: "expression",
+    text: "式 x/4 − y/2 = 1 の両辺を 4 倍して、分数をなくした式はどれ？",
+    type: "choice", choices: [{ key: "a", label: "x − 2y = 4" }, { key: "b", label: "x − 2y = 1" }, { key: "c", label: "x − y/2 = 4" }, { key: "d", label: "4x − 2y = 4" }], answer: "a",
+    prerequisite_skills: ["eqFraction", "distrib"],
+    hint: "x/4 × 4 = x、y/2 × 4 = 2y、右辺も 4 倍。",
+    explanation: "x/4 × 4 = x、y/2 × 4 = 2y、1 × 4 = 4。x − 2y = 4 です。" });
+  poly("polyAddSub-retention-6", "polyAddSub", "retention", null, "(−3a + 8) − (5a − 2) を計算しましょう。", "-8a+10",
+    "2つ目のかっこは −5a + 2 になる。", "−3a + 8 − 5a + 2 をまとめると −8a + 10 です。", { evidence_level: "standard" });
+  solveY("eqTransform-standard-9", "standard", "2y − 6x = 8 を y について解きなさい。", 3, 4,
+    "−6x を右辺に移項して 2y = 6x + 8。両辺を 2 でわる。", "2y = 6x + 8 → y = 3x + 4 です。",
+    { prerequisite_skills: ["eqProperty", "transpose"] });
+
   // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
