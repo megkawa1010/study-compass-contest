@@ -59,7 +59,8 @@
     triangleSum: "三角形の内角の和は180°",
     exterior: "三角形の外角は、となり合わない2つの内角の和に等しい",
     polygonSum: "n角形の内角の和は 180° ×（n − 2）",
-    exteriorSum: "多角形の外角の和は360°"
+    exteriorSum: "多角形の外角の和は360°",
+    auxParallel: "平行な補助線を引くと、錯角が等しい"
   };
   // まちがえた根拠から、取り違えの種類を作る（例：同位角と答えるべきところで錯角 → "alternate_for_corresponding"）
   function confusionOf(step, chosen) {
@@ -172,7 +173,7 @@
   function angleText(a) {
     if (a.label != null) return a.label;
     if (a.unknown) return "x";
-    if (a.expr) return "(" + exprText(a.expr) + ")°";
+    if (a.expr) return a.expr.b ? "(" + exprText(a.expr) + ")°" : exprText(a.expr) + "°";
     if (a.value != null) return a.value + "°";
     return "";
   }
@@ -230,7 +231,9 @@
       var bis = unit(add(u1, u2));
       if (len(add(u1, u2)) < 1e-6) bis = [u1[1], -u1[0]]; // 一直線（180°）のときは垂直な向き
       var text = angleText(a);
-      var arc = a.radius || (deg < 40 ? C.ARC + 8 : C.ARC);
+      // 同じ頂点に角がいくつかあるときは、弧の半径を交互に変える（弧がつながって1つの円に見えないように）
+      var sameAt = (fig.angles || []).filter(function (b) { return b.at === a.at; }), k = sameAt.indexOf(a);
+      var arc = a.radius || (deg < 40 ? C.ARC + 8 : C.ARC) + (sameAt.length > 1 ? (k % 2) * 7 : 0);
       var w = textWidth(text, fs);
       var half = Math.max(Math.sin(deg * Math.PI / 360), 0.12);
       var dist = Math.min(Math.max(arc + fs * 0.75 + 3, (w / 2 + 3) / half), 70);
@@ -435,9 +438,11 @@
     var segs = (fig.segments || []).map(function (x) { return Array.isArray(x) ? x : [x.from, x.to]; });
     if (segs.length) s.push("線分" + segs.map(function (x) { return x.join(""); }).join("、") + "が引かれています。");
     (fig.straight || []).forEach(function (st) { s.push("点" + st.join("、") + "は一直線上にあります。"); });
-    var ang = (fig.angles || []).map(function (a) {
-      var t = a.unknown ? "x" : a.expr ? "(" + exprText(a.expr) + ")°" : a.value != null ? a.value + "°" : a.label;
-      return angleName(fig, a) + "は" + t;
+    // 記号だけの角（a〜h など）は、記号をまとめて伝える
+    var marks = (fig.angles || []).filter(function (a) { return a.label && a.value == null && !a.expr && !a.unknown && !a.answer; });
+    if (marks.length) s.push("角に記号 " + marks.map(function (a) { return a.label; }).join("、") + " がついています。");
+    var ang = (fig.angles || []).filter(function (a) { return marks.indexOf(a) === -1 && angleText(a); }).map(function (a) {
+      return angleName(fig, a) + "は" + angleText(a);
     });
     if (ang.length) s.push(ang.join("、") + "です。");
     (fig.right || []).forEach(function (r) { s.push("∠" + r.from + r.at + r.to + "は直角です。"); });
@@ -450,21 +455,11 @@
   }
 
   // ---------- relation の検算 ----------
-  // 項を「a × 答え ＋ b」にする
-  function term(t, fig) {
-    if (typeof t === "number") return { a: 0, b: t };
-    if (t === "answer") return { a: 1, b: 0 };
-    if (t && typeof t === "object" && "a" in t) return { a: t.a, b: t.b || 0 };
-    if (typeof t === "string") {
-      var a = (fig && fig.angles || []).filter(function (x) { return x.id === t; })[0];
-      if (!a) throw new Error("relation の項 " + t + " が図の角にありません");
-      if (a.unknown) return { a: 1, b: 0 };
-      if (a.expr) return { a: a.expr.a, b: a.expr.b || 0 };
-      if (a.value == null) throw new Error("角 " + t + " に値がありません");
-      return { a: 0, b: a.value };
-    }
-    throw new Error("relation の項が読めません：" + JSON.stringify(t));
-  }
+  // 項は「a × 答え ＋ b」で表す。
+  //   数 / "answer" / { a, b } / { ref: 項, k: 係数 }（k × 項。例：180 − 外角 は [180, { ref: "e", k: -1 }]）/ 図の角の id
+  // 角の id は、その角の値（value）・式（expr）・答え（unknown、または answer: "小問id"）として読む。
+  // mode "drawn" のときは、角の id と「答え」を、描いた角度（度）として読む（図の上でも関係が成り立つかを確かめる）
+  function Unresolvable(msg) { this.message = msg; }
   function lin(a, b) { return { a: a, b: b }; }
   function plus(x, y) { return lin(x.a + y.a, x.b + y.b); }
   function scale(x, k) { return lin(x.a * k, x.b * k); }
@@ -472,59 +467,196 @@
     if (x.a && y.a) throw new Error("relation が答えの2次式になっています");
     return x.a ? scale(x, y.b) : scale(y, x.b);
   }
+  function angleById(fig, id) { return (fig && fig.angles || []).filter(function (x) { return x.id === id; })[0]; }
+  function stepAnswer(q, id) { var st = (q.steps || []).filter(function (x) { return x.id === id; })[0]; return st ? st.answer : null; }
+  // relation と結びついた角（その relation の答えが、この角の大きさ）
+  function boundAngle(q, rel, idx, count) {
+    var fig = q.figure;
+    if (!fig) return null;
+    return (fig.angles || []).filter(function (a) {
+      if (a.answer) return a.answer === rel.answer;
+      return a.unknown && idx === count - 1;
+    })[0] || null;
+  }
+  function makeTerm(q, rel, idx, count, mode, drawn) {
+    var fig = q.figure;
+    function t(x) {
+      if (typeof x === "number") return lin(0, x);
+      if (x === "answer") {
+        if (mode !== "drawn") return lin(1, 0);
+        var b = boundAngle(q, rel, idx, count);
+        if (!b) throw new Unresolvable("答えが図の角ではない");
+        return lin(0, drawn[b.id]);
+      }
+      if (x && typeof x === "object" && "ref" in x) return scale(t(x.ref), x.k == null ? 1 : x.k);
+      // { of: "s1", a, b }：小問 s1 の答えを使った値（a × s1の答え ＋ b）
+      if (x && typeof x === "object" && "of" in x) {
+        if (mode === "drawn") throw new Unresolvable("小問の答えの式");
+        return lin(0, (x.a == null ? 1 : x.a) * stepAnswer(q, x.of) + (x.b || 0));
+      }
+      if (x && typeof x === "object" && "a" in x) {
+        if (mode === "drawn") throw new Unresolvable("答えの式");
+        return lin(x.a, x.b || 0);
+      }
+      if (typeof x === "string") {
+        var a = angleById(fig, x);
+        if (!a) throw new Error("relation の項 " + x + " が図の角にありません");
+        if (mode === "drawn") return lin(0, drawn[a.id]);
+        var mine = boundAngle(q, rel, idx, count);
+        if (mine && mine.id === a.id) return lin(1, 0);
+        if (a.answer) return lin(0, stepAnswer(q, a.answer));
+        if (a.unknown) return lin(1, 0);
+        if (a.expr) return lin(a.expr.a, a.expr.b || 0);
+        if (a.value == null) throw new Error("角 " + x + " に値がありません");
+        return lin(0, a.value);
+      }
+      throw new Error("relation の項が読めません：" + JSON.stringify(x));
+    }
+    return t;
+  }
   // relation.type ごとに「左辺 ＝ 右辺」を作る。新しい関係はここに足す
   var RELATIONS = {
-    angleSum: function (r, fig) { return [r.values.map(function (v) { return term(v, fig); }).reduce(plus, lin(0, 0)), term(r.total, fig)]; },
-    equalAngles: function (r, fig) { return [term(r.source, fig), term(r.target, fig)]; },
-    polygonInterior: function (r, fig) { return [plus(scale(term(r.n, fig), 180), lin(0, -360)), term(r.sum, fig)]; },
-    polygonExterior: function (r, fig) { return [times(term(r.each, fig), term(r.n, fig)), lin(0, 360)]; }
+    angleSum: function (r, t) { return [r.values.map(t).reduce(plus, lin(0, 0)), t(r.total)]; },
+    equalAngles: function (r, t) { return [t(r.source), t(r.target)]; },
+    polygonInterior: function (r, t) { return [plus(scale(t(r.n), 180), lin(0, -360)), t(r.sum)]; },
+    polygonExterior: function (r, t) { return [times(t(r.each), t(r.n)), lin(0, 360)]; }
   };
-  // 返り値：{ ok, value（relation から求めた答え）, expected（問題の答え）, messages }
-  function answerOf(q, rel) {
-    var step = rel && rel.answer;
-    if (step && q.steps) { var st = q.steps.filter(function (x) { return x.id === step; })[0]; return st ? st.answer : null; }
-    return q.answer;
-  }
+  function answerOf(q, rel) { return rel && rel.answer && q.steps ? stepAnswer(q, rel.answer) : q.answer; }
+  // 返り値：{ ok, value（最後の relation から求めた答え）, byAnswer: { 小問id: 値 }, expected, messages }
   function verifyRelation(q) {
-    var fig = q.figure, list = q.relation ? [].concat(q.relation) : [];
-    var res = { ok: true, value: null, expected: null, messages: [] };
+    var list = q.relation ? [].concat(q.relation) : [];
+    var res = { ok: true, value: null, expected: null, byAnswer: {}, messages: [] };
     if (!list.length) { res.ok = false; res.messages.push("relation がありません"); return res; }
-    list.forEach(function (rel) {
+    list.forEach(function (rel, idx) {
       var fn = RELATIONS[rel.type];
       if (!fn) { res.ok = false; res.messages.push("relation.type「" + rel.type + "」は未対応です"); return; }
       var expected = answerOf(q, rel);
       res.expected = expected;
       try {
-        var eq = fn(rel, fig), d = lin(eq[0].a - eq[1].a, eq[0].b - eq[1].b);
+        var eq = fn(rel, makeTerm(q, rel, idx, list.length, "value")), d = lin(eq[0].a - eq[1].a, eq[0].b - eq[1].b);
         if (Math.abs(d.a) < 1e-9) {
           if (Math.abs(d.b) > 1e-9) { res.ok = false; res.messages.push(rel.type + "：式が成り立ちません"); }
           return;
         }
-        var x = -d.b / d.a;
-        res.value = Math.round(x * 1e6) / 1e6;
-        if (typeof expected !== "number" || Math.abs(x - expected) > 1e-6) { res.ok = false; res.messages.push("relationとanswerが一致しません（relation " + res.value + "／答え " + expected + "）"); }
+        var x = Math.round(-d.b / d.a * 1e6) / 1e6;
+        res.value = x;
+        res.byAnswer[rel.answer || "_"] = x;
+        if (typeof expected !== "number" || Math.abs(x - expected) > 1e-6) { res.ok = false; res.messages.push("relationとanswerが一致しません（relation " + x + "／答え " + expected + "）"); }
       } catch (e) { res.ok = false; res.messages.push(e.message); }
     });
     return res;
   }
 
+  // ---------- 角の位置関係（同位角・錯角・対頂角） ----------
+  // 角の2本の辺が、それぞれどの直線にのっているか
+  function raysOf(L, a) {
+    return [a.u1, a.u2].map(function (u) {
+      var line = L.lines.filter(function (l) { return Math.abs(cross(l.dir, sub(a.vertex, l.p1))) < 0.6 && Math.abs(cross(l.dir, u)) < 2e-3; })[0];
+      return { u: u, line: line ? line.id : null };
+    });
+  }
+  function same(u, v) { return dot(u, v) > 0.9995; }
+  function opposite(u, v) { return dot(u, v) < -0.9995; }
+  // 2つの角の関係：vertical（対頂角）/ linear（となり合って一直線）/ corresponding（同位角）/ alternate（錯角）/ cointerior（同側内角）/ null
+  function relationKindOf(L, a, b) {
+    if (len(sub(a.vertex, b.vertex)) < 0.6) {
+      if ((opposite(a.u1, b.u1) && opposite(a.u2, b.u2)) || (opposite(a.u1, b.u2) && opposite(a.u2, b.u1))) return "vertical";
+      var pairs = [[a.u1, a.u2], [a.u2, a.u1]], other = [[b.u1, b.u2], [b.u2, b.u1]];
+      for (var i = 0; i < 2; i++) for (var j = 0; j < 2; j++) if (same(pairs[i][0], other[j][0]) && opposite(pairs[i][1], other[j][1])) return "linear";
+      return null;
+    }
+    var ra = raysOf(L, a), rb = raysOf(L, b);
+    // 2つの頂点を通る直線（横切る直線）
+    var tA = ra.filter(function (r) { return r.line && rb.some(function (s) { return s.line === r.line; }); })[0];
+    if (!tA) return null;
+    var tB = rb.filter(function (r) { return r.line === tA.line; })[0];
+    var lA = ra.filter(function (r) { return r !== tA; })[0], lB = rb.filter(function (r) { return r !== tB; })[0];
+    if (!lA.line || !lB.line || lA.line === lB.line) return null;
+    var t = L.lines.filter(function (l) { return l.id === tA.line; })[0].dir;
+    var ref = L.lines.filter(function (l) { return l.id === lA.line; })[0].dir;
+    var tSideA = dot(tA.u, t) > 0, tSideB = dot(tB.u, t) > 0;
+    var lSideA = dot(lA.u, ref) > 0, lSideB = dot(lB.u, ref) > 0;
+    var inA = dot(tA.u, sub(b.vertex, a.vertex)) > 0, inB = dot(tB.u, sub(a.vertex, b.vertex)) > 0;
+    if (tSideA === tSideB && lSideA === lSideB) return "corresponding";
+    if (inA && inB) return lSideA === lSideB ? "cointerior" : "alternate";
+    return null;
+  }
+  var KIND_NAME = { vertical: "対頂角", linear: "となり合って一直線の角", corresponding: "同位角", alternate: "錯角", cointerior: "同側内角" };
+  function angleKind(fig, idA, idB) {
+    var L = layout(fig);
+    var a = L.angles.filter(function (x) { return x.id === idA; })[0], b = L.angles.filter(function (x) { return x.id === idB; })[0];
+    return a && b ? relationKindOf(L, a, b) : null;
+  }
+
+  // ---------- 図そのものの数学的な整合性（描いた角度どうしの関係） ----------
+  // 「数値は本当の値とちがうが、図形としての関係は正しい」ことを確かめる
+  //   - 多角形：描いた内角の和 ＝ (n − 2) × 180°
+  //   - 同じ頂点の角：対頂角は等しい・となり合って一直線の角の和は 180°（外角と隣の内角もこれ）
+  //   - 平行な2直線と横切る直線：同位角・錯角は等しい・同側内角の和は 180°
+  //   - relation を、描いた角度で読んでも成り立つ（例：三角形の3つの角・外角 ＝ となり合わない内角の和）
+  function consistency(q, L) {
+    var fig = q.figure, checks = [];
+    function chk(name, ok, detail) { checks.push({ name: name, ok: ok, detail: detail }); }
+    (fig.polygons || []).forEach(function (pg) {
+      var n = pg.length, sum = 0;
+      pg.forEach(function (name, i) {
+        var v = L.points[name], p = L.points[pg[(i - 1 + n) % n]], nx = L.points[pg[(i + 1) % n]];
+        sum += between(sub(p, v), sub(nx, v));
+      });
+      chk((SHAPE[n] || n + "角形") + pg.join("") + "の内角の和", Math.abs(sum - (n - 2) * 180) < 0.5, r1(sum) + "° ／ " + (n - 2) * 180 + "°");
+    });
+    var parallelPairs = {};
+    (fig.parallel || []).forEach(function (p) { p.lines.forEach(function (x) { p.lines.forEach(function (y) { if (x !== y) parallelPairs[x + "|" + y] = true; }); }); });
+    for (var i = 0; i < L.angles.length; i++) for (var j = i + 1; j < L.angles.length; j++) {
+      var a = L.angles[i], b = L.angles[j], k = relationKindOf(L, a, b);
+      if (!k) continue;
+      if (k === "corresponding" || k === "alternate" || k === "cointerior") {
+        var la = raysOf(L, a).map(function (r) { return r.line; }), lb = raysOf(L, b).map(function (r) { return r.line; });
+        var isPar = la.some(function (x) { return lb.some(function (y) { return parallelPairs[x + "|" + y]; }); });
+        if (!isPar) continue;
+      }
+      var sum = k === "linear" || k === "cointerior";
+      var ok = sum ? Math.abs(a.deg + b.deg - 180) < 0.5 : Math.abs(a.deg - b.deg) < 0.5;
+      chk(KIND_NAME[k] + "（" + a.text + "・" + b.text + "）" + (sum ? "の和は180°" : "は等しい"), ok, r1(a.deg) + "° と " + r1(b.deg) + "°");
+    }
+    var drawn = {};
+    L.angles.forEach(function (a) { drawn[a.id] = a.deg; });
+    var list = q.relation ? [].concat(q.relation) : [];
+    list.forEach(function (rel, idx) {
+      var fn = RELATIONS[rel.type];
+      if (!fn) return;
+      try {
+        var eq = fn(rel, makeTerm(q, rel, idx, list.length, "drawn", drawn));
+        chk("図の上の relation（" + rel.type + "）", Math.abs(eq[0].b - eq[1].b) < 0.5, r1(eq[0].b) + " ＝ " + r1(eq[1].b));
+      } catch (e) { if (!(e instanceof Unresolvable)) throw e; }
+    });
+    return checks;
+  }
+
   // ---------- 図から答えが分からないか・図がこわれていないか ----------
   function kind(deg) { return Math.abs(deg - 90) < 0.5 ? "right" : deg < 90 ? "acute" : deg < 180 - 0.5 ? "obtuse" : "straight"; }
   var KIND_JA = { right: "直角", acute: "鋭角", obtuse: "鈍角", straight: "一直線" };
-  // 返り値：{ angles: [{ id, label, drawn, truth, diff, role, ok }], warnings: [], relation }
+  // 返り値：{ angles: [{ id, label, drawn, truth, diff, role, ok }], checks: [{ name, ok, detail }], warnings: [], relation }
   function audit(q) {
-    var fig = q.figure, out = { angles: [], warnings: [], relation: null };
-    var L;
-    try { L = layout(fig); } catch (e) { out.warnings.push("図を描けません：" + e.message); return out; }
+    var fig = q.figure, out = { angles: [], checks: [], warnings: [], relation: null };
     var rel = q.relation ? verifyRelation(q) : null;
     out.relation = rel;
     if (rel && !rel.ok) rel.messages.forEach(function (m) { out.warnings.push(m); });
-    var x = rel && rel.value != null ? rel.value : (typeof answerOf(q, [].concat(q.relation || [])[0]) === "number" ? answerOf(q, [].concat(q.relation || [])[0]) : null);
+    if (!fig || fig.type !== "geometry") return out;
+    var L;
+    try { L = layout(fig); } catch (e) { out.warnings.push("図を描けません：" + e.message); return out; }
+    var list = q.relation ? [].concat(q.relation) : [];
+    var last = rel ? rel.byAnswer[(list[list.length - 1] || {}).answer || "_"] : null;
+    if (last == null && list.length && typeof answerOf(q, list[list.length - 1]) === "number") last = answerOf(q, list[list.length - 1]);
+    // 式で表した角（(2x + 10)° など）の x は、最初の relation の答え
+    var first = rel && list.length ? rel.byAnswer[list[0].answer || "_"] : null;
+    if (first == null && list.length && typeof answerOf(q, list[0]) === "number") first = answerOf(q, list[0]);
     // 1・2. 角ごとに、ほんとうの値と描いた角度をくらべる
     L.angles.forEach(function (a) {
       var d = a.def, truth = null, role = "given";
-      if (d.unknown) { truth = x; role = "answer"; }
-      else if (d.expr) { truth = x == null ? null : d.expr.a * x + (d.expr.b || 0); role = "answer"; }
+      if (d.answer) { truth = rel && rel.byAnswer[d.answer] != null ? rel.byAnswer[d.answer] : stepAnswer(q, d.answer); role = "answer"; }
+      else if (d.unknown) { truth = last; role = "answer"; }
+      else if (d.expr) { truth = first == null ? null : d.expr.a * first + (d.expr.b || 0); role = "answer"; }
       else if (d.value != null) truth = d.value;
       var row = { id: a.id, label: a.text, drawn: r1(a.deg), truth: truth, diff: truth == null ? null : r1(Math.abs(a.deg - truth)), role: role, ok: true };
       if (truth != null) {
@@ -540,6 +672,27 @@
       }
       out.angles.push(row);
     });
+    // 図形としての整合性
+    out.checks = consistency(q, L);
+    out.checks.forEach(function (c) { if (!c.ok) out.warnings.push("図の上で成り立っていません：" + c.name + "（" + c.detail + "）"); });
+    // 角の位置の問題（同位角はどれ？など）：答えの角だけがその位置にある
+    if (q.position) {
+      var byId = {};
+      L.angles.forEach(function (a) { byId[a.id] = a; });
+      // with があれば「2つの角の関係の名前」を答える問題（答え＝関係の名前）。なければ「その位置の角はどれ」（答え＝角）
+      var withId = q.position.with, expectKind = q.position.kind || q.answer;
+      var of = byId[q.position.of], ans = byId[withId || q.answer];
+      if (!of || !ans) out.warnings.push("position の角が図にありません");
+      else {
+        var k = relationKindOf(L, of, ans);
+        out.checks.push({ name: "「" + of.text + "」と「" + ans.text + "」は" + KIND_NAME[expectKind], ok: k === expectKind, detail: KIND_NAME[k] || "関係なし" });
+        if (k !== expectKind) out.warnings.push("答えの角が「" + KIND_NAME[expectKind] + "」の位置にありません（" + (KIND_NAME[k] || "関係なし") + "）");
+        if (!withId) (q.choices || []).forEach(function (c) {
+          if (c.key === q.answer || !byId[c.key]) return;
+          if (relationKindOf(L, of, byId[c.key]) === expectKind) out.warnings.push("答え以外の選択肢「" + c.label + "」も" + KIND_NAME[expectKind] + "になっています");
+        });
+      }
+    }
     // 3. 平行
     (fig.parallel || []).forEach(function (p) {
       var ls = p.lines.map(function (id) { return L.lines.filter(function (l) { return l.id === id; })[0]; });
@@ -570,5 +723,5 @@
   }
 
   SC.geometry = { CONFIG: CONFIG, NOTE: NOTE, REASONS: REASONS, RELATIONS: RELATIONS, polar: polar, layout: layout, render: render, describe: describe,
-    verifyRelation: verifyRelation, audit: audit, confusionOf: confusionOf, kind: kind };
+    verifyRelation: verifyRelation, audit: audit, angleKind: angleKind, confusionOf: confusionOf, kind: kind };
 })(typeof window !== "undefined" ? window : globalThis);

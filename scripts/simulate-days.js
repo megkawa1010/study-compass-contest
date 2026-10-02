@@ -4,6 +4,7 @@
 // 原因のスキルを指定すると、そのスキルを「まだできない」にして、原因さがしの戻る場所にする（例：連立方程式 polyAddSub）
 // 想定（一次関数）：最初のチェックで「変化量・変化の割合・グラフ式」がまだ不安定な子ども。
 // 想定（連立方程式）：加減法でまちがえ、原因が「移項」。代入法・文章題・小数分数もまだ不安定な子ども。
+// 想定（図形の角）：平行線と角でまちがえ、原因が「同位角・錯角」（図形の性質側）。原因に transpose を指定すると、角度を式で表す問題の計算側でつまずく子ども。
 // 3日ごとに定期コンパスチェックも行い、チェックの問題不足（緩和・再利用・出題できず）も数える。
 //       練習したスキルは、その日のうちにできるようになっていく（知っているスキルは正解する）。
 ["questions", "logic", "engine", "bank", "compass", "rootcause", "planner"].forEach((f) => require("../js/" + f + ".js"));
@@ -16,7 +17,10 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 
 const history = [];
 let n = 0;
-const knows = UNIT === "連立方程式"
+const knows = UNIT === "図形の角"
+  ? { signed: true, algebra: true, likeTerms: true, distrib: true, eqProperty: true, transpose: true, eqParen: true, angleBasics: true, lineAngles: true, triangleSum: true,
+      angleNames: false, parallelAngles: false, exteriorAngle: false, angleEq: false, angleCombo: false, polygonInterior: false, polygonExterior: false }
+  : UNIT === "連立方程式"
   ? { signed: true, algebra: true, likeTerms: true, polyAddSub: true, polyMixed: true, distrib: true, eqMeaning: true, eqProperty: true, simMeaning: true, simCoef: true, transpose: false, eqParen: false, eqFraction: true, simElim: false, simSubst: false, simParen: false, simFraction: false, simWord: false }
   : UNIT === "式の計算"
   ? { signed: true, algebra: true, likeTerms: true, distrib: true, eqProperty: true, transpose: true, monoMulDiv: true, polyAddSub: false, polyMixed: false, eqTransform: false }
@@ -24,15 +28,18 @@ const knows = UNIT === "連立方程式"
 function answer(qid, at, context) {
   const q = Q[qid];
   const rec = (qq, id, skill) => history.push(E.makeAnswerRecord({ ...qq, id, skill }, { status: knows[skill] ? "correct" : "incorrect" }, { userId: "u", sessionId: "d", context, now: at + (++n) * 1000 }));
-  if (q.type === "steps") q.steps.forEach((s) => rec({ level: q.level, unit: q.unit }, qid + "#" + s.id, s.skill));
+  if (q.type === "steps") q.steps.forEach((s) => rec({ level: q.level, unit: q.unit, aspect: s.aspect }, qid + "#" + s.id, s.skill));
   else rec(q, qid, q.skill);
 }
 const CAUSE = process.argv[5] || null;
-if (CAUSE) { knows[CAUSE] = false; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
-const FIRST = UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
+if (CAUSE) { knows[CAUSE] = false; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
+const FIRST = UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
+  : UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
   : UNIT === "連立方程式" ? SC.compass.unitCheck(UNIT).questions.concat(["simCoef-basic-2", "transpose-basic-2", "signed-basic-2", "algebra-basic-1"]) : ["B1", "B2", "B3", "B4", "B5", "C4", "C5"];
 FIRST.forEach((id) => answer(id, T0, "compass_check"));
-const explorations = UNIT === "式の計算"
+const explorations = UNIT === "図形の角"
+  ? [{ date: new Date(T0).toISOString(), symptom: CAUSE === "transpose" ? { skill: "angleEq", label: "角度を式で表す" } : { skill: "parallelAngles", label: "平行線と角" }, conclusion: { kind: "gap_found", return_to: CAUSE || "angleNames" } }]
+  : UNIT === "式の計算"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "polyMixed", label: "かっこを含む式の計算" }, conclusion: { kind: "gap_found", return_to: CAUSE || "polyAddSub" } }]
   : UNIT === "連立方程式"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "simElim", label: "加減法" }, conclusion: { kind: "gap_found", return_to: CAUSE || "transpose" } }]

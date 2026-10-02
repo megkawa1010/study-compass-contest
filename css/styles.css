@@ -301,7 +301,7 @@ th { font-size: 11px; color: var(--text-soft); }
 /* 図形（js/geometry.js）：viewBox で画面幅に合わせて縮む。線は vector-effect で細くなりすぎない */
 .fig-geometry { margin: 10px auto 14px; }
 .fig-geometry svg { display: block; width: 100%; height: auto; margin: 0 auto; background: var(--inset); border-radius: 12px; border: 1px solid var(--line); }
-.fig-note { margin-top: 4px; text-align: center; font-size: 12px; color: var(--text-soft); }
+.fig-note { margin-top: 6px; text-align: center; font-size: 13px; font-weight: 700; color: var(--text); opacity: .88; letter-spacing: .02em; }
 .geo-line, .geo-seg { stroke: var(--text); stroke-width: 2; stroke-linecap: round; fill: none; }
 .geo-line.dashed, .geo-seg.dashed { stroke-dasharray: 5 4; }
 .geo-line.hl, .geo-seg.hl { stroke: var(--star); stroke-width: 3; }

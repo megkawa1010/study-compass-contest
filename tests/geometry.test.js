@@ -5,6 +5,10 @@ const assert = require("node:assert/strict");
 const { SC } = globalThis;
 const G = SC.geometry, Q = SC.QUESTIONS, L = SC.logic, E = SC.engine;
 const GEO = Object.values(Q).filter((q) => q.figure && q.figure.type === "geometry");
+// 角度を求める図形の問題（relation で検算する）。位置の名前（同位角はどれ？）・角の表し方を答える問題は除く
+const SOLVE = GEO.filter((q) => q.relation);
+// 図形の角の単元（＋土台の「角の基本」）の全問題
+const UNIT = Object.values(Q).filter((q) => q.origin === "bank" && (E.SKILLS[q.skill].unit === "図形の角" || q.skill === "angleBasics"));
 const SAMPLES = ["lineAngles-basic-1", "parallelAngles-basic-1", "triangleSum-basic-1", "exteriorAngle-basic-1", "polygonInterior-basic-1", "angleEq-standard-1"];
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
@@ -30,7 +34,7 @@ test("1・2. 答えの角度・与えた角度と、描いた角度は8°以上�
       assert.ok(r.diff >= G.CONFIG.MIN_GAP, q.id + " " + r.label + " 差 " + r.diff);
       assert.equal(G.kind(r.drawn), G.kind(r.truth), q.id + " " + r.label);
     });
-    assert.ok(a.angles.some((r) => r.role === "answer"), q.id + "：答えの角が図にある");
+    if (SOLVE.includes(q)) assert.ok(a.angles.some((r) => r.role === "answer"), q.id + "：答えの角が図にある");
   }
   // こわした図は見つかる：答えの角をそのままの大きさで描くと警告
   const q = clone(Q["triangleSum-basic-1"]);
@@ -91,7 +95,7 @@ test("5・6. ラベルは図の外にはみ出さず、ラベルどうしが大�
 });
 
 test("7. relation で答えを検算できる（type ごとに処理を分ける）", () => {
-  for (const q of GEO) assert.ok(G.verifyRelation(q).ok, q.id + " " + G.verifyRelation(q).messages);
+  for (const q of UNIT.filter((q) => q.relation)) assert.ok(G.verifyRelation(q).ok, q.id + " " + G.verifyRelation(q).messages);
   assert.equal(G.verifyRelation(Q["angleEq-standard-1"]).value, 50);
   assert.equal(G.verifyRelation(Q["exteriorAngle-basic-1"]).value, 120);
   // 答えをまちがえて登録すると見つかる
@@ -170,4 +174,72 @@ test("データ → 回答 → 記録：角度の小問は value、根拠の小�
   assert.equal(s.overall.reason_practice, true, "reason 練習を今日の候補へ");
   assert.equal(s.learning_status, "understood", "理由がまだでも、角度を求める力の状態は下げない");
   assert.deepEqual(E.geometryRoute(true, false), { trail: null, reason_practice: true });
+});
+
+test("問題バンク：約70問・約4割が角度＋根拠の小問・はじめてのチェック5問・レベル分類", () => {
+  assert.ok(UNIT.length >= 65 && UNIT.length <= 80, "問題数 " + UNIT.length);
+  const withReason = UNIT.filter((q) => (q.steps || []).some((s) => s.aspect === "reason"));
+  const ratio = withReason.length / UNIT.length;
+  assert.ok(ratio >= 0.35 && ratio <= 0.55, "根拠つき " + withReason.length + "/" + UNIT.length);
+  // 根拠の選択肢は、共通のことば（js/geometry.js の REASONS）と同じ
+  withReason.forEach((q) => q.steps.filter((s) => s.aspect === "reason").forEach((s) => {
+    assert.equal(s.type, "choice", q.id + " 根拠は1つ選ぶ（複数選択は使わない）");
+    s.choices.forEach((c) => assert.equal(c.label, G.REASONS[c.key], q.id + " " + c.key));
+    assert.ok(s.choices.some((c) => c.key === s.answer));
+  }));
+  // はじめてのチェック：5問・5スキル
+  require("../js/compass.js");
+  const chk = SC.compass.unitCheck("図形の角");
+  assert.equal(chk.questions.length, 5);
+  assert.equal(new Set(chk.chosen.map((c) => c.skill)).size, 5);
+  // レベル：どのスキルも基礎と定着がある。定着は evidence_level つき。応用は小問に分ける
+  E.UNITS["図形の角"].concat("angleBasics").forEach((k) => {
+    const lv = (l) => UNIT.filter((q) => q.skill === k && q.level === l).length;
+    assert.ok(lv("basic") >= 2 && lv("retention") >= 2, k);
+  });
+  ["basic", "standard", "application", "retention"].forEach((l) => assert.ok(UNIT.filter((q) => q.level === l).length >= 6, l));
+  UNIT.filter((q) => q.level === "retention").forEach((q) => assert.ok(["basic", "standard"].includes(q.evidence_level), q.id));
+  UNIT.filter((q) => q.level === "application").forEach((q) => assert.equal(q.type, "steps", q.id));
+  // 図のある問題は、relation で検算できるか、位置の名前を図で確かめられる（角の表し方を答える1問だけ例外）
+  GEO.filter((q) => UNIT.includes(q)).forEach((q) => assert.ok(q.relation || q.position || q.id === "angleBasics-basic-2", q.id));
+});
+
+test("図そのものの数学的整合性：数値は本当とちがうが、図形としての関係は正しい", () => {
+  const seen = {};
+  for (const q of SOLVE) {
+    const a = G.audit(q);
+    assert.ok(a.checks.length > 0, q.id + "：整合性を確かめる関係がない");
+    a.checks.forEach((c) => {
+      assert.ok(c.ok, q.id + " " + c.name + " " + c.detail);
+      const k = /内角の和/.test(c.name) ? (/三角形/.test(c.name) ? "三角形の内角の和" : "多角形の内角の和") : /^対頂角/.test(c.name) ? "対頂角" : /^同位角/.test(c.name) ? "同位角"
+        : /^錯角/.test(c.name) ? "錯角" : /^となり合って一直線/.test(c.name) ? "一直線・外角と隣の内角" : /^同側内角/.test(c.name) ? "同側内角" : /relation/.test(c.name) ? "relation" : "その他";
+      seen[k] = (seen[k] || 0) + 1;
+    });
+  }
+  ["三角形の内角の和", "多角形の内角の和", "対頂角", "同位角", "錯角", "一直線・外角と隣の内角", "relation"].forEach((k) => assert.ok(seen[k] > 0, k + " を確かめる図がない：" + JSON.stringify(seen)));
+  // 例：三角形の描いた内角の和、外角と隣の内角、平行線の同位角
+  const tri = G.audit(Q["triangleSum-basic-3"]).checks.find((c) => /三角形ABCの内角の和/.test(c.name));
+  assert.ok(tri && tri.ok && tri.detail === "180° ／ 180°");
+  assert.ok(G.audit(Q["exteriorAngle-standard-2"]).checks.some((c) => /一直線の角.*の和は180°/.test(c.name) && c.ok));
+  assert.ok(G.audit(Q["polygonInterior-application-1"]).checks.some((c) => /六角形ABCDEFの内角の和/.test(c.name) && c.detail === "720° ／ 720°"));
+  // こわした図は見つかる：x を同位角でない位置（となりの角）に付けると、図の上で relation が成り立たない
+  const bad = clone(Q["parallelAngles-basic-1"]);
+  bad.figure.angles[1].from = "T1"; bad.figure.angles[1].to = "M1";
+  assert.match(G.audit(bad).warnings.join(), /図の上で成り立っていません/);
+  // 外角の位置をまちがえた図も見つかる
+  const bad2 = clone(Q["exteriorAngle-basic-2"]);
+  bad2.figure.angles[2].at = "C"; bad2.figure.angles[2].from = "A"; bad2.figure.angles[2].to = "B";
+  assert.match(G.audit(bad2).warnings.join(), /図の上で成り立っていません/);
+});
+
+test("同位角・錯角・対頂角の位置の問題は、答えを図から確かめる", () => {
+  const names = UNIT.filter((q) => q.position);
+  assert.ok(names.length >= 6);
+  names.forEach((q) => assert.deepEqual(G.audit(q).warnings, [], q.id));
+  assert.equal(G.angleKind(Q["angleNames-basic-1"].figure, "a", "e"), "corresponding");
+  assert.equal(G.angleKind(Q["angleNames-basic-2"].figure, "c", "e"), "alternate");
+  assert.equal(G.angleKind(Q["angleNames-standard-2"].figure, "b", "d"), "vertical");
+  const bad = clone(Q["angleNames-basic-1"]);
+  bad.answer = "f";
+  assert.match(G.audit(bad).warnings.join(), /答えの角が「同位角」の位置にありません/);
 });

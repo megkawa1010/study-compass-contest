@@ -180,7 +180,9 @@ test("旧アプリ（study-compass-app）の連立方程式25問をすべて再�
 // 問題に出てくる数（本文・図・選択肢）を集める
 // （グラフの表示範囲 x / y は問題の中身ではないので数えない）
 function numbersOf(q) {
-  const fig = q.figure ? { ...q.figure, x: undefined, y: undefined } : {};
+  // 図形の図は、座標ではなく、見える数（角の大きさ・式）だけをくらべる
+  const fig = q.figure && q.figure.type === "geometry" ? (q.figure.angles || []).map((a) => [a.value, a.label, a.expr && [a.expr.a, a.expr.b]])
+    : q.figure ? { ...q.figure, x: undefined, y: undefined } : {};
   const text = [q.text, JSON.stringify(fig), JSON.stringify(q.choices || []), (q.steps || []).map((s) => s.text).join(" ")].join(" ")
     .replace(/[−]/g, "-");
   return new Set((text.match(/-?\d+(\.\d+)?/g) || []).filter((n) => !["0", "1", "-1"].includes(n)));

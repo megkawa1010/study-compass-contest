@@ -2295,6 +2295,708 @@
   })();
 
   // =====================================================================
+  // 中2 図形の角：本番の問題バンク
+  //   図はすべて「描く角度」を本当の角度から 9° 以上ずらして作る（鋭角は 80° 以下・鈍角は 100° 以上で描き、分類を見た目でも保つ）。
+  //   三角形・多角形・一直線に並ぶ角は、和を変えずにずらすので、描いた図そのものも図形として正しい
+  //   （tests/geometry.test.js：描いた内角の和・対頂角・同位角・錯角・relation を図の上でも確かめる）。
+  // =====================================================================
+  REASON_JA.auxParallel = "平行な補助線を引くと、錯角が等しい";
+  var GEO_SHIFTS = [12, -12, 10, -10, 14, -14, 16, -16, 18, -18, 20, -20];
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function okDraw(truth, d) {
+    if (truth === 90) return d === 90;
+    return Math.abs(d - truth) >= 9 && (truth < 90 ? d >= 18 && d <= 80 : d >= 100 && d <= 160);
+  }
+  // 1つの角の描く大きさ
+  function drawOne(truth, seed) {
+    for (var i = 0; i < GEO_SHIFTS.length; i++) { var d = truth + GEO_SHIFTS[(i + (seed || 0)) % GEO_SHIFTS.length]; if (okDraw(truth, d)) return d; }
+    throw new Error("描く角度が決まりません：" + truth);
+  }
+  // 和を変えずに、全部の角をずらす（三角形・多角形・一直線・1回転）
+  function drawSum(truths, seed) {
+    var n = truths.length, out = [];
+    function dfs(i, acc) {
+      if (i === n - 1) { var d = truths[i] - acc; if (okDraw(truths[i], d) && Math.abs(d - truths[i]) <= 30) { out[i] = d; return true; } return false; }
+      if (truths[i] === 90) { out[i] = 90; return dfs(i + 1, acc); }
+      for (var k = 0; k < GEO_SHIFTS.length; k++) {
+        var s = GEO_SHIFTS[(k + (seed || 0) + i) % GEO_SHIFTS.length], d = truths[i] + s;
+        if (!okDraw(truths[i], d)) continue;
+        out[i] = d;
+        if (dfs(i + 1, acc + s)) return true;
+      }
+      return false;
+    }
+    if (!dfs(0, 0)) throw new Error("描く角度が決まりません：" + truths.join(","));
+    return out;
+  }
+  // 多角形の頂点：内角（描く大きさ）から、辺の長さがなるべくそろうように閉じる。size に収める。
+  // はじめの n − 2 辺の長さを lens の 0.6〜1.4 倍でためし、最後の2辺は閉じるように決める
+  function polyPoints(names, interiors, lens, rot, size) {
+    var n = names.length, rad = Math.PI / 180;
+    var heads = [rot || 0];
+    for (var i = 1; i < n; i++) heads.push(heads[i - 1] + 180 - interiors[i]);
+    var dir = heads.map(function (h) { return [Math.cos(h * rad), Math.sin(h * rad)]; });
+    function close(L) {
+      var p = [0, 0];
+      for (var j = 0; j < n - 2; j++) p = [p[0] + L[j] * dir[j][0], p[1] + L[j] * dir[j][1]];
+      var v1 = dir[n - 2], v2 = dir[n - 1], det = v1[0] * v2[1] - v1[1] * v2[0];
+      return L.slice(0, n - 2).concat([(-p[0] * v2[1] + p[1] * v2[0]) / det, (-v1[0] * p[1] + v1[1] * p[0]) / det]);
+    }
+    var MULT = [1, 0.8, 1.2, 0.6, 1.4], best = null, bestR = Infinity;
+    (function search(j, L) {
+      if (j === n - 2) {
+        var all = close(L), mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+        if (mn > 0 && mx / mn < bestR) { bestR = mx / mn; best = all; }
+        return;
+      }
+      MULT.forEach(function (m) { search(j + 1, L.concat([lens[j] * m])); });
+    })(0, []);
+    if (!best || bestR > 3.5) throw new Error("多角形が閉じません：" + names.join(""));
+    var pts = [[0, 0]], q = [0, 0];
+    for (i = 0; i < n - 1; i++) { q = [q[0] + best[i] * dir[i][0], q[1] + best[i] * dir[i][1]]; pts.push(q); }
+    var xs = pts.map(function (z) { return z[0]; }), ys = pts.map(function (z) { return z[1]; });
+    var k = (size || 230) / Math.max(Math.max.apply(null, xs) - Math.min.apply(null, xs), Math.max.apply(null, ys) - Math.min.apply(null, ys));
+    var minX = Math.min.apply(null, xs), maxY = Math.max.apply(null, ys), out = {};
+    names.forEach(function (nm, j) { out[nm] = [r1(40 + (pts[j][0] - minX) * k), r1(40 + (maxY - pts[j][1]) * k)]; });
+    return out;
+  }
+  // 2つの角を同時にずらす。derive(d1, d2) は、そこから決まる角の [本当, 描く] の組。ok(d1, d2) はほかの条件（図の幅など）
+  function drawTwo(t1, t2, derive, ok, seed) {
+    for (var i = 0; i < GEO_SHIFTS.length; i++) for (var j = 0; j < GEO_SHIFTS.length; j++) {
+      var d1 = t1 + GEO_SHIFTS[(i + (seed || 0)) % GEO_SHIFTS.length], d2 = t2 + GEO_SHIFTS[(j + (seed || 0)) % GEO_SHIFTS.length];
+      if (!okDraw(t1, d1) || !okDraw(t2, d2)) continue;
+      if (!derive(d1, d2).every(function (p) { return okDraw(p[0], p[1]); })) continue;
+      if (ok && !ok(d1, d2)) continue;
+      return [d1, d2];
+    }
+    throw new Error("描く角度が決まりません：" + t1 + "," + t2);
+  }
+  // 平行線にかかる三角形で、B・C が直線の範囲（x 25〜315）に入るか
+  function hangOk(g, h) { var rad = Math.PI / 180; return 170 - 140 / Math.tan(g * rad) >= 30 && 170 + 140 / Math.tan(h * rad) <= 310; }
+  function ang(id, at, from, to, extra) { var a = { id: id, at: at, from: from, to: to }; for (var k in extra) a[k] = extra[k]; return a; }
+  function dirDeg(p, q) { return Math.atan2(-(q[1] - p[1]), q[0] - p[0]) * 180 / Math.PI; }
+  // 平行線ℓ・m（tilt を付けると平行でない2直線）と、横切る直線 t。theta：ℓ の向きから t までの描く角
+  function parFig(theta, o) {
+    o = o || {};
+    var phi = o.phi || 0, c = o.c || [170, 130], gap = o.gap || 100, half = o.half || 150;
+    var cl = polar(c, phi + 90, gap / 2), cm = polar(c, phi - 90, gap / 2), mphi = phi + (o.tilt || 0);
+    var reach = gap / 2 / Math.sin(theta * Math.PI / 180) + 38;
+    var fig = { type: "geometry",
+      points: { L1: polar(cl, phi + 180, half), L2: polar(cl, phi, half), M1: polar(cm, mphi + 180, half), M2: polar(cm, mphi, half),
+        T1: polar(c, phi + theta, reach), T2: polar(c, phi + theta + 180, reach), P: { intersect: ["t", "l"] }, Q: { intersect: ["t", "m"] } },
+      lines: [{ id: "l", through: ["L1", "L2"], label: "ℓ", extend: 0 }, { id: "m", through: ["M1", "M2"], label: "m", extend: 0 }, { id: "t", through: ["T2", "T1"], extend: 0 }],
+      labels: o.noPoints ? [] : ["P", "Q"], angles: [] };
+    if (!o.tilt) fig.parallel = [{ lines: ["l", "m"], marks: 1 }];
+    return fig;
+  }
+  // 平行線の図の角：P または Q の、ur（右上）ul（左上）dl（左下）dr（右下）
+  function quad(id, V, pos, extra) {
+    var r = V === "P" ? "L2" : "M2", l = V === "P" ? "L1" : "M1";
+    var ft = { ur: [r, "T1"], ul: ["T1", l], dl: [l, "T2"], dr: ["T2", r] }[pos];
+    return ang(id, V, ft[0], ft[1], extra);
+  }
+  // 平行線の図で、その位置の角の本当の大きさ（ur・dl は theta、ul・dr は 180 − theta）
+  function quadTruth(theta, pos) { return pos === "ur" || pos === "dl" ? theta : 180 - theta; }
+  // 同位角・錯角の名前の図：8つの角に記号（a〜h、または labels）
+  function namesFig(theta, o) {
+    o = o || {};
+    var fig = parFig(theta, { tilt: o.tilt == null ? 8 : o.tilt, phi: o.phi, noPoints: true });
+    var L = o.labels || ["a", "b", "c", "d", "e", "f", "g", "h"], ids = ["a", "b", "c", "d", "e", "f", "g", "h"], pos = ["ur", "ul", "dl", "dr"];
+    ids.forEach(function (id, i) { fig.angles.push(quad(id, i < 4 ? "P" : "Q", pos[i % 4], { label: L[i] })); });
+    fig.note = false;
+    return fig;
+  }
+  // 交わる2直線（点O）。a1：直線ABの向き、theta：∠BOC の描く大きさ
+  function crossFig(a1, theta, o) {
+    o = o || {};
+    var O = o.O || [170, 120], R = o.r || 125;
+    return { type: "geometry", points: { O: O, A: polar(O, a1 + 180, R), B: polar(O, a1, R), C: polar(O, a1 + theta, R * 0.85), D: polar(O, a1 + theta + 180, R * 0.85) },
+      lines: [{ id: "p", through: ["A", "B"], extend: 8 }, { id: "q", through: ["C", "D"], extend: 8 }], angles: [] };
+  }
+  // 一直線AB上の点Oから出る半直線。rays：{ C: 向き, D: 向き }（右が 0°）
+  function rayFig(rays) {
+    var O = [170, 175], pts = { O: O, A: [35, 175], B: [305, 175] }, segs = [];
+    Object.keys(rays).forEach(function (k) { pts[k] = polar(O, rays[k], 125); segs.push(["O", k]); });
+    return { type: "geometry", points: pts, lines: [{ id: "ab", through: ["A", "B"], extend: 8 }], segments: segs, straight: [["A", "O", "B"]], angles: [] };
+  }
+  // 三角形ABC（B・C を底辺に、A が上）。angles：描く内角 { A, B, C }。rot：回転、ext：のばす辺 { D: ["B","C"] } など
+  function triFig(d, o) {
+    o = o || {};
+    var pts = polyPoints(["B", "C", "A"], [d.B, d.C, d.A], [220], o.rot || 0, o.size || 210);
+    var fig = { type: "geometry", points: pts, polygons: [["A", "B", "C"]], labels: ["A", "B", "C"], angles: [], segments: [], straight: [] };
+    Object.keys(o.ext || {}).forEach(function (k) {
+      var e = o.ext[k];
+      fig.points[k] = { along: [e[0], e[1], o.extLen || 1.4] };
+      fig.segments.push([e[1], k]); fig.labels.push(k); fig.straight.push([e[0], e[1], k]);
+    });
+    return fig;
+  }
+  // 多角形と、その外角（各頂点で、前の辺をのばす）
+  function polyFig(names, drawnInteriors, lens, o) {
+    o = o || {};
+    var fig = { type: "geometry", points: polyPoints(names, drawnInteriors, lens, o.rot || 0, o.size || 220), polygons: [names], angles: [] };
+    if (o.ext) {
+      fig.segments = []; fig.labels = names.slice();
+      names.forEach(function (v, i) {
+        var prev = names[(i - 1 + names.length) % names.length], key = v.toLowerCase() + "x";
+        fig.points[key] = { along: [prev, v, o.extLen || 1.35] };
+        fig.segments.push([v, key]);
+      });
+    }
+    return fig;
+  }
+  // 平行線の間で折れ曲がる線（くの字）：ℓ 上の P、m 上の Q、折れ曲がりの点 R。a・b：描く角（ℓ・m と線分のなす角）。left：左向きに折れる
+  function zFig(a, b, o) {
+    o = o || {};
+    var left = !!o.left, Rx = left ? 100 : 240, rad = Math.PI / 180;
+    var R = [Rx, 130], dxP = 70 / Math.tan(a * rad), dxQ = 70 / Math.tan(b * rad);
+    var P = [r1(left ? Rx + dxP : Rx - dxP), 60], Q = [r1(left ? Rx + dxQ : Rx - dxQ), 200];
+    var fig = { type: "geometry",
+      points: { L1: [20, 60], L2: [320, 60], M1: [20, 200], M2: [320, 200], P: P, Q: Q, R: R },
+      lines: [{ id: "l", through: ["L1", "L2"], label: "ℓ", extend: 0 }, { id: "m", through: ["M1", "M2"], label: "m", extend: 0 }],
+      segments: [["P", "R"], ["Q", "R"]], parallel: [{ lines: ["l", "m"], marks: 1 }], labels: ["P", "Q", "R"], angles: [] };
+    var side = left ? "L1" : "L2", mside = left ? "M1" : "M2";
+    fig.angles.push(ang("a", "P", side, "R"), ang("b", "Q", mside, "R"), ang("r", "R", "P", "Q"));
+    return fig;
+  }
+  // 平行線にかかる三角形：A は ℓ（上）の上、B・C は m（下）の上。g：ℓ と AB のなす角（左）、h：ℓ と AC のなす角（右）。flip で上下を入れかえる
+  function hangFig(g, h, o) {
+    o = o || {};
+    var flip = !!o.flip, A = [170, flip ? 200 : 60], yb = flip ? 60 : 200;
+    var fig = { type: "geometry",
+      points: { L1: [20, A[1]], L2: [320, A[1]], M1: [20, yb], M2: [320, yb], A: A,
+        Bd: polar(A, flip ? 180 - g : 180 + g, 100), Cd: polar(A, flip ? h : -h, 100),
+        B: { intersect: [["A", "Bd"], "m"] }, C: { intersect: [["A", "Cd"], "m"] } },
+      lines: [{ id: "l", through: ["L1", "L2"], label: "ℓ", extend: 0 }, { id: "m", through: ["M1", "M2"], label: "m", extend: 0 }],
+      segments: [["A", "B"], ["A", "C"], ["B", "C"]], parallel: [{ lines: ["l", "m"], marks: 1 }], labels: ["A", "B", "C"], angles: [] };
+    return fig;
+  }
+  function geo(q) {
+    q.format = q.format || "figure";
+    if (q.type === "number" && q.answer_display == null && !q.noDegree) q.answer_display = q.answer + "°";
+    if (q.type === "number" && !q.placeholder) q.placeholder = "例：65";
+    delete q.noDegree;
+    add(q);
+  }
+  var THINK = "x を求めるときに使った図形の性質はどれ？";
+
+  // ---------- 角の基本（中1の土台） ----------
+  geo({ id: "angleBasics-basic-1", skill: "angleBasics", level: "basic", format: "word",
+    text: "一直線の角（平角）は何度？", type: "number", answer: 180,
+    hint: "半回転した角です。", explanation: "一直線の角は 180° です。" });
+  geo({ id: "angleBasics-basic-2", skill: "angleBasics", level: "basic",
+    text: "図の、印をつけた角の表し方として正しいものはどれ？",
+    figure: { type: "geometry", points: { O: [60, 180], A: polar([60, 180], 52, 170), B: [270, 180] }, segments: [["O", "A"], ["O", "B"]],
+      angles: [ang("o", "O", "B", "A", { label: "" })], note: false },
+    type: "choice", answer: "aob",
+    choices: [{ key: "aob", label: "∠AOB" }, { key: "oab", label: "∠OAB" }, { key: "abo", label: "∠ABO" }, { key: "oba", label: "∠OBA" }],
+    hint: "頂点の文字を、真ん中に書きます。", explanation: "頂点は O なので、O を真ん中にして ∠AOB（∠BOA でもよい）と表します。" });
+  geo({ id: "angleBasics-basic-3", skill: "angleBasics", level: "basic", format: "word",
+    text: "1回転の角は何度？", type: "number", answer: 360,
+    hint: "一直線（180°）の2つ分です。", explanation: "1回転の角は 360° です。" });
+  (function () {
+    var f = rayFig({ C: 90 });
+    f.right = [{ at: "O", from: "A", to: "C" }];
+    f.angles.push(ang("x", "O", "C", "B", { unknown: true }));
+    geo({ id: "angleBasics-retention-1", skill: "angleBasics", level: "retention", evidence_level: "basic",
+      text: "点A、O、Bは一直線上にあり、∠AOC は直角です。x は何度？", figure: f,
+      relation: { type: "angleSum", values: [90, "answer"], total: 180 },
+      type: "number", answer: 90, hint: "一直線は 180°。直角は 90°。", explanation: "180 − 90 = 90 なので x = 90° です。" });
+  })();
+  geo({ id: "angleBasics-retention-2", skill: "angleBasics", level: "retention", evidence_level: "basic", format: "word",
+    text: "90° より大きく 180° より小さい角を何という？", type: "choice", answer: "obtuse",
+    choices: [{ key: "acute", label: "鋭角" }, { key: "right", label: "直角" }, { key: "obtuse", label: "鈍角" }, { key: "straight", label: "平角" }],
+    hint: "鋭い（するどい）角は 90° より小さい角。", explanation: "90° より大きく 180° より小さい角は鈍角です。" });
+
+  // ---------- 対頂角・一直線の角 ----------
+  (function () {
+    var f = crossFig(15, drawOne(64));
+    f.angles.push(ang("g", "O", "B", "C", { value: 64 }), ang("x", "O", "C", "A", { unknown: true }));
+    f.highlight = [{ angle: "x" }];
+    geo({ id: "lineAngles-basic-2", skill: "lineAngles", level: "basic", text: "2つの直線が点Oで交わっています。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["g", "answer"], total: 180, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "lineAngles", "x は何度？", 116, "x と 64° を合わせると一直線。", "180 − 64 = 116 なので x = 116° です。"),
+        reasonStep("s2", "lineAngles", "straight", ["straight", "vertical", "around", "corresponding"], "x と 64° を合わせると一直線（180°）です。")],
+      hint: "となり合う2つの角を合わせると何度？", explanation: "x と 64° は合わせて一直線なので、x = 180 − 64 = 116° です。" });
+  })();
+  (function () {
+    var d = drawOne(35), f = rayFig({ C: 180 - d });
+    f.angles.push(ang("g", "O", "A", "C", { value: 35 }), ang("x", "O", "C", "B", { unknown: true }));
+    geo({ id: "lineAngles-basic-3", skill: "lineAngles", level: "basic", text: "点A、O、Bは一直線上にあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["g", "answer"], total: 180 }, type: "number", answer: 145,
+      hint: "一直線の角は 180°。", explanation: "180 − 35 = 145 なので x = 145° です。" });
+  })();
+  (function () {
+    var d = drawSum([50, 70, 60]), f = rayFig({ C: 180 - d[0], D: d[2] });
+    f.angles.push(ang("g1", "O", "A", "C", { value: 50 }), ang("x", "O", "C", "D", { unknown: true }), ang("g2", "O", "D", "B", { value: 60 }));
+    geo({ id: "lineAngles-standard-1", skill: "lineAngles", level: "standard", text: "点A、O、Bは一直線上にあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["g1", "answer", "g2"], total: 180 }, type: "number", answer: 70,
+      hint: "3つの角を合わせると一直線。", explanation: "50 + x + 60 = 180 なので x = 70° です。" });
+  })();
+  (function () {
+    var f = crossFig(-10, drawOne(37, 1));
+    f.angles.push(ang("g", "O", "B", "C", { value: 37 }), ang("y", "O", "A", "D", { label: "y", answer: "s1" }), ang("x", "O", "C", "A", { unknown: true }));
+    geo({ id: "lineAngles-standard-2", skill: "lineAngles", level: "standard", text: "2つの直線が点Oで交わっています。y と x の大きさを求めなさい。", figure: f,
+      relation: [{ type: "equalAngles", source: "g", target: "answer", answer: "s1" }, { type: "angleSum", values: ["g", "answer"], total: 180, answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "lineAngles", "y は何度？", 37, "y は 37° の角と向かい合っている。", "y は 37° の対頂角なので 37° です。"),
+        reasonStep("s2r", "lineAngles", "vertical", ["vertical", "straight", "alternate", "around"], "y と 37° は対頂角なので等しくなります。"),
+        angleStep("s2", "lineAngles", "x は何度？", 143, "x と 37° は合わせて一直線。", "180 − 37 = 143 なので x = 143° です。")],
+      hint: "向かい合う角と、となり合う角を分けて考えよう。", explanation: "y は対頂角で 37°。x は 37° と合わせて一直線なので 143° です。" });
+  })();
+  (function () {
+    var d = drawSum([105, 140, 115], 2), O = [170, 140], a0 = 80;
+    var f = { type: "geometry", points: { O: O, A: polar(O, a0, 110), B: polar(O, a0 + d[0], 110), C: polar(O, a0 + d[0] + d[1], 110) },
+      segments: [["O", "A"], ["O", "B"], ["O", "C"]], labels: [], angles: [ang("g1", "O", "A", "B", { value: 105 }), ang("g2", "O", "B", "C", { value: 140 }), ang("x", "O", "C", "A", { unknown: true })] };
+    geo({ id: "lineAngles-retention-1", skill: "lineAngles", level: "retention", evidence_level: "basic", text: "1つの点のまわりに3つの角があります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["g1", "g2", "answer"], total: 360, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "lineAngles", "x は何度？", 115, "3つの角を合わせると1回転。", "360 − (105 + 140) = 115 なので x = 115° です。"),
+        reasonStep("s2", "lineAngles", "around", ["around", "straight", "vertical", "triangleSum"], "1点のまわりの角をすべて合わせると 360° です。")],
+      hint: "1回転は 360°。", explanation: "1点のまわりの角は 360° なので、x = 360 − 245 = 115° です。" });
+  })();
+  (function () {
+    var f = crossFig(68, drawOne(76), { O: [170, 140] });
+    f.angles.push(ang("g", "O", "B", "C", { value: 76 }), ang("x", "O", "D", "A", { unknown: true }));
+    geo({ id: "lineAngles-retention-2", skill: "lineAngles", level: "retention", evidence_level: "basic", text: "2つの直線が交わっています。x の大きさを求めなさい。", figure: f,
+      relation: { type: "equalAngles", source: "g", target: "answer", answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "lineAngles", "x は何度？", 76, "x は 76° の角と向かい合っている。", "対頂角なので x = 76° です。"),
+        reasonStep("s2", "lineAngles", "vertical", ["vertical", "straight", "corresponding", "exterior"], "向かい合う角（対頂角）は等しくなります。")],
+      hint: "向かい合う角に注目。", explanation: "x と 76° は対頂角なので、x = 76° です。" });
+  })();
+
+  // ---------- 角度を式で表す ----------
+  (function () {
+    var d = drawSum([135, 45]), f = rayFig({ C: d[1] });
+    f.angles.push(ang("e1", "O", "A", "C", { expr: { a: 3, b: 0 } }), ang("e2", "O", "C", "B", { expr: { a: 1, b: 0 } }));
+    geo({ id: "angleEq-basic-1", skill: "angleEq", level: "basic", text: "点A、O、Bは一直線上にあります。x の値を求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["e1", "e2"], total: 180, answer: "s1" }, type: "steps",
+      steps: [{ id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 45, placeholder: "例：30",
+        hint: "3x + x = 180 を解く。", explanation: "4x = 180 → x = 45 です。" },
+        reasonStep("s2", "angleEq", "straight", ["straight", "vertical", "around", "triangleSum"], "2つの角を合わせると一直線（180°）です。")],
+      hint: "2つの角を合わせると何度？", explanation: "3x + x = 180 より 4x = 180、x = 45 です。" });
+  })();
+  (function () {
+    var f = crossFig(20, drawOne(70));
+    f.angles.push(ang("g", "O", "B", "C", { value: 70 }), ang("e", "O", "A", "D", { expr: { a: 1, b: 18 } }));
+    geo({ id: "angleEq-basic-2", skill: "angleEq", level: "basic", text: "2つの直線が交わっています。x の値を求めなさい。", figure: f,
+      relation: { type: "equalAngles", source: "g", target: "e", answer: "s1" }, type: "steps",
+      steps: [{ id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 52, placeholder: "例：30",
+        hint: "x + 18 = 70 を解く。", explanation: "x + 18 = 70 → x = 52 です。" },
+        reasonStep("s2", "angleEq", "vertical", ["vertical", "straight", "corresponding", "around"], "(x + 18)° と 70° は対頂角なので等しくなります。")],
+      hint: "向かい合う角は等しい。", explanation: "対頂角は等しいので x + 18 = 70、x = 52 です。" });
+  })();
+  (function () {
+    var f = crossFig(-5, drawOne(80));
+    f.angles.push(ang("e1", "O", "B", "C", { expr: { a: 2, b: -10 } }), ang("e2", "O", "A", "D", { expr: { a: 1, b: 35 } }));
+    geo({ id: "angleEq-standard-2", skill: "angleEq", level: "standard", text: "2つの直線が交わっています。x の値と、その角の大きさを求めなさい。", figure: f,
+      relation: [{ type: "equalAngles", source: "e1", target: "e2", answer: "s1" }, { type: "equalAngles", source: { of: "s1", a: 1, b: 35 }, target: "answer", answer: "s2" }],
+      type: "steps",
+      steps: [{ id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 45, placeholder: "例：30",
+        hint: "2x − 10 = x + 35 を解く。", explanation: "2x − x = 35 + 10 → x = 45 です。" },
+        angleStep("s2", "angleEq", "(x + 35)° の角は何度？", 80, "x = 45 を代入。", "45 + 35 = 80° です。")],
+      hint: "対頂角は等しいので、2つの式を = で結ぶ。", explanation: "2x − 10 = x + 35 より x = 45。角は 80° です。" });
+  })();
+  (function () {
+    var d = drawSum([75, 35, 70], 1), f = triFig({ B: d[0], C: d[1], A: d[2] });
+    f.angles.push(ang("e1", "A", "B", "C", { expr: { a: 2, b: 0 } }), ang("e2", "B", "A", "C", { expr: { a: 1, b: 40 } }), ang("e3", "C", "A", "B", { expr: { a: 1, b: 0 } }));
+    geo({ id: "angleEq-standard-3", skill: "angleEq", level: "standard", text: "△ABCで、x の値を求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["e1", "e2", "e3"], total: 180, answer: "s1" }, type: "steps",
+      steps: [{ id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 35, placeholder: "例：30",
+        hint: "2x + (x + 40) + x = 180 を解く。", explanation: "4x + 40 = 180 → 4x = 140 → x = 35 です。" },
+        reasonStep("s2", "angleEq", "triangleSum", ["triangleSum", "exterior", "straight", "around"], "三角形の3つの内角の和は 180° です。")],
+      hint: "3つの角を合わせると 180°。", explanation: "2x + (x + 40) + x = 180 より 4x = 140、x = 35 です。" });
+  })();
+  (function () {
+    var th = drawOne(85), f = parFig(th);
+    f.angles.push(quad("e1", "P", "ur", { expr: { a: 3, b: -20 } }), quad("e2", "Q", "ur", { expr: { a: 2, b: 15 } }));
+    geo({ id: "angleEq-application-1", skill: "angleEq", level: "application", text: "直線ℓとmは平行です。", figure: f,
+      relation: [{ type: "equalAngles", source: "e1", target: "e2", answer: "s1" }, { type: "equalAngles", source: { of: "s1", a: 3, b: -20 }, target: "answer", answer: "s2" }],
+      type: "steps",
+      steps: [{ id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 35, placeholder: "例：30",
+        hint: "同位角は等しいので 3x − 20 = 2x + 15。", explanation: "3x − 2x = 15 + 20 → x = 35 です。" },
+        angleStep("s2", "angleEq", "(3x − 20)° の角は何度？", 85, "x = 35 を代入。", "3 × 35 − 20 = 85° です。"),
+        reasonStep("s3", "parallelAngles", "corresponding", ["corresponding", "alternate", "vertical", "straight"], "同じ位置にある角（同位角）です。ℓ // m なので等しくなります。")],
+      hint: "2つの角がどんな位置関係かを考えて、式を作る。", explanation: "同位角は等しいので 3x − 20 = 2x + 15、x = 35。角は 85° です。" });
+  })();
+  (function () {
+    var d = drawSum([40, 80, 60], 3), f = rayFig({ C: 180 - d[0], D: d[2] });
+    f.angles.push(ang("e1", "O", "A", "C", { expr: { a: 1, b: 0 } }), ang("e2", "O", "C", "D", { expr: { a: 2, b: 0 } }), ang("g", "O", "D", "B", { value: 60 }));
+    geo({ id: "angleEq-retention-1", skill: "angleEq", level: "retention", evidence_level: "standard", text: "点A、O、Bは一直線上にあります。x の値を求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["e1", "e2", "g"], total: 180 }, type: "number", answer: 40, placeholder: "例：30", noDegree: true,
+      hint: "x + 2x + 60 = 180 を解く。", explanation: "3x + 60 = 180 → 3x = 120 → x = 40 です。" });
+  })();
+  (function () {
+    var d = drawSum([50, 100, 30], 2), f = triFig({ B: d[0], C: d[1], A: d[2] }, { ext: { D: ["B", "C"] } });
+    f.angles.push(ang("e1", "A", "B", "C", { expr: { a: 1, b: 0 } }), ang("b", "B", "A", "C", { value: 50 }), ang("e2", "C", "A", "D", { expr: { a: 3, b: -10 } }));
+    geo({ id: "angleEq-retention-2", skill: "angleEq", level: "retention", evidence_level: "standard", text: "△ABCの辺BCをのばした直線上に点Dがあります。x の値を求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["e1", "b"], total: "e2" }, type: "number", answer: 30, placeholder: "例：30", noDegree: true,
+      hint: "外角 ＝ となり合わない2つの内角の和。", explanation: "3x − 10 = x + 50 より 2x = 60、x = 30 です。" });
+  })();
+
+  // ---------- 同位角・錯角（位置の名前） ----------
+  function nameQ(id, level, text, fig, of, answer, keys, kind, hint, explanation, extra) {
+    var L = {}; fig.angles.forEach(function (a) { L[a.id] = a.label; });
+    var q = { id: id, skill: "angleNames", level: level, text: text, figure: fig, type: "choice", answer: answer,
+      choices: keys.map(function (k) { return { key: k, label: "∠" + L[k] }; }), position: { of: of, kind: kind }, hint: hint, explanation: explanation };
+    for (var k in extra) q[k] = extra[k];
+    geo(q);
+  }
+  nameQ("angleNames-basic-1", "basic", "2つの直線に1本の直線が交わっています。∠a の同位角はどれ？", namesFig(64), "a", "e", ["e", "f", "g", "c"], "corresponding",
+    "同位角は、それぞれの交点で「同じ位置」にある角。", "∠a は上の交点の右上。下の交点の右上は ∠e です。");
+  nameQ("angleNames-basic-2", "basic", "2つの直線に1本の直線が交わっています。∠c の錯角はどれ？", namesFig(64), "c", "e", ["e", "g", "a", "f"], "alternate",
+    "錯角は、2つの直線の内側で、横切る直線をはさんで反対側にある角。", "∠c は上の交点の左下（内側）。反対側の内側にあるのは下の交点の右上 ∠e です。");
+  nameQ("angleNames-basic-3", "basic", "2つの直線に1本の直線が交わっています。∠d の同位角はどれ？", namesFig(58, { tilt: -7 }), "d", "h", ["h", "f", "b", "g"], "corresponding",
+    "交点ごとに、同じ位置（右下なら右下）の角。", "∠d は上の交点の右下。下の交点の右下は ∠h です。");
+  nameQ("angleNames-standard-1", "standard", "2つの直線に1本の直線が交わっています。∠f の錯角はどれ？", namesFig(58, { tilt: -7 }), "f", "d", ["d", "b", "h", "c"], "alternate",
+    "∠f は下の交点の左上で、2つの直線の内側にある。", "∠f の反対側の内側にあるのは、上の交点の右下 ∠d です。");
+  nameQ("angleNames-standard-2", "standard", "2つの直線に1本の直線が交わっています。∠b の対頂角はどれ？", namesFig(70, { tilt: 6 }), "b", "d", ["d", "a", "f", "c"], "vertical",
+    "対頂角は、同じ交点で向かい合っている角。", "∠b と向かい合っているのは、同じ交点の ∠d です。");
+  var KANA = ["ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク"];
+  nameQ("angleNames-retention-1", "retention", "直線ℓ、m に、もう1本の直線が交わっています。∠ウ の同位角はどれ？", namesFig(60, { tilt: 7, phi: -18, labels: KANA }), "c", "g", ["g", "e", "a", "f"], "corresponding",
+    "交点ごとに、同じ位置にある角をさがす。", "∠ウ は上の交点の左下。下の交点の左下は ∠キ です。", { evidence_level: "basic" });
+  (function () {
+    var f = namesFig(66, { tilt: -6, phi: 15, labels: KANA });
+    geo({ id: "angleNames-retention-2", skill: "angleNames", level: "retention", evidence_level: "basic", text: "∠イ と ∠カ のような位置にある角どうしを、何という？", figure: f,
+      type: "choice", answer: "corresponding", position: { of: "b", with: "f" },
+      choices: [{ key: "corresponding", label: "同位角" }, { key: "alternate", label: "錯角" }, { key: "vertical", label: "対頂角" }, { key: "cointerior", label: "同側内角" }],
+      hint: "2つの交点で、それぞれどの位置にある？", explanation: "∠イ も ∠カ も、それぞれの交点の左上。同じ位置なので同位角です。" });
+  })();
+
+  // ---------- 平行線と角 ----------
+  function parQ(id, level, truthTheta, given, x, o) {
+    o = o || {};
+    var th = drawOne(truthTheta, o.seed), f = parFig(th, o.fig);
+    var gv = quadTruth(truthTheta, given[1]), xv = quadTruth(truthTheta, x[1]);
+    f.angles.push(quad("g", given[0], given[1], { value: gv }), quad("x", x[0], x[1], { unknown: true }));
+    f.highlight = [{ angle: "x" }];
+    var rel = gv === xv ? { type: "equalAngles", source: "g", target: "answer" } : { type: "angleSum", values: ["g", "answer"], total: 180 };
+    var q = { id: id, skill: "parallelAngles", level: level, text: o.text || "直線ℓとmは平行です。x の大きさを求めなさい。", figure: f, relation: rel,
+      hint: o.hint, explanation: o.explanation };
+    if (o.reason) {
+      rel.answer = "s1";
+      q.type = "steps";
+      q.steps = [angleStep("s1", "parallelAngles", "x は何度？", xv, o.hint, o.explanation), reasonStep("s2", "parallelAngles", o.reason, o.keys, o.reasonText)];
+    } else { q.type = "number"; q.answer = xv; }
+    for (var k in o.extra) q[k] = o.extra[k];
+    geo(q);
+  }
+  parQ("parallelAngles-basic-2", "basic", 58, ["P", "dl"], ["Q", "ur"], { reason: "alternate", keys: ["alternate", "corresponding", "vertical", "straight"],
+    hint: "58° の角と x は、2本の平行線の内側で、反対側にある。", explanation: "x は 58° の錯角です。ℓ // m なので x = 58° です。",
+    reasonText: "内側で反対側にある角（錯角）です。ℓ // m なので等しくなります。" });
+  parQ("parallelAngles-basic-3", "basic", 56, ["P", "ul"], ["Q", "ul"], { reason: "corresponding", keys: ["corresponding", "alternate", "straight", "vertical"],
+    hint: "124° の角と x は、それぞれの交点で同じ位置。", explanation: "x は 124° の同位角なので x = 124° です。",
+    reasonText: "同じ位置にある角（同位角）です。ℓ // m なので等しくなります。" });
+  parQ("parallelAngles-standard-1", "standard", 113, ["P", "dr"], ["Q", "ur"], {
+    hint: "67° の角の同位角を見つけて、x と合わせると一直線。", explanation: "67° の同位角は Q の右下。x と合わせて一直線なので x = 180 − 67 = 113° です。" });
+  parQ("parallelAngles-standard-2", "standard", 49, ["P", "dr"], ["Q", "ul"], { reason: "alternate", keys: ["alternate", "corresponding", "vertical", "exterior"],
+    hint: "131° の角と x は、内側で反対側にある。", explanation: "x は 131° の錯角なので x = 131° です。",
+    reasonText: "内側で反対側にある角（錯角）です。ℓ // m なので等しくなります。" });
+  parQ("parallelAngles-standard-3", "standard", 62, ["P", "ul"], ["Q", "dr"], {
+    hint: "118° の対頂角を見つけてから、同位角を使う。", explanation: "118° の対頂角は P の右下で 118°。その同位角が x なので x = 118° です。" });
+  (function () {
+    var th = drawOne(47, 2), f = parFig(th);
+    f.angles.push(quad("g", "Q", "ur", { value: 47 }), quad("y", "P", "dl", { label: "y", answer: "s1" }), quad("x", "P", "ul", { unknown: true }));
+    f.highlight = [{ angle: "x" }];
+    geo({ id: "parallelAngles-application-1", skill: "parallelAngles", level: "application", text: "直線ℓとmは平行です。", figure: f,
+      relation: [{ type: "equalAngles", source: "g", target: "answer", answer: "s1" }, { type: "angleSum", values: ["y", "answer"], total: 180, answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "parallelAngles", "y は何度？", 47, "y と 47° は内側で反対側。", "y は 47° の錯角なので 47° です。"),
+        reasonStep("s1r", "parallelAngles", "alternate", ["alternate", "corresponding", "vertical", "straight"], "y と 47° は錯角です。ℓ // m なので等しくなります。"),
+        angleStep("s2", "parallelAngles", "x は何度？", 133, "x と y を合わせると一直線。", "180 − 47 = 133 なので x = 133° です。")],
+      hint: "まず y、次に x。", explanation: "y は錯角で 47°。x は y と合わせて一直線なので 133° です。" });
+  })();
+  parQ("parallelAngles-retention-1", "retention", 66, ["P", "ur"], ["Q", "ur"], { fig: { phi: 25 }, reason: "corresponding", keys: ["corresponding", "alternate", "vertical", "straight"],
+    hint: "交点 P と Q で同じ位置にある角。", explanation: "x は 66° の同位角なので x = 66° です。",
+    reasonText: "同じ位置にある角（同位角）です。ℓ // m なので等しくなります。", extra: { evidence_level: "basic" } });
+  parQ("parallelAngles-retention-2", "retention", 103, ["P", "dl"], ["Q", "ur"], { fig: { phi: 68, c: [170, 140] }, reason: "alternate", keys: ["alternate", "corresponding", "straight", "vertical"],
+    hint: "2本の平行線の内側で、反対側にある角。", explanation: "x は 103° の錯角なので x = 103° です。",
+    reasonText: "内側で反対側にある角（錯角）です。ℓ // m なので等しくなります。", extra: { evidence_level: "basic" } });
+
+  // ---------- 三角形の内角 ----------
+  (function () {
+    var d = drawSum([90, 56, 34]), f = triFig({ B: d[0], C: d[1], A: d[2] });
+    f.right = [{ at: "B", from: "A", to: "C" }];
+    f.angles.push(ang("a", "A", "B", "C", { value: 34 }), ang("x", "C", "A", "B", { unknown: true }));
+    geo({ id: "triangleSum-basic-2", skill: "triangleSum", level: "basic", text: "△ABCで、∠B は直角です。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: [90, "a", "answer"], total: 180 }, type: "number", answer: 56,
+      hint: "直角は 90°。3つの角を合わせると 180°。", explanation: "180 − (90 + 34) = 56 なので x = 56° です。" });
+  })();
+  (function () {
+    var d = drawSum([27, 35, 118], 1), f = triFig({ B: d[0], C: d[1], A: d[2] });
+    f.angles.push(ang("a", "A", "B", "C", { value: 118 }), ang("b", "B", "A", "C", { value: 27 }), ang("x", "C", "A", "B", { unknown: true }));
+    geo({ id: "triangleSum-basic-3", skill: "triangleSum", level: "basic", text: "△ABCで、x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "answer"], total: 180, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "triangleSum", "x は何度？", 35, "180 から 118 と 27 をひく。", "180 − (118 + 27) = 35 なので x = 35° です。"),
+        reasonStep("s2", "triangleSum", "triangleSum", ["triangleSum", "exterior", "straight", "around"], "三角形の3つの内角の和は 180° です。")],
+      hint: "鈍角があっても、3つの角の和は 180°。", explanation: "x = 180 − 118 − 27 = 35° です。" });
+  })();
+  (function () {
+    var f = triFig({ A: 34, B: 73, C: 73 });
+    f.angles.push(ang("a", "A", "B", "C", { value: 52 }), ang("b", "B", "A", "C", { label: "" }), ang("x", "C", "A", "B", { unknown: true }));
+    f.equalAngles = [{ angles: ["b", "x"], marks: 2 }];
+    geo({ id: "triangleSum-standard-1", skill: "triangleSum", level: "standard", text: "△ABCで、∠B と ∠C は等しい大きさです。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "answer", "answer"], total: 180 }, type: "number", answer: 64,
+      hint: "∠B と ∠C を合わせると 180 − 52。", explanation: "∠B + ∠C = 180 − 52 = 128。等しいので x = 128 ÷ 2 = 64° です。" });
+  })();
+  geo({ id: "triangleSum-standard-2", skill: "triangleSum", level: "standard", format: "word",
+    text: "三角形の2つの角が 47° と 68° です。残りの角は何度？", relation: { type: "angleSum", values: [47, 68, "answer"], total: 180 },
+    type: "number", answer: 65, hint: "3つの角を合わせると 180°。", explanation: "180 − (47 + 68) = 65° です。" });
+  (function () {
+    // B と C を底辺に。∠BAD・∠DAC に分かれる三角形
+    var B = [30, 200], C = [300, 200];
+    var f = { type: "geometry", points: { B: B, C: C, Bd: polar(B, 38, 100), Cd: polar(C, 180 - 67, 100), A: { intersect: [["B", "Bd"], ["C", "Cd"]] } },
+      polygons: [["A", "B", "C"]], segments: [["A", "D"]], labels: ["A", "B", "C", "D"], straight: [["B", "D", "C"]], angles: [] };
+    var A = (function () { var p = B, q = f.points.Bd, r = C, s = f.points.Cd;
+      var d1 = [q[0] - p[0], q[1] - p[1]], d2 = [s[0] - r[0], s[1] - r[1]], den = d1[0] * d2[1] - d1[1] * d2[0];
+      var t = ((r[0] - p[0]) * d2[1] - (r[1] - p[1]) * d2[0]) / den; return [p[0] + d1[0] * t, p[1] + d1[1] * t]; })();
+    f.points.Ad = polar(A, dirDeg(A, B) + 23, 100);
+    f.points.D = { intersect: [["B", "C"], ["A", "Ad"]] };
+    f.angles.push(ang("b", "B", "A", "C", { value: 50 }), ang("bad", "A", "B", "D", { value: 35 }), ang("dac", "A", "D", "C", { value: 40 }),
+      ang("y", "D", "A", "B", { label: "y", answer: "s1" }), ang("x", "C", "A", "B", { unknown: true }));
+    geo({ id: "triangleSum-application-1", skill: "triangleSum", level: "application", text: "△ABCの辺BC上に点Dがあります。", figure: f,
+      relation: [{ type: "angleSum", values: ["b", "bad", "answer"], total: 180, answer: "s1" }, { type: "angleSum", values: ["b", "bad", "dac", "answer"], total: 180, answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "triangleSum", "y（∠ADB）は何度？", 95, "△ABD の3つの角を合わせると 180°。", "180 − (50 + 35) = 95 なので y = 95° です。"),
+        angleStep("s2", "triangleSum", "x（∠ACB）は何度？", 55, "△ABC で、∠A は 35 + 40 = 75°。", "180 − (50 + 75) = 55 なので x = 55° です。")],
+      hint: "どの三角形の内角の和を使うかを決めよう。", explanation: "△ABD で y = 95°。△ABC で ∠A = 75° なので x = 55° です。" });
+  })();
+  (function () {
+    var d = drawSum([97, 45, 38], 4), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: 22 });
+    f.angles.push(ang("a", "A", "B", "C", { value: 38 }), ang("b", "B", "A", "C", { value: 97 }), ang("x", "C", "A", "B", { unknown: true }));
+    geo({ id: "triangleSum-retention-1", skill: "triangleSum", level: "retention", evidence_level: "basic", text: "三角形ABCで、x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "answer"], total: 180, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "triangleSum", "x は何度？", 45, "3つの角を合わせると何度？", "180 − (38 + 97) = 45 なので x = 45° です。"),
+        reasonStep("s2", "triangleSum", "triangleSum", ["triangleSum", "exterior", "around", "straight"], "三角形の3つの内角の和は 180° です。")],
+      hint: "傾いていても、三角形の3つの角の和は 180°。", explanation: "x = 180 − 38 − 97 = 45° です。" });
+  })();
+  (function () {
+    var d = drawSum([61, 90, 29]), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: -28 });
+    f.right = [{ at: "C", from: "A", to: "B" }];
+    f.angles.push(ang("a", "A", "B", "C", { value: 29 }), ang("x", "B", "A", "C", { unknown: true }));
+    geo({ id: "triangleSum-retention-2", skill: "triangleSum", level: "retention", evidence_level: "basic", text: "直角三角形ABC（∠C ＝ 90°）で、x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", 90, "answer"], total: 180 }, type: "number", answer: 61,
+      hint: "直角以外の2つの角を合わせると 90°。", explanation: "180 − (90 + 29) = 61 なので x = 61° です。" });
+  })();
+
+  // ---------- 三角形の外角 ----------
+  (function () {
+    var d = drawSum([75, 45, 60], 2), f = triFig({ B: d[0], C: d[1], A: d[2] }, { ext: { D: ["B", "C"] } });
+    f.angles.push(ang("a", "A", "B", "C", { value: 60 }), ang("e", "C", "A", "D", { value: 135 }), ang("x", "B", "A", "C", { unknown: true }));
+    geo({ id: "exteriorAngle-basic-2", skill: "exteriorAngle", level: "basic", text: "△ABCの辺BCをのばした直線上に点Dがあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "answer"], total: "e", answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "exteriorAngle", "x は何度？", 75, "外角 135° は、∠A と x の和。", "135 − 60 = 75 なので x = 75° です。"),
+        reasonStep("s2", "exteriorAngle", "exterior", ["exterior", "triangleSum", "straight", "alternate"], "三角形の外角は、となり合わない2つの内角の和に等しくなります。")],
+      hint: "外角 ＝ となり合わない2つの内角の和。", explanation: "60 + x = 135 なので x = 75° です。" });
+  })();
+  (function () {
+    var d = drawSum([105, 31, 44], 1), f = triFig({ B: d[0], C: d[1], A: d[2] }, { ext: { E: ["C", "B"] } });
+    f.angles.push(ang("a", "A", "B", "C", { value: 44 }), ang("c", "C", "A", "B", { value: 31 }), ang("x", "B", "A", "E", { unknown: true }));
+    geo({ id: "exteriorAngle-basic-3", skill: "exteriorAngle", level: "basic", text: "△ABCの辺CBをBの方へのばし、点Eをとりました。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "c"], total: "answer", answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "exteriorAngle", "x は何度？", 75, "x は B の外角。となり合わない内角は ∠A と ∠C。", "44 + 31 = 75 なので x = 75° です。"),
+        reasonStep("s2", "exteriorAngle", "exterior", ["exterior", "triangleSum", "vertical", "straight"], "三角形の外角は、となり合わない2つの内角の和に等しくなります。")],
+      hint: "外角は、となり合わない2つの内角の和。", explanation: "x は ∠B の外角なので、44 + 31 = 75° です。" });
+  })();
+  (function () {
+    var f = triFig({ A: 66, B: 66, C: 48 }, { ext: { D: ["B", "C"] } });
+    f.angles.push(ang("x", "A", "B", "C", { unknown: true }), ang("b", "B", "A", "C", { label: "" }), ang("e", "C", "A", "D", { value: 108 }));
+    f.equalAngles = [{ angles: ["x", "b"], marks: 2 }];
+    geo({ id: "exteriorAngle-standard-1", skill: "exteriorAngle", level: "standard", text: "△ABCで、∠A と ∠B は等しい大きさです。点Dは辺BCをのばした直線上にあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["answer", "answer"], total: "e" }, type: "number", answer: 54,
+      hint: "外角 108° は、∠A と ∠B の和。", explanation: "∠A + ∠B = 108。等しいので x = 108 ÷ 2 = 54° です。" });
+  })();
+  (function () {
+    var d = drawSum([55, 54, 71], 3), f = triFig({ B: d[0], C: d[1], A: d[2] }, { ext: { D: ["B", "C"] } });
+    f.angles.push(ang("e", "C", "A", "D", { value: 126 }), ang("x", "C", "B", "A", { unknown: true }));
+    geo({ id: "exteriorAngle-standard-2", skill: "exteriorAngle", level: "standard", text: "△ABCの辺BCをのばした直線上に点Dがあります。x（∠ACB）の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["e", "answer"], total: 180 }, type: "number", answer: 54,
+      hint: "外角と、となりの内角を合わせると一直線。", explanation: "126 + x = 180 なので x = 54° です。" });
+  })();
+  (function () {
+    var d = drawSum([65, 67, 48], 5), f = triFig({ B: d[0], C: d[1], A: d[2] }, { ext: { D: ["B", "C"], E: ["C", "B"] }, size: 170, extLen: 1.35 });
+    f.angles.push(ang("a", "A", "B", "C", { value: 48 }), ang("eb", "B", "A", "E", { value: 115 }), ang("y", "B", "A", "C", { label: "y", answer: "s1" }),
+      ang("x", "C", "A", "D", { unknown: true }));
+    geo({ id: "exteriorAngle-application-1", skill: "exteriorAngle", level: "application", text: "△ABCの辺BCを両側にのばし、点D、Eをとりました。", figure: f,
+      relation: [{ type: "angleSum", values: ["eb", "answer"], total: 180, answer: "s1" }, { type: "angleSum", values: ["a", "y"], total: "answer", answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "exteriorAngle", "y（∠ABC）は何度？", 65, "115° と y を合わせると一直線。", "180 − 115 = 65 なので y = 65° です。"),
+        angleStep("s2", "exteriorAngle", "x は何度？", 113, "x は C の外角。", "48 + 65 = 113 なので x = 113° です。"),
+        reasonStep("s3", "exteriorAngle", "exterior", ["exterior", "triangleSum", "straight", "corresponding"], "x は外角なので、となり合わない2つの内角（∠A と y）の和です。")],
+      hint: "まず y を出してから、外角の性質を使う。", explanation: "y = 180 − 115 = 65°。x = 48 + 65 = 113° です。" });
+  })();
+  (function () {
+    var d = drawSum([36, 58, 86], 2), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: 18, ext: { D: ["C", "A"] } });
+    f.angles.push(ang("b", "B", "A", "C", { value: 36 }), ang("c", "C", "A", "B", { value: 58 }), ang("x", "A", "B", "D", { unknown: true }));
+    geo({ id: "exteriorAngle-retention-1", skill: "exteriorAngle", level: "retention", evidence_level: "basic", text: "辺CAをAの方へのばした直線上に点Dがあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["b", "c"], total: "answer", answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "exteriorAngle", "x は何度？", 94, "x は A の外角。", "36 + 58 = 94 なので x = 94° です。"),
+        reasonStep("s2", "exteriorAngle", "exterior", ["exterior", "triangleSum", "straight", "vertical"], "三角形の外角は、となり合わない2つの内角の和に等しくなります。")],
+      hint: "どの頂点の外角かを見て、となり合わない内角を足す。", explanation: "x は A の外角なので、36 + 58 = 94° です。" });
+  })();
+  geo({ id: "exteriorAngle-retention-2", skill: "exteriorAngle", level: "retention", evidence_level: "basic", format: "word",
+    text: "三角形の1つの外角が 140°、その外角ととなり合わない内角の1つが 85° です。となり合わないもう1つの内角は何度？",
+    relation: { type: "angleSum", values: [85, "answer"], total: 140 }, type: "number", answer: 55,
+    hint: "外角 ＝ となり合わない2つの内角の和。", explanation: "140 − 85 = 55° です。" });
+
+  // ---------- 角の組み合わせ・補助線 ----------
+  function zQ(id, level, a, b, o) {
+    o = o || {};
+    var d = drawTwo(a, b, function (d1, d2) { return [[a + b, d1 + d2]]; }, function (d1, d2) { return 70 / Math.tan(d1 * Math.PI / 180) < 200 && 70 / Math.tan(d2 * Math.PI / 180) < 200; }, o.seed);
+    var f = zFig(d[0], d[1], { left: o.left });
+    var A = f.angles;
+    if (o.given === "r") { A[0].value = a; A[1].unknown = true; A[2].value = a + b; f.highlight = [{ angle: "b" }]; }
+    else { A[0].value = a; A[1].value = b; A[2].unknown = true; f.highlight = [{ angle: "r" }]; }
+    var rel = o.given === "r" ? { type: "angleSum", values: ["a", "answer"], total: "r" } : { type: "angleSum", values: ["a", "b"], total: "answer" };
+    var xv = o.given === "r" ? b : a + b;
+    var q = { id: id, skill: "angleCombo", level: level, text: o.text || "直線ℓとmは平行です。x の大きさを求めなさい。", figure: f, relation: rel, hint: o.hint, explanation: o.explanation };
+    if (o.reason) {
+      rel.answer = "s1"; q.type = "steps";
+      q.steps = [angleStep("s1", "angleCombo", "x は何度？", xv, o.hint, o.explanation),
+        reasonStep("s2", "angleCombo", "auxParallel", ["auxParallel", "triangleSum", "vertical", "straight"], "点Rを通って ℓ に平行な直線を引くと、x は2つの錯角に分かれます。")];
+    } else { q.type = "number"; q.answer = xv; }
+    for (var k in o.extra) q[k] = o.extra[k];
+    geo(q);
+  }
+  zQ("angleCombo-basic-1", "basic", 35, 40, { reason: true, hint: "点Rを通って ℓ に平行な直線を引いてみよう。", explanation: "補助線で x は 35° と 40° の錯角に分かれるので、x = 75° です。" });
+  zQ("angleCombo-basic-2", "basic", 52, 63, { seed: 1, hint: "R を通る平行線で、x を2つに分ける。", explanation: "x = 52 + 63 = 115° です。" });
+  zQ("angleCombo-standard-1", "standard", 41, 57, { given: "r", seed: 3, hint: "R の角 98° は、41° と x の和。", explanation: "41 + x = 98 なので x = 57° です。" });
+  (function () {
+    var gh = drawTwo(50, 60, function (g, h) { return [[70, 180 - g - h]]; }, hangOk), f = hangFig(gh[0], gh[1]);
+    f.angles.push(ang("g", "A", "L1", "B", { value: 50 }), ang("x", "A", "B", "C", { unknown: true }), ang("c", "C", "A", "B", { value: 60 }));
+    f.highlight = [{ angle: "x" }];
+    geo({ id: "angleCombo-standard-2", skill: "angleCombo", level: "standard", text: "直線ℓとmは平行で、点Aは ℓ 上、点B、Cは m 上にあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["g", "answer", "c"], total: 180 }, type: "number", answer: 70,
+      hint: "50° の錯角は ∠ABC。あとは三角形の内角の和。", explanation: "∠ABC = 50°（錯角）。x = 180 − (50 + 60) = 70° です。" });
+  })();
+  (function () {
+    var zd = drawTwo(34, 46, function (d1, d2) { return [[80, d1 + d2]]; }), f = zFig(zd[0], zd[1]);
+    f.points.Pe = { along: ["R", "P", 1.55] };
+    f.segments.push(["P", "Pe"]);
+    f.angles[0].label = "y"; f.angles[0].answer = "s1";
+    f.angles[1].value = 46; f.angles[2].unknown = true;
+    f.angles.push(ang("g", "P", "L1", "Pe", { value: 34 }));
+    f.highlight = [{ angle: "r" }];
+    geo({ id: "angleCombo-application-1", skill: "angleCombo", level: "application", text: "直線ℓとmは平行です。線分RPを P の先までのばしました。", figure: f,
+      relation: [{ type: "equalAngles", source: "g", target: "answer", answer: "s1" }, { type: "angleSum", values: ["a", "b"], total: "answer", answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "angleCombo", "y は何度？", 34, "y と 34° は向かい合っている。", "対頂角なので y = 34° です。"),
+        angleStep("s2", "angleCombo", "x は何度？", 80, "R を通る平行線で x を分ける。", "x = 34 + 46 = 80° です。"),
+        reasonStep("s3", "angleCombo", "auxParallel", ["auxParallel", "triangleSum", "exterior", "straight"], "点Rを通って ℓ に平行な直線を引くと、x は y と 46° の錯角に分かれます。")],
+      hint: "まず y、次に補助線。", explanation: "y = 34°（対頂角）。補助線で x = 34 + 46 = 80° です。" });
+  })();
+  (function () {
+    var gh = drawTwo(64, 49, function (g, h) { return [[67, 180 - g - h]]; }, hangOk, 3), f = hangFig(gh[0], gh[1]);
+    f.angles.push(ang("g", "A", "L1", "B", { value: 64 }), ang("y", "B", "A", "C", { label: "y", answer: "s1" }), ang("c", "C", "A", "B", { value: 49 }),
+      ang("x", "A", "B", "C", { unknown: true }));
+    geo({ id: "angleCombo-application-2", skill: "angleCombo", level: "application", text: "直線ℓとmは平行で、点Aは ℓ 上、点B、Cは m 上にあります。", figure: f,
+      relation: [{ type: "equalAngles", source: "g", target: "answer", answer: "s1" }, { type: "angleSum", values: ["y", "c", "answer"], total: 180, answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "angleCombo", "y（∠ABC）は何度？", 64, "64° の角と y は、平行線の錯角。", "錯角なので y = 64° です。"),
+        reasonStep("s1r", "angleCombo", "alternate", ["alternate", "corresponding", "vertical", "exterior"], "y と 64° は錯角です。ℓ // m なので等しくなります。"),
+        angleStep("s2", "angleCombo", "x（∠BAC）は何度？", 67, "△ABC の内角の和。", "180 − (64 + 49) = 67 なので x = 67° です。")],
+      hint: "平行線の性質で y を出し、三角形で x を出す。", explanation: "y = 64°（錯角）。x = 180 − 64 − 49 = 67° です。" });
+  })();
+  zQ("angleCombo-retention-1", "retention", 27, 55, { left: true, seed: 2, reason: true, hint: "R を通って ℓ に平行な直線を引く。", explanation: "x = 27 + 55 = 82° です。", extra: { evidence_level: "standard" } });
+  (function () {
+    var gh = drawTwo(71, 44, function (g, h) { return [[65, 180 - g - h]]; }, hangOk, 4), f = hangFig(gh[0], gh[1], { flip: true });
+    f.angles.push(ang("b", "B", "A", "C", { value: 71 }), ang("h", "A", "C", "L2", { value: 44 }), ang("x", "A", "B", "C", { unknown: true }));
+    f.highlight = [{ angle: "x" }];
+    geo({ id: "angleCombo-retention-2", skill: "angleCombo", level: "retention", evidence_level: "standard", text: "直線ℓとmは平行で、点Aは m 上、点B、Cは ℓ 上にあります。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["b", "answer", "h"], total: 180 }, type: "number", answer: 65,
+      hint: "44° の錯角は ∠ACB。", explanation: "∠ACB = 44°（錯角）。x = 180 − (71 + 44) = 65° です。" });
+  })();
+
+  // ---------- 多角形の内角 ----------
+  geo({ id: "polygonInterior-basic-2", skill: "polygonInterior", level: "basic", format: "word",
+    text: "六角形の内角の和は何度？", relation: { type: "polygonInterior", n: 6, sum: "answer" }, type: "number", answer: 720,
+    hint: "180° ×（n − 2）。", explanation: "180 × (6 − 2) = 720° です。" });
+  (function () {
+    var truths = [85, 110, 72, 93], d = drawSum(truths, 1), f = polyFig(["A", "B", "C", "D"], d, [200, 160]);
+    f.angles.push(ang("a", "A", "D", "B", { value: 85 }), ang("b", "B", "A", "C", { value: 110 }), ang("c", "C", "B", "D", { value: 72 }), ang("x", "D", "C", "A", { unknown: true }));
+    geo({ id: "polygonInterior-basic-3", skill: "polygonInterior", level: "basic", text: "四角形ABCDで、x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "c", "answer"], total: 360, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "polygonInterior", "x は何度？", 93, "四角形の内角の和は 360°。", "360 − (85 + 110 + 72) = 93 なので x = 93° です。"),
+        reasonStep("s2", "polygonInterior", "polygonSum", ["polygonSum", "exteriorSum", "triangleSum", "around"], "四角形の内角の和は 180° ×（4 − 2）＝ 360° です。")],
+      hint: "四角形は、対角線で三角形2つに分けられる。", explanation: "内角の和は 360° なので x = 360 − 267 = 93° です。" });
+  })();
+  geo({ id: "polygonInterior-standard-1", skill: "polygonInterior", level: "standard", format: "word",
+    text: "内角の和が 1260° の多角形は何角形？（数字で答えよう）", relation: { type: "polygonInterior", n: "answer", sum: 1260 },
+    type: "number", answer: 9, answer_display: "九角形", placeholder: "例：7", prerequisite_skills: ["triangleSum", "eqParen"],
+    hint: "180 ×（n − 2）＝ 1260 を解く。", explanation: "n − 2 = 7 なので n = 9。九角形です。" });
+  geo({ id: "polygonInterior-standard-2", skill: "polygonInterior", level: "standard", format: "word",
+    text: "正八角形の1つの内角は何度？", relation: { type: "polygonInterior", n: 8, sum: { a: 8, b: 0 } }, type: "number", answer: 135,
+    hint: "内角の和を求めて、8 でわる。", explanation: "内角の和は 180 × 6 = 1080°。1080 ÷ 8 = 135° です。" });
+  (function () {
+    var truths = [130, 118, 125, 112, 140, 95], d = drawSum(truths, 2), f = polyFig(["A", "B", "C", "D", "E", "F"], d, [110, 100, 110, 100]);
+    var ids = ["a", "b", "c", "d", "e"];
+    ["A", "B", "C", "D", "E"].forEach(function (v, i, all) {
+      f.angles.push(ang(ids[i], v, i === 0 ? "F" : all[i - 1], i === 4 ? "F" : all[i + 1], { value: truths[i] }));
+    });
+    f.angles.push(ang("x", "F", "E", "A", { unknown: true }));
+    geo({ id: "polygonInterior-application-1", skill: "polygonInterior", level: "application", text: "六角形ABCDEFで、x の大きさを求めなさい。", figure: f,
+      relation: [{ type: "polygonInterior", n: 6, sum: "answer", answer: "s1" }, { type: "angleSum", values: ["a", "b", "c", "d", "e", "answer"], total: 720, answer: "s2" }],
+      type: "steps",
+      steps: [angleStep("s1", "polygonInterior", "六角形の内角の和は何度？", 720, "180° ×（6 − 2）。", "180 × 4 = 720° です。"),
+        reasonStep("s1r", "polygonInterior", "polygonSum", ["polygonSum", "exteriorSum", "triangleSum", "around"], "n角形は三角形 n − 2 個に分けられるので、内角の和は 180° ×（n − 2）です。"),
+        angleStep("s2", "polygonInterior", "x は何度？", 95, "720 から5つの角をひく。", "720 − 625 = 95 なので x = 95° です。")],
+      hint: "まず内角の和、次に x。", explanation: "内角の和は 720°。x = 720 − (130 + 118 + 125 + 112 + 140) = 95° です。" });
+  })();
+  geo({ id: "polygonInterior-retention-1", skill: "polygonInterior", level: "retention", evidence_level: "basic", format: "word",
+    text: "十角形の内角の和は何度？", relation: { type: "polygonInterior", n: 10, sum: "answer" }, type: "number", answer: 1440,
+    hint: "1つの頂点から対角線を引くと、三角形はいくつ？", explanation: "180 × (10 − 2) = 1440° です。" });
+  (function () {
+    var truths = [102, 64, 121, 73], d = drawSum(truths, 3), f = polyFig(["A", "B", "C", "D"], d, [190, 170], { rot: 20 });
+    f.angles.push(ang("a", "A", "D", "B", { value: 102 }), ang("b", "B", "A", "C", { value: 64 }), ang("c", "C", "B", "D", { value: 121 }), ang("x", "D", "C", "A", { unknown: true }));
+    geo({ id: "polygonInterior-retention-2", skill: "polygonInterior", level: "retention", evidence_level: "basic", text: "四角形ABCDで、x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "c", "answer"], total: 360 }, type: "number", answer: 73,
+      hint: "四角形の内角の和を使う。", explanation: "360 − (102 + 64 + 121) = 73° です。" });
+  })();
+
+  // ---------- 多角形の外角 ----------
+  geo({ id: "polygonExterior-basic-1", skill: "polygonExterior", level: "basic", format: "word",
+    text: "正五角形の1つの外角は何度？", relation: { type: "polygonExterior", n: 5, each: "answer" }, type: "number", answer: 72,
+    hint: "外角の和は 360°。正五角形は5つとも同じ。", explanation: "360 ÷ 5 = 72° です。" });
+  (function () {
+    var ext = [75, 68, 80, 62, 75], d = drawSum(ext, 1), f = polyFig(["A", "B", "C", "D", "E"], d.map(function (e) { return 180 - e; }), [150, 120, 130], { ext: true });
+    var ids = ["a", "b", "c", "d"], names = ["A", "B", "C", "D", "E"];
+    names.forEach(function (v, i) {
+      var next = names[(i + 1) % 5], key = v.toLowerCase() + "x";
+      f.angles.push(ang(i < 4 ? ids[i] : "x", v, key, next, i < 4 ? { value: ext[i] } : { unknown: true }));
+    });
+    geo({ id: "polygonExterior-basic-2", skill: "polygonExterior", level: "basic", text: "五角形ABCDEの外角を図のように示しました。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "c", "d", "answer"], total: 360, answer: "s1" }, type: "steps",
+      steps: [angleStep("s1", "polygonExterior", "x は何度？", 75, "外角を全部合わせると何度？", "360 − (75 + 68 + 80 + 62) = 75 なので x = 75° です。"),
+        reasonStep("s2", "polygonExterior", "exteriorSum", ["exteriorSum", "polygonSum", "triangleSum", "straight"], "多角形の外角の和は、何角形でも 360° です。")],
+      hint: "多角形の外角の和は 360°。", explanation: "外角の和は 360° なので x = 360 − 285 = 75° です。" });
+  })();
+  geo({ id: "polygonExterior-standard-1", skill: "polygonExterior", level: "standard", format: "word",
+    text: "1つの外角が 24° の正多角形は、正何角形？（数字で答えよう）", relation: { type: "polygonExterior", n: "answer", each: 24 },
+    type: "number", answer: 15, answer_display: "正十五角形", placeholder: "例：7", prerequisite_skills: ["polygonInterior", "eqProperty"],
+    hint: "24 × n ＝ 360 を解く。", explanation: "360 ÷ 24 = 15 なので、正十五角形です。" });
+  geo({ id: "polygonExterior-standard-2", skill: "polygonExterior", level: "standard", format: "word",
+    text: "正十二角形の1つの内角は何度？（外角を使って求めよう）", relation: { type: "polygonExterior", n: 12, each: { a: -1, b: 180 } },
+    type: "number", answer: 150, hint: "1つの外角は 360 ÷ 12。内角は 180 からひく。", explanation: "外角は 360 ÷ 12 = 30°。内角は 180 − 30 = 150° です。" });
+  (function () {
+    var ext = [85, 95, 110, 70], d = drawSum(ext, 2), f = polyFig(["A", "B", "C", "D"], d.map(function (e) { return 180 - e; }), [170, 150], { ext: true, rot: -12 });
+    var ids = ["a", "b", "c"], names = ["A", "B", "C", "D"];
+    names.forEach(function (v, i) {
+      var next = names[(i + 1) % 4], key = v.toLowerCase() + "x";
+      f.angles.push(ang(i < 3 ? ids[i] : "x", v, key, next, i < 3 ? { value: ext[i] } : { unknown: true }));
+    });
+    geo({ id: "polygonExterior-retention-1", skill: "polygonExterior", level: "retention", evidence_level: "basic", text: "四角形ABCDの外角を図のように示しました。x の大きさを求めなさい。", figure: f,
+      relation: { type: "angleSum", values: ["a", "b", "c", "answer"], total: 360 }, type: "number", answer: 70,
+      hint: "四角形でも、外角の和は 360°。", explanation: "360 − (85 + 95 + 110) = 70° です。" });
+  })();
+  geo({ id: "polygonExterior-retention-2", skill: "polygonExterior", level: "retention", evidence_level: "basic", format: "word",
+    text: "正六角形の1つの外角は何度？", relation: { type: "polygonExterior", n: 6, each: "answer" }, type: "number", answer: 60,
+    hint: "360° を6等分。", explanation: "360 ÷ 6 = 60° です。" });
+
+  // はじめてのチェック（5問）：角の性質・平行線・三角形・外角・角度の方程式
+  items.forEach(function (q) {
+    if (["lineAngles-basic-1", "angleEq-standard-1", "parallelAngles-basic-1", "triangleSum-basic-1", "exteriorAngle-basic-1"].indexOf(q.id) !== -1) q.usage = "diagnosis";
+  });
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

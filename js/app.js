@@ -1273,6 +1273,7 @@
         '<div class="geo-debug"><div>' + SC.figures.render(q.figure) + "</div><div>" +
         '<div class="table-wrap"><table><thead><tr><th>角</th><th>役わり</th><th>描画</th><th>本当</th><th>差</th><th>分類</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
         '<p class="small"><strong>relation の検算：</strong>' + relText + "</p>" +
+        '<p class="small"><strong>図そのものの整合性：</strong>' + (a.checks.length ? a.checks.map(function (c) { return '<span class="' + (c.ok ? "geo-ok" : "geo-warn") + '">' + (c.ok ? "○ " : "× ") + esc(c.name) + "（" + esc(c.detail) + "）</span>"; }).join("<br>") : "−") + "</p>" +
         '<p class="small"><strong>小問：</strong>' + esc(steps || "−") + "</p>" +
         '<p class="small"><strong>説明文：</strong>' + esc(G.describe(q.figure)) + "</p>" +
         '<p class="small"><strong>警告：</strong>' + (a.warnings.length ? '<span class="geo-warn">' + esc(a.warnings.join("／")) + "</span>" : '<span class="geo-ok">なし</span>') + "</p>" +

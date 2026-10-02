@@ -20,7 +20,7 @@
   // "3" / "-2" / "1.5" / "3/2" / "-1/2" を数にする。単位（GB・円・分など）は最後に付いていてもよい
   function parseNumber(value) {
     // 角度の「°」「度」、先頭の「x =」も外して読む（x = 65° → 65）
-    var s = normalize(value).replace(/^[a-z]=/, "").replace(/(gb|ギガ|個|です|。|円|分|時間|本|℃|°|度|cm|km|m|l|g|%)+$/g, "");
+    var s = normalize(value).replace(/^[a-z]=/, "").replace(/(gb|ギガ|個|です|。|円|分|時間|本|℃|°|度|角形|cm|km|m|l|g|%)+$/g, "").replace(/^正/, "");
     return toNumber(s);
   }
   function toNumber(s) {

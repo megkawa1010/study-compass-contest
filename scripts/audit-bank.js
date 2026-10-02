@@ -20,10 +20,13 @@ const DAYS = process.argv[2] || "10";
 const GAP_DAYS = SC.planner.CONFIG.AVOID_LESSON_DAYS;
 const SCENARIOS = [
   ["一次関数"], ["連立方程式"], ["連立方程式", "polyAddSub"], ["連立方程式", "signed"],
-  ["式の計算"], ["式の計算", "signed"], ["式の計算", "eqProperty"]
+  ["式の計算"], ["式の計算", "signed"], ["式の計算", "eqProperty"],
+  ["図形の角"], ["図形の角", "transpose"], ["図形の角", "triangleSum"]
 ];
+// UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
+const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;
 const runs = [];
-SCENARIOS.forEach((sc) => [30, 45].forEach((min) => ["", "1"].forEach((learnAll) => runs.push({ sc, min, learnAll }))));
+SCENARIOS.filter((sc) => !ONLY || ONLY.includes(sc[0])).forEach((sc) => [30, 45].forEach((min) => ["", "1"].forEach((learnAll) => runs.push({ sc, min, learnAll }))));
 
 const per = {}; // スキル → 集計
 function row(k) { return (per[k] = per[k] || { picks: 0, reuse: 0, unnatural: 0, checkReuse: 0, checkSkip: 0, examples: {} }); }
