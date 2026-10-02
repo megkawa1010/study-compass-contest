@@ -271,7 +271,7 @@
       testDate: s.next_test ? s.next_test.date : "", testUnits: s.next_test ? s.next_test.units.slice() : [s.current_unit]
     });
     var today = SC.testprep.dateKey(ST.now());
-    var options = E.UNITS[dr.unit].map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; })
+    var options = E.schoolOptions(dr.unit).map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; })
       .concat([{ value: "__notyet", label: "この単元はまだ始まっていない" }]);
     return '<section class="card narrow"><p class="eyebrow">SCHOOL</p><h1 class="h-md">学校のようす</h1>' +
       '<p class="small muted">学校で今どこをやっているかを教えてね。まだ習っていないところは「苦手」にしないで、今日の学習を学校に合わせます。</p>' +
@@ -998,7 +998,9 @@
       var rows = E.SKILL_ORDER.filter(function (k) { return S[k].grade + " " + S[k].unit === u; }).map(function (k) {
         var s = states[k];
         var n = SC.bank.LEVELS.reduce(function (a, lv) { return a + SC.bank.index[k][lv].length; }, 0);
-        return "<tr><td>" + esc(S[k].label) + "<br><span class=\"muted small\">" + k + (S[k].bridge ? "・" + esc(S[k].bridge) + "とのかけ橋" : "") + "</span></td><td>" + esc(S[k].prerequisites.map(function (p) { return S[p].label; }).join("、") || "−") +
+        return "<tr><td>" + esc(S[k].label) + "<br><span class=\"muted small\">" + k + (S[k].bridge ? "・" + esc(S[k].bridge) + "とのかけ橋" : "") + "</span></td><td>" + (S[k].concept ? "図形：" + esc(S[k].concept.map(function (p) { return S[p].label; }).join("、") || "−") + "<br>計算：" + esc(S[k].calc.map(function (p) { return S[p].label; }).join("、") || "−") +
+            (S[k].follows ? '<br><span class="muted small">学校の進み具合は「' + esc(S[S[k].follows].label) + "」と一緒</span>" : "")
+          : esc(S[k].prerequisites.map(function (p) { return S[p].label; }).join("、") || "−")) +
           "</td><td>" + esc((dependents[k] || []).map(function (d) { return S[d].label; }).join("、") || "−") + "</td><td>" + n + "問</td><td>" +
           esc(s ? (STATUS_NOTE[s.learning_status] || E.STATUS_VIEW[s.learning_status].label) : "−") + "</td></tr>";
       }).join("");
@@ -1051,7 +1053,16 @@
         "<li><strong>係数をそろえる</strong> → 分配法則（中1の土台を文字2つまで広げた）</li>" +
         "<li><strong>等式の変形</strong>を前提に持つ問題：" + esc(Object.keys(QS).filter(function (id) { return (QS[id].prerequisite_skills || []).indexOf("eqTransform") !== -1; }).join("、") || "−") + "</li>" +
         "<li><strong>単項式の乗法・除法</strong>：この上に積むスキルはまだない（中3の展開へ）</li></ul>" +
-        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("式の計算").join("、")) + "</p></section>";
+        '<p class="small muted">途中の工程を小問に分けた問題：' + esc(stepsOf("式の計算").join("、")) + "</p></section>" +
+      // 図形の角：角度も根拠もまちがえたら図形の性質側、根拠は合っていて角度だけまちがえたら計算側だけをさかのぼる
+      '<section class="card"><h2 class="h-sm">図形の角 → 図形の性質側／計算側</h2>' +
+        '<p class="small">角度 ○・根拠 × → 原因さがしはせず、理由の練習を今日の候補へ／角度 ×・根拠 ○ → 計算側だけ／角度 ×・根拠 × → 図形の性質側から。</p><ul class="small debug-log">' +
+        E.UNITS["図形の角"].map(function (k) {
+          return "<li><strong>" + esc(S[k].label) + "</strong>：図形の性質側 " + esc(E.prereqSide(k, "concept").map(function (p) { return S[p].label; }).join("・") || "−") +
+            "／計算側 " + esc(E.prereqSide(k, "calc").map(function (p) { return S[p].label; }).join("・") || "−") + "</li>";
+        }).join("") +
+        chainList("angleEq", "一次方程式") + chainList("polygonInterior", "一次方程式") + "</ul>" +
+        '<p class="small muted">学校の「どこまで」の選択肢：' + esc(E.schoolOptions("図形の角").map(function (k) { return S[k].label; }).join(" → ")) + "</p></section>";
     var ex = ST.explorations().slice(-5).reverse().map(function (x) {
       var depth = Math.max.apply(null, x.path.map(function (p) { return p.depth || 0; }));
       var reached = [];

@@ -26,6 +26,8 @@
     distrib:        { label: "分配法則",       unit: "既習",     grade: "中1", prerequisites: ["signed"] },
     proportion:     { label: "比例",           unit: "既習",     grade: "中1", prerequisites: ["algebra"] },
     coord:          { label: "座標",           unit: "既習",     grade: "中1", prerequisites: ["signed"] },
+    // 一直線は180°・一回り360°・角の表し方（∠ABC）。図形の角の土台
+    angleBasics:    { label: "角の基本",       unit: "既習",     grade: "中1", prerequisites: [] },
     // --- 中1 一次方程式 ---
     eqMeaning:      { label: "方程式の意味",   unit: "一次方程式", grade: "中1", prerequisites: ["algebra"] },
     eqProperty:     { label: "等式の性質",     unit: "一次方程式", grade: "中1", prerequisites: ["signed"] },
@@ -69,26 +71,65 @@
     form:           { label: "グラフ・式",     unit: "一次関数", grade: "中2", prerequisites: ["slopeIntercept", "rate", "substitution", "coord", "transpose"] },
     // 一次関数と連立方程式のかけ橋：2直線の交点の座標 ＝ 2つの式を連立方程式として解いた解。
     // 教科書では一次関数の章で習う。グラフ側（グラフ・式・座標）にも、連立方程式側（加減法）にも戻れる
-    simGraph:       { label: "2直線の交点",    unit: "一次関数", grade: "中2", bridge: "連立方程式", prerequisites: ["simElim", "form", "coord"] }
+    simGraph:       { label: "2直線の交点",    unit: "一次関数", grade: "中2", bridge: "連立方程式", prerequisites: ["simElim", "form", "coord"] },
+    // --- 中2 図形の角（平行線と角・多角形の角） ---
+    // 図形のスキルは前提を2つに分けて持つ：
+    //   concept（図形の性質側）… 角の関係そのもの。角度も根拠もまちがえたとき、ここから原因さがし
+    //   calc（計算側）… 値を求める処理。根拠は合っているのに角度をまちがえたとき、ここだけ原因さがし
+    // prerequisites は concept と calc を合わせたもの（地図・ROOT_ORDER の確認はこれを使う）。
+    // 「根拠」は独立したスキルにしない。各スキルの reason 面として持つ（js/engine.js の aspectState）
+    lineAngles:     { label: "対頂角・一直線の角", unit: "図形の角", grade: "中2", concept: ["angleBasics"], calc: [] },
+    // x + (2x + 30) = 180 のように、角度を式で表して方程式を解く。学校の進み具合では「対頂角・一直線の角」と一緒に扱う
+    angleEq:        { label: "角度を式で表す", unit: "図形の角", grade: "中2", follows: "lineAngles", concept: ["lineAngles"], calc: ["likeTerms", "transpose"] },
+    // 同位角・錯角がどの位置の角か（平行でなくても名前は決まる）
+    angleNames:     { label: "同位角・錯角",   unit: "図形の角", grade: "中2", concept: ["lineAngles"], calc: [] },
+    // 平行なら同位角・錯角は等しい／同位角・錯角が等しければ平行
+    parallelAngles: { label: "平行線と角",     unit: "図形の角", grade: "中2", concept: ["angleNames", "lineAngles"], calc: [] },
+    // 内角の和180°（平行線を使って説明できる）
+    triangleSum:    { label: "三角形の内角",   unit: "図形の角", grade: "中2", concept: ["parallelAngles", "angleBasics"], calc: [] },
+    // 外角 ＝ となり合わない2つの内角の和
+    exteriorAngle:  { label: "三角形の外角",   unit: "図形の角", grade: "中2", concept: ["triangleSum", "lineAngles"], calc: [] },
+    // 補助線を引く・いくつかの性質を組み合わせる。学校の進み具合では「三角形の外角」と一緒に扱う
+    angleCombo:     { label: "角の組み合わせ・補助線", unit: "図形の角", grade: "中2", follows: "exteriorAngle", concept: ["parallelAngles", "exteriorAngle"], calc: [] },
+    // 180 ×（n − 2）。和から n を求めるときは、かっこのある方程式
+    polygonInterior:{ label: "多角形の内角",   unit: "図形の角", grade: "中2", concept: ["triangleSum"], calc: ["eqParen"] },
+    // 外角の和は360°（内角と外角で一直線）。正多角形の1つの外角から n を求めるときは等式の性質
+    polygonExterior:{ label: "多角形の外角",   unit: "図形の角", grade: "中2", concept: ["polygonInterior", "lineAngles"], calc: ["eqProperty"] }
   };
+  // 図形のスキルは concept ＋ calc を prerequisites にまとめる
+  Object.keys(SKILLS).forEach(function (k) {
+    var s = SKILLS[k];
+    if (s.concept) s.prerequisites = s.concept.concat(s.calc || []);
+  });
+  // 前提を「図形の性質側（concept）」「計算側（calc）」に分けて返す。図形以外のスキルは全部 concept 扱い
+  function prereqSide(skill, side) {
+    var s = SKILLS[skill];
+    if (!s) return [];
+    if (!s.concept) return side === "calc" ? [] : s.prerequisites.slice();
+    return (side === "calc" ? s.calc : s.concept).slice();
+  }
   // 現在地画面で上から並べる順（土台 → 中1一次方程式 → 中2式の計算 → 中2連立方程式 → 中2一次関数）
   var SKILL_ORDER = ["signed", "algebra", "likeTerms", "distrib", "proportion", "coord",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
-    "change", "substitution", "rate", "slopeIntercept", "form", "simGraph"];
+    "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
+    "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
-  var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion",
+  var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "angleBasics",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
-    "change", "substitution", "rate", "slopeIntercept", "form", "simGraph"];
+    "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
+    "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
     "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form", "simGraph"],
     "連立方程式": ["simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord"],
-    "一次方程式": ["eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord"]
+    "一次方程式": ["eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord"],
+    // 教科書の順（対頂角 → 同位角・錯角 → 平行線 → 三角形 → 多角形）
+    "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数"];
@@ -98,8 +139,11 @@
   //            next_test: { date, units }, updated_at }
   // 子どもは「どこまで進んだ？」でスキルを1つ選ぶだけ。ここで単元のスキル全部の状態に広げる。
   // current_skill がない「学習中」の単元は、どこまでか分からないので、全部 current（未学習にはしない）。
+  // follows を持つスキル（角度を式で表す・角の組み合わせ）は「どこまで」の選択肢に出さず、ついていくスキルと同じ状態にする
   function expandUnit(unit, status, currentSkill) {
-    var list = UNITS[unit] || [], out = {};
+    var all = UNITS[unit] || [], out = {};
+    var list = schoolOptions(unit);
+    if (currentSkill && SKILLS[currentSkill] && SKILLS[currentSkill].follows) currentSkill = SKILLS[currentSkill].follows;
     var at = currentSkill ? list.indexOf(currentSkill) : -1;
     list.forEach(function (k, i) {
       if (status === "learned") out[k] = "learned";
@@ -107,7 +151,14 @@
       else if (at === -1) out[k] = "current";
       else out[k] = i < at ? "learned" : i === at ? "current" : "not_learned";
     });
-    return out;
+    all.forEach(function (k) { if (SKILLS[k].follows) out[k] = out[SKILLS[k].follows]; });
+    var sorted = {};
+    all.forEach(function (k) { sorted[k] = out[k]; });
+    return sorted;
+  }
+  // 学校のようす「どこまで進んだ？」の選択肢
+  function schoolOptions(unit) {
+    return (UNITS[unit] || []).filter(function (k) { return !SKILLS[k].follows; });
   }
   // そのスキルが学校で「習った／いま学習中／まだ」か。学校のようすで管理していない単元（中1・土台）は null（＝習った扱い）
   function schoolSkillStatus(skill, school) {
@@ -398,7 +449,10 @@
     transpose: "review_transposition", eqParen: "review_paren_equation", eqFraction: "review_fraction_equation", eqWord: "review_equation_word", slopeIntercept: "review_slope_intercept", form: "practice_slope_to_equation",
     simMeaning: "review_simultaneous_meaning", simCoef: "review_align_coefficients", simElim: "review_elimination", simSubst: "review_substitution_method",
     likeTerms: "review_like_terms", polyAddSub: "review_polynomial_add_sub", polyMixed: "review_polynomial_paren", monoMulDiv: "review_monomial_mul_div", eqTransform: "review_equation_transform",
-    simParen: "review_paren_simultaneous", simFraction: "review_fraction_simultaneous", simWord: "review_simultaneous_word", simGraph: "practice_intersection"
+    simParen: "review_paren_simultaneous", simFraction: "review_fraction_simultaneous", simWord: "review_simultaneous_word", simGraph: "practice_intersection",
+    angleBasics: "review_angle_basics", lineAngles: "review_vertical_straight_angles", angleEq: "review_angle_equation", angleNames: "review_angle_names",
+    parallelAngles: "review_parallel_angles", triangleSum: "review_triangle_sum", exteriorAngle: "review_exterior_angle", angleCombo: "practice_angle_combination",
+    polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior"
   };
 
   function nextAction(skillId, s, rootIds, now) {
@@ -526,7 +580,7 @@
 
   SC.engine = {
     SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
-    expandUnit: expandUnit, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
+    expandUnit: expandUnit, schoolOptions: schoolOptions, prereqSide: prereqSide, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot,
     aspectState: aspectState, overallOf: overallOf, geometryRoute: geometryRoute
   };
