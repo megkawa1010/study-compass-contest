@@ -18,6 +18,7 @@
   var CONFIG = {
     RANGE_CHECK_STALE_DAYS: 7,   // 範囲のスキルを、これより前にしか確かめていなければ、1日目に範囲チェック
     RANGE_CHECK_MAX: 6,          // 範囲チェックの問題数の上限
+    RANGE_CHECK_MIN: 3,          // 範囲チェックの問題数の下限
     MAX_FOCUS_PER_DAY: 2         // 1日に中心にするスキルの数
   };
   var ROOT_ORDER = E.ROOT_ORDER; // 前提に近い順（js/engine.js で一元管理）
@@ -34,6 +35,10 @@
   }
   function parseDate(key) { var p = String(key).split("-"); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])).getTime(); }
 
+  // 学習の目的：14〜8日前 理解を作る／7〜4日前 問題を解けるように／3〜2日前 弱点をしぼる／前日 確認
+  var STAGE_JA = { understand: "理解を作る", solve: "問題を解けるようにする", narrow: "弱点をしぼる", confirm: "新しいことはせず確認" };
+  function stageOf(daysLeft) { return daysLeft >= 8 ? "understand" : daysLeft >= 4 ? "solve" : daysLeft >= 2 ? "narrow" : "confirm"; }
+
   // テストまであと何日（今日が0日目。テスト当日は0、前日は1）
   function daysLeft(testDate, now) {
     return Math.round((dayStart(parseDate(testDate)) - dayStart(now)) / E.DAY);
@@ -45,11 +50,13 @@
     return range.map(function (k) {
       var s = states[k] || { attempt_count: 0, learning_status: "not_checked", confidence: 0 };
       var status = s.learning_status, mark, need;
-      if (!s.attempt_count || status === "not_checked" || status === "not_learned") { mark = "？"; need = 2.5; }
+      // ・ 学校でまだ習っていない（苦手ではない。計画の日は割り当てない）
+      if (s.school_status === "not_learned") { mark = "・"; need = 0; }
+      else if (!s.attempt_count || status === "not_checked" || status === "not_learned") { mark = "？"; need = 2.5; }
       else if (status === "needs_review" || status === "learning") { mark = "△"; need = 3; }
       else if (status === "understood") { mark = "○"; need = s.standard === "pass" ? 1.5 : 2; }
       else { mark = "◎"; need = 0.5; }
-      var stale = !s.last_checked || now - Date.parse(s.last_checked) > CONFIG.RANGE_CHECK_STALE_DAYS * E.DAY;
+      var stale = mark !== "・" && (!s.last_checked || now - Date.parse(s.last_checked) > CONFIG.RANGE_CHECK_STALE_DAYS * E.DAY);
       return { skill: k, label: label(k), mark: mark, need: need, confidence: s.confidence || 0, status: status, stale: stale };
     });
   }
@@ -65,7 +72,8 @@
     if (left <= 0) { out.log.push(left === 0 ? "テスト当日" : "テストは終わった"); return out; }
 
     var days = [];
-    for (var i = 0; i < left; i++) days.push({ index: i, date: dateKey(dayStart(now) + i * E.DAY), kind: "focus", skills: [], note: "" });
+    // stage：その日の学習の目的（テストまでの日数で変わる。js/planner.js の配分と同じ区切り）
+    for (var i = 0; i < left; i++) days.push({ index: i, date: dateKey(dayStart(now) + i * E.DAY), kind: "focus", skills: [], note: "", stage: stageOf(left - i) });
 
     // テスト前日は総仕上げ（あと1日のときは、今日がその前日）
     if (left >= 1) {
@@ -92,10 +100,12 @@
       var cand = alloc.filter(function (a) { return a.n > 0; }).sort(function (a, b) { return a.need - b.need || b.n - a.n; })[0];
       cand.n--;
     }
-    // 順番：前提に近いスキルから。同じスキルは続けすぎない
+    // 順番：仕上がりの低いスキル（△ → ？ → ○）から。同じ必要度なら前提に近いスキルから。同じスキルは続けすぎない
     var queue = [];
     alloc.forEach(function (a) { for (var j = 0; j < a.n; j++) queue.push(a.skill); });
-    queue.sort(function (a, b) { return ROOT_ORDER.indexOf(a) - ROOT_ORDER.indexOf(b); });
+    var needOf = {};
+    ready.forEach(function (r) { needOf[r.skill] = r.need; });
+    queue.sort(function (a, b) { return needOf[b] - needOf[a] || ROOT_ORDER.indexOf(a) - ROOT_ORDER.indexOf(b); });
     free.forEach(function (d) {
       while (d.skills.length < CONFIG.MAX_FOCUS_PER_DAY && queue.length) {
         var idx = 0;
@@ -120,11 +130,18 @@
   function rangeCheck(input, skills) {
     var chosen = [], used = [];
     // 範囲が広い（例：連立方程式＋一次関数）ときは、仕上がりの低いスキルから上限まで選び、前提に近い順に出す
-    var need = {};
-    readiness(input.states, skills, input.now).forEach(function (r) { need[r.skill] = r.need; });
+    // 学校でまだ習っていないスキルは確かめない。最近の記録が十分あるスキル（7日以内に確かめた）は、無理に再テストしない。
+    // 確かめるスキルが少ないときは、範囲の中で仕上がりの低い順に RANGE_CHECK_MIN まで足す
+    var need = {}, ready = {};
+    var range = input.range || skills;
+    readiness(input.states, range, input.now).forEach(function (r) { need[r.skill] = r.need; ready[r.skill] = r; });
     var byRoot = function (a, b) { return ROOT_ORDER.indexOf(a) - ROOT_ORDER.indexOf(b); };
-    var list = skills.slice().sort(function (a, b) { return need[b] - need[a] || byRoot(a, b); })
-      .slice(0, CONFIG.RANGE_CHECK_MAX).sort(byRoot);
+    var byNeed = function (a, b) { return need[b] - need[a] || byRoot(a, b); };
+    var learnedOnly = function (k) { return ready[k] && ready[k].mark !== "・"; };
+    var list = skills.filter(learnedOnly).sort(byNeed).slice(0, CONFIG.RANGE_CHECK_MAX);
+    range.filter(function (k) { return learnedOnly(k) && list.indexOf(k) === -1; }).sort(byNeed)
+      .forEach(function (k) { if (list.length < CONFIG.RANGE_CHECK_MIN) list.push(k); });
+    list.sort(byRoot);
     list.forEach(function (k) {
       var s = input.states[k];
       // テスト向けなので、基礎ができていれば標準の問題で確かめる
@@ -153,6 +170,6 @@
     return { schedule: sch, day: sch.days[0] || null };
   }
 
-  SC.testprep = { CONFIG: CONFIG, UNIT_SKILLS: UNIT_SKILLS, RANGE_UNITS: RANGE_UNITS, unitSkills: unitSkills, daysLeft: daysLeft, readiness: readiness, schedule: schedule,
+  SC.testprep = { CONFIG: CONFIG, STAGE_JA: STAGE_JA, stageOf: stageOf, UNIT_SKILLS: UNIT_SKILLS, RANGE_UNITS: RANGE_UNITS, unitSkills: unitSkills, daysLeft: daysLeft, readiness: readiness, schedule: schedule,
     rangeCheck: rangeCheck, today: today, dateKey: dateKey };
 })(typeof window !== "undefined" ? window : globalThis);

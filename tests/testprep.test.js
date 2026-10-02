@@ -85,36 +85,7 @@ test("テスト範囲チェック：範囲の各スキルを1問ずつ、基礎�
   r.questions.forEach((id) => assert.ok(!["B3", "B4", "C4", "C5", "S1"].includes(id), "最近解いた問題は出さない: " + id));
 });
 
-test("今日の学習（テスト対策）：範囲の中だけ・今日の予定スキルが中心・テストまでの日数を伝える", () => {
-  const L = learner(); base(L);
-  L.add(T0, ["B1", "C1"], [c, c]); // 範囲外の記録もある
-  const now = T0 + DAY + HOUR;
-  const states = L.states(now);
-  const plan = P.build({ states, history: L.history, explorations: [], school: { current_unit: "一次関数", school_status: "learning" },
-    minutes: 30, goal: "daily_learning", now, rng: B.seeded(1),
-    test: { range: RANGE, focus: ["change", "rate"], kind: "focus", days_left: 9, next_note: "「グラフ・式」" } });
-  assert.equal(plan.goal, "test_preparation");
-  plan.sessions.forEach((s) => assert.ok(RANGE.includes(s.skill), "範囲外を出さない: " + s.skill));
-  assert.ok(plan.sessions.some((s) => s.skill === "change" || s.skill === "rate"));
-  assert.match(plan.why, /テストまであと9日/);
-  assert.match(plan.why, /明日は「グラフ・式」の予定/);
-  assert.ok(plan.debug.excluded.some((e) => e.why === "テスト範囲外" && e.skill === "coord"));
-});
-
-test("テスト前日は総仕上げ：範囲をひととおり", () => {
-  const L = learner(); base(L);
-  const now = T0 + HOUR;
-  const plan = P.build({ states: L.states(now), history: L.history, explorations: [], school: {}, minutes: 30, now, rng: B.seeded(1),
-    test: { range: RANGE, focus: RANGE, kind: "final_review", days_left: 1 } });
-  assert.equal(plan.total_minutes, 30);
-  assert.equal(new Set(plan.sessions.map((s) => s.skill)).size, plan.sessions.length);
-  assert.ok(plan.sessions.length >= 5, "30分なら5スキルすべて");
-  assert.match(plan.why, /テストまであと1日/);
-  const short = P.build({ states: L.states(now), history: L.history, explorations: [], school: {}, minutes: 20, now, rng: B.seeded(1),
-    test: { range: RANGE, focus: RANGE, kind: "final_review", days_left: 1 } });
-  assert.ok(short.sessions.length <= 4);
-  assert.equal(short.sessions[0].skill === "change" || short.sessions[0].skill === "rate", true, "時間が短いときは仕上がりの低いスキルから");
-});
+// 今日の学習（テストが近い日）の配分は tests/testmode.test.js で確かめる
 
 test("テストが終わったら計画を作らない", () => {
   const L = learner(); base(L);

@@ -63,7 +63,10 @@ for (let d = 1; d <= DAYS; d++) {
     console.log(`${String(d).padStart(2)}日目 チェック：` + chk.chosen.map((c) => c.label + "(" + c.level + ")").join("・") +
       (chk.shortage.length ? "  不足：" + chk.shortage.map((x) => x.label + "/" + x.level + "→" + x.result + (x.question_id ? " " + x.question_id : "")).join("、") : ""));
   }
-  const plan = P.build({ states: E.computeSkillStates(history, { now }), history, explorations, school: SCHOOL, minutes: MIN, goal: "daily_learning", now, rng: SC.bank.seeded(d) });
+  // TEST_IN=日数 なら、その日数後にテスト（範囲＝いまの単元）。毎日、残り日数が減っていく
+  const testLeft = process.env.TEST_IN ? Number(process.env.TEST_IN) - d : null;
+  const testIn = testLeft !== null && testLeft >= 1 ? { range: E.UNITS[UNIT], focus: [], kind: "focus", days_left: testLeft } : undefined;
+  const plan = P.build({ states: E.computeSkillStates(history, { now }), history, explorations, school: SCHOOL, minutes: MIN, goal: "daily_learning", now, rng: SC.bank.seeded(d), test: testIn });
   if (!plan.sessions.length) { fallbacks++; audit.fallbacks = (audit.fallbacks || 0) + 1; console.log(`${d}日目：fallback`); continue; }
   const picks = plan.sessions.flatMap((s) => s.picks.map((p) => ({ ...p, type: s.type, skill: s.skill })));
   picks.forEach((p) => {

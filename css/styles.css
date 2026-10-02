@@ -378,6 +378,10 @@ th { font-size: 11px; color: var(--text-soft); }
 .rc-top b, .rc-ok b { color: var(--ok); }
 .rc-warn b { color: var(--warn); }
 .rc-unk b { color: var(--check); }
+.rc-later { opacity: .7; border-style: dashed; }
+.rc-later b { color: var(--text-soft); }
+.test-focus { margin: 6px 0 8px; font-size: 14px; }
+.test-focus .small { margin-left: 6px; }
 .test-days li.now { border-color: var(--star); }
 .test-save { margin-top: 16px; }
 .status-group input[type="checkbox"] { position: absolute; opacity: 0; pointer-events: none; }

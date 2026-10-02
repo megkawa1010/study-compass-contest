@@ -351,13 +351,22 @@
   // { test_date: "YYYY-MM-DD", range_skills: [...], created_at, active }
   function testPrep() { var t = get().profile.test_prep; return t && t.active ? t : null; }
   function setTestPrep(t) {
-    get().profile.test_prep = { test_date: t.test_date, range_skills: t.range_skills.slice(), created_at: new Date(now()).toISOString(), active: true };
+    // result：テストが終わったあとに結果を入れる場所（いまはまだ使わない。あとで test_result として足せるように）
+    get().profile.test_prep = { id: E.makeId("tst", now()), test_date: t.test_date, range_skills: t.range_skills.slice(), source: t.source || "test_mode",
+      created_at: new Date(now()).toISOString(), active: true, result: null };
     persist();
     return get().profile.test_prep;
   }
   function endTestPrep() {
     var t = get().profile.test_prep;
-    if (t) { t.active = false; t.ended_at = new Date(now()).toISOString(); persist(); }
+    if (t) {
+      t.active = false; t.ended_at = new Date(now()).toISOString();
+      // 終わったテストは履歴に残す（あとでテスト結果 test_result を入れられるように）
+      var p = get().profile;
+      p.test_history = p.test_history || [];
+      p.test_history.push(JSON.parse(JSON.stringify(t)));
+      persist();
+    }
   }
 
   // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
