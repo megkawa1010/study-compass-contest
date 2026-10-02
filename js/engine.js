@@ -173,6 +173,10 @@
       unknown_selected: r.status === "unknown",
       // 学校でまだ習っていないスキルの問題（先取り）。まちがえても理解度の計算に入れない
       preview: !!r.preview,
+      // 図形：角度の値（value）か根拠（reason）か。根拠の小問では選んだ選択肢と取り違えの種類も残す
+      aspect: q.aspect || null,
+      chosen: r.chosen || null,
+      confusion: r.confusion || null,
       answered_at: new Date(ctx.now).toISOString(),
       self_evaluation: null
     };
@@ -459,6 +463,43 @@
     return states;
   }
 
+  // ---------- 図形スキル：value（角度を求める力）と reason（理由の理解）を別々に育てる ----------
+  // 回答は aspect: "value" | "reason"（なければ value）。reason の回答には chosen（選んだ根拠）と confusion（取り違えの種類）を持てる。
+  // 根拠を聞いていない問題では reason の記録が無いので、reason は上がりも下がりもしない。
+  function aspectState(skillId, attempts, opts) {
+    var v = attempts.filter(function (a) { return (a.aspect || "value") === "value"; });
+    var r = attempts.filter(function (a) { return a.aspect === "reason"; });
+    var vs = computeOne(skillId, v, opts), rs = computeOne(skillId, r, opts);
+    var confusions = {};
+    r.forEach(function (a) { if (!a.correct && a.confusion) confusions[a.confusion] = (confusions[a.confusion] || 0) + 1; });
+    var value = { status: vs.learning_status, confidence: vs.confidence, attempts: vs.attempt_count, correct: vs.correct_count };
+    var reason = { status: rs.learning_status, confidence: rs.confidence, attempts: rs.attempt_count, correct: rs.correct_count, confusions: confusions };
+    return { value: value, reason: reason, overall: overallOf(value, reason) };
+  }
+  var REASON_STABLE = { understood: true, applying: true, retained: true, mastered: true };
+  // 総合状態：value を土台にする。reason が未確認なだけでは value の retained を下げない。
+  // ただし最上位（mastered）は reason が安定しているときだけ。reason が不安定なら retained どまりで、ひとことを付ける
+  function overallOf(value, reason) {
+    var st = value.status, note = null;
+    var reasonChecked = reason.attempts > 0;
+    if (st === "mastered" && !REASON_STABLE[reason.status]) st = "retained";
+    if (STATUS_RANK[value.status] >= STATUS_RANK.understood) {
+      if (reasonChecked && !REASON_STABLE[reason.status]) note = "角度を求める力は" + STATUS_VIEW[value.status === "mastered" ? "retained" : value.status].label + "だが、理由の理解はまだ安定していない";
+      else if (!reasonChecked) note = "理由はまだ確かめていない";
+    } else if (reasonChecked && REASON_STABLE[reason.status] && value.attempts > 0) {
+      note = "理由は分かっている。角度を求める計算を確かめる";
+    }
+    return { status: st, note: note, reason_practice: reasonChecked && !REASON_STABLE[reason.status] };
+  }
+  // 1問の結果（角度○×・根拠○×）から、原因さがしの入口を決める（4パターン）
+  //   ○/○ → なし / ○/× → 原因さがしなし・reason 練習を今日の候補へ / ×/○ → 計算側 / ×/× → 図形の性質側
+  function geometryRoute(valueOk, reasonOk) {
+    if (valueOk && reasonOk !== false) return { trail: null, reason_practice: false };
+    if (valueOk) return { trail: null, reason_practice: true };
+    if (reasonOk) return { trail: "calc", reason_practice: false };
+    return { trail: "concept", reason_practice: reasonOk === false };
+  }
+
   // 画面用：学習状態の表示
   var STATUS_VIEW = {
     mastered:     { mark: "★", label: "マスター",   tone: "ok" },
@@ -486,6 +527,7 @@
   SC.engine = {
     SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
     expandUnit: expandUnit, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
-    makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot
+    makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot,
+    aspectState: aspectState, overallOf: overallOf, geometryRoute: geometryRoute
   };
 })(typeof window !== "undefined" ? window : globalThis);
