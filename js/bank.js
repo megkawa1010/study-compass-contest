@@ -2138,6 +2138,163 @@
     { prerequisite_skills: ["eqProperty", "transpose"] });
 
   // =====================================================================
+  // 中2 図形の角（平行線と角・多角形の角）— 描画方式を固めるための代表図 6問
+  //   図は js/geometry.js が figure（type: "geometry"）から描く。描いた角度は与えた角度・答えから 8° 以上ずらし、
+  //   鋭角・鈍角の分類と、平行・一直線・直角はそのまま（tests/geometry.test.js で確かめる）。
+  //   relation：答えを機械的に検算する論理関係。根拠を聞く小問は aspect: "reason"（理由の理解として別に記録）
+  // =====================================================================
+  function polar(c, deg, r) { var t = deg * Math.PI / 180; return [Math.round((c[0] + r * Math.cos(t)) * 10) / 10, Math.round((c[1] - r * Math.sin(t)) * 10) / 10]; }
+  var REASON_JA = {
+    vertical: "対頂角は等しい", straight: "一直線の角は180°", around: "1点のまわりの角は360°",
+    corresponding: "平行線の同位角は等しい", alternate: "平行線の錯角は等しい", triangleSum: "三角形の内角の和は180°",
+    exterior: "三角形の外角は、となり合わない2つの内角の和に等しい", polygonSum: "n角形の内角の和は 180° ×（n − 2）", exteriorSum: "多角形の外角の和は360°"
+  };
+  // 角度の値を答える小問（value 面）
+  function angleStep(id, skill, text, answer, hint, explanation) {
+    return { id: id, skill: skill, aspect: "value", text: text, type: "number", answer: answer, answer_display: answer + "°", placeholder: "例：65",
+      hint: hint, explanation: explanation };
+  }
+  // 根拠を選ぶ小問（reason 面）。選択肢は1つだけ正しい（複数選択は使わない）
+  function reasonStep(id, skill, answer, keys, explanation) {
+    return { id: id, skill: skill, aspect: "reason", text: "そう言える理由はどれ？", type: "choice", answer: answer,
+      choices: keys.map(function (k) { return { key: k, label: REASON_JA[k] }; }), hint: "x を求めるときに使った図形の性質はどれ？", explanation: explanation };
+  }
+
+  // ① 交わる2直線と対頂角
+  (function () {
+    var O = [160, 120];
+    add({ id: "lineAngles-basic-1", skill: "lineAngles", level: "basic", format: "figure",
+      text: "2つの直線が点Oで交わっています。x の大きさを求めなさい。",
+      figure: { type: "geometry",
+        points: { O: O, A: polar(O, 200, 125), B: polar(O, 20, 125), C: polar(O, 144, 105), D: polar(O, -36, 105) },
+        lines: [{ id: "p", through: ["A", "B"], extend: 8 }, { id: "q", through: ["C", "D"], extend: 8 }],
+        angles: [{ id: "g", at: "O", from: "C", to: "B", value: 112 }, { id: "x", at: "O", from: "A", to: "D", unknown: true }],
+        highlight: [{ angle: "x" }] },
+      relation: { type: "equalAngles", source: "g", target: "answer", answer: "s1" },
+      type: "steps",
+      steps: [
+        angleStep("s1", "lineAngles", "x は何度？", 112, "x と 112° は、向かい合っている角。", "x は 112° の角と向かい合う対頂角なので 112° です。"),
+        reasonStep("s2", "lineAngles", "vertical", ["vertical", "straight", "corresponding", "alternate"], "向かい合う角（対頂角）は等しくなります。")
+      ],
+      hint: "2本の直線が交わると、向かい合う角ができます。",
+      explanation: "x と 112° は対頂角です。対頂角は等しいので x = 112° です。" });
+  })();
+
+  // ② 平行線と1本の横切る直線（同位角）
+  (function () {
+    var c = [140, 120];
+    add({ id: "parallelAngles-basic-1", skill: "parallelAngles", level: "basic", format: "figure",
+      text: "直線ℓとmは平行です。x の大きさを求めなさい。",
+      figure: { type: "geometry",
+        points: { L1: [20, 70], L2: [300, 70], M1: [20, 170], M2: [300, 170], T1: polar(c, 62, 112), T2: polar(c, 242, 112),
+          P: { intersect: ["t", "l"] }, Q: { intersect: ["t", "m"] } },
+        lines: [{ id: "l", through: ["L1", "L2"], label: "ℓ", extend: 0 }, { id: "m", through: ["M1", "M2"], label: "m", extend: 0 },
+          { id: "t", through: ["T2", "T1"], extend: 0 }],
+        labels: ["P", "Q"],
+        parallel: [{ lines: ["l", "m"], marks: 1 }],
+        angles: [{ id: "a", at: "P", from: "L2", to: "T1", value: 72 }, { id: "x", at: "Q", from: "M2", to: "T1", unknown: true }],
+        highlight: [{ angle: "x" }] },
+      relation: { type: "equalAngles", source: "a", target: "answer", answer: "s1" },
+      type: "steps",
+      steps: [
+        angleStep("s1", "parallelAngles", "x は何度？", 72, "72° の角と x は、それぞれの交点で同じ位置にある。", "x は 72° の角の同位角です。ℓ // m なので x = 72° です。"),
+        reasonStep("s2", "parallelAngles", "corresponding", ["corresponding", "alternate", "vertical", "straight"], "同じ位置にある角（同位角）です。ℓとmが平行なので等しくなります。")
+      ],
+      hint: "交点PとQで、同じ位置にある角をくらべよう。",
+      explanation: "x と 72° は同位角です。平行線の同位角は等しいので x = 72° です。" });
+  })();
+
+  // ③ 三角形の内角
+  (function () {
+    var B = [40, 200], C = [230, 200];
+    add({ id: "triangleSum-basic-1", skill: "triangleSum", level: "basic", format: "figure",
+      text: "△ABCで、x の大きさを求めなさい。",
+      figure: { type: "geometry",
+        points: { B: B, C: C, Bd: polar(B, 65, 100), Cd: polar(C, 110, 100), A: { intersect: [["B", "Bd"], ["C", "Cd"]] } },
+        polygons: [["A", "B", "C"]],
+        labels: ["A", "B", "C"],
+        angles: [{ id: "b", at: "B", from: "A", to: "C", value: 55 }, { id: "c", at: "C", from: "A", to: "B", value: 60 },
+          { id: "x", at: "A", from: "B", to: "C", unknown: true }],
+        highlight: [{ angle: "x" }] },
+      relation: { type: "angleSum", values: ["b", "c", "answer"], total: 180, answer: "s1" },
+      type: "steps",
+      steps: [
+        angleStep("s1", "triangleSum", "x は何度？", 65, "3つの角を合わせると何度？", "180 − (55 + 60) = 65 なので x = 65° です。"),
+        reasonStep("s2", "triangleSum", "triangleSum", ["triangleSum", "exterior", "straight", "around"], "三角形の3つの内角の和は180°です。")
+      ],
+      hint: "三角形の3つの角の和を使おう。",
+      explanation: "三角形の内角の和は180°なので、x = 180 − 55 − 60 = 65° です。" });
+  })();
+
+  // ④ 三角形の外角
+  (function () {
+    var B = [40, 190], C = [190, 190];
+    add({ id: "exteriorAngle-basic-1", skill: "exteriorAngle", level: "basic", format: "figure",
+      text: "△ABCの辺BCをCの方へのばし、その上に点Dをとりました。x の大きさを求めなさい。",
+      figure: { type: "geometry",
+        points: { B: B, C: C, D: [280, 190], Bd: polar(B, 60, 100), Cd: polar(C, 100, 100), A: { intersect: [["B", "Bd"], ["C", "Cd"]] } },
+        polygons: [["A", "B", "C"]],
+        segments: [["C", "D"]],
+        labels: ["A", "B", "C", "D"],
+        straight: [["B", "C", "D"]],
+        angles: [{ id: "a", at: "A", from: "B", to: "C", value: 50 }, { id: "b", at: "B", from: "A", to: "C", value: 70 },
+          { id: "x", at: "C", from: "A", to: "D", unknown: true }],
+        highlight: [{ angle: "x" }] },
+      relation: { type: "angleSum", values: ["a", "b"], total: "answer", answer: "s1" },
+      type: "steps",
+      steps: [
+        angleStep("s1", "exteriorAngle", "x は何度？", 120, "x は、となり合わない2つの内角（∠A と ∠B）とどんな関係？", "50 + 70 = 120 なので x = 120° です。"),
+        reasonStep("s2", "exteriorAngle", "exterior", ["exterior", "triangleSum", "straight", "corresponding"], "三角形の外角は、となり合わない2つの内角の和に等しくなります。")
+      ],
+      hint: "外角は、となり合わない2つの内角の和。",
+      explanation: "x は△ABCの外角なので、となり合わない内角の和 50 + 70 = 120° です。" });
+  })();
+
+  // ⑤ 多角形（五角形の内角）
+  add({ id: "polygonInterior-basic-1", skill: "polygonInterior", level: "basic", format: "figure",
+    text: "五角形ABCDEで、x の大きさを求めなさい。",
+    figure: { type: "geometry",
+      points: { A: [60, 260], B: [210, 260], C: [251, 147.2], D: [151.6, 80.1], E: [31.1, 184.8] },
+      polygons: [["A", "B", "C", "D", "E"]],
+      angles: [{ id: "a", at: "A", from: "E", to: "B", value: 125 }, { id: "b", at: "B", from: "A", to: "C", value: 100 },
+        { id: "c", at: "C", from: "B", to: "D", value: 120 }, { id: "d", at: "D", from: "C", to: "E", value: 95 },
+        { id: "x", at: "E", from: "D", to: "A", unknown: true }],
+      highlight: [{ angle: "x" }] },
+    // 最後の relation の答えが、図の x
+    relation: [{ type: "polygonInterior", n: 5, sum: "answer", answer: "s1" },
+      { type: "angleSum", values: ["a", "b", "c", "d", "answer"], total: 540, answer: "s2" }],
+    type: "steps",
+    steps: [
+      angleStep("s1", "polygonInterior", "五角形の内角の和は何度？", 540, "五角形は、1つの頂点から対角線を引くと三角形がいくつできる？", "180 × (5 − 2) = 540° です。"),
+      angleStep("s2", "polygonInterior", "x は何度？", 100, "540 から、わかっている4つの角をひく。", "540 − (125 + 100 + 120 + 95) = 100 なので x = 100° です。")
+    ],
+    prerequisite_skills: ["triangleSum"],
+    hint: "n角形の内角の和は 180° ×（n − 2）。",
+    explanation: "五角形の内角の和は 180 × 3 = 540°。x = 540 − 440 = 100° です。" });
+
+  // ⑥ x を含む角度（一直線の角を方程式で）
+  (function () {
+    var O = [160, 170];
+    add({ id: "angleEq-standard-1", skill: "angleEq", level: "standard", format: "figure",
+      text: "点A、O、Bは一直線上にあります。x の値を求めなさい。",
+      figure: { type: "geometry",
+        points: { O: O, A: [30, 170], B: [290, 170], C: polar(O, 58, 130) },
+        lines: [{ id: "ab", through: ["A", "B"], extend: 8 }],
+        segments: [["O", "C"]],
+        straight: [["A", "O", "B"]],
+        angles: [{ id: "e1", at: "O", from: "A", to: "C", expr: { a: 2, b: 10 } }, { id: "e2", at: "O", from: "C", to: "B", expr: { a: 1, b: 20 } }] },
+      relation: { type: "angleSum", values: ["e1", "e2"], total: 180, answer: "s1" },
+      type: "steps",
+      steps: [
+        { id: "s1", skill: "angleEq", aspect: "value", text: "x の値は？", type: "number", answer: 50, placeholder: "例：30",
+          hint: "(2x + 10) + (x + 20) = 180 を解く。", explanation: "3x + 30 = 180 → 3x = 150 → x = 50 です。" },
+        reasonStep("s2", "angleEq", "straight", ["straight", "vertical", "around", "triangleSum"], "2つの角を合わせると一直線（180°）になります。")
+      ],
+      hint: "2つの角を合わせると何度になる？",
+      explanation: "(2x + 10) + (x + 20) = 180 より 3x = 150、x = 50 です。" });
+  })();
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

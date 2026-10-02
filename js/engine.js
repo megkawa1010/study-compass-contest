@@ -481,7 +481,8 @@
       var qid = String(a.question_id);
       var hash = qid.indexOf("#");
       if (hash === -1) { out.push(a); return; }
-      var key = qid.slice(0, hash) + "|" + a.skill + "|" + (a.session_id || "") + "|" + a.context;
+      // 図形の小問は、角度の値（value）と根拠（reason）を別の1回として数える
+      var key = qid.slice(0, hash) + "|" + a.skill + "|" + (a.aspect || "") + "|" + (a.session_id || "") + "|" + a.context;
       var g = groups[key];
       if (g && Date.parse(a.answered_at) - Date.parse(g.answered_at) < 60 * 60 * 1000) {
         g.correct = g.correct && a.correct;
@@ -507,7 +508,17 @@
       .forEach(function (a) { (bySkill[a.skill] = bySkill[a.skill] || []).push(a); });
 
     var states = {};
-    SKILL_ORDER.forEach(function (id) { states[id] = computeOne(id, bySkill[id] || [], opts); });
+    SKILL_ORDER.forEach(function (id) {
+      var list = bySkill[id] || [];
+      if (!SKILLS[id].concept) { states[id] = computeOne(id, list, opts); return; }
+      // 図形のスキル：理解度（learning_status・confidence）は角度を求める力（value）で決め、
+      // 理由の理解（reason）は別に持つ。最上位（マスター）だけは reason の安定も求める
+      var st = computeOne(id, list.filter(function (a) { return a.aspect !== "reason"; }), opts);
+      var asp = aspectState(id, list, opts);
+      st.value = asp.value; st.reason = asp.reason; st.overall = asp.overall;
+      st.learning_status = asp.overall.status === "not_checked" ? st.learning_status : asp.overall.status;
+      states[id] = st;
+    });
     SKILL_ORDER.forEach(function (id) {
       var s = states[id];
       var rootIds = WEAK[s.learning_status] ? rootCauses(id, states) : [];

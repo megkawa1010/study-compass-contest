@@ -19,7 +19,8 @@
 
   // "3" / "-2" / "1.5" / "3/2" / "-1/2" を数にする。単位（GB・円・分など）は最後に付いていてもよい
   function parseNumber(value) {
-    var s = normalize(value).replace(/(gb|ギガ|個|です|。|円|分|時間|本|℃|度|cm|km|m|l|g|%)+$/g, "");
+    // 角度の「°」「度」、先頭の「x =」も外して読む（x = 65° → 65）
+    var s = normalize(value).replace(/^[a-z]=/, "").replace(/(gb|ギガ|個|です|。|円|分|時間|本|℃|°|度|cm|km|m|l|g|%)+$/g, "");
     return toNumber(s);
   }
   function toNumber(s) {
@@ -118,7 +119,7 @@
         return same(parseNumber(value && value[f.key]), q.answer[f.key]);
       });
     }
-    if (q.type === "choice") return normalize(value) === q.answer;
+    if (q.type === "choice") return normalize(value) === normalize(q.answer);
     if (q.type === "poly") return samePoly(parsePoly(value), parsePoly(q.answer));
     if (q.type === "steps") return checkSteps(q, value).every(function (r) { return r.correct; });
     return false;
@@ -128,7 +129,10 @@
   function checkSteps(q, values) {
     return q.steps.map(function (st) {
       var v = values ? values[st.id] : undefined;
-      return { id: st.id, skill: st.skill, answered: !isBlank(st, v), correct: check(st, v) };
+      var r = { id: st.id, skill: st.skill, answered: !isBlank(st, v), correct: check(st, v) };
+      // 図形：角度の値（value）か根拠（reason）か。根拠の小問は、選んだ選択肢も残す
+      if (st.aspect) { r.aspect = st.aspect; if (st.aspect === "reason") r.chosen = v == null ? null : v; }
+      return r;
     });
   }
 

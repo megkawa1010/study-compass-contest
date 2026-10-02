@@ -298,6 +298,29 @@ th { font-size: 11px; color: var(--text-soft); }
 .fig-text { fill: var(--text-soft); font-size: 10px; font-family: inherit; }
 .fig-text.point-label { fill: var(--text); font-size: 12px; font-weight: 800; }
 .fig-text.axis-name { font-size: 11px; font-weight: 700; }
+/* 図形（js/geometry.js）：viewBox で画面幅に合わせて縮む。線は vector-effect で細くなりすぎない */
+.fig-geometry { margin: 10px auto 14px; }
+.fig-geometry svg { display: block; width: 100%; height: auto; margin: 0 auto; background: var(--inset); border-radius: 12px; border: 1px solid var(--line); }
+.fig-note { margin-top: 4px; text-align: center; font-size: 12px; color: var(--text-soft); }
+.geo-line, .geo-seg { stroke: var(--text); stroke-width: 2; stroke-linecap: round; fill: none; }
+.geo-line.dashed, .geo-seg.dashed { stroke-dasharray: 5 4; }
+.geo-line.hl, .geo-seg.hl { stroke: var(--star); stroke-width: 3; }
+.geo-shape { fill: rgba(140, 200, 255, .06); stroke: var(--text); stroke-width: 2; stroke-linejoin: round; }
+.geo-arc { stroke: var(--hint); stroke-width: 1.6; fill: none; }
+.geo-arc.unk, .geo-arc.hl { stroke: var(--star); stroke-width: 2; }
+.geo-wedge { fill: rgba(255, 200, 90, .42); stroke: none; }
+.geo-right, .geo-mark { stroke: var(--hint); stroke-width: 1.6; fill: none; stroke-linejoin: round; }
+.geo-dot { fill: var(--text); }
+.geo-text { fill: var(--text); font-family: inherit; font-weight: 700; }
+.geo-text.point { fill: var(--text); font-weight: 800; }
+.geo-text.angle { fill: var(--hint); }
+.geo-text.unk { fill: var(--star); font-style: italic; font-weight: 800; }
+.geo-text.line { fill: var(--text-soft); font-style: italic; }
+.geo-debug { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 760px) { .geo-debug { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); } }
+.geo-debug pre { max-height: 260px; overflow: auto; font-size: 11px; background: var(--inset); padding: 8px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
+.geo-warn { color: var(--warn); }
+.geo-ok { color: var(--ok); }
 
 /* ---------- 定期コンパスチェック ---------- */
 .notice-card { border: 1px solid rgba(255, 217, 138, .5); background: radial-gradient(90% 140% at 100% 0%, rgba(255, 217, 138, .16), transparent 60%), var(--card-strong); }

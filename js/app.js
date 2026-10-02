@@ -31,6 +31,10 @@
   var PARENT_DEBUG = /(?:^|[?&])debug=parent(?:&|$)/.test(window.location.search.slice(1));
   var MAP_VIEW = /(?:^|[?&])debug=map(?:&|$)/.test(window.location.search.slice(1));
   var SCHOOL_VIEW = /(?:^|[?&])debug=school(?:&|$)/.test(window.location.search.slice(1));
+  var FIGURE_VIEW = /(?:^|[?&])debug=figure(?:&|$)/.test(window.location.search.slice(1));
+  // ?debug=figure&try=問題ID：その問題をふだんと同じ入力欄で解き、記録・解説・状態の変化まで確かめる
+  var FIGURE_TRY = FIGURE_VIEW ? decodeURIComponent((window.location.search.match(/[?&]try=([^&]+)/) || [])[1] || "") : "";
+  var figTry = null;
 
   // ---------- 保存（使えない環境でも止まらない） ----------
 
@@ -389,6 +393,7 @@
         '<a class="secondary-button link-button" href="./?debug=school">学校のようす</a>' +
         '<a class="secondary-button link-button" href="./?debug=compass">定期チェックの確認</a>' +
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
+        '<a class="secondary-button link-button" href="./?debug=figure">図形の図</a>' +
       "</div></section>";
   }
 
@@ -1246,10 +1251,93 @@
         '<h3 class="small">生成の記録</h3><ol class="small muted debug-log">' + dbg.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>";
   }
 
+  // ---------- 図形の図の確認ページ（?debug=figure） ----------
+  // 図形の問題ごとに：geometry データ・SVG・描いた角度と本当の角度の差・relation の検算・警告
+  function viewFigureDebug() {
+    var G = SC.geometry;
+    if (FIGURE_TRY && QS[FIGURE_TRY]) return viewFigureTry(QS[FIGURE_TRY]);
+    var ids = Object.keys(QS).filter(function (id) { return QS[id].figure && QS[id].figure.type === "geometry"; });
+    var ROLE = { answer: "答え", given: "与えた角" };
+    var total = 0;
+    var items = ids.map(function (id) {
+      var q = QS[id], a = G.audit(q);
+      total += a.warnings.length;
+      var rows = a.angles.map(function (r) {
+        return "<tr><td>" + esc(r.label) + "</td><td>" + ROLE[r.role] + "</td><td>" + r.drawn + "°</td><td>" + (r.truth == null ? "−" : r.truth + "°") + "</td><td>" +
+          (r.diff == null ? "−" : r.diff + "°") + "</td><td>" + (G.kind(r.drawn) === (r.truth == null ? G.kind(r.drawn) : G.kind(r.truth)) ? "同じ" : "ちがう") + '</td><td class="' + (r.ok ? "geo-ok" : "geo-warn") + '">' + (r.ok ? "OK" : "要修正") + "</td></tr>";
+      }).join("");
+      var rel = a.relation;
+      var relText = rel ? (rel.ok ? '<span class="geo-ok">一致</span>（relation から ' + rel.value + "／答え " + rel.expected + "）" : '<span class="geo-warn">' + esc(rel.messages.join("、")) + "</span>") : "−";
+      var steps = q.steps ? q.steps.map(function (st) { return st.id + "：" + (st.aspect === "reason" ? "根拠" : "角度") + "［" + E.SKILLS[st.skill].label + "］"; }).join("／") : "";
+      return '<article class="card" id="' + esc(id) + '"><p class="eyebrow">' + esc(id) + "</p><p>" + esc(q.text) + "</p>" +
+        '<div class="geo-debug"><div>' + SC.figures.render(q.figure) + "</div><div>" +
+        '<div class="table-wrap"><table><thead><tr><th>角</th><th>役わり</th><th>描画</th><th>本当</th><th>差</th><th>分類</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+        '<p class="small"><strong>relation の検算：</strong>' + relText + "</p>" +
+        '<p class="small"><strong>小問：</strong>' + esc(steps || "−") + "</p>" +
+        '<p class="small"><strong>説明文：</strong>' + esc(G.describe(q.figure)) + "</p>" +
+        '<p class="small"><strong>警告：</strong>' + (a.warnings.length ? '<span class="geo-warn">' + esc(a.warnings.join("／")) + "</span>" : '<span class="geo-ok">なし</span>') + "</p>" +
+        '<a class="secondary-button link-button" href="./?debug=figure&try=' + encodeURIComponent(id) + '">この問題を解いてみる</a>' +
+        "<details><summary class=\"small\">geometry データ</summary><pre>" + esc(JSON.stringify({ figure: q.figure, relation: q.relation }, null, 1)) + "</pre></details>" +
+        "</div></div></article>";
+    }).join("");
+    return '<section class="card"><p class="eyebrow">DEBUG / FIGURE</p><h1 class="h-md">図形の図</h1>' +
+      '<p class="small muted">' + ids.length + "問／警告 " + total + "件。描いた角度は、与えた角度・答えから " + G.CONFIG.MIN_GAP + "° 以上ずらし、鋭角・直角・鈍角の分類は変えない。</p>" +
+      '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' + items;
+  }
+
+  // 1問を解く：問題表示 → 回答 → 小問ごとの○× と解説 → 記録された value / reason と、原因さがしの入口
+  var ROUTE_JA = { none: "原因さがしはしない", reason: "原因さがしはせず、理由の練習を今日の学習の候補へ", calc: "計算側だけ原因さがし", concept: "図形の性質側から原因さがし" };
+  function viewFigureTry(q) {
+    var head = '<section class="card narrow"><p class="eyebrow">DEBUG / FIGURE / ' + esc(q.id) + "</p>" +
+      '<p class="question small-q">' + esc(q.text) + "</p>" + SC.figures.render(q.figure);
+    var back = '<div class="actions"><a class="secondary-button link-button" href="./?debug=figure">図の一覧へ</a></div></section>';
+    if (!figTry) {
+      return head + '<form class="answer-form" data-form="figtry" novalidate>' + inputFields(q, "f") +
+        (message ? '<p class="notice" role="alert">' + esc(message) + "</p>" : "") +
+        '<div class="actions"><button class="primary-button" type="submit">答える</button></div></form>' + back;
+    }
+    var res = figTry.res, steps = q.steps || [];
+    var rows = steps.map(function (st, i) {
+      var r = res[i], v = figTry.v[st.id];
+      var shown = st.type === "choice" ? ((st.choices.filter(function (c) { return c.key === v; })[0] || {}).label || v) : v;
+      return "<li><p>" + esc(st.text) + '<span class="muted small">［' + (st.aspect === "reason" ? "根拠" : "角度") + "］</span></p>" +
+        '<p class="' + (r.correct ? "geo-ok" : "geo-warn") + '">' + (r.correct ? "○ " : "× ") + esc(shown) + (r.correct ? "" : "（答え：" + esc(answerText(st)) + "）") + "</p>" +
+        '<p class="small muted">' + esc(st.explanation || "") + "</p></li>";
+    }).join("");
+    var valueOk = res.filter(function (r) { return r.aspect !== "reason"; }).every(function (r) { return r.correct; });
+    var reasons = res.filter(function (r) { return r.aspect === "reason"; });
+    var reasonOk = reasons.length ? reasons.every(function (r) { return r.correct; }) : null;
+    var route = E.geometryRoute(valueOk, reasonOk);
+    var key = route.trail || (route.reason_practice ? "reason" : "none");
+    var side = route.trail ? E.prereqSide(q.skill, route.trail).map(function (k) { return E.SKILLS[k].label; }).join("・") : "";
+    var st = ST.get().skill_state[q.skill] || {};
+    var asp = st.value ? "<li>角度を求める力（value）：" + esc(E.STATUS_VIEW[st.value.status].label) + "・確かさ " + st.value.confidence + "・" + st.value.correct + "/" + st.value.attempts + "</li>" +
+      "<li>理由の理解（reason）：" + esc(E.STATUS_VIEW[st.reason.status].label) + "・" + st.reason.correct + "/" + st.reason.attempts +
+        (Object.keys(st.reason.confusions).length ? "・取り違え " + esc(JSON.stringify(st.reason.confusions)) : "") + "</li>" +
+      "<li>総合：" + esc(E.STATUS_VIEW[st.overall.status].label) + (st.overall.note ? "（" + esc(st.overall.note) + "）" : "") + "</li>" : "";
+    return head + '<ol class="bank-steps">' + rows + "</ol>" +
+      feedbackBlock(valueOk && reasonOk !== false ? "correct" : "revealed", { explain: q.explanation || "" }) +
+      '<h2 class="h-sm">記録と、このあと</h2><ul class="small debug-log">' +
+        "<li>角度 " + (valueOk ? "○" : "×") + "／根拠 " + (reasonOk === null ? "聞いていない" : reasonOk ? "○" : "×") + " → " + esc(ROUTE_JA[key]) + (side ? "（" + esc(side) + "）" : route.trail ? "（前提なし：この問題の解き直し）" : "") + "</li>" +
+        asp + "</ul>" +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="figtry-reset">もう一度解く</button></div>' + back;
+  }
+  function submitFigTry() {
+    var q = QS[FIGURE_TRY], v = readInput(q);
+    if (L.isBlank(q, v)) { message = "答えを入力してね。"; render(); return; }
+    message = "";
+    var res = q.type === "steps" ? L.checkSteps(q, v) : [{ id: "v", correct: L.check(q, v) }];
+    var ctx = { sessionId: null, context: "lesson" };
+    if (q.type === "steps") q.steps.forEach(function (st, i) { ST.addAnswer(stepRecord(q, st), stepResult(st, res[i], res[i].correct ? "correct" : "incorrect", false), ctx); });
+    else ST.addAnswer(q, { status: res[0].correct ? "correct" : "incorrect", hintUsed: false }, ctx);
+    figTry = { res: res, v: v };
+    render();
+  }
+
   // ---------- 問題バンクの確認ページ（?debug=bank） ----------
 
   var LEVEL_LABEL = { basic: "基礎", standard: "標準", application: "応用", retention: "定着" };
-  var FORMAT_LABEL = { expression: "数式", table: "表", graph: "グラフ", word: "文章", numberline: "数直線", coordinate: "座標" };
+  var FORMAT_LABEL = { expression: "数式", table: "表", graph: "グラフ", word: "文章", numberline: "数直線", coordinate: "座標", figure: "図形" };
 
   function answerText(q) {
     var n = SC.figures.num;
@@ -1327,8 +1415,8 @@
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW) {
-      app.innerHTML = '<div class="screen">' + (BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW || FIGURE_VIEW) {
+      app.innerHTML = '<div class="screen">' + (FIGURE_VIEW ? viewFigureDebug() : BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1355,6 +1443,15 @@
 
   function currentQuestion() { return QS[state.queue[state.idx]]; }
 
+  // 小問1つ分の記録。図形の小問は、角度の値（value）か根拠（reason）かを残す
+  function stepRecord(q, st) {
+    return { id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit, aspect: st.aspect };
+  }
+  function stepResult(st, r, s, hint) {
+    var chosen = r && r.chosen != null ? r.chosen : null;
+    return { status: s, hintUsed: hint, chosen: chosen, confusion: SC.geometry && s === "incorrect" ? SC.geometry.confusionOf(st, chosen) : null };
+  }
+
   // stepResults: 小問つきの問題のとき、小問ごとの正誤（L.checkSteps の結果）
   function recordAnswer(status, stepResults) {
     var id = state.queue[state.idx];
@@ -1367,8 +1464,7 @@
       q.steps.forEach(function (st, i) {
         var r = stepResults ? stepResults[i] : null;
         var s = status === "unknown" ? "unknown" : r && r.correct ? "correct" : "incorrect";
-        ST.addAnswer({ id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit },
-          { status: s, hintUsed: hint }, ctx);
+        ST.addAnswer(stepRecord(q, st), stepResult(st, r, s, hint), ctx);
       });
       if (stepResults) state.answers[id].steps = L.analyzeSteps(q, stepResults);
     } else {
@@ -1837,7 +1933,7 @@
       q.steps.forEach(function (st, i) {
         var r = stepResults ? stepResults[i] : null;
         var s = status === "unknown" ? "unknown" : r && r.correct ? "correct" : "incorrect";
-        ST.addAnswer({ id: q.id + "#" + st.id, skill: st.skill, level: q.level, evidence_level: q.evidence_level, unit: q.unit }, { status: s, hintUsed: hint }, ctx);
+        ST.addAnswer(stepRecord(q, st), stepResult(st, r, s, hint), ctx);
       });
     } else {
       ST.addAnswer(q, { status: status, hintUsed: hint }, ctx);
@@ -2018,6 +2114,7 @@
     if (form === "check") submitCheck();
     if (form === "lesson") submitLesson();
     if (form === "daily") submitDaily();
+    if (form === "figtry") submitFigTry();
   });
 
   document.addEventListener("click", function (e) {
@@ -2058,6 +2155,7 @@
       case "debug-days-reset": ST.resetDays(); render(); break;
       case "debug-export": downloadJSON(); break;
       case "hint": state.hintOpen = true; render(); break;
+      case "figtry-reset": figTry = null; draft = {}; render(); break;
       case "lesson-hint": state.hintOpen = true; render(); break;
       case "unknown": recordAnswer("unknown"); break;
       case "continue-check": go("check"); break;

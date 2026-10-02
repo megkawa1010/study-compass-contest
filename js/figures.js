@@ -125,6 +125,8 @@
     if (fig.type === "table") return table(fig);
     if (fig.type === "graph") return graph(fig);
     if (fig.type === "numberline") return numberline(fig);
+    // 図形（点・直線・角）は js/geometry.js の共通 renderer で描く
+    if (fig.type === "geometry" && SC.geometry) return SC.geometry.render(fig);
     return "";
   }
 
