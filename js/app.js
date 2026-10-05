@@ -259,7 +259,7 @@
     var u = s.units[s.current_unit] || {};
     if (u.status === "not_learned") return s.current_unit + "（まだ始まっていない）";
     if (u.status === "learned") return s.current_unit + "（習い終わった）";
-    return s.current_unit + (u.current_skill ? "・" + E.SKILLS[u.current_skill].label + "まで" : "（どこまでかは未登録）");
+    return s.current_unit + (u.current_skill ? "・" + E.schoolOptionLabel(u.current_skill) : "（どこまでかは未登録）");
   }
   function testDaysText(s) {
     s = s || ST.school();
@@ -295,7 +295,7 @@
       testDate: s.next_test ? s.next_test.date : "", testUnits: s.next_test ? s.next_test.units.slice() : [s.current_unit]
     });
     var today = SC.testprep.dateKey(ST.now());
-    var options = E.schoolOptions(dr.unit).map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; })
+    var options = E.schoolOptions(dr.unit).map(function (k) { return { value: k, label: E.schoolOptionLabel(k) }; })
       .concat([{ value: "__notyet", label: "この単元はまだ始まっていない" }]);
     return '<section class="card narrow"><p class="eyebrow">SCHOOL</p><h1 class="h-md">学校のようす</h1>' +
       '<p class="small muted">学校で今どこをやっているかを教えてね。まだ習っていないところは「苦手」にしないで、今日の学習を学校に合わせます。</p>' +
@@ -348,7 +348,7 @@
       '<details class="card about">' +
         "<summary>このデモについて</summary>" +
         "<ul>" +
-          "<li>コンテスト版として、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」を収録しています。</li>" +
+          "<li>コンテスト版として、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」を収録しています。</li>" +
           "<li>点数を出すのではなく、問題ごとに「どのスキル・どの前提知識を見たか」から、つまずきの場所を推定します。</li>" +
           "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は、このデモでは使っていません。</li>" +
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
@@ -454,7 +454,7 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」が選べます。</p>' +
+        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
@@ -468,7 +468,7 @@
         // 習っている途中なら「どこまで進んだ？」（まだ習っていないところはチェックに出さない・苦手にしない）
         (s.status === "learning"
           ? '<fieldset class="status-group"><legend>学校ではどこまで進んだ？</legend>' +
-              E.schoolOptions(s.unit).map(function (k) { return { value: k, label: E.SKILLS[k].label + "まで" }; }).concat([{ value: "", label: "どこまでかわからない" }]).map(function (o) {
+              E.schoolOptions(s.unit).map(function (k) { return { value: k, label: E.schoolOptionLabel(k) }; }).concat([{ value: "", label: "どこまでかわからない" }]).map(function (o) {
                 return '<label class="radio-chip"><input type="radio" name="study-skill" value="' + esc(o.value) + '"' + ((s.skill || "") === o.value ? " checked" : "") + "><span>" + esc(o.label) + "</span></label>";
               }).join("") + "</fieldset>"
           : "") +
@@ -1352,7 +1352,8 @@
   }
 
   // 図形：value / reason の状態・取り違え・原因さがし・今日の学習に入れた種類・時間・理由
-  var GEO_KIND_JA = { reason_review: "根拠の確認（reason_review）", geometry_root_review: "図形の性質に戻る（geometry_root_review）", calculation_root_review: "計算側に戻る（calculation_root_review）" };
+  var GEO_KIND_JA = { reason_review: "根拠の確認（reason_review）", geometry_root_review: "図形の性質に戻る（geometry_root_review）", calculation_root_review: "計算側に戻る（calculation_root_review）",
+    proof_root_review: "証明のスキルに戻る（proof_root_review）" };
   function geometryPlanDebug(g) {
     if (!g) return "";
     var st = function (x) { return x.attempts ? esc(E.STATUS_VIEW[x.status].label) + " " + x.correct + "/" + x.attempts + (x.confidence != null ? "・確かさ " + x.confidence : "") : "−"; };
@@ -1361,13 +1362,15 @@
         "</td><td>" + esc(E.STATUS_VIEW[x.overall.status].label + (x.overall.note ? "（" + x.overall.note + "）" : "")) + "</td></tr>";
     }).join("");
     var ex = g.explorations.map(function (x) {
-      return "<li>" + esc(E.SKILLS[x.symptom].label) + "：入口 " + esc(x.entry) + " → " + esc(x.return_to ? E.SKILLS[x.return_to].label : "戻る場所なし") + "（" + esc(GEO_KIND_JA[x.type] || x.kind || "") + "）</li>";
+      return "<li>" + esc(E.SKILLS[x.symptom].label) + "：入口 " + esc(x.entry) + " → " + esc(x.return_to ? E.SKILLS[x.return_to].label : "戻る場所なし") + "（" + esc(GEO_KIND_JA[x.type] || x.type || x.kind || "") + "）" +
+        (x.diagnostic_target ? '<br><span class="muted">まちがえた面：' + esc(x.wrong_aspect || "−") + "／学び直す場所（diagnostic_target）：" + esc(E.SKILLS[x.diagnostic_target] ? E.SKILLS[x.diagnostic_target].label : x.diagnostic_target) +
+          (x.pending && x.pending.length ? "／今回は追わない誤り：" + esc(x.pending.map(function (k) { return E.SKILLS[k] ? E.SKILLS[k].label : k; }).join("・")) : "") + "</span>" : "") + "</li>";
     }).join("");
     var parts = g.parts.map(function (p) {
       return "<tr><td>" + esc(GEO_KIND_JA[p.kind]) + "</td><td>" + esc(E.SKILLS[p.skill].label) + "</td><td>" + p.minutes + "分</td><td>" + esc(p.why) + "</td><td>" + esc(p.picks.join("／")) + "</td></tr>";
     }).join("");
     return '<section class="card"><h2 class="h-sm">図形：今日の学習への接続</h2>' +
-      '<h3 class="small">geometry value / reason state</h3>' + (rows ? '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>value（角度）</th><th>reason（根拠）</th><th>reason confusion</th><th>総合</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : '<p class="small muted">図形の記録はまだありません</p>') +
+      '<h3 class="small">geometry value / reason state</h3>' + (rows ? '<div class="table-wrap"><table><thead><tr><th>スキル</th><th>value（角度・証明の主張）</th><th>reason（根拠）</th><th>reason confusion</th><th>総合</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : '<p class="small muted">図形の記録はまだありません</p>') +
       '<h3 class="small">geometry root cause（最近の原因さがし）</h3>' + (ex ? '<ul class="small debug-log">' + ex + "</ul>" : '<p class="small muted">なし</p>') +
       '<h3 class="small">根拠の確認の候補</h3>' + (g.reason.length ? '<ul class="small debug-log">' + g.reason.map(function (r) { return "<li>" + esc(E.SKILLS[r.skill].label) + "：" + esc(r.why) + "</li>"; }).join("") + "</ul>" : '<p class="small muted">なし（根拠をまちがえた記録がない）</p>') +
       '<h3 class="small">今日の学習に入れた種類</h3>' + (parts ? '<div class="table-wrap"><table><thead><tr><th>種類</th><th>スキル</th><th>時間</th><th>選んだ理由</th><th>問題</th></tr></thead><tbody>' + parts + "</tbody></table></div>" : '<p class="small muted">今日は図形の補強なし</p>') + "</section>";

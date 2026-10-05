@@ -99,20 +99,20 @@
     // 証明は1本の正誤にしない。行ごとに「役割」（仮定・図から使える事実・合同条件・合同から言えること）と
     // 「主張（claim）」「根拠（reason）」を持ち、最初に止まった行で診断する（js/proof.js）。どれも図形の性質側（concept）だけ
     // 合同な図形で、対応する頂点・辺・角を見つける（△ABC ≡ △DEF の順番）
-    congCorr:       { label: "対応する辺・角", unit: "合同と証明", grade: "中2", concept: ["angleBasics"], calc: [] },
+    congCorr:       { label: "対応する辺・角", unit: "合同と証明", grade: "中2", school_label: "合同な図形まで", concept: ["angleBasics"], calc: [] },
     // 3つの等しさから、使える合同条件を選ぶ（2辺と「その間」の角か、など）
-    congCond:       { label: "三角形の合同条件", unit: "合同と証明", grade: "中2", concept: ["congCorr"], calc: [] },
+    congCond:       { label: "三角形の合同条件", unit: "合同と証明", grade: "中2", school_label: "合同条件まで", concept: ["congCorr"], calc: [] },
     // 証明に使える事実を、図から見つける（共通な辺・角、対頂角、平行線の錯角・同位角）。
     // 対頂角・錯角そのものの理解は図形①のスキル（直線の角・平行線と角）へさかのぼるが、地図の前提には固定で持たない：
     // 問題ごとの required_geometry_skills（その問題で実際に使った性質）だけを原因候補にする（js/proof.js）。
     // 学校の進み具合では「三角形の合同条件」と一緒に扱う
     proofFigureFacts: { label: "図から使えることを見つける", unit: "合同と証明", grade: "中2", follows: "congCond", concept: ["congCorr"], calc: [] },
     // 「〜ならば…」の仮定と結論を分ける。結論を仮定・事実として使わない
-    proofHypConc:   { label: "仮定と結論",     unit: "合同と証明", grade: "中2", concept: [], calc: [] },
+    proofHypConc:   { label: "仮定と結論",     unit: "合同と証明", grade: "中2", school_label: "仮定と結論まで", concept: [], calc: [] },
     // 合同を示したあと、対応する辺・角が等しいことを使う。学校の進み具合では「証明の組み立て」と一緒に扱う
     congUse:        { label: "合同から言えること", unit: "合同と証明", grade: "中2", follows: "proofBuild", concept: ["congCorr"], calc: [] },
     // 行をどの順番で組み立てるか（依存関係）
-    proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] }
+    proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", school_label: "証明まで", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -154,7 +154,7 @@
     "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明"];
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -182,6 +182,8 @@
   function schoolOptions(unit) {
     return (UNITS[unit] || []).filter(function (k) { return !SKILLS[k].follows; });
   }
+  // 選択肢の表示（合同と証明は「合同な図形まで／合同条件まで／仮定と結論まで／証明まで」）
+  function schoolOptionLabel(k) { return SKILLS[k].school_label || SKILLS[k].label + "まで"; }
   // そのスキルが学校で「習った／いま学習中／まだ」か。学校のようすで管理していない単元（中1・土台）は null（＝習った扱い）
   function schoolSkillStatus(skill, school) {
     if (!school || !school.units || !SKILLS[skill]) return null;
@@ -542,6 +544,8 @@
       var st = computeOne(id, list.filter(function (a) { return a.aspect !== "reason"; }), opts);
       var asp = aspectState(id, list, opts);
       st.value = asp.value; st.reason = asp.reason; st.overall = asp.overall;
+      // 先取りのまちがいは、根拠の問題（例：どの合同条件か）も数える
+      st.preview_misses = list.filter(function (a) { return a.preview && !a.correct; }).length;
       st.learning_status = asp.overall.status === "not_checked" ? st.learning_status : asp.overall.status;
       states[id] = st;
     });
@@ -567,20 +571,24 @@
     r.forEach(function (a) { if (!a.correct && a.confusion && !a.preview) confusions[a.confusion] = (confusions[a.confusion] || 0) + 1; });
     var value = { status: vs.learning_status, confidence: vs.confidence, attempts: vs.attempt_count, correct: vs.correct_count };
     var reason = { status: rs.learning_status, confidence: rs.confidence, attempts: rs.attempt_count, correct: rs.correct_count, confusions: confusions };
-    return { value: value, reason: reason, overall: overallOf(value, reason) };
+    return { value: value, reason: reason, overall: overallOf(value, reason, SKILLS[skillId] && SKILLS[skillId].unit === "合同と証明") };
   }
   var REASON_STABLE = { understood: true, applying: true, retained: true, mastered: true };
   // 総合状態：value を土台にする。reason が未確認なだけでは value の retained を下げない。
   // ただし最上位（mastered）は reason が安定しているときだけ。reason が不安定なら retained どまりで、ひとことを付ける
-  function overallOf(value, reason) {
-    var st = value.status, note = null;
+  // proof：証明のスキル（value の面は「主張」）
+  function overallOf(value, reason, proof) {
+    var st = value.status, note = null, what = proof ? "主張を選ぶ力" : "角度を求める力";
     var reasonChecked = reason.attempts > 0;
     if (st === "mastered" && !REASON_STABLE[reason.status]) st = "retained";
+    // 証明のスキルで、まだ根拠の問題（例：どの合同条件か）しか解いていないときは、根拠の状態をそのまま使う
+    //（合同条件を選ぶこと自体がこのスキルの中身なので、「まだ確かめていない」にしない）
+    if (proof && !value.attempts && reasonChecked) return { status: reason.status, note: "根拠を選ぶ問題で確かめた（主張はまだ確かめていない）", reason_practice: !REASON_STABLE[reason.status] };
     if (STATUS_RANK[value.status] >= STATUS_RANK.understood) {
-      if (reasonChecked && !REASON_STABLE[reason.status]) note = "角度を求める力は" + STATUS_VIEW[value.status === "mastered" ? "retained" : value.status].label + "だが、理由の理解はまだ安定していない";
+      if (reasonChecked && !REASON_STABLE[reason.status]) note = what + "は" + STATUS_VIEW[value.status === "mastered" ? "retained" : value.status].label + "だが、理由の理解はまだ安定していない";
       else if (!reasonChecked) note = "理由はまだ確かめていない";
     } else if (reasonChecked && REASON_STABLE[reason.status] && value.attempts > 0) {
-      note = "理由は分かっている。角度を求める計算を確かめる";
+      note = proof ? "理由は分かっている。主張（何が等しいか）を確かめる" : "理由は分かっている。角度を求める計算を確かめる";
     }
     return { status: st, note: note, reason_practice: reasonChecked && !REASON_STABLE[reason.status] };
   }
@@ -619,7 +627,7 @@
 
   SC.engine = {
     SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
-    expandUnit: expandUnit, schoolOptions: schoolOptions, prereqSide: prereqSide, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
+    expandUnit: expandUnit, schoolOptions: schoolOptions, schoolOptionLabel: schoolOptionLabel, prereqSide: prereqSide, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot,
     aspectState: aspectState, overallOf: overallOf, geometryRoute: geometryRoute
   };

@@ -141,6 +141,8 @@
   function school() {
     var p = get().profile;
     if (!p.school) { p.school = normalizeSchool(schoolFromOld(p)); persist(); }
+    // あとから増えた単元（例：合同と証明）は、保存済みのデータに無いので「まだ」として足す
+    else if (UNIT_ORDER.some(function (u) { return !p.school.units[u]; })) { normalizeSchool(p.school); persist(); }
     return p.school;
   }
   // 古い形にも書きもどす（既存の処理・以前のデータとの互換のため）

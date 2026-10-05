@@ -4071,6 +4071,17 @@
     "2つの三角形が重なっている辺はどれ？", [cq("bdbd", "BD", "BD", "correct"), cq("abcb", "AB", "CB", "goal_used"), cq("abdcbd", "∠ABD", "∠CBD", "misread")],
     [rc("common", "correct"), rc("hypothesis", "misread"), rc("vertical", "misread")], "BD は、どちらの三角形にもある。", "BD は △ABD にも △CBD にもある辺なので、BD ＝ BD（共通）です。");
 
+  lineQ("proofFigureFacts-standard-6", "proofFigureFacts", "standard", P4, "L3", figP4(), "AB ＝ AD、CB ＝ CD です。△ABC と △ADC の証明に使える、図からわかる等しいことを見つけよう。",
+    "2つの三角形が共有している辺はどれ？", [cq("acac", "AC", "AC", "correct"), cq("bdbd", "BD", "BD", "misread"), cq("badac", "∠BAC", "∠DAC", "goal_used")],
+    [rc("common", "correct"), rc("hypothesis", "misread"), rc("vertical", "misread")], "AC は、どちらの三角形の辺にもなっている。", "AC は △ABC にも △ADC にもある辺なので、AC ＝ AC（共通）です。");
+  lineQ("proofFigureFacts-standard-7", "proofFigureFacts", "standard", P3, "L3", figP3(), "AB // CD、AO ＝ DO です。△ABO と △DCO の証明に使える、O のまわりの等しい角を見つけよう。",
+    "O で向かい合う、等しい角はどれ？", [cq("aobdoc", "∠AOB", "∠DOC", "correct"), cq("aobaoc", "∠AOB", "∠AOC", "misread"), cq("oabocd", "∠OAB", "∠OCD", "misread")],
+    [rc("vertical", "correct"), rc("alternate", "misread"), rc("hypothesis", "misread")], "直線 AD と BC が O で交わっている。", "∠AOB と ∠DOC は O で向かい合う角（対頂角）なので等しくなります。");
+
+  lineQ("congCond-application-2", "congCond", "application", P9, "L4", figP9(), "点B、C、Eは一直線上にあり、AB // DC、AC // DE、BC ＝ CE です。同位角から ∠ABC ＝ ∠DCE、∠ACB ＝ ∠DEC も分かりました。",
+    "△ABC と合同な三角形を、対応の順に書くと？", [cg("abcdce", "ABC", "DCE", "correct"), cg("abcdec", "ABC", "DEC", "corr_shift"), cg("abccde", "ABC", "CDE", "corr_shift")],
+    [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSA", "SSA")], "B と C、C と E が対応する（BC ＝ CE）。", "A→D、B→C、C→E なので △ABC ≡ △DCE。∠ABC と ∠ACB は辺 BC の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。");
+
   proofReasonQ("proofHypConc-reason-4", "proofHypConc", figP2(), "AO ＝ BO、CO ＝ DO のとき AC ＝ BD を証明します。証明の中で AO ＝ BO と書ける理由はどれ？", "hypothesis", ["hypothesis", "vertical", "congruent_parts"],
     "AO ＝ BO は問題文で与えられているので、仮定です。", [P2, "L1"]);
   proofReasonQ("proofHypConc-reason-5", "proofHypConc", figP7(), "AC // DB、M は線分ABの中点です。証明の中で AM ＝ BM と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "congruent_parts"],
