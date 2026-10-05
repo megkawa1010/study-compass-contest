@@ -1508,7 +1508,7 @@
     }
     var HEAD = "<tr><th>小問</th><th>行</th><th>役割</th><th>選んだ答え（種類）</th><th>主張</th><th>根拠</th><th>まちがえた面</th><th>取り違え</th><th>学び直す場所（diagnostic_target）と理由</th><th>使った図形①</th><th>今回たどる経路</th><th>今回は追わない誤り（pending）</th><th>保存先・面・before → after</th></tr>";
     var cards = items.map(function (q) {
-      var v = q.proof ? PF.verify(q) : null;
+      var v = PF.check(q);
       var lines = q.proof ? q.proof.lines.map(function (l) {
         return "<tr><td>" + l.id + "</td><td>" + esc(ROLE_JA2[l.role]) + "</td><td>" + esc(PF.claimText(l.claim)) + "</td><td>" + esc(l.reason) + "</td><td>" + esc((l.depends_on || []).join("・") || "−") + "</td><td>" + esc(sk(PF.ROLE_SKILL[l.role])) + "</td></tr>";
       }).join("") : "";
@@ -1533,13 +1533,16 @@
           rows += rowOf(q, [{ id: null, skill: q.skill, correct: false, aspect: q.aspect || "claim", chosen: c.key }]);
         });
       } else if (q.type === "order") {
-        var ids = q.proof.lines.map(function (l) { return l.id; });
-        [[ids[0], ids[1], ids[3], ids[2], ids[4]], [ids[0], ids[1], ids[2], ids[4], ids[3]]].forEach(function (o) { rows += rowOf(q, PF.orderResults(q, o), o); });
+        // まちがいの例：合同の行を3つ目に置く／（5行なら）結論の行を合同より先に置く
+        var ids = q.proof.lines.map(function (l) { return l.id; }), n = ids.length;
+        var wrongs = [ids.slice(0, 2).concat([ids[3], ids[2]], ids.slice(4))];
+        if (n === 5) wrongs.push(ids.slice(0, 3).concat([ids[4], ids[3]]));
+        wrongs.forEach(function (o) { rows += rowOf(q, PF.orderResults(q, o), o); });
       }
       var orders = "";
       if (q.type === "order") {
         var ids2 = q.proof.lines.map(function (l) { return l.id; });
-        orders = [ids2, [ids2[2], ids2[0], ids2[1], ids2[3], ids2[4]], [ids2[1], ids2[2], ids2[0], ids2[3], ids2[4]]].map(function (o) {
+        orders = [ids2, [ids2[2], ids2[0], ids2[1]].concat(ids2.slice(3)), [ids2[1], ids2[2], ids2[0]].concat(ids2.slice(3))].map(function (o) {
           return "<li>" + esc(o.join(" → ")) + "：" + (PF.orderCheck(q, o).ok ? '<span class="geo-ok">正解</span>' : '<span class="geo-warn">×</span>') + "</li>";
         }).join("");
       }

@@ -1,7 +1,7 @@
 // node --test tests/*.test.js — 図形②：証明エンジン（行の役割・主張・根拠・依存関係）
 const test = require("node:test");
 const assert = require("node:assert/strict");
-["questions", "logic", "engine", "bank", "geometry", "proof", "compass", "rootcause"].forEach((f) => require("../js/" + f + ".js"));
+["questions", "logic", "engine", "bank", "geometry", "proof", "compass", "rootcause", "planner"].forEach((f) => require("../js/" + f + ".js"));
 const { SC } = globalThis;
 const E = SC.engine, Q = SC.QUESTIONS, L = SC.logic, P = SC.proof, R = SC.rootcause, G = SC.geometry;
 const T0 = Date.parse("2026-10-01T07:00:00Z");
@@ -217,4 +217,58 @@ test("同じ問題の中で、先の根拠は○・後の根拠が× → まと�
   const st = E.computeSkillStates(records(q, fill(q, { L3r: "alternate" })), { now: T0 + 3600e3 }).proofFigureFacts;
   assert.deepEqual([st.reason.attempts, st.reason.correct], [1, 0]);
   assert.deepEqual(st.reason.confusions, { alternate_for_vertical: 1 });
+});
+
+// ---------- 本番の問題バンク ----------
+const UNIT_Q = Object.values(Q).filter((q) => E.SKILLS[q.skill].unit === "合同と証明");
+
+test("合同と証明の全問が自動検算に通る（行・主張・根拠・依存・合同条件・図の印・仮定・結論・required_geometry_skills）", () => {
+  for (const q of UNIT_Q) {
+    const v = P.check(q);
+    assert.ok(v.ok, q.id + "：" + v.messages.join(" / "));
+  }
+  // 図の印：仮定に印がない図は不合格になる
+  const q = clone(Q["proof-sas-common-1"]);
+  q.figure.equalSides = [];
+  assert.ok(!P.verify(q).ok);
+  // 図から使える事実の1段階の問題：required_geometry_skills が行の根拠とずれていたら不合格
+  const f = clone(Q["proofFigureFacts-standard-1"]);
+  f.required_geometry_skills = ["lineAngles"];
+  assert.ok(!P.verifyStage(f).ok);
+});
+
+test("6つの段階それぞれに 基礎・標準・定着 があり、並べかえは4〜5行・正解順を1通りに固定しない", () => {
+  for (const sk of E.UNITS["合同と証明"]) for (const lv of ["basic", "standard", "retention"]) assert.ok(SC.bank.index[sk][lv].length >= 2, sk + "/" + lv);
+  const orders = UNIT_Q.filter((q) => q.type === "order");
+  assert.ok(orders.length >= 5);
+  for (const q of orders) {
+    assert.ok([4, 5].includes(q.proof.lines.length), q.id);
+    // 仮定・図の事実の行どうしを入れかえても正解
+    const o = q.answer.slice(); [o[0], o[1]] = [o[1], o[0]];
+    assert.ok(P.orderCheck(q, o).ok, q.id + " 入れかえ");
+  }
+});
+
+test("根拠だけの問題（reason_only）：reason だけを記録し、主張や別スキルの skill_state を動かさない", () => {
+  const rq = UNIT_Q.filter((q) => q.reason_only);
+  assert.ok(rq.length >= 32);
+  for (const sk of ["proofHypConc", "proofFigureFacts", "congCond", "congUse"]) assert.ok(rq.filter((q) => q.skill === sk).length >= 8, sk);
+  for (const q of rq) {
+    assert.ok(!Object.values(SC.bank.index).some((lv) => Object.values(lv).some((ids) => ids.includes(q.id))), q.id + " はチェック・練習の索引に入らない");
+    const wrong = q.choices.find((c) => c.key !== q.answer).key;
+    const rec = E.makeAnswerRecord(q, { status: "incorrect", chosen: wrong, confusion: G.confusionOf(q, wrong) }, { userId: "u", context: "lesson", now: T0 });
+    const st = E.computeSkillStates([rec], { now: T0 + 3600e3 });
+    Object.keys(st).forEach((k) => {
+      const moved = k === q.skill ? st[k].value && st[k].value.attempts : st[k].attempt_count || (st[k].reason && st[k].reason.attempts);
+      assert.ok(!moved, q.id + " が " + k + " を動かした");
+    });
+    assert.deepEqual([st[q.skill].reason.attempts, Object.keys(st[q.skill].reason.confusions)], [1, [wrong + "_for_" + q.answer]]);
+  }
+  // 根拠の確認：SSS_for_SAS → 合同条件の根拠だけの問題で、SAS が正解・SSS が選択肢にあるもの
+  const picks = SC.planner.reasonPicks({ skill: "congCond", confusions: ["SSS_for_SAS"], missed_questions: [] }, { history: [], now: T0 }, []);
+  assert.equal(picks.length, 2);
+  picks.forEach((p) => { const q = Q[p.question_id]; assert.ok(q.reason_only && q.skill === "congCond" && q.answer === "SAS" && q.choices.some((c) => c.key === "SSS"), p.question_id); });
+  // 図から使える事実の取り違え（錯角のつもりが同位角）→ 図から使えることを見つけるの根拠だけの問題（図形①の問題は使わない）
+  const p2 = SC.planner.reasonPicks({ skill: "proofFigureFacts", confusions: ["corresponding_for_alternate"], missed_questions: [] }, { history: [], now: T0 }, []);
+  p2.forEach((p) => assert.equal(Q[p.question_id].skill, "proofFigureFacts"));
 });

@@ -144,6 +144,7 @@
     chk("依存関係に循環がない", pr.lines.every(function (l) { return dfs(l.id); }));
     var L = null;
     try { L = q.figure ? geo(q.figure) : null; } catch (e) { chk("図が描ける", false, e.message); }
+    if (q.figure) checkMarks(q.figure, pr, chk);
     pr.lines.forEach(function (l) {
       var name = l.id + "（" + ROLE_JA[l.role] + "：" + claimText(l.claim) + "）";
       if (l.role === "hyp_fact") chk(name + " は仮定にある", (pr.hyp || []).some(function (h) { return sameClaim(h, l.claim); }) && l.reason === "hypothesis");
@@ -177,10 +178,150 @@
       if (!st.line) return;
       chk(st.id + " の行がある", !!byId[st.line]);
       if (st.type === "choice") chk(st.id + " の正解は選択肢に1つ", st.choices.filter(function (c) { return c.key === st.answer; }).length === 1);
+      var ln = byId[st.line], right = st.choices.filter(function (c) { return c.key === st.answer; })[0];
+      if (ln && right && st.part === "reason") chk(st.id + " の正解は行の根拠（" + ln.reason + "）", st.answer === ln.reason);
+      if (ln && right && st.part === "claim") {
+        chk(st.id + " の正解は行の主張（" + claimText(ln.claim) + "）", right.label === claimText(ln.claim));
+        st.choices.forEach(function (c) { if (c !== right) chk(st.id + "：まちがいの選択肢 " + c.label + " は行の主張と別", c.label !== claimText(ln.claim)); });
+      }
     });
     if (q.type === "order") chk("並べかえの見本の順番は依存関係を満たす", orderCheck(q, q.answer).ok);
     return out;
   }
+
+  // ---------- 図の印：仮定には印がある・結論には印がない・印は仮定だけ ----------
+  function samePart(x, y) {
+    var a = part(x), b = part(y);
+    if (a.kind !== b.kind) return false;
+    return a.kind === "seg" ? sameSet(a.ends, b.ends) : a.v === b.v && sameSet(a.ends, b.ends);
+  }
+  function markGroups(fig) {
+    var out = [], byId = {};
+    (fig.angles || []).forEach(function (a) { byId[a.id] = a; });
+    (fig.equalSides || []).forEach(function (g) { out.push(g.segments.map(function (s) { return s[0] + s[1]; })); });
+    (fig.equalAngles || []).forEach(function (g) { out.push(g.angles.map(function (id) { var a = byId[id]; return a ? "∠" + a.from + a.at + a.to : "?"; })); });
+    return out;
+  }
+  function eqMarked(groups, eq) {
+    return groups.some(function (g) { return g.some(function (n) { return samePart(n, eq[0]); }) && g.some(function (n) { return samePart(n, eq[1]); }); });
+  }
+  function parallelMarked(fig, par) {
+    var through = {};
+    (fig.lines || []).forEach(function (l) { through[l.id] = (l.through || []).join(""); });
+    var isLine = function (id, name) { return !!through[id] && sameSet(through[id].split(""), name.split("")); };
+    return (fig.parallel || []).some(function (g) {
+      return g.lines.length === 2 && ((isLine(g.lines[0], par[0]) && isLine(g.lines[1], par[1])) || (isLine(g.lines[0], par[1]) && isLine(g.lines[1], par[0])));
+    });
+  }
+  function checkMarks(fig, pr, chk) {
+    if (!fig || fig.type !== "geometry") return;
+    var groups = markGroups(fig);
+    (pr.hyp || []).forEach(function (h) {
+      if (h.eq) chk("仮定 " + claimText(h) + " に図の印がある", eqMarked(groups, h.eq));
+      if (h.parallel) chk("仮定 " + claimText(h) + " に平行の印がある", parallelMarked(fig, h.parallel));
+    });
+    if (pr.goal && pr.goal.eq) chk("結論 " + claimText(pr.goal) + " には印をつけない", !eqMarked(groups, pr.goal.eq));
+    chk("図の印は仮定だけ（図からわかること・結論に印をつけない）", groups.every(function (g) {
+      return g.length === 2 && (pr.hyp || []).some(function (h) { return h.eq && eqMarked([g], h.eq); });
+    }) && (fig.parallel || []).length === (pr.hyp || []).filter(function (h) { return h.parallel; }).length);
+  }
+
+  // ---------- 1段階の問題・根拠だけの問題の自動検算 ----------
+  //   src  … どの証明のどの行を問うか（主張の正解＝行の主張、根拠の正解＝行の根拠、選択肢の kind と行の関係）
+  //   corr … 対応（正解だけが対応する辺・角・頂点）
+  //   cond … 合同条件（正解＝成り立つ条件、なければ「いえない」）。need：あと1つ、sets：いえない組
+  //   hc   … 仮定と結論（ask：goal 結論 / hyp 仮定ぜんぶ / hyp_one 仮定の1つ）
+  var REASON_KEYS = { hypothesis: 1, common: 1, vertical: 1, alternate: 1, corresponding: 1, congruent_parts: 1, SSS: 1, SAS: 1, ASA: 1, SSA: 1 };
+  function verifyStage(q) {
+    var out = { ok: true, messages: [], checks: [] };
+    function chk(name, ok, detail) { out.checks.push({ name: name, ok: ok, detail: detail || "" }); if (!ok) { out.ok = false; out.messages.push(name + (detail ? "（" + detail + "）" : "")); } }
+    var parts = q.type === "steps" ? q.steps : [q];
+    parts.forEach(function (st) {
+      if (st.type !== "choice") return;
+      var keys = st.choices.map(function (c) { return c.key; });
+      chk((st.id || q.id) + " の正解は選択肢に1つ", keys.filter(function (k) { return k === st.answer; }).length === 1);
+      chk((st.id || q.id) + " の選択肢のキーが重ならない", keys.every(function (k, i) { return keys.indexOf(k) === i; }));
+    });
+    if (q.reason_only) {
+      chk("根拠だけの問題：記録は reason だけ（1つの選択）", q.aspect === "reason" && q.type === "choice" && q.level === "basic" && q.usage === "practice");
+      chk("根拠だけの問題：正解・選択肢は根拠の名前", q.choices.every(function (c) { return REASON_KEYS[c.key]; }));
+    }
+    var has = false;
+    if (q.src) {
+      has = true;
+      var pr = q.src.proof, line = pr.lines.filter(function (l) { return l.id === q.src.line; })[0];
+      var v = verify({ proof: pr, figure: q.figure });
+      v.checks.forEach(function (c) { chk("元の証明：" + c.name, c.ok, c.detail); });
+      var cond = pr.lines.filter(function (l) { return l.role === "condition"; })[0];
+      var known = pr.lines.filter(function (l) { return l.role !== "use" && l.role !== "condition"; }).map(function (l) { return l.claim; });
+      parts.forEach(function (st) {
+        var p = st.part || q.part || (q.reason_only ? "reason" : null), name = st.id || q.id;
+        if (p === "reason") chk(name + " の正解は行の根拠（" + line.reason + "）", st.answer === line.reason);
+        if (p !== "claim") return;
+        var right = st.choices.filter(function (c) { return c.key === st.answer; })[0];
+        // 合同から言えることの行は、結論の辺に限らず「対応する部分どうしで、まだ分かっていなかった等しさ」なら正解にできる
+        var useOk = line.role === "use" && cond && !!right && !!right.claim && !!right.claim.eq && pairUnder(right.claim.eq, cond.claim.cong).ok && !known.some(function (k) { return sameClaim(k, right.claim); });
+        chk(name + " の正解は行の主張（" + claimText(line.claim) + "）" + (line.role === "use" ? "か、合同から新しく言える対応する部分" : ""), !!right && !!right.claim && (sameClaim(right.claim, line.claim) || useOk));
+        st.choices.filter(function (c) { return c.key !== st.answer; }).forEach(function (c) {
+          if (!c.claim) return;
+          chk(name + "：まちがいの選択肢 " + c.label + " は行の主張と別", !sameClaim(c.claim, line.claim));
+          if (c.kind === "already_known") chk(name + "：" + c.label + " は合同の前から分かっていること", known.some(function (k) { return sameClaim(k, c.claim); }));
+          if ((c.kind === "goal_used" || c.kind === "conclusion_as_hypothesis") && c.claim.eq) chk(name + "：" + c.label + " はまだ示していないこと（仮定・図からわかることではない）", !known.some(function (k) { return sameClaim(k, c.claim); }));
+          if (c.kind === "corr_shift" && c.claim.eq && cond) chk(name + "：" + c.label + " は対応していない", !pairUnder(c.claim.eq, cond.claim.cong).ok);
+        });
+      });
+      var req = line.role === "figure_fact" && BASIS_SKILL[line.reason] ? [BASIS_SKILL[line.reason]] : [];
+      if (line.role === "figure_fact") chk("required_geometry_skills が行の根拠（" + line.reason + "）と一致", sameSet(q.required_geometry_skills || [], req) && q.basis === line.reason);
+      else chk("図形①へ戻らない行（required_geometry_skills なし）", !(q.required_geometry_skills || []).length);
+    }
+    if (q.corr) {
+      has = true;
+      var m = mapOf(q.corr.cong);
+      q.choices.forEach(function (c) {
+        var ok = c.name.length === 1 ? m[q.corr.of] === c.name : pairUnder([q.corr.of, c.name], q.corr.cong).ok;
+        chk("対応：" + c.label + (c.key === q.answer ? " は対応する" : " は対応しない"), ok === (c.key === q.answer));
+      });
+    }
+    if (q.cond) {
+      has = true;
+      var holds = function (eqs) { return ["SSS", "SAS", "ASA"].filter(function (k) { return conditionHolds(k, eqs, q.cond.cong).ok; }); };
+      if (q.cond.need) q.choices.forEach(function (c) {
+        var ok = conditionHolds(q.cond.need, q.cond.eqs.concat([c.eq]), q.cond.cong).ok;
+        chk("あと1つ：" + c.label + (c.key === q.answer ? " で条件がそろう" : " ではそろわない"), ok === (c.key === q.answer));
+      });
+      else if (q.cond.sets) q.choices.forEach(function (c) {
+        var none = !holds(c.eqs).length;
+        chk("いえない組：" + c.label, none === (c.key === q.answer));
+      });
+      else {
+        var h = holds(q.cond.eqs);
+        chk("合同条件：成り立つのは " + (h.join("・") || "なし") + "、正解は " + q.answer, h.length <= 1 && (h[0] || "no") === q.answer);
+      }
+    }
+    if (q.hc) {
+      has = true;
+      var inHyp = function (c) { return (q.hc.hyp || []).some(function (x) { return sameClaim(x, c); }); };
+      parts.forEach(function (st) {
+        if (st.part === "reason") { chk((st.id || q.id) + "：仮定の根拠は「仮定」", st.answer === "hypothesis"); return; }
+        st.choices.forEach(function (c) {
+          var ok = q.hc.ask === "goal" ? !!c.claim && sameClaim(c.claim, q.hc.goal)
+            : q.hc.ask === "hyp_one" ? !!c.claim && inHyp(c.claim)
+            : !!c.claims && c.claims.length === q.hc.hyp.length && c.claims.every(inHyp);
+          chk("仮定と結論：" + c.label + (c.key === st.answer ? " が正解" : " はちがう"), ok === (c.key === st.answer));
+        });
+      });
+    }
+    if (q.use) {
+      // 合同から言えること（図なし）：問う等しさが対応する部分どうしで、根拠の正解は「合同な図形の対応する辺・角」
+      has = true;
+      chk("合同から言えること：" + claimText({ eq: q.use.eq }) + " は対応する部分どうし", pairUnder(q.use.eq, q.use.cong).ok);
+      if (q.aspect === "reason") chk("合同から言えること：根拠の正解は congruent_parts", q.answer === "congruent_parts");
+    }
+    if (q.manual_check) { has = true; chk("自動検算なし（理由：" + q.manual_check + "）", true); }
+    chk("自動検算の方法がある（src / corr / cond / hc）", has);
+    return out;
+  }
+  function check(q) { return q.proof ? verify(q) : verifyStage(q); }
 
   // ---------- 並べかえの採点（depends_on を壊していないか） ----------
   // 返り値：{ ok, violation: { line, role, missing: [先に必要な行] } | null, tag }
@@ -343,5 +484,5 @@
   }
 
   SC.proof = { ROLE_SKILL: ROLE_SKILL, ROLE_JA: ROLE_JA, BASIS_SKILL: BASIS_SKILL, COND_JA: COND_JA, ORDER_JA: ORDER_JA,
-    part: part, claimText: claimText, verify: verify, requiredGeometry: requiredGeometry, orderCheck: orderCheck, orderResults: orderResults, entry: entry, conditionHolds: conditionHolds };
+    part: part, claimText: claimText, verify: verify, verifyStage: verifyStage, check: check, requiredGeometry: requiredGeometry, orderCheck: orderCheck, orderResults: orderResults, entry: entry, conditionHolds: conditionHolds };
 })(typeof window !== "undefined" ? window : globalThis);

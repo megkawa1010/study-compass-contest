@@ -710,6 +710,8 @@
     var all = Object.keys(SC.QUESTIONS).map(function (id) { return SC.QUESTIONS[id]; }).filter(function (q) { return q.origin === "bank" && !avoid(q.id); });
     // ① 取り違えた根拠が正解で、まちがえた根拠も選択肢にある問題（同じスキル → ほかのスキル）② 同じ正しい根拠の別の図 ③ 同じスキルの根拠だけの問題
     var short = all.filter(function (q) { return q.reason_only; });
+    // 証明（合同と証明）の根拠は、記録したスキルの根拠だけの問題で確かめる（図形①など別のスキルの reason を動かさない）
+    if (E.SKILLS[c.skill] && E.SKILLS[c.skill].unit === "合同と証明") short = short.filter(function (q) { return q.skill === c.skill; });
     var sameFirst = function (x, y) { return (x.skill === c.skill ? 0 : 1) - (y.skill === c.skill ? 0 : 1); };
     var ranked = [];
     confs.forEach(function (z) {

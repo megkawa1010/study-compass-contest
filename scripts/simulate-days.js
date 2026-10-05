@@ -17,7 +17,10 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 
 const history = [];
 let n = 0;
-const knows = UNIT === "図形の角"
+const knows = UNIT === "合同と証明"
+  ? { signed: true, algebra: true, likeTerms: true, distrib: true, eqProperty: true, transpose: true, eqParen: true, angleBasics: true, lineAngles: true, angleNames: true, parallelAngles: true, triangleSum: true,
+      proofHypConc: true, congCorr: false, congCond: false, proofFigureFacts: false, congUse: false, proofBuild: false }
+  : UNIT === "図形の角"
   ? { signed: true, algebra: true, likeTerms: true, distrib: true, eqProperty: true, transpose: true, eqParen: true, angleBasics: true, lineAngles: true, triangleSum: true,
       angleNames: false, parallelAngles: false, exteriorAngle: false, angleEq: false, angleCombo: false, polygonInterior: false, polygonExterior: false }
   : UNIT === "連立方程式"
@@ -32,12 +35,18 @@ function answer(qid, at, context) {
   else rec(q, qid, q.skill);
 }
 const CAUSE = process.argv[5] || null;
-if (CAUSE) { knows[CAUSE] = false; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
-const FIRST = UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
+if (CAUSE) { knows[CAUSE] = false; if (UNIT === "合同と証明" && CAUSE !== "congCorr") knows.congCorr = true; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
+const FIRST = UNIT === "合同と証明" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1"])
+  : UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
   : UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
   : UNIT === "連立方程式" ? SC.compass.unitCheck(UNIT).questions.concat(["simCoef-basic-2", "transpose-basic-2", "signed-basic-2", "algebra-basic-1"]) : ["B1", "B2", "B3", "B4", "B5", "C4", "C5"];
 FIRST.forEach((id) => answer(id, T0, "compass_check"));
-const explorations = UNIT === "図形の角"
+// 想定（合同と証明）：合同条件でまちがえ、原因が「対応する辺・角」。原因に parallelAngles（図形①）を指定すると、図から使える事実（錯角）でつまずく子ども。
+//                      proofHypConc を指定すると、証明の組み立てで仮定と結論を取り違える子ども
+const PROOF_SYMPTOM = { congCorr: "congCond", parallelAngles: "proofFigureFacts", proofHypConc: "proofBuild" };
+const explorations = UNIT === "合同と証明"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: PROOF_SYMPTOM[CAUSE || "congCorr"], label: E.SKILLS[PROOF_SYMPTOM[CAUSE || "congCorr"]].label }, conclusion: { kind: "gap_found", return_to: CAUSE || "congCorr" } }]
+  : UNIT === "図形の角"
   ? [{ date: new Date(T0).toISOString(), symptom: CAUSE === "transpose" ? { skill: "angleEq", label: "角度を式で表す" } : { skill: "parallelAngles", label: "平行線と角" }, conclusion: { kind: "gap_found", return_to: CAUSE || "angleNames" } }]
   : UNIT === "式の計算"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "polyMixed", label: "かっこを含む式の計算" }, conclusion: { kind: "gap_found", return_to: CAUSE || "polyAddSub" } }]
@@ -78,7 +87,7 @@ for (let d = 1; d <= DAYS; d++) {
   const picks = plan.sessions.flatMap((s) => s.picks.map((p) => ({ ...p, type: s.type, skill: s.skill })));
   picks.forEach((p) => {
     const seen = p.reused ? lastSeen(p.question_id, now) : null;
-    audit.picks.push({ day: d, skill: Q[p.question_id].skill, level: p.level, question_id: p.question_id, stage: p.stage, reused: p.reused,
+    audit.picks.push({ day: d, skill: Q[p.question_id].skill, level: p.level, question_id: p.question_id, stage: p.stage, reused: p.reused, type: p.type, qtype: Q[p.question_id].type,
       gap_days: seen === null ? null : Math.round(((now - seen) / DAY) * 10) / 10, why: p.why || "" });
   });
   const reuse = picks.filter((p) => p.reused).length, relax = picks.filter((p) => p.stage > 0 && !p.reused).length;

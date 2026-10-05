@@ -3401,10 +3401,10 @@
     geo({ id: id, skill: "proofBuild", level: level, text: text, figure: fig, proof: def, proof_sheet: [def.intro].concat(sheet), type: "steps", steps: steps, hint: hint, explanation: explanation });
   }
   // 並べかえ：カードを順にタップ。採点は依存関係（js/proof.js の orderCheck）
-  function proofOrder(id, def, fig, text, cardOrder, hint, explanation) {
+  function proofOrder(id, def, fig, text, cardOrder, hint, explanation, level) {
     var byId = {};
     def.lines.forEach(function (l) { byId[l.id] = l; });
-    geo({ id: id, skill: "proofBuild", level: "standard", aspect: "claim", text: text, figure: fig, proof: def, type: "order",
+    geo({ id: id, skill: "proofBuild", level: level || "standard", aspect: "claim", text: text, figure: fig, proof: def, type: "order",
       cards: cardOrder.map(function (k) { var l = byId[k]; return { key: k, label: l.role === "use" ? "合同な図形の対応する辺（角）は等しいので、" + pClaim(l.claim) : pClaim(l.claim) + "（" + PR_REASON[l.reason] + "）" }; }),
       answer: def.lines.map(function (l) { return l.id; }), hint: hint, explanation: explanation });
   }
@@ -3587,6 +3587,584 @@
         choices: [{ key: "vertical", label: "対頂角は等しい" }, { key: "common", label: "共通" }, { key: "alternate", label: "平行線の錯角は等しい" }],
         hint: "向かい合う角。", explanation: "対頂角は等しいので ∠AOC ＝ ∠BOD です。" }],
     hint: "証明では、仮定のほかに「図からわかる等しいこと」も使う。", explanation: "∠AOC ＝ ∠BOD（対頂角は等しい）を、証明に使えます。" });
+
+  // =====================================================================
+  // 合同と証明：本番の問題バンク（代表の6題・1段階の短い問題に加えて）
+  //   1段階の問題は、どの証明のどの行を問うか（src）・対応（corr）・合同条件（cond）・仮定と結論（hc）のどれかで
+  //   自動検算する（js/proof.js の verifyStage）。根拠だけの問題（reason_only）は reason だけを記録する
+  // =====================================================================
+  var BASIS_GEO = { vertical: "lineAngles", alternate: "parallelAngles", corresponding: "parallelAngles" };
+  function cq(key, a, b, kind) { return { key: key, label: a + " ＝ " + b, kind: kind, claim: peq(a, b) }; }
+  function cg(key, a, b, kind) { return { key: key, label: "△" + a + " ≡ △" + b, kind: kind, claim: pcong(a, b) }; }
+  function rc(key, kind) { return { key: key, label: PR_REASON[key], kind: kind }; }
+  // 正解がいつも同じ位置にならないように、選択肢を回す（id から決まる）
+  function mix(list, id) {
+    var n = 0;
+    for (var i = 0; i < id.length; i++) n = (n * 31 + id.charCodeAt(i)) >>> 0;
+    var k = n % list.length;
+    return list.slice(k).concat(list.slice(0, k));
+  }
+  // 1段階の問題が、どの証明のどの行を問うか。図から使える事実の行なら、その根拠から basis と required_geometry_skills を決める
+  function fromLine(q, def, lineId) {
+    var l = def.lines.filter(function (x) { return x.id === lineId; })[0];
+    q.src = { proof: def, line: lineId };
+    if (l.role === "figure_fact") { q.basis = l.reason; q.required_geometry_skills = BASIS_GEO[l.reason] ? [BASIS_GEO[l.reason]] : []; }
+    return q;
+  }
+  // 行の主張と根拠を2つの小問で（主張 → そう言える理由）。約4割の「根拠つき」はこの形と穴うめ証明
+  function lineQ(id, skill, level, def, lineId, fig, text, claimAsk, claims, reasons, hint, explanation, extra) {
+    var l = def.lines.filter(function (x) { return x.id === lineId; })[0];
+    var q = { id: id, skill: skill, level: level, format: "figure", figure: fig, text: text, type: "steps",
+      steps: [{ id: "s1", skill: skill, aspect: "claim", part: "claim", type: "choice", answer: claims[0].key, text: claimAsk, choices: mix(claims, id),
+          hint: hint, explanation: pClaim(l.claim) + " です。" },
+        { id: "s2", skill: skill, aspect: "reason", part: "reason", type: "choice", answer: reasons[0].key, text: "そう言える理由は？", choices: mix(reasons, id + "r"),
+          hint: "この等しさは、仮定・図・合同のどこから？", explanation: PR_REASON[l.reason] + " からです。" }],
+      hint: hint, explanation: explanation };
+    for (var k in extra) q[k] = extra[k];
+    stageQ(fromLine(q, def, lineId));
+  }
+  // 1つの選択だけの問題
+  function oneQ(q) { q.choices = mix(q.choices, q.id); q.answer = q.answer || q.choices.filter(function (c) { return c.kind === "correct"; })[0].key; stageQ(q); }
+  // 根拠だけを確かめる短い問題（reason_only）。今日の学習の「理由を確認」と、戻る勉強の「② 根拠を選ぶ」でだけ使う。
+  //   主張は問題文で示す（新しく測らない）。記録は、このスキルの reason だけ
+  function proofReasonQ(id, skill, fig, text, answer, keys, explanation, src) {
+    var q = { id: id, skill: skill, level: "basic", reason_only: true, aspect: "reason", usage: "practice", text: text, type: "choice", answer: answer,
+      choices: mix(keys.map(function (k) { return { key: k, label: PR_REASON[k] }; }), id), hint: "どうしてそう言えるか、ことばで選ぼう。", explanation: explanation };
+    if (fig) { q.format = "figure"; q.figure = fig; }
+    if (src && src.cond) q.cond = src.cond;
+    else if (src) fromLine(q, src[0], src[1]);
+    stageQ(q);
+  }
+
+  // ---------- P7：中点と平行線の錯角（1組の辺とその両端の角） ----------
+  var P7 = { intro: "△AMC と △BMD において、",
+    hyp: [{ parallel: ["AC", "DB"] }, peq("AM", "BM")], goal: peq("AC", "BD"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AM", "BM"), reason: "hypothesis" },
+      { id: "L2", role: "figure_fact", claim: peq("∠MAC", "∠MBD"), reason: "alternate" },
+      { id: "L3", role: "figure_fact", claim: peq("∠AMC", "∠BMD"), reason: "vertical" },
+      { id: "L4", role: "condition", claim: pcong("AMC", "BMD"), reason: "ASA", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("AC", "BD"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP7() {
+    return { type: "geometry", points: { A: [60, 60], C: [60, 220], D: [270, 60], B: [270, 220], M: [165, 140] },
+      lines: [{ id: "ac", through: ["A", "C"], extend: 0 }, { id: "db", through: ["D", "B"], extend: 0 }],
+      segments: [["A", "B"], ["C", "D"]], parallel: [{ lines: ["ac", "db"], marks: 1, at: 0.5 }],
+      equalSides: [{ segments: [seg2("A", "M"), seg2("B", "M")], marks: 1 }] };
+  }
+  // ---------- P8：二等分線（2組の辺とその間の角）。P8c は合同までの4行 ----------
+  var P8 = { intro: "△ABD と △ACD において、",
+    hyp: [peq("AB", "AC"), peq("∠BAD", "∠CAD")], goal: peq("BD", "CD"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AB", "AC"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("∠BAD", "∠CAD"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("AD", "AD"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABD", "ACD"), reason: "SAS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("BD", "CD"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  var P8c = { intro: P8.intro, hyp: P8.hyp, goal: pcong("ABD", "ACD"), lines: P8.lines.slice(0, 4) };
+  function figP8() {
+    return { type: "geometry", points: { A: [160, 40], B: [70, 230], C: [250, 230], D: [160, 230] },
+      segments: [["A", "B"], ["A", "C"], ["B", "C"], ["A", "D"]],
+      angles: [ang("a1", "A", "B", "D", { label: "" }), ang("a2", "A", "C", "D", { label: "" })],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("A", "C")], marks: 1 }], equalAngles: [{ angles: ["a1", "a2"], marks: 1 }] };
+  }
+  // ---------- P9：平行線の同位角を2組（1組の辺とその両端の角） ----------
+  var P9 = { intro: "△ABC と △DCE において、",
+    hyp: [{ parallel: ["AB", "DC"] }, { parallel: ["AC", "DE"] }, peq("BC", "CE")], goal: peq("AC", "DE"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("BC", "CE"), reason: "hypothesis" },
+      { id: "L2", role: "figure_fact", claim: peq("∠ABC", "∠DCE"), reason: "corresponding" },
+      { id: "L3", role: "figure_fact", claim: peq("∠ACB", "∠DEC"), reason: "corresponding" },
+      { id: "L4", role: "condition", claim: pcong("ABC", "DCE"), reason: "ASA", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("AC", "DE"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP9() {
+    return { type: "geometry", points: { B: [40, 220], C: [160, 220], E: [280, 220], A: [100, 80], D: [220, 80] },
+      lines: [{ id: "ab", through: ["A", "B"], extend: 0 }, { id: "dc", through: ["D", "C"], extend: 0 }, { id: "ac", through: ["A", "C"], extend: 0 }, { id: "de", through: ["D", "E"], extend: 0 }],
+      segments: [["B", "E"]], parallel: [{ lines: ["ab", "dc"], marks: 1, at: 0.45 }, { lines: ["ac", "de"], marks: 2, at: 0.55 }],
+      equalSides: [{ segments: [seg2("B", "C"), seg2("C", "E")], marks: 1 }] };
+  }
+  // ---------- P10：四角形の対角線（3組の辺） ----------
+  var P10 = { intro: "△ABD と △CDB において、",
+    hyp: [peq("AB", "CD"), peq("AD", "CB")], goal: peq("∠BAD", "∠DCB"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AB", "CD"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("AD", "CB"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("BD", "DB"), reason: "common" },
+      { id: "L4", role: "condition", claim: pcong("ABD", "CDB"), reason: "SSS", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("∠BAD", "∠DCB"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP10() {
+    return { type: "geometry", points: { A: [100, 60], D: [280, 60], B: [40, 220], C: [220, 220] },
+      segments: [["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"], ["B", "D"]],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("C", "D")], marks: 1 }, { segments: [seg2("A", "D"), seg2("C", "B")], marks: 2 }] };
+  }
+  // ---------- P11：対頂角と仮定の角（1組の辺とその両端の角） ----------
+  var P11 = { intro: "△AOC と △BOD において、",
+    hyp: [peq("AO", "BO"), peq("∠OAC", "∠OBD")], goal: peq("CO", "DO"),
+    lines: [{ id: "L1", role: "hyp_fact", claim: peq("AO", "BO"), reason: "hypothesis" },
+      { id: "L2", role: "hyp_fact", claim: peq("∠OAC", "∠OBD"), reason: "hypothesis" },
+      { id: "L3", role: "figure_fact", claim: peq("∠AOC", "∠BOD"), reason: "vertical" },
+      { id: "L4", role: "condition", claim: pcong("AOC", "BOD"), reason: "ASA", depends_on: ["L1", "L2", "L3"] },
+      { id: "L5", role: "use", claim: peq("CO", "DO"), reason: "congruent_parts", depends_on: ["L4"] }] };
+  function figP11() {
+    var f = figP2();
+    f.equalSides = [{ segments: [seg2("A", "O"), seg2("B", "O")], marks: 1 }];
+    f.angles = [ang("a", "A", "O", "C", { label: "" }), ang("b", "B", "O", "D", { label: "" })];
+    f.equalAngles = [{ angles: ["a", "b"], marks: 1 }];
+    return f;
+  }
+  // 代表の証明の図（1段階の問題でも同じ図を使う）
+  function figP5() {
+    return { type: "geometry", points: { B: [70, 140], D: [270, 140], A: [170, 50], C: [170, 230] },
+      segments: [["A", "B"], ["A", "D"], ["C", "B"], ["C", "D"], ["B", "D"]],
+      angles: [ang("b1", "B", "A", "D", { label: "" }), ang("b2", "B", "D", "C", { label: "" }), ang("d1", "D", "B", "A", { label: "" }), ang("d2", "D", "C", "B", { label: "" })],
+      equalAngles: [{ angles: ["b1", "b2"], marks: 1 }, { angles: ["d1", "d2"], marks: 2 }] };
+  }
+  function figP6() {
+    return { type: "geometry", points: { A: [160, 40], B: [70, 220], C: [250, 220], D: { along: ["A", "B", 0.55] }, E: { along: ["A", "C", 0.55] } },
+      segments: [["A", "B"], ["A", "C"], ["B", "E"], ["C", "D"]], labels: ["A", "B", "C", "D", "E"],
+      equalSides: [{ segments: [seg2("A", "B"), seg2("A", "C")], marks: 1 }, { segments: [seg2("A", "E"), seg2("A", "D")], marks: 2 }] };
+  }
+
+  // ---------- 穴うめ証明・並べかえ（証明の組み立て） ----------
+  proofFill("proof-basic-sas-bisector-1", "basic", P8c, figP8(), "AB ＝ AC、∠BAD ＝ ∠CAD です。△ABD ≡ △ACD を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L3", part: "claim", choices: [["adad", "AD ＝ AD", "correct"], ["bdcd", "BD ＝ CD", "goal_used"], ["abad", "AB ＝ AD", "misread"]] },
+    { line: "L3", part: "reason", choices: [["common", "共通", "correct"], ["hypothesis", "仮定", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L4", part: "reason", choices: [["SAS", PR_REASON.SAS, "correct"], ["SSS", PR_REASON.SSS, "SSS"], ["ASA", PR_REASON.ASA, "ASA"]] }
+  ], "AD は2つの三角形の両方にある辺。", "AB ＝ AC（仮定）、∠BAD ＝ ∠CAD（仮定）、AD ＝ AD（共通）。2組の辺とその間の角がそれぞれ等しいので △ABD ≡ △ACD です。");
+  proofOrder("proof-order-basic-sas-bisector-1", P8c, figP8(), "AB ＝ AC、∠BAD ＝ ∠CAD です。△ABD ≡ △ACD を証明します。証明の行を、正しい順番にタップしよう（4行）。",
+    ["L4", "L3", "L1", "L2"], "合同を言うのは、3つの等しいことがそろってから。", "等しいこと3つ（順番は自由）→ △ABD ≡ △ACD の順です。", "basic");
+  proofFill("proof-asa-corresponding-1", "application", P9, figP9(), "点B、C、Eは一直線上にあり、AB // DC、AC // DE、BC ＝ CE です。AC ＝ DE を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "claim", choices: [["abcdce", "∠ABC ＝ ∠DCE", "correct"], ["abcdec", "∠ABC ＝ ∠DEC", "corr_shift"], ["abcacb", "∠ABC ＝ ∠ACB", "misread"]] },
+    { line: "L2", part: "reason", choices: [["corresponding", "平行線の同位角は等しい", "correct"], ["alternate", "平行線の錯角は等しい", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L3", part: "reason", choices: [["corresponding", "平行線の同位角は等しい", "correct"], ["alternate", "平行線の錯角は等しい", "misread"], ["hypothesis", "仮定", "misread"]] },
+    { line: "L4", part: "claim", choices: [["abcdce", "△ABC ≡ △DCE", "correct"], ["abcdec", "△ABC ≡ △DEC", "corr_shift"], ["abccde", "△ABC ≡ △CDE", "corr_shift"]] },
+    { line: "L4", part: "reason", choices: [["ASA", PR_REASON.ASA, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["SSA", PR_REASON.SSA + "（合同とはいえない）", "SSA"]] },
+    { line: "L5", part: "claim", choices: [["acde", "AC ＝ DE", "correct"], ["acdc", "AC ＝ DC", "corr_shift"], ["abde", "AB ＝ DE", "misread"]] }
+  ], "平行線と、一直線 BE でできる同じ位置の角。", "BC ＝ CE（仮定）、∠ABC ＝ ∠DCE（AB // DC の同位角）、∠ACB ＝ ∠DEC（AC // DE の同位角）。1組の辺とその両端の角がそれぞれ等しいので △ABC ≡ △DCE、AC ＝ DE です。");
+  proofOrder("proof-order-asa-corresponding-1", P9, figP9(), "点B、C、Eは一直線上にあり、AB // DC、AC // DE、BC ＝ CE です。AC ＝ DE を証明します。証明の行を、正しい順番にタップしよう。",
+    ["L4", "L2", "L5", "L3", "L1"], "結論（AC ＝ DE）は合同のあと。合同は3つの等しいことのあと。", "等しいこと3つ（順番は自由）→ △ABC ≡ △DCE → AC ＝ DE です。");
+  proofFill("proof-asa-alternate-2", "application", P7, figP7(), "AC // DB、点Mは線分ABの中点で、線分CDも点Mを通ります。AC ＝ BD を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L1", part: "claim", choices: [["ambm", "AM ＝ BM", "correct"], ["acbd", "AC ＝ BD", "goal_used"], ["cmdm", "CM ＝ DM", "misread"]] },
+    { line: "L2", part: "reason", choices: [["alternate", "平行線の錯角は等しい", "correct"], ["corresponding", "平行線の同位角は等しい", "misread"], ["vertical", "対頂角は等しい", "misread"]] },
+    { line: "L3", part: "claim", choices: [["amcbmd", "∠AMC ＝ ∠BMD", "correct"], ["amcamd", "∠AMC ＝ ∠AMD", "misread"], ["mcamdb", "∠MCA ＝ ∠MDB", "goal_used"]] },
+    { line: "L4", part: "reason", choices: [["ASA", PR_REASON.ASA, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["SSS", PR_REASON.SSS, "SSS"]] },
+    { line: "L5", part: "reason", choices: [["congruent_parts", "合同な図形の対応する辺（角）は等しい", "correct"], ["hypothesis", "仮定", "goal_used"], ["alternate", "平行線の錯角は等しい", "misread"]] }
+  ], "中点なので AM ＝ BM。平行線 AC、DB と、横切る直線 AB でできる角。", "AM ＝ BM（仮定）、∠MAC ＝ ∠MBD（錯角）、∠AMC ＝ ∠BMD（対頂角）。1組の辺とその両端の角がそれぞれ等しいので △AMC ≡ △BMD、AC ＝ BD です。");
+  proofFill("proof-sas-bisector-1", "retention", P8, figP8(), "点Dは辺BC上にあり、AB ＝ AC、∠BAD ＝ ∠CAD です。BD ＝ CD を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "reason", choices: [["hypothesis", "仮定", "correct"], ["common", "共通", "misread"], ["congruent_parts", "合同な図形の対応する辺（角）は等しい", "goal_used"]] },
+    { line: "L3", part: "claim", choices: [["adad", "AD ＝ AD", "correct"], ["bdcd", "BD ＝ CD", "goal_used"], ["bcbc", "BC ＝ BC", "misread"]] },
+    { line: "L4", part: "reason", choices: [["SAS", PR_REASON.SAS, "correct"], ["SSA", PR_REASON.SSA + "（合同とはいえない）", "SSA"], ["ASA", PR_REASON.ASA, "ASA"]] },
+    { line: "L5", part: "claim", choices: [["bdcd", "BD ＝ CD", "correct"], ["bdad", "BD ＝ AD", "corr_shift"], ["abcd", "AB ＝ CD", "misread"]] }
+  ], "AD は2つの三角形の両方にある辺。", "AB ＝ AC（仮定）、∠BAD ＝ ∠CAD（仮定）、AD ＝ AD（共通）。2組の辺とその間の角がそれぞれ等しいので △ABD ≡ △ACD、BD ＝ CD です。");
+  proofFill("proof-sss-quad-1", "retention", P10, figP10(), "四角形ABCDで、AB ＝ CD、AD ＝ CB です。∠BAD ＝ ∠DCB を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L3", part: "claim", choices: [["bddb", "BD ＝ DB", "correct"], ["acca", "AC ＝ CA", "misread"], ["abad", "AB ＝ AD", "misread"]] },
+    { line: "L3", part: "reason", choices: [["common", "共通", "correct"], ["hypothesis", "仮定", "misread"], ["congruent_parts", "合同な図形の対応する辺（角）は等しい", "goal_used"]] },
+    { line: "L4", part: "claim", choices: [["abdcdb", "△ABD ≡ △CDB", "correct"], ["abdcbd", "△ABD ≡ △CBD", "corr_shift"], ["abddcb", "△ABD ≡ △DCB", "corr_shift"]] },
+    { line: "L4", part: "reason", choices: [["SSS", PR_REASON.SSS, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["ASA", PR_REASON.ASA, "ASA"]] },
+    { line: "L5", part: "claim", choices: [["baddcb", "∠BAD ＝ ∠DCB", "correct"], ["badcdb", "∠BAD ＝ ∠CDB", "corr_shift"], ["abdcdb", "∠ABD ＝ ∠CDB", "misread"]] }
+  ], "対角線 BD は2つの三角形の両方にある辺。", "AB ＝ CD、AD ＝ CB（仮定）、BD ＝ DB（共通）。3組の辺がそれぞれ等しいので △ABD ≡ △CDB、∠BAD ＝ ∠DCB です。");
+  proofFill("proof-asa-vertical-2", "retention", P11, figP11(), "線分ABとCDが点Oで交わり、AO ＝ BO、∠OAC ＝ ∠OBD です。CO ＝ DO を証明します。［ ］にあてはまるものを選ぼう。", [
+    { line: "L2", part: "claim", choices: [["oacobd", "∠OAC ＝ ∠OBD", "correct"], ["aocbod", "∠AOC ＝ ∠BOD", "misread"], ["ocaodb", "∠OCA ＝ ∠ODB", "goal_used"]] },
+    { line: "L3", part: "reason", choices: [["vertical", "対頂角は等しい", "correct"], ["alternate", "平行線の錯角は等しい", "misread"], ["hypothesis", "仮定", "misread"]] },
+    { line: "L4", part: "reason", choices: [["ASA", PR_REASON.ASA, "correct"], ["SAS", PR_REASON.SAS, "SAS"], ["SSA", PR_REASON.SSA + "（合同とはいえない）", "SSA"]] },
+    { line: "L5", part: "claim", choices: [["codo", "CO ＝ DO", "correct"], ["cobo", "CO ＝ BO", "corr_shift"], ["aobo", "AO ＝ BO", "misread"]] }
+  ], "O で向かい合う角。辺 AO の両端の角が等しい。", "AO ＝ BO（仮定）、∠OAC ＝ ∠OBD（仮定）、∠AOC ＝ ∠BOD（対頂角）。1組の辺とその両端の角がそれぞれ等しいので △AOC ≡ △BOD、CO ＝ DO です。");
+
+  // ---------- 仮定と結論 ----------
+  oneQ({ id: "proofHypConc-basic-2", skill: "proofHypConc", level: "basic", hc: { hyp: [peq("AO", "BO"), peq("CO", "DO")], goal: peq("AC", "BD"), ask: "hyp" },
+    text: "「AO ＝ BO、CO ＝ DO ならば、AC ＝ BD」の仮定はどれ？", type: "choice",
+    choices: [{ key: "both", label: "AO ＝ BO と CO ＝ DO", kind: "correct", claims: [peq("AO", "BO"), peq("CO", "DO")] },
+      { key: "goal", label: "AC ＝ BD", kind: "conclusion_as_hypothesis", claims: [peq("AC", "BD")] },
+      { key: "mixed", label: "AO ＝ BO と AC ＝ BD", kind: "conclusion_as_hypothesis", claims: [peq("AO", "BO"), peq("AC", "BD")] }],
+    hint: "「ならば」の前が仮定。", explanation: "「ならば」の前の AO ＝ BO と CO ＝ DO が仮定です。AC ＝ BD は結論です。" });
+  oneQ({ id: "proofHypConc-basic-3", skill: "proofHypConc", level: "basic", hc: { hyp: [peq("AB", "AC")], goal: peq("∠B", "∠C"), ask: "goal" },
+    text: "「△ABC で、AB ＝ AC ならば、∠B ＝ ∠C」の結論はどれ？", type: "choice",
+    choices: [cq("bc", "∠B", "∠C", "correct"), cq("abac", "AB", "AC", "conclusion_as_hypothesis"), cq("abbc", "AB", "BC", "misread")],
+    hint: "「ならば」の後が結論。", explanation: "「ならば」の後の ∠B ＝ ∠C が結論です。AB ＝ AC は仮定です。" });
+  oneQ({ id: "proofHypConc-basic-4", skill: "proofHypConc", level: "basic", format: "figure", figure: figP8(), hc: { hyp: P8.hyp, goal: P8.goal, ask: "hyp_one" },
+    text: "AB ＝ AC、∠BAD ＝ ∠CAD のとき、BD ＝ CD を証明します。仮定として書いてよいものはどれ？", type: "choice",
+    choices: [cq("abac", "AB", "AC", "correct"), cq("bdcd", "BD", "CD", "conclusion_as_hypothesis"), cq("adad", "AD", "AD", "misread")],
+    hint: "問題文で「わかっている」と書かれていること。", explanation: "AB ＝ AC は問題文で与えられた仮定です。BD ＝ CD はこれから示す結論、AD ＝ AD は図からわかること（共通）です。" });
+  lineQ("proofHypConc-standard-1", "proofHypConc", "standard", P7, "L1", figP7(), "AC // DB、点Mは線分ABの中点です。AC ＝ BD を証明します。",
+    "仮定から書ける、辺の等しさはどれ？", [cq("ambm", "AM", "BM", "correct"), cq("acbd", "AC", "BD", "conclusion_as_hypothesis"), cq("cmdm", "CM", "DM", "misread")],
+    [rc("hypothesis", "correct"), rc("common", "misread"), rc("vertical", "misread")], "「中点」から言えること。", "M が AB の中点なので AM ＝ BM（仮定）です。AC ＝ BD は結論なので、まだ使えません。");
+  oneQ({ id: "proofHypConc-standard-2", skill: "proofHypConc", level: "standard", format: "figure", figure: figP10(), hc: { hyp: P10.hyp, goal: P10.goal, ask: "goal" },
+    text: "四角形ABCDで、AB ＝ CD、AD ＝ CB ならば、∠BAD ＝ ∠DCB です。この結論はどれ？", type: "choice",
+    choices: [cq("baddcb", "∠BAD", "∠DCB", "correct"), cq("abcd", "AB", "CD", "conclusion_as_hypothesis"), cq("bddb", "BD", "DB", "misread")],
+    hint: "証明したいこと。", explanation: "結論は ∠BAD ＝ ∠DCB です。AB ＝ CD・AD ＝ CB は仮定、BD ＝ DB は図からわかること（共通）です。" });
+  stageQ({ id: "proofHypConc-application-1", skill: "proofHypConc", level: "application", format: "figure", figure: figP1(), hc: { hyp: P1.hyp, goal: P1.goal, ask: "goal" },
+    text: "AB ＝ DC、∠ABC ＝ ∠DCB のとき、AC ＝ DB を証明しています。", type: "steps",
+    steps: [{ id: "s1", skill: "proofHypConc", aspect: "claim", type: "choice", answer: "acdb", text: "証明の途中で、根拠として使ってはいけないものはどれ？",
+        choices: mix([cq("acdb", "AC", "DB", "correct"), cq("abdc", "AB", "DC", "misread"), cq("bccb", "BC", "CB", "misread")], "hc-app-1"),
+        hint: "まだ示していないことは使えない。", explanation: "AC ＝ DB はこれから示す結論なので、途中の根拠には使えません。" },
+      { id: "s2", skill: "proofHypConc", aspect: "reason", part: "reason", type: "choice", answer: "hypothesis", text: "AB ＝ DC は、証明の中で何として書ける？",
+        choices: mix([rc("hypothesis", "correct"), rc("common", "misread"), rc("congruent_parts", "goal_used")], "hc-app-1r"),
+        hint: "問題文で与えられている。", explanation: "AB ＝ DC は問題文で与えられているので、仮定です。" }],
+    hint: "仮定・図からわかること・結論を分ける。", explanation: "AB ＝ DC は仮定、BC ＝ CB は共通なので使えます。AC ＝ DB は結論なので、合同を示したあとに言います。" });
+  oneQ({ id: "proofHypConc-retention-1", skill: "proofHypConc", level: "retention", hc: { hyp: P3.hyp, goal: P3.goal, ask: "goal" },
+    text: "「AB // CD、AO ＝ DO ならば、BO ＝ CO」の結論はどれ？", type: "choice",
+    choices: [cq("boco", "BO", "CO", "correct"), cq("aodo", "AO", "DO", "conclusion_as_hypothesis"), { key: "par", label: "AB // CD", kind: "conclusion_as_hypothesis", claim: { parallel: ["AB", "CD"] } }],
+    hint: "「ならば」の後。", explanation: "結論は BO ＝ CO です。AB // CD と AO ＝ DO は仮定です。" });
+  lineQ("proofHypConc-retention-2", "proofHypConc", "retention", P11, "L2", figP11(), "線分ABとCDが点Oで交わり、AO ＝ BO、∠OAC ＝ ∠OBD です。CO ＝ DO を証明します。",
+    "仮定から書ける、角の等しさはどれ？", [cq("oacobd", "∠OAC", "∠OBD", "correct"), cq("aocbod", "∠AOC", "∠BOD", "misread"), cq("ocaodb", "∠OCA", "∠ODB", "conclusion_as_hypothesis")],
+    [rc("hypothesis", "correct"), rc("vertical", "misread"), rc("common", "misread")], "問題文で与えられた角。", "∠OAC ＝ ∠OBD は問題文で与えられた仮定です（∠AOC ＝ ∠BOD は対頂角で、図からわかること）。");
+
+  // ---------- 対応する辺・角 ----------
+  oneQ({ id: "congCorr-basic-3", skill: "congCorr", level: "basic", corr: { cong: ["PQR", "XYZ"], of: "∠PQR" },
+    text: "△PQR ≡ △XYZ のとき、∠Q と等しい角はどれ？", type: "choice",
+    choices: [{ key: "y", label: "∠Y", name: "∠XYZ", kind: "correct" }, { key: "x", label: "∠X", name: "∠YXZ", kind: "corr_shift" }, { key: "z", label: "∠Z", name: "∠XZY", kind: "corr_shift" }],
+    hint: "≡ の前後で、同じ位置の頂点。", explanation: "Q と Y が対応するので、∠Q ＝ ∠Y です。" });
+  oneQ({ id: "congCorr-basic-4", skill: "congCorr", level: "basic", corr: { cong: ["ABC", "DEF"], of: "AC" },
+    text: "△ABC ≡ △DEF のとき、辺 AC に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "df", label: "DF", name: "DF", kind: "correct" }, { key: "de", label: "DE", name: "DE", kind: "corr_shift" }, { key: "ef", label: "EF", name: "EF", kind: "corr_shift" }],
+    hint: "A と D、C と F が対応する。", explanation: "A と D、C と F が対応するので、AC に対応するのは DF です。" });
+  oneQ({ id: "congCorr-standard-1", skill: "congCorr", level: "standard", format: "figure", figure: figP1(), corr: { cong: ["ABC", "DCB"], of: "AB" },
+    text: "図で △ABC ≡ △DCB です。辺 AB に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "dc", label: "DC", name: "DC", kind: "correct" }, { key: "db", label: "DB", name: "DB", kind: "corr_shift" }, { key: "cb", label: "CB", name: "CB", kind: "corr_shift" }],
+    hint: "△ABC ≡ △DCB の順に、A→D、B→C、C→B。", explanation: "A と D、B と C が対応するので、AB に対応するのは DC です。" });
+  oneQ({ id: "congCorr-standard-2", skill: "congCorr", level: "standard", format: "figure", figure: figP2(), corr: { cong: ["AOC", "BOD"], of: "∠OCA" },
+    text: "図で △AOC ≡ △BOD です。∠OCA と等しい角はどれ？", type: "choice",
+    choices: [{ key: "odb", label: "∠ODB", name: "∠ODB", kind: "correct" }, { key: "obd", label: "∠OBD", name: "∠OBD", kind: "corr_shift" }, { key: "bod", label: "∠BOD", name: "∠BOD", kind: "corr_shift" }],
+    hint: "C に対応する頂点は？", explanation: "C と D が対応するので、∠OCA ＝ ∠ODB です。" });
+  oneQ({ id: "congCorr-standard-3", skill: "congCorr", level: "standard", format: "figure", figure: figP10(), corr: { cong: ["ABD", "CDB"], of: "AD" },
+    text: "図で △ABD ≡ △CDB です。辺 AD に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "cb", label: "CB", name: "CB", kind: "correct" }, { key: "cd", label: "CD", name: "CD", kind: "corr_shift" }, { key: "db", label: "DB", name: "DB", kind: "corr_shift" }],
+    hint: "A→C、B→D、D→B。", explanation: "A と C、D と B が対応するので、AD に対応するのは CB です。" });
+  stageQ(fromLine({ id: "congCorr-application-1", skill: "congCorr", level: "application", format: "figure", figure: figP1(),
+    text: "図の印から、△ABC と △DCB は合同です。", type: "steps",
+    steps: [{ id: "s1", skill: "congCorr", aspect: "claim", part: "claim", type: "choice", answer: "abcdcb", text: "対応する頂点の順に正しく書いたものはどれ？",
+        choices: mix([cg("abcdcb", "ABC", "DCB", "correct"), cg("abcbcd", "ABC", "BCD", "corr_shift"), cg("abccdb", "ABC", "CDB", "corr_shift")], "corr-app-1"),
+        hint: "印のついた辺・角どうしが対応する。", explanation: "A と D、B と C、C と B が対応するので、△ABC ≡ △DCB です。" },
+      { id: "s2", skill: "congCond", aspect: "reason", part: "reason", type: "choice", answer: "SAS", text: "そう言える合同条件はどれ？",
+        choices: mix([rc("SAS", "correct"), rc("SSS", "SSS"), rc("ASA", "ASA")], "corr-app-1r"),
+        hint: "AB ＝ DC、∠ABC ＝ ∠DCB、BC ＝ CB。", explanation: "∠ABC は辺 AB と BC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。" }],
+    hint: "印のついた辺・角どうしが対応する。", explanation: "AB ＝ DC、∠ABC ＝ ∠DCB、BC ＝ CB（共通）。2組の辺とその間の角がそれぞれ等しいので △ABC ≡ △DCB です。" }, P1, "L4"));
+  oneQ({ id: "congCorr-retention-1", skill: "congCorr", level: "retention", corr: { cong: ["LMN", "PQR"], of: "MN" },
+    text: "△LMN ≡ △PQR のとき、辺 MN に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "qr", label: "QR", name: "QR", kind: "correct" }, { key: "pq", label: "PQ", name: "PQ", kind: "corr_shift" }, { key: "pr", label: "PR", name: "PR", kind: "corr_shift" }],
+    hint: "M と Q、N と R が対応する。", explanation: "M と Q、N と R が対応するので、MN に対応するのは QR です。" });
+  oneQ({ id: "congCorr-retention-2", skill: "congCorr", level: "retention", format: "figure", figure: figP8(), corr: { cong: ["ABD", "ACD"], of: "∠ADB" },
+    text: "図で △ABD ≡ △ACD です。∠ADB と等しい角はどれ？", type: "choice",
+    choices: [{ key: "adc", label: "∠ADC", name: "∠ADC", kind: "correct" }, { key: "acd", label: "∠ACD", name: "∠ACD", kind: "corr_shift" }, { key: "cad", label: "∠CAD", name: "∠CAD", kind: "corr_shift" }],
+    hint: "D は D に対応する。", explanation: "A→A、B→C、D→D なので、∠ADB ＝ ∠ADC です。" });
+
+  // ---------- 三角形の合同条件 ----------
+  var ABC_DEF = ["ABC", "DEF"];
+  oneQ({ id: "congCond-basic-3", skill: "congCond", level: "basic", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["BC", "EF"], ["CA", "FD"]] },
+    text: "△ABC と △DEF で、AB ＝ DE、BC ＝ EF、CA ＝ FD のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("SSS", "correct"), rc("SAS", "SAS"), rc("ASA", "ASA")], hint: "等しいのは辺だけ？", explanation: "3組の辺がそれぞれ等しい、です。" });
+  oneQ({ id: "congCond-basic-4", skill: "congCond", level: "basic", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["BC", "EF"], ["∠ABC", "∠DEF"], ["∠ACB", "∠DFE"]] },
+    text: "△ABC と △DEF で、BC ＝ EF、∠B ＝ ∠E、∠C ＝ ∠F のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSS", "SSS")], hint: "等しい角は、等しい辺の両端にある？", explanation: "∠B と ∠C は辺 BC の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。" });
+  oneQ({ id: "congCond-basic-5", skill: "congCond", level: "basic", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["∠BAC", "∠EDF"], ["AC", "DF"]] },
+    text: "△ABC と △DEF で、AB ＝ DE、∠A ＝ ∠D、AC ＝ DF のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("SAS", "correct"), rc("ASA", "ASA"), rc("SSS", "SSS")], hint: "∠A は辺 AB と AC の間の角？", explanation: "∠A は AB と AC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。" });
+  oneQ(fromLine({ id: "congCond-standard-1", skill: "congCond", level: "standard", aspect: "reason", part: "reason", format: "figure", figure: figP7(),
+    text: "△AMC と △BMD で、AM ＝ BM、∠MAC ＝ ∠MBD、∠AMC ＝ ∠BMD です。使える合同条件はどれ？", type: "choice",
+    choices: [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSA", "SSA")], hint: "等しい2つの角は、辺 AM の両端？", explanation: "∠MAC と ∠AMC は辺 AM の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。" }, P7, "L4"));
+  oneQ(fromLine({ id: "congCond-standard-2", skill: "congCond", level: "standard", aspect: "reason", part: "reason", format: "figure", figure: figP10(),
+    text: "△ABD と △CDB で、AB ＝ CD、AD ＝ CB、BD ＝ DB です。使える合同条件はどれ？", type: "choice",
+    choices: [rc("SSS", "correct"), rc("SAS", "SAS"), rc("ASA", "ASA")], hint: "等しいのは辺？角？", explanation: "3組の辺がそれぞれ等しい、です。" }, P10, "L4"));
+  oneQ({ id: "congCond-standard-3", skill: "congCond", level: "standard", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["BC", "EF"], ["∠BAC", "∠EDF"]] },
+    text: "△ABC と △DEF で、AB ＝ DE、BC ＝ EF、∠A ＝ ∠D のとき、合同といえる？", type: "choice", answer: "no",
+    choices: [{ key: "SAS", label: "いえる（2組の辺とその間の角）", kind: "SSA" }, { key: "no", label: "いえない（角が2辺の間にない）", kind: "correct" }],
+    hint: "辺 AB と BC の間の角は？", explanation: "AB と BC の間の角は ∠B です。∠A は間の角ではないので、この3つだけでは合同とはいえません。" });
+  oneQ({ id: "congCond-standard-4", skill: "congCond", level: "standard", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["∠ABC", "∠DEF"]], need: "SAS" },
+    text: "△ABC と △DEF で、AB ＝ DE、∠B ＝ ∠E です。あと1つ何がわかれば「2組の辺とその間の角」で合同といえる？", type: "choice",
+    choices: [{ key: "bcef", label: "BC ＝ EF", kind: "correct", eq: ["BC", "EF"] }, { key: "acdf", label: "AC ＝ DF", kind: "SSA", eq: ["AC", "DF"] }, { key: "bcde", label: "BC ＝ DE", kind: "corr_shift", eq: ["BC", "DE"] }],
+    hint: "∠B をはさむ2辺は？", explanation: "∠B をはさむのは AB と BC。BC ＝ EF がわかれば、2組の辺とその間の角がそれぞれ等しくなります。" });
+  stageQ(fromLine({ id: "congCond-application-1", skill: "congCond", level: "application", format: "figure", figure: figP11(),
+    text: "図で、AO ＝ BO、∠OAC ＝ ∠OBD です（O で向かい合う角も使えます）。", type: "steps",
+    steps: [{ id: "s1", skill: "congCond", aspect: "claim", part: "claim", type: "choice", answer: "aocbod", text: "△AOC と合同な三角形を、対応の順に書くと？",
+        choices: mix([cg("aocbod", "AOC", "BOD", "correct"), cg("aocdob", "AOC", "DOB", "corr_shift"), cg("aocobd", "AOC", "OBD", "corr_shift")], "cond-app-1"),
+        hint: "A と等しい角をもつ頂点は？", explanation: "A と B、O と O、C と D が対応するので、△AOC ≡ △BOD です。" },
+      { id: "s2", skill: "congCond", aspect: "reason", part: "reason", type: "choice", answer: "ASA", text: "使う合同条件はどれ？",
+        choices: mix([rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSA", "SSA")], "cond-app-1r"),
+        hint: "等しい角は辺 AO の両端？", explanation: "∠OAC と ∠AOC（対頂角で ∠BOD と等しい）は辺 AO の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。" }],
+    hint: "O で向かい合う角も等しい。", explanation: "AO ＝ BO、∠OAC ＝ ∠OBD（仮定）、∠AOC ＝ ∠BOD（対頂角）。1組の辺とその両端の角がそれぞれ等しいので △AOC ≡ △BOD です。" }, P11, "L4"));
+  oneQ({ id: "congCond-retention-1", skill: "congCond", level: "retention", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AC", "DF"], ["∠ACB", "∠DFE"], ["BC", "EF"]] },
+    text: "△ABC と △DEF で、AC ＝ DF、∠C ＝ ∠F、BC ＝ EF のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("SAS", "correct"), rc("SSS", "SSS"), rc("ASA", "ASA"), rc("SSA", "SSA")], hint: "∠C は辺 AC と BC の間？", explanation: "∠C は AC と BC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。" });
+  oneQ({ id: "congCond-retention-2", skill: "congCond", level: "retention", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["∠BAC", "∠EDF"], ["∠ABC", "∠DEF"]] },
+    text: "△ABC と △DEF で、AB ＝ DE、∠A ＝ ∠D、∠B ＝ ∠E のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSA", "SSA")], hint: "∠A と ∠B は辺 AB の両端？", explanation: "∠A と ∠B は辺 AB の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。" });
+
+  // ---------- 合同から言えること ----------
+  oneQ(fromLine({ id: "congUse-basic-4", skill: "congUse", level: "basic", aspect: "reason", part: "reason", format: "figure", figure: figP5(),
+    text: "△ABD ≡ △CBD を示しました。このあと AB ＝ CB と言える理由はどれ？", type: "choice",
+    choices: [rc("congruent_parts", "correct"), rc("hypothesis", "use_confused"), rc("common", "use_confused")],
+    hint: "AB ＝ CB は、はじめから分かっていたこと？", explanation: "AB ＝ CB は仮定ではありません。△ABD ≡ △CBD を示したので、合同な図形の対応する辺は等しい、が理由です。" }, P5, "L5"));
+  oneQ({ id: "congUse-standard-1", skill: "congUse", level: "standard", format: "figure", figure: figP8(), manual_check: "主張はどれも BD ＝ CD。書き方（根拠と順番）だけを問う",
+    text: "△ABD ≡ △ACD を示しました。次に書く行として正しいものはどれ？", type: "choice",
+    choices: [{ key: "use", label: "合同な図形の対応する辺は等しいので、BD ＝ CD", kind: "correct" }, { key: "hyp", label: "仮定より、BD ＝ CD", kind: "use_confused" },
+      { key: "back", label: "BD ＝ CD なので、△ABD ≡ △ACD", kind: "use_before_cong" }],
+    hint: "合同を示したあとに言えることは？", explanation: "合同を示したあとは、合同な図形の対応する辺は等しいので BD ＝ CD、と書きます。BD ＝ CD は仮定ではありません。" });
+  oneQ(fromLine({ id: "congUse-standard-2", skill: "congUse", level: "standard", part: "claim", format: "figure", figure: figP7(),
+    text: "△AMC ≡ △BMD を示しました。合同から、新しく言えることはどれ？", type: "choice",
+    choices: [cq("acbd", "AC", "BD", "correct"), cq("ambm", "AM", "BM", "already_known"), cq("acbm", "AC", "BM", "corr_shift")],
+    hint: "AM ＝ BM は、合同を示す前から分かっていた。", explanation: "AM ＝ BM は仮定です。合同から新しく言えるのは、対応する辺 AC ＝ BD です。" }, P7, "L5"));
+  stageQ(fromLine({ id: "congUse-application-1", skill: "congUse", level: "application", format: "figure", figure: figP9(),
+    text: "点B、C、Eは一直線上にあり、AB // DC、AC // DE、BC ＝ CE です。△ABC ≡ △DCE を示しました。", type: "steps",
+    steps: [{ id: "s1", skill: "congUse", aspect: "claim", part: "claim", type: "choice", answer: "bacdce", text: "合同から新しく言える角の等しさはどれ？",
+        choices: mix([cq("bacdce", "∠BAC", "∠CDE", "correct"), cq("abcdce", "∠ABC", "∠DCE", "already_known"), cq("bacdec", "∠BAC", "∠DEC", "corr_shift")], "use-app-1"),
+        hint: "∠ABC ＝ ∠DCE は、合同を示すときにもう使った。", explanation: "新しく言えるのは、対応する角 ∠BAC ＝ ∠CDE です。" },
+      { id: "s2", skill: "congUse", aspect: "reason", part: "reason", type: "choice", answer: "congruent_parts", text: "そう言える理由は？",
+        choices: mix([rc("congruent_parts", "correct"), rc("corresponding", "use_confused"), rc("hypothesis", "use_confused")], "use-app-1r"),
+        hint: "平行線の角ではなく、合同から。", explanation: "合同を示したので、合同な図形の対応する角は等しい、が理由です。" }],
+    hint: "合同を示す前から分かっていたことと、合同から新しく言えることを分ける。", explanation: "∠ABC ＝ ∠DCE（同位角）は合同を示す前から分かっていました。合同から新しく言えるのは ∠BAC ＝ ∠CDE（合同な図形の対応する角は等しい）です。" }, P9, "L5"));
+  oneQ(fromLine({ id: "congUse-retention-1", skill: "congUse", level: "retention", part: "claim", format: "figure", figure: figP11(),
+    text: "△AOC ≡ △BOD を示しました。合同から、新しく言えることはどれ？", type: "choice",
+    choices: [cq("codo", "CO", "DO", "correct"), cq("aobo", "AO", "BO", "already_known"), cq("cobo", "CO", "BO", "corr_shift")],
+    hint: "AO ＝ BO は仮定。", explanation: "AO ＝ BO は仮定です。合同から新しく言えるのは、対応する辺 CO ＝ DO です。" }, P11, "L5"));
+  oneQ(fromLine({ id: "congUse-retention-2", skill: "congUse", level: "retention", aspect: "reason", part: "reason", format: "figure", figure: figP4(),
+    text: "△ABC ≡ △ADC を示しました。このあと ∠BAC ＝ ∠DAC と言える理由はどれ？", type: "choice",
+    choices: [rc("congruent_parts", "correct"), rc("hypothesis", "use_confused"), rc("SSS", "use_confused")],
+    hint: "∠BAC ＝ ∠DAC は、問題文にあった？", explanation: "∠BAC ＝ ∠DAC は仮定ではありません。合同を示したので、合同な図形の対応する角は等しい、が理由です。" }, P4, "L5"));
+
+  // ---------- 図から使えることを見つける（主張 → 根拠の2小問） ----------
+  lineQ("proofFigureFacts-basic-2", "proofFigureFacts", "basic", P1, "L3", figP1(), "△ABC と △DCB の証明に使える、図からわかる等しいことを見つけよう。",
+    "2つの三角形の両方にある辺はどれ？", [cq("bccb", "BC", "CB", "correct"), cq("abdc", "AB", "DC", "misread"), cq("acdb", "AC", "DB", "goal_used")],
+    [rc("common", "correct"), rc("hypothesis", "misread"), rc("vertical", "misread")], "2つの三角形が重なっている辺。", "BC は △ABC にも △DCB にもある辺なので、BC ＝ CB（共通）です。");
+  lineQ("proofFigureFacts-basic-3", "proofFigureFacts", "basic", P3, "L2", figP3(), "AB // CD です。△ABO と △DCO の証明に使える、図からわかる等しい角を見つけよう。",
+    "平行線から言える、等しい角はどれ？", [cq("bacdo", "∠BAO", "∠CDO", "correct"), cq("baodco", "∠BAO", "∠DCO", "corr_shift"), cq("baoaob", "∠BAO", "∠AOB", "misread")],
+    [rc("alternate", "correct"), rc("corresponding", "misread"), rc("vertical", "misread")], "平行線 AB、CD と、横切る直線 AD。", "∠BAO と ∠CDO は、平行線の錯角なので等しくなります。");
+  lineQ("proofFigureFacts-basic-4", "proofFigureFacts", "basic", P6, "L3", figP6(), "点Dは辺AB上、点Eは辺AC上にあります。△ABE と △ACD の証明に使える、図からわかる等しいことを見つけよう。",
+    "2つの三角形の両方にある角はどれ？", [cq("baecad", "∠BAE", "∠CAD", "correct"), cq("abeacd", "∠ABE", "∠ACD", "goal_used"), cq("baebad", "∠BAE", "∠BAD", "misread")],
+    [rc("common", "correct"), rc("vertical", "misread"), rc("hypothesis", "misread")], "頂点 A の角は、どちらの三角形にもある。", "∠BAE と ∠CAD は同じ ∠A なので、∠BAE ＝ ∠CAD（共通）です。");
+  lineQ("proofFigureFacts-standard-1", "proofFigureFacts", "standard", P7, "L2", figP7(), "AC // DB です。△AMC と △BMD の証明に使える、図からわかる等しい角を見つけよう。",
+    "平行線から言える、等しい角はどれ？", [cq("macmbd", "∠MAC", "∠MBD", "correct"), cq("macmdb", "∠MAC", "∠MDB", "corr_shift"), cq("macamc", "∠MAC", "∠AMC", "misread")],
+    [rc("alternate", "correct"), rc("corresponding", "misread"), rc("vertical", "misread")], "平行線 AC、DB と、横切る直線 AB。", "∠MAC と ∠MBD は、平行線の錯角なので等しくなります。");
+  lineQ("proofFigureFacts-standard-2", "proofFigureFacts", "standard", P9, "L2", figP9(), "点B、C、Eは一直線上にあり、AB // DC です。△ABC と △DCE の証明に使える、図からわかる等しい角を見つけよう。",
+    "AB // DC から言える、等しい角はどれ？", [cq("abcdce", "∠ABC", "∠DCE", "correct"), cq("abcdec", "∠ABC", "∠DEC", "corr_shift"), cq("abcacb", "∠ABC", "∠ACB", "misread")],
+    [rc("corresponding", "correct"), rc("alternate", "misread"), rc("vertical", "misread")], "平行線 AB、DC と、横切る直線 BE。同じ位置の角。", "∠ABC と ∠DCE は、平行線の同位角なので等しくなります。");
+  lineQ("proofFigureFacts-standard-3", "proofFigureFacts", "standard", P8, "L3", figP8(), "△ABD と △ACD の証明に使える、図からわかる等しいことを見つけよう。",
+    "2つの三角形の両方にある辺はどれ？", [cq("adad", "AD", "AD", "correct"), cq("abac", "AB", "AC", "misread"), cq("bdcd", "BD", "CD", "goal_used")],
+    [rc("common", "correct"), rc("hypothesis", "misread"), rc("congruent_parts", "misread")], "2つの三角形の境目の辺。", "AD は △ABD にも △ACD にもある辺なので、AD ＝ AD（共通）です。");
+  lineQ("proofFigureFacts-standard-4", "proofFigureFacts", "standard", P11, "L3", figP11(), "線分ABとCDが点Oで交わっています。△AOC と △BOD の証明に使える、図からわかる等しい角を見つけよう。",
+    "O のまわりで、等しい角はどれ？", [cq("aocbod", "∠AOC", "∠BOD", "correct"), cq("aocaod", "∠AOC", "∠AOD", "misread"), cq("ocaodb", "∠OCA", "∠ODB", "goal_used")],
+    [rc("vertical", "correct"), rc("alternate", "misread"), rc("common", "misread")], "O で向かい合う角。", "∠AOC と ∠BOD は向かい合う角（対頂角）なので等しくなります。");
+  lineQ("proofFigureFacts-application-1", "proofFigureFacts", "application", P9, "L3", figP9(), "点B、C、Eは一直線上にあり、AC // DE です。△ABC と △DCE の証明に使える、図からわかる等しい角を見つけよう。",
+    "∠ACB と等しい角はどれ？", [cq("acbdec", "∠ACB", "∠DEC", "correct"), cq("acbdce", "∠ACB", "∠DCE", "misread"), cq("acbcde", "∠ACB", "∠CDE", "corr_shift")],
+    [rc("corresponding", "correct"), rc("alternate", "misread"), rc("vertical", "misread")], "平行線 AC、DE と、横切る直線 BE。", "∠ACB と ∠DEC は、平行線の同位角なので等しくなります。");
+  lineQ("proofFigureFacts-retention-1", "proofFigureFacts", "retention", P10, "L3", figP10(), "四角形ABCDに対角線BDをひきました。△ABD と △CDB の証明に使える、図からわかる等しいことを見つけよう。",
+    "どちらの三角形にもふくまれる辺はどれ？", [cq("bddb", "BD", "DB", "correct"), cq("abcd", "AB", "CD", "misread"), cq("baddcb", "∠BAD", "∠DCB", "goal_used")],
+    [rc("common", "correct"), rc("hypothesis", "misread"), rc("congruent_parts", "misread")], "対角線は、どちらの三角形にもある。", "BD は △ABD にも △CDB にもある辺なので、BD ＝ DB（共通）です。");
+  lineQ("proofFigureFacts-retention-2", "proofFigureFacts", "retention", P7, "L3", figP7(), "線分ABとCDが点Mで交わっています。△AMC と △BMD の証明に使える、図からわかる等しい角を見つけよう。",
+    "M のまわりで、等しい角はどれ？", [cq("amcbmd", "∠AMC", "∠BMD", "correct"), cq("amcamd", "∠AMC", "∠AMD", "misread"), cq("mcamdb", "∠MCA", "∠MDB", "goal_used")],
+    [rc("vertical", "correct"), rc("alternate", "misread"), rc("common", "misread")], "M で向かい合う角。", "∠AMC と ∠BMD は向かい合う角（対頂角）なので等しくなります。");
+
+  // ---------- 根拠だけを確かめる短い問題（証明・reason_only） ----------
+  //   主張は問題文で示す。選んだ根拠と取り違え（例：SSS_for_SAS）だけを記録する（このスキルの reason の面だけが動く）
+  proofReasonQ("congCond-reason-1", "congCond", null, "△ABC と △DEF で、AB ＝ DE、∠B ＝ ∠E、BC ＝ EF です。△ABC ≡ △DEF と言える合同条件はどれ？", "SAS", ["SAS", "SSS", "ASA", "SSA"],
+    "∠B は辺 AB と BC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。", { cond: { cong: ["ABC", "DEF"], eqs: [["AB", "DE"], ["∠ABC", "∠DEF"], ["BC", "EF"]] } });
+  proofReasonQ("congCond-reason-2", "congCond", figP10(), "△ABD と △CDB で、AB ＝ CD、AD ＝ CB、BD ＝ DB です。△ABD ≡ △CDB と言える合同条件はどれ？", "SSS", ["SSS", "SAS", "ASA"],
+    "等しいのは3組の辺なので、3組の辺がそれぞれ等しい、です。", [P10, "L4"]);
+  proofReasonQ("congCond-reason-3", "congCond", figP7(), "△AMC と △BMD で、AM ＝ BM、∠MAC ＝ ∠MBD、∠AMC ＝ ∠BMD です。△AMC ≡ △BMD と言える合同条件はどれ？", "ASA", ["ASA", "SAS", "SSS", "SSA"],
+    "∠MAC と ∠AMC は辺 AM の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。", [P7, "L4"]);
+  proofReasonQ("congCond-reason-4", "congCond", figP8(), "△ABD と △ACD で、AB ＝ AC、∠BAD ＝ ∠CAD、AD ＝ AD です。△ABD ≡ △ACD と言える合同条件はどれ？", "SAS", ["SAS", "ASA", "SSA", "SSS"],
+    "∠BAD は辺 AB と AD の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。", [P8, "L4"]);
+  proofReasonQ("congCond-reason-5", "congCond", figP5(), "△ABD と △CBD で、∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB、BD ＝ BD です。△ABD ≡ △CBD と言える合同条件はどれ？", "ASA", ["ASA", "SAS", "SSS", "SSA"],
+    "∠ABD と ∠ADB は辺 BD の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。", [P5, "L4"]);
+  proofReasonQ("congCond-reason-6", "congCond", null, "△PQR と △STU で、PQ ＝ ST、QR ＝ TU、RP ＝ US です。△PQR ≡ △STU と言える合同条件はどれ？", "SSS", ["SSS", "SAS", "ASA"],
+    "3組の辺がそれぞれ等しい、です。", { cond: { cong: ["PQR", "STU"], eqs: [["PQ", "ST"], ["QR", "TU"], ["RP", "US"]] } });
+  proofReasonQ("proofFigureFacts-reason-1", "proofFigureFacts", figP8(), "△ABD と △ACD で、AD ＝ AD と言える理由はどれ？", "common", ["common", "hypothesis", "vertical"],
+    "AD は2つの三角形の両方にある辺なので、共通です。", [P8, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-2", "proofFigureFacts", figP11(), "図で ∠AOC ＝ ∠BOD と言える理由はどれ？", "vertical", ["vertical", "alternate", "common", "hypothesis"],
+    "O で向かい合う角なので、対頂角は等しい、です。", [P11, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-3", "proofFigureFacts", figP7(), "AC // DB です。図で ∠MAC ＝ ∠MBD と言える理由はどれ？", "alternate", ["alternate", "corresponding", "vertical"],
+    "平行線 AC、DB と直線 AB でできる錯角なので等しい、です。", [P7, "L2"]);
+  proofReasonQ("proofFigureFacts-reason-4", "proofFigureFacts", figP9(), "点B、C、Eは一直線上にあり、AB // DC です。図で ∠ABC ＝ ∠DCE と言える理由はどれ？", "corresponding", ["corresponding", "alternate", "vertical"],
+    "平行線 AB、DC と直線 BE でできる、同じ位置の角（同位角）なので等しい、です。", [P9, "L2"]);
+  proofReasonQ("proofFigureFacts-reason-5", "proofFigureFacts", figP6(), "点Dは辺AB上、点Eは辺AC上にあります。∠BAE ＝ ∠CAD と言える理由はどれ？", "common", ["common", "vertical", "hypothesis"],
+    "∠BAE と ∠CAD は同じ ∠A なので、共通です。", [P6, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-6", "proofFigureFacts", figP3(), "AB // CD です。図で ∠AOB ＝ ∠DOC と言える理由はどれ？", "vertical", ["vertical", "alternate", "hypothesis"],
+    "O で向かい合う角なので、対頂角は等しい、です（平行線を使わなくても言えます）。", [P3, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-7", "proofFigureFacts", figP3(), "AB // CD です。図で ∠BAO ＝ ∠CDO と言える理由はどれ？", "alternate", ["alternate", "corresponding", "vertical", "common"],
+    "平行線 AB、CD と直線 AD でできる錯角なので等しい、です。", [P3, "L2"]);
+  proofReasonQ("proofHypConc-reason-1", "proofHypConc", figP8(), "AB ＝ AC、∠BAD ＝ ∠CAD のとき BD ＝ CD を証明します。証明の中で AB ＝ AC と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "congruent_parts"],
+    "AB ＝ AC は問題文で与えられているので、仮定です。", [P8, "L1"]);
+  proofReasonQ("proofHypConc-reason-2", "proofHypConc", figP4(), "AB ＝ AD、CB ＝ CD のとき ∠BAC ＝ ∠DAC を証明します。証明の中で CB ＝ CD と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "vertical"],
+    "CB ＝ CD は問題文で与えられているので、仮定です。", [P4, "L2"]);
+  proofReasonQ("proofHypConc-reason-3", "proofHypConc", figP1(), "AB ＝ DC、∠ABC ＝ ∠DCB のとき AC ＝ DB を証明します。証明の中で ∠ABC ＝ ∠DCB と書ける理由はどれ？", "hypothesis", ["hypothesis", "congruent_parts", "common"],
+    "∠ABC ＝ ∠DCB は問題文で与えられているので、仮定です。", [P1, "L2"]);
+  proofReasonQ("congUse-reason-1", "congUse", figP2(), "△AOC ≡ △BOD を示しました。AC ＝ BD と言える理由はどれ？", "congruent_parts", ["congruent_parts", "hypothesis", "vertical"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。", [P2, "L5"]);
+  proofReasonQ("congUse-reason-2", "congUse", figP7(), "△AMC ≡ △BMD を示しました。AC ＝ BD と言える理由はどれ？", "congruent_parts", ["congruent_parts", "hypothesis", "common"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。", [P7, "L5"]);
+  proofReasonQ("congUse-reason-3", "congUse", figP10(), "△ABD ≡ △CDB を示しました。∠BAD ＝ ∠DCB と言える理由はどれ？", "congruent_parts", ["congruent_parts", "hypothesis", "SSS"],
+    "合同を示したので、合同な図形の対応する角は等しい、です。", [P10, "L5"]);
+
+  // ---------- 補強（10日試算で不足したところだけ） ----------
+  //   合同から言えること・対応する辺・角・仮定と結論・合同条件の基礎／標準、根拠だけの問題（各スキル8問前後）
+  oneQ({ id: "congUse-basic-5", skill: "congUse", level: "basic", aspect: "reason", use: { cong: ["ABC", "DEF"], eq: ["AB", "DE"] },
+    text: "△ABC ≡ △DEF を示しました。このあと AB ＝ DE と書くときの理由はどれ？", type: "choice",
+    choices: [rc("congruent_parts", "correct"), rc("hypothesis", "use_confused"), rc("SAS", "use_confused")],
+    hint: "合同を示したあとに、何が言える？", explanation: "合同を示したので、合同な図形の対応する辺は等しい、が理由です。" });
+  oneQ(fromLine({ id: "congUse-basic-6", skill: "congUse", level: "basic", part: "claim", format: "figure", figure: figP8(),
+    text: "△ABD ≡ △ACD を示しました。合同から、新しく言えることはどれ？", type: "choice",
+    choices: [cq("bdcd", "BD", "CD", "correct"), cq("abac", "AB", "AC", "already_known"), cq("bdad", "BD", "AD", "corr_shift")],
+    hint: "AB ＝ AC は仮定。", explanation: "AB ＝ AC は仮定です。合同から新しく言えるのは、対応する辺 BD ＝ CD です。" }, P8, "L5"));
+  oneQ({ id: "congUse-basic-7", skill: "congUse", level: "basic", format: "figure", figure: figP10(), manual_check: "合同を示す前に書いてよいか（はい・いいえ）を問う",
+    text: "AB ＝ CD、AD ＝ CB が分かっています。まだ △ABD ≡ △CDB を示していないとき、「対応する角は等しいので ∠BAD ＝ ∠DCB」と書いてよい？", type: "choice", answer: "no",
+    choices: [{ key: "yes", label: "書いてよい（対応する角だから）", kind: "use_before_cong" }, { key: "no", label: "まだ書けない（先に合同を示す）", kind: "correct" }],
+    hint: "対応する角が等しいと言えるのは、いつ？", explanation: "対応する角が等しいと言えるのは、合同を示したあとです。先に △ABD ≡ △CDB を示します。" });
+  oneQ(fromLine({ id: "congUse-standard-3", skill: "congUse", level: "standard", part: "claim", format: "figure", figure: figP5(),
+    text: "△ABD ≡ △CBD を示しました。合同から、新しく言えることはどれ？", type: "choice",
+    choices: [cq("adcd", "AD", "CD", "correct"), cq("bdbd", "BD", "BD", "already_known"), cq("adcb", "AD", "CB", "corr_shift")],
+    hint: "BD ＝ BD は、合同を示すときにもう使った。", explanation: "BD ＝ BD（共通）は合同を示す前から分かっていました。新しく言えるのは、対応する辺 AD ＝ CD です。" }, P5, "L5"));
+  oneQ(fromLine({ id: "congUse-standard-4", skill: "congUse", level: "standard", part: "claim", format: "figure", figure: figP6(),
+    text: "点Dは辺AB上、点Eは辺AC上にあります。△ABE ≡ △ACD を示しました。合同から新しく言える角の等しさはどれ？", type: "choice",
+    choices: [cq("abeacd", "∠ABE", "∠ACD", "correct"), cq("baecad", "∠BAE", "∠CAD", "already_known"), cq("abeadc", "∠ABE", "∠ADC", "corr_shift")],
+    hint: "∠BAE ＝ ∠CAD（共通）は、合同を示すときにもう使った。", explanation: "新しく言えるのは、対応する角 ∠ABE ＝ ∠ACD です。" }, P6, "L5"));
+  lineQ("congUse-standard-5", "congUse", "standard", P3, "L5", figP3(), "AB // CD、AO ＝ DO です。△ABO ≡ △DCO を示しました。",
+    "合同から、新しく言えることはどれ？", [cq("boco", "BO", "CO", "correct"), cq("aodo", "AO", "DO", "already_known"), cq("bodo", "BO", "DO", "corr_shift")],
+    [rc("congruent_parts", "correct"), rc("alternate", "use_confused"), rc("hypothesis", "use_confused")], "AO ＝ DO は仮定。", "合同から新しく言えるのは BO ＝ CO（合同な図形の対応する辺は等しい）です。");
+  oneQ({ id: "congCorr-basic-5", skill: "congCorr", level: "basic", corr: { cong: ["ABC", "DEF"], of: "C" },
+    text: "△ABC ≡ △DEF のとき、頂点 C に対応する頂点はどれ？", type: "choice",
+    choices: [{ key: "f", label: "F", name: "F", kind: "correct" }, { key: "d", label: "D", name: "D", kind: "corr_shift" }, { key: "e", label: "E", name: "E", kind: "corr_shift" }],
+    hint: "≡ の前後で、3番目どうし。", explanation: "≡ の前後で同じ位置の頂点が対応するので、C に対応するのは F です。" });
+  oneQ({ id: "congCorr-basic-6", skill: "congCorr", level: "basic", corr: { cong: ["ABC", "PQR"], of: "∠BAC" },
+    text: "△ABC ≡ △PQR のとき、∠A と等しい角はどれ？", type: "choice",
+    choices: [{ key: "p", label: "∠P", name: "∠QPR", kind: "correct" }, { key: "q", label: "∠Q", name: "∠PQR", kind: "corr_shift" }, { key: "r", label: "∠R", name: "∠PRQ", kind: "corr_shift" }],
+    hint: "A と同じ位置の頂点は？", explanation: "A と P が対応するので、∠A ＝ ∠P です。" });
+  oneQ({ id: "congCorr-basic-7", skill: "congCorr", level: "basic", corr: { cong: ["ABC", "DEF"], of: "AB" },
+    text: "△ABC ≡ △DEF のとき、辺 AB に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "de", label: "DE", name: "DE", kind: "correct" }, { key: "ef", label: "EF", name: "EF", kind: "corr_shift" }, { key: "df", label: "DF", name: "DF", kind: "corr_shift" }],
+    hint: "A と D、B と E が対応する。", explanation: "A と D、B と E が対応するので、AB に対応するのは DE です。" });
+  oneQ({ id: "congCorr-standard-4", skill: "congCorr", level: "standard", format: "figure", figure: figP6(), corr: { cong: ["ABE", "ACD"], of: "BE" },
+    text: "図で △ABE ≡ △ACD です。辺 BE に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "cd", label: "CD", name: "CD", kind: "correct" }, { key: "ad", label: "AD", name: "AD", kind: "corr_shift" }, { key: "ac", label: "AC", name: "AC", kind: "corr_shift" }],
+    hint: "A→A、B→C、E→D。", explanation: "B と C、E と D が対応するので、BE に対応するのは CD です。" });
+  oneQ({ id: "congCorr-standard-5", skill: "congCorr", level: "standard", format: "figure", figure: figP9(), corr: { cong: ["ABC", "DCE"], of: "AB" },
+    text: "図で △ABC ≡ △DCE です。辺 AB に対応する辺はどれ？", type: "choice",
+    choices: [{ key: "dc", label: "DC", name: "DC", kind: "correct" }, { key: "de", label: "DE", name: "DE", kind: "corr_shift" }, { key: "ce", label: "CE", name: "CE", kind: "corr_shift" }],
+    hint: "A→D、B→C、C→E。", explanation: "A と D、B と C が対応するので、AB に対応するのは DC です。" });
+  oneQ({ id: "congCorr-standard-6", skill: "congCorr", level: "standard", format: "figure", figure: figP5(), corr: { cong: ["ABD", "CBD"], of: "∠BAD" },
+    text: "図で △ABD ≡ △CBD です。∠BAD と等しい角はどれ？", type: "choice",
+    choices: [{ key: "bcd", label: "∠BCD", name: "∠BCD", kind: "correct" }, { key: "cbd", label: "∠CBD", name: "∠CBD", kind: "corr_shift" }, { key: "cdb", label: "∠CDB", name: "∠CDB", kind: "corr_shift" }],
+    hint: "A に対応する頂点は？", explanation: "A と C が対応するので、∠BAD ＝ ∠BCD です。" });
+  oneQ({ id: "proofHypConc-basic-5", skill: "proofHypConc", level: "basic", hc: { hyp: P4.hyp, goal: P4.goal, ask: "hyp" },
+    text: "「AB ＝ AD、CB ＝ CD ならば、∠BAC ＝ ∠DAC」の仮定はどれ？", type: "choice",
+    choices: [{ key: "both", label: "AB ＝ AD と CB ＝ CD", kind: "correct", claims: [peq("AB", "AD"), peq("CB", "CD")] },
+      { key: "goal", label: "∠BAC ＝ ∠DAC", kind: "conclusion_as_hypothesis", claims: [peq("∠BAC", "∠DAC")] },
+      { key: "mixed", label: "CB ＝ CD と ∠BAC ＝ ∠DAC", kind: "conclusion_as_hypothesis", claims: [peq("CB", "CD"), peq("∠BAC", "∠DAC")] }],
+    hint: "「ならば」の前。", explanation: "「ならば」の前の AB ＝ AD と CB ＝ CD が仮定です。" });
+  oneQ({ id: "proofHypConc-basic-6", skill: "proofHypConc", level: "basic", hc: { hyp: P5.hyp, goal: P5.goal, ask: "goal" },
+    text: "「∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB ならば、AB ＝ CB」の結論はどれ？", type: "choice",
+    choices: [cq("abcb", "AB", "CB", "correct"), cq("abdcbd", "∠ABD", "∠CBD", "conclusion_as_hypothesis"), cq("bdbd", "BD", "BD", "misread")],
+    hint: "「ならば」の後。", explanation: "結論は AB ＝ CB です。∠ABD ＝ ∠CBD と ∠ADB ＝ ∠CDB は仮定です。" });
+  stageQ({ id: "proofHypConc-standard-3", skill: "proofHypConc", level: "standard", format: "figure", figure: figP9(), hc: { hyp: P9.hyp, goal: P9.goal, ask: "hyp_one" },
+    text: "点B、C、Eは一直線上にあり、AB // DC、AC // DE、BC ＝ CE です。AC ＝ DE を証明します。", type: "steps",
+    steps: [{ id: "s1", skill: "proofHypConc", aspect: "claim", type: "choice", answer: "par", text: "仮定にあるものはどれ？",
+        choices: mix([{ key: "par", label: "AB // DC", kind: "correct", claim: { parallel: ["AB", "DC"] } }, cq("acde", "AC", "DE", "conclusion_as_hypothesis"), cq("abcdce", "∠ABC", "∠DCE", "misread")], "hc-std-3"),
+        hint: "問題文に書かれていること。", explanation: "AB // DC は問題文で与えられた仮定です。" },
+      { id: "s2", skill: "proofHypConc", aspect: "reason", part: "reason", type: "choice", answer: "hypothesis", text: "AB // DC は、証明の中で何として使える？",
+        choices: mix([rc("hypothesis", "correct"), rc("corresponding", "misread"), rc("congruent_parts", "goal_used")], "hc-std-3r"),
+        hint: "問題文で与えられている。", explanation: "AB // DC は仮定です（同位角が等しいと言うときに使います）。" }],
+    hint: "仮定・図からわかること・結論を分ける。", explanation: "AB // DC・AC // DE・BC ＝ CE が仮定、AC ＝ DE が結論、∠ABC ＝ ∠DCE は仮定から言える図の事実です。" });
+  oneQ({ id: "proofHypConc-standard-4", skill: "proofHypConc", level: "standard", format: "figure", figure: figP2(), hc: { hyp: P2.hyp, goal: P2.goal, ask: "goal" },
+    text: "AO ＝ BO、CO ＝ DO のとき AC ＝ BD を証明します。合同を示す前に、根拠として使えないものはどれ？", type: "choice",
+    choices: [cq("acbd", "AC", "BD", "correct"), cq("aobo", "AO", "BO", "misread"), cq("aocbod", "∠AOC", "∠BOD", "misread")],
+    hint: "まだ示していないこと。", explanation: "AC ＝ BD は結論なので、合同を示す前には使えません。AO ＝ BO は仮定、∠AOC ＝ ∠BOD は対頂角なので使えます。" });
+  oneQ({ id: "congCond-basic-6", skill: "congCond", level: "basic", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AC", "DF"], ["∠BAC", "∠EDF"], ["∠ACB", "∠DFE"]] },
+    text: "△ABC と △DEF で、AC ＝ DF、∠A ＝ ∠D、∠C ＝ ∠F のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSA", "SSA")], hint: "∠A と ∠C は辺 AC の両端？", explanation: "∠A と ∠C は辺 AC の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。" });
+  oneQ({ id: "congCond-basic-7", skill: "congCond", level: "basic", aspect: "reason", cond: { cong: ABC_DEF, eqs: [["AB", "DE"], ["BC", "EF"], ["AC", "DF"]] },
+    text: "△ABC と △DEF で、AB ＝ DE、BC ＝ EF、AC ＝ DF のとき、使える合同条件はどれ？", type: "choice",
+    choices: [rc("SSS", "correct"), rc("ASA", "ASA"), rc("SAS", "SAS")], hint: "角は出てくる？", explanation: "3組の辺がそれぞれ等しい、です。" });
+  lineQ("proofFigureFacts-standard-5", "proofFigureFacts", "standard", P5, "L3", figP5(), "∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB です。△ABD と △CBD の証明に使える、図からわかる等しいことを見つけよう。",
+    "2つの三角形が重なっている辺はどれ？", [cq("bdbd", "BD", "BD", "correct"), cq("abcb", "AB", "CB", "goal_used"), cq("abdcbd", "∠ABD", "∠CBD", "misread")],
+    [rc("common", "correct"), rc("hypothesis", "misread"), rc("vertical", "misread")], "BD は、どちらの三角形にもある。", "BD は △ABD にも △CBD にもある辺なので、BD ＝ BD（共通）です。");
+
+  proofReasonQ("proofHypConc-reason-4", "proofHypConc", figP2(), "AO ＝ BO、CO ＝ DO のとき AC ＝ BD を証明します。証明の中で AO ＝ BO と書ける理由はどれ？", "hypothesis", ["hypothesis", "vertical", "congruent_parts"],
+    "AO ＝ BO は問題文で与えられているので、仮定です。", [P2, "L1"]);
+  proofReasonQ("proofHypConc-reason-5", "proofHypConc", figP7(), "AC // DB、M は線分ABの中点です。証明の中で AM ＝ BM と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "congruent_parts"],
+    "M が中点であることは問題文で与えられているので、AM ＝ BM は仮定です。", [P7, "L1"]);
+  proofReasonQ("proofHypConc-reason-6", "proofHypConc", figP5(), "∠ABD ＝ ∠CBD、∠ADB ＝ ∠CDB のとき AB ＝ CB を証明します。証明の中で ∠ADB ＝ ∠CDB と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "vertical"],
+    "∠ADB ＝ ∠CDB は問題文で与えられているので、仮定です。", [P5, "L2"]);
+  proofReasonQ("proofHypConc-reason-7", "proofHypConc", figP11(), "AO ＝ BO、∠OAC ＝ ∠OBD のとき CO ＝ DO を証明します。証明の中で ∠OAC ＝ ∠OBD と書ける理由はどれ？", "hypothesis", ["hypothesis", "vertical", "alternate"],
+    "∠OAC ＝ ∠OBD は問題文で与えられているので、仮定です。", [P11, "L2"]);
+  proofReasonQ("proofHypConc-reason-8", "proofHypConc", figP6(), "AB ＝ AC、AE ＝ AD のとき BE ＝ CD を証明します。証明の中で AE ＝ AD と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "congruent_parts"],
+    "AE ＝ AD は問題文で与えられているので、仮定です。", [P6, "L2"]);
+  proofReasonQ("congUse-reason-4", "congUse", figP8(), "△ABD ≡ △ACD を示しました。BD ＝ CD と言える理由はどれ？", "congruent_parts", ["congruent_parts", "hypothesis", "common"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。", [P8, "L5"]);
+  proofReasonQ("congUse-reason-5", "congUse", figP11(), "△AOC ≡ △BOD を示しました。CO ＝ DO と言える理由はどれ？", "congruent_parts", ["congruent_parts", "vertical", "hypothesis"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。", [P11, "L5"]);
+  proofReasonQ("congUse-reason-6", "congUse", figP9(), "△ABC ≡ △DCE を示しました。AC ＝ DE と言える理由はどれ？", "congruent_parts", ["congruent_parts", "corresponding", "hypothesis"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。平行線の性質は、合同を示すときに使いました。", [P9, "L5"]);
+  proofReasonQ("congUse-reason-7", "congUse", figP1(), "△ABC ≡ △DCB を示しました。AC ＝ DB と言える理由はどれ？", "congruent_parts", ["congruent_parts", "common", "SAS"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です（SAS は合同を示すときの理由）。", [P1, "L5"]);
+  proofReasonQ("congUse-reason-8", "congUse", figP6(), "△ABE ≡ △ACD を示しました。BE ＝ CD と言える理由はどれ？", "congruent_parts", ["congruent_parts", "hypothesis", "common"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。", [P6, "L5"]);
+  proofReasonQ("congCond-reason-7", "congCond", figP9(), "△ABC と △DCE で、BC ＝ CE、∠ABC ＝ ∠DCE、∠ACB ＝ ∠DEC です。△ABC ≡ △DCE と言える合同条件はどれ？", "ASA", ["ASA", "SAS", "SSS"],
+    "∠ABC と ∠ACB は辺 BC の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。", [P9, "L4"]);
+  proofReasonQ("congCond-reason-8", "congCond", figP4(), "△ABC と △ADC で、AB ＝ AD、CB ＝ CD、AC ＝ AC です。△ABC ≡ △ADC と言える合同条件はどれ？", "SSS", ["SSS", "SAS", "ASA"],
+    "3組の辺がそれぞれ等しい、です。", [P4, "L4"]);
+  proofReasonQ("congCond-reason-9", "congCond", figP2(), "△AOC と △BOD で、AO ＝ BO、CO ＝ DO、∠AOC ＝ ∠BOD です。△AOC ≡ △BOD と言える合同条件はどれ？", "SAS", ["SAS", "ASA", "SSA"],
+    "∠AOC は辺 AO と CO の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。", [P2, "L4"]);
+  proofReasonQ("proofFigureFacts-reason-8", "proofFigureFacts", figP9(), "点B、C、Eは一直線上にあり、AC // DE です。図で ∠ACB ＝ ∠DEC と言える理由はどれ？", "corresponding", ["corresponding", "alternate", "vertical"],
+    "平行線 AC、DE と直線 BE でできる、同じ位置の角（同位角）なので等しい、です。", [P9, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-9", "proofFigureFacts", figP10(), "四角形ABCDに対角線BDをひきました。△ABD と △CDB で BD ＝ DB と言える理由はどれ？", "common", ["common", "hypothesis", "congruent_parts"],
+    "BD は2つの三角形の両方にある辺なので、共通です。", [P10, "L3"]);
+  proofReasonQ("proofFigureFacts-reason-10", "proofFigureFacts", figP2(), "線分ABとCDが点Oで交わっています。∠AOC ＝ ∠BOD と言える理由はどれ？", "vertical", ["vertical", "corresponding", "common"],
+    "O で向かい合う角なので、対頂角は等しい、です。", [P2, "L3"]);
+
+  // 補強2回目：合同条件・仮定と結論の標準、対応の応用（主張と根拠の2小問）、根拠だけの問題
+  lineQ("congCond-standard-5", "congCond", "standard", P6, "L4", figP6(), "点Dは辺AB上、点Eは辺AC上にあり、AB ＝ AC、AE ＝ AD です。∠A は共通です。",
+    "△ABE と合同な三角形を、対応の順に書くと？", [cg("abeacd", "ABE", "ACD", "correct"), cg("abeadc", "ABE", "ADC", "corr_shift"), cg("abecad", "ABE", "CAD", "corr_shift")],
+    [rc("SAS", "correct"), rc("ASA", "ASA"), rc("SSA", "SSA")], "B と等しい辺の端は C、E と等しい辺の端は D。", "A→A、B→C、E→D なので △ABE ≡ △ACD。∠A は AB と AE の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。");
+  lineQ("congCond-standard-6", "congCond", "standard", P3, "L4", figP3(), "AB // CD、AO ＝ DO です。∠BAO ＝ ∠CDO（錯角）、∠AOB ＝ ∠DOC（対頂角）も分かりました。",
+    "△ABO と合同な三角形を、対応の順に書くと？", [cg("abodco", "ABO", "DCO", "correct"), cg("abodoc", "ABO", "DOC", "corr_shift"), cg("abocdo", "ABO", "CDO", "corr_shift")],
+    [rc("ASA", "correct"), rc("SAS", "SAS"), rc("SSS", "SSS")], "A と D、O と O が対応する。", "A→D、B→C、O→O なので △ABO ≡ △DCO。∠BAO と ∠AOB は辺 AO の両端の角なので、1組の辺とその両端の角がそれぞれ等しい、です。");
+  lineQ("proofHypConc-standard-5", "proofHypConc", "standard", P6, "L1", figP6(), "点Dは辺AB上、点Eは辺AC上にあり、AB ＝ AC、AE ＝ AD です。BE ＝ CD を証明します。",
+    "仮定から書ける、辺の等しさはどれ？", [cq("abac", "AB", "AC", "correct"), cq("becd", "BE", "CD", "conclusion_as_hypothesis"), cq("bdce", "BD", "CE", "misread")],
+    [rc("hypothesis", "correct"), rc("common", "misread"), rc("congruent_parts", "goal_used")], "問題文で与えられた辺。", "AB ＝ AC は問題文で与えられた仮定です。BE ＝ CD は結論なので、まだ使えません。");
+  stageQ(fromLine({ id: "congCorr-application-2", skill: "congCorr", level: "application", format: "figure", figure: figP10(),
+    text: "四角形ABCDで AB ＝ CD、AD ＝ CB です。対角線BDで分けた2つの三角形は合同です。", type: "steps",
+    steps: [{ id: "s1", skill: "congCorr", aspect: "claim", part: "claim", type: "choice", answer: "abdcdb", text: "対応する頂点の順に正しく書いたものはどれ？",
+        choices: mix([cg("abdcdb", "ABD", "CDB", "correct"), cg("abdcbd", "ABD", "CBD", "corr_shift"), cg("abddcb", "ABD", "DCB", "corr_shift")], "corr-app-2"),
+        hint: "AB と等しいのは CD、AD と等しいのは CB。", explanation: "A と C、B と D、D と B が対応するので、△ABD ≡ △CDB です。" },
+      { id: "s2", skill: "congCond", aspect: "reason", part: "reason", type: "choice", answer: "SSS", text: "そう言える合同条件はどれ？",
+        choices: mix([rc("SSS", "correct"), rc("SAS", "SAS"), rc("ASA", "ASA")], "corr-app-2r"),
+        hint: "BD は共通。", explanation: "AB ＝ CD、AD ＝ CB、BD ＝ DB で、3組の辺がそれぞれ等しい、です。" }],
+    hint: "等しい辺どうしの端が対応する。", explanation: "AB ＝ CD、AD ＝ CB（仮定）、BD ＝ DB（共通）。3組の辺がそれぞれ等しいので △ABD ≡ △CDB です。" }, P10, "L4"));
+  proofReasonQ("proofHypConc-reason-9", "proofHypConc", figP3(), "AB // CD、AO ＝ DO のとき BO ＝ CO を証明します。証明の中で AO ＝ DO と書ける理由はどれ？", "hypothesis", ["hypothesis", "vertical", "alternate"],
+    "AO ＝ DO は問題文で与えられているので、仮定です。", [P3, "L1"]);
+  proofReasonQ("proofHypConc-reason-10", "proofHypConc", figP10(), "AB ＝ CD、AD ＝ CB のとき ∠BAD ＝ ∠DCB を証明します。証明の中で AD ＝ CB と書ける理由はどれ？", "hypothesis", ["hypothesis", "common", "congruent_parts"],
+    "AD ＝ CB は問題文で与えられているので、仮定です。", [P10, "L2"]);
+  proofReasonQ("congUse-reason-9", "congUse", figP3(), "AB // CD です。△ABO ≡ △DCO を示しました。BO ＝ CO と言える理由はどれ？", "congruent_parts", ["congruent_parts", "alternate", "vertical"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です。錯角・対頂角は合同を示すときに使いました。", [P3, "L5"]);
+  proofReasonQ("congUse-reason-10", "congUse", figP5(), "△ABD ≡ △CBD を示しました。AB ＝ CB と言える理由はどれ？", "congruent_parts", ["congruent_parts", "common", "ASA"],
+    "合同を示したので、合同な図形の対応する辺は等しい、です（ASA は合同を示すときの理由）。", [P5, "L5"]);
+
+  // 前からある1段階の問題にも、自動検算の手がかり（src / corr / cond / hc）を付ける
+  (function () {
+    var byId = {};
+    items.forEach(function (q) { byId[q.id] = q; });
+    var claimsOf = function (q, map) { q.choices.forEach(function (c) { if (map[c.key]) c.claim = map[c.key]; }); };
+    var h = byId["proofHypConc-basic-1"];
+    h.hc = { hyp: P1.hyp, goal: P1.goal, ask: "goal" };
+    claimsOf(h, { abdc: peq("AB", "DC"), abcdcb: peq("∠ABC", "∠DCB"), acdb: peq("AC", "DB") });
+    var c1 = byId["congCorr-basic-1"];
+    c1.corr = { cong: ["ABC", "DEF"], of: "BC" };
+    c1.choices.forEach(function (c) { c.name = c.key.toUpperCase(); });
+    var c2 = byId["congCorr-basic-2"];
+    c2.corr = { cong: ["ABC", "DEF"], of: "∠BCA" };
+    c2.choices.forEach(function (c) { c.name = { d: "∠EDF", e: "∠DEF", f: "∠EFD" }[c.key]; });
+    byId["congCond-basic-1"].cond = { cong: ABC_DEF, eqs: [["AB", "DE"], ["BC", "EF"], ["∠ABC", "∠DEF"]] };
+    byId["congCond-basic-2"].cond = { cong: ABC_DEF, eqs: [["AB", "DE"], ["AC", "DF"], ["∠ABC", "∠DEF"]] };
+    fromLine(byId["congUse-basic-1"], P1, "L5").part = "reason";
+    byId["congUse-basic-2"].manual_check = "合同を示す前に書いてよいか（はい・いいえ）を問う";
+    var u3 = fromLine(byId["congUse-basic-3"], P2, "L5");
+    u3.part = "claim";
+    claimsOf(u3, { aobo: peq("AO", "BO"), acbd: peq("AC", "BD"), acbo: peq("AC", "BO") });
+    var f1 = fromLine(byId["proofFigureFacts-basic-1"], P2, "L3");
+    f1.steps[0].part = "claim"; f1.steps[1].part = "reason";
+    claimsOf(f1.steps[0], { aocbod: peq("∠AOC", "∠BOD"), aoccob: peq("∠AOC", "∠COB"), oacobd: peq("∠OAC", "∠OBD") });
+  })();
+  // 合同と証明の定着の問題：穴うめ証明は標準、1段階の問題は基礎の力を確かめる
+  items.forEach(function (q) {
+    if (q.level === "retention" && !q.evidence_level && ["proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild"].indexOf(q.skill) !== -1) q.evidence_level = q.proof ? "standard" : "basic";
+  });
+  // 合同と証明のはじめてのチェック（5問）：仮定と結論・対応・図から使える事実・合同条件・合同から言えること
+  items.forEach(function (q) {
+    if (["proofHypConc-basic-1", "congCorr-basic-1", "proofFigureFacts-basic-2", "congCond-basic-1", "congUse-basic-3"].indexOf(q.id) !== -1) q.usage = "diagnosis";
+  });
 
   // はじめてのチェック（5問）：角の性質・平行線・三角形・外角・角度の方程式
   items.forEach(function (q) {

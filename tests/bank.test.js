@@ -185,8 +185,9 @@ function numbersOf(q) {
   // 図形の図は、座標ではなく、見える数（角の大きさ・式）だけをくらべる
   const fig = q.figure && q.figure.type === "geometry" ? (q.figure.angles || []).map((a) => [a.value, a.label, a.expr && [a.expr.a, a.expr.b]])
     : q.figure ? { ...q.figure, x: undefined, y: undefined } : {};
+  // 穴うめ証明の「［1］」などは穴の番号なので数えない
   const text = [q.text, JSON.stringify(fig), JSON.stringify(q.choices || []), (q.steps || []).map((s) => s.text).join(" ")].join(" ")
-    .replace(/[−]/g, "-");
+    .replace(/［\d+］|\d組/g, "").replace(/[−]/g, "-");
   return new Set((text.match(/-?\d+(\.\d+)?/g) || []).filter((n) => !["0", "1", "-1"].includes(n)));
 }
 
