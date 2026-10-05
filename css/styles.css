@@ -521,3 +521,5 @@ br.pc { display: none; }
 .order-picked .order-next { list-style: none; margin-left: -18px; color: var(--text-soft); font-size: 13px; }
 .order-tools { display: flex; gap: 8px; margin-top: 8px; }
 .order-tools .secondary-button { flex: 1; }
+.proof-diag table { font-size: 12px; }
+.proof-diag tr.multi td { background: rgba(255, 217, 138, .08); }

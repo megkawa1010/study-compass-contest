@@ -103,9 +103,10 @@
     // 3つの等しさから、使える合同条件を選ぶ（2辺と「その間」の角か、など）
     congCond:       { label: "三角形の合同条件", unit: "合同と証明", grade: "中2", concept: ["congCorr"], calc: [] },
     // 証明に使える事実を、図から見つける（共通な辺・角、対頂角、平行線の錯角・同位角）。
-    // 対頂角・錯角そのものの理解は図形①のスキル（直線の角・平行線と角）へさかのぼる（同じ概念のスキルは作らない）。
+    // 対頂角・錯角そのものの理解は図形①のスキル（直線の角・平行線と角）へさかのぼるが、地図の前提には固定で持たない：
+    // 問題ごとの required_geometry_skills（その問題で実際に使った性質）だけを原因候補にする（js/proof.js）。
     // 学校の進み具合では「三角形の合同条件」と一緒に扱う
-    proofFigureFacts: { label: "図から使えることを見つける", unit: "合同と証明", grade: "中2", follows: "congCond", concept: ["congCorr", "lineAngles", "parallelAngles"], calc: [] },
+    proofFigureFacts: { label: "図から使えることを見つける", unit: "合同と証明", grade: "中2", follows: "congCond", concept: ["congCorr"], calc: [] },
     // 「〜ならば…」の仮定と結論を分ける。結論を仮定・事実として使わない
     proofHypConc:   { label: "仮定と結論",     unit: "合同と証明", grade: "中2", concept: [], calc: [] },
     // 合同を示したあと、対応する辺・角が等しいことを使う。学校の進み具合では「証明の組み立て」と一緒に扱う
@@ -511,6 +512,8 @@
         g.correct = g.correct && a.correct;
         g.hint_used = g.hint_used || a.hint_used;
         g.unknown_selected = g.unknown_selected || a.unknown_selected;
+        // 後の小問でまちがえた根拠の取り違えも残す（まとめた1回の取り違えとして数える）
+        if (!a.correct && a.confusion && !g.confusion) { g.confusion = a.confusion; g.chosen = a.chosen; }
         return;
       }
       g = groups[key] = {};

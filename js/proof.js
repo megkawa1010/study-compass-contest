@@ -210,86 +210,138 @@
   var ORDER_JA = { condition_early: "3つの等しさより先に「合同」を置いた", use_early: "合同より先に「対応する辺・角が等しい」を置いた", order_other: "行の順番がずれた", incomplete: "並べ終わっていない" };
 
   // ---------- 診断の入口 ----------
+  // 3つを分けて扱う：
+  //   aspect            … 何をまちがえたか（claim 主張 / reason 根拠）。記録（skill_state の value / reason）はこれで決まる
+  //   diagnostic_target … どこを学び直すか（確かめるスキル）
+  //   confusion / route … なぜそう判断したか（選んだ答えの種類・取り違え）
+  // 例：合同条件の行で SAS なのに SSS → aspect: reason（主張は正しい）、diagnostic_target: 三角形の合同条件、confusion: SSS_for_SAS
+  //
+  // 誤った小問ごとに finding を作る。今回たどるのは最初に止まった finding だけで、後の誤りは pending_findings に残す
+  // （1回のチェックで全部を深掘りしない。追加の問題の上限はそのまま）
+  var GEO_REASONS = { vertical: true, alternate: true, corresponding: true };
+  // 問題で実際に使った図形①の性質（根拠）から、戻ってよい図形①のスキル。共通な辺・角だけなら図形①には戻らない
+  function requiredGeometry(q) {
+    if (q.required_geometry_skills) return q.required_geometry_skills.slice();
+    var out = [];
+    (q.proof ? q.proof.lines : []).forEach(function (l) {
+      if (l.role === "figure_fact" && BASIS_SKILL[l.reason] && out.indexOf(BASIS_SKILL[l.reason]) === -1) out.push(BASIS_SKILL[l.reason]);
+    });
+    return out;
+  }
+  // 図から使える事実（証明の行でも、1段階の問題でも同じ規則）
+  //   主張×：対応がずれた → 対応する辺・角／結論の側を使った → 仮定と結論／図の読み取り → 図形①の性質を使う問題ならその性質、共通なら図から使えることを見つける そのもの
+  //   根拠×（主張○）：図形①の性質どうしの取り違え（錯角↔同位角 など）→ 正しい性質の図形①スキル（錯角・同位角は位置の名前も）。それ以外 → 図から使えることを見つける
+  function routeFigureFact(f, basis, required, siblingReasonWrong) {
+    var geo = basis && BASIS_SKILL[basis] && required.indexOf(BASIS_SKILL[basis]) !== -1 ? [BASIS_SKILL[basis]] : [];
+    if (f.aspect === "claim") {
+      f.diagnostic_target = "proofFigureFacts";
+      if (f.kind === "corr_shift") { f.prereqs = ["congCorr"]; f.route = "対応する別の辺・角を選んだ → 対応する辺・角の可能性"; }
+      else if (f.kind === "goal_used") { f.prereqs = ["proofHypConc"]; f.route = "まだ示していない結論の側を使った → 仮定と結論"; }
+      else if (geo.length) { f.prereqs = geo; f.route = "図形①の性質（" + basis + "）を使う事実を読み取れない → その性質のスキル"; }
+      else { f.prereqs = []; f.route = "図の読み取り（共通な辺・角など）→ 図から使えることを見つける そのもの"; }
+      if (siblingReasonWrong && geo.length && f.prereqs.indexOf(geo[0]) === -1) f.prereqs = geo.concat(f.prereqs);
+      return f;
+    }
+    // 根拠だけまちがえた
+    f.reason_only = true;
+    if (GEO_REASONS[f.chosen] && GEO_REASONS[f.answer] && BASIS_SKILL[f.answer]) {
+      f.diagnostic_target = BASIS_SKILL[f.answer];
+      f.route = "図形①の性質どうしを取り違えた（" + f.chosen + " → " + f.answer + "）→ 図形①のスキル";
+      if ((f.answer === "alternate" || f.answer === "corresponding") && (f.chosen === "alternate" || f.chosen === "corresponding")) f.also = ["angleNames"];
+    } else if (GEO_REASONS[f.answer] && BASIS_SKILL[f.answer] && required.indexOf(BASIS_SKILL[f.answer]) !== -1) {
+      f.diagnostic_target = BASIS_SKILL[f.answer];
+      f.route = "図形①の性質（" + f.answer + "）だと気づけない → 図形①のスキル";
+    } else {
+      f.diagnostic_target = "proofFigureFacts";
+      f.route = "根拠（共通・仮定 など）を取り違えた → 図から使えることを見つける";
+    }
+    return f;
+  }
+  function findingOf(q, r, results) {
+    var steps = q.steps || [], byLine = {};
+    (q.proof ? q.proof.lines : []).forEach(function (l) { byLine[l.id] = l; });
+    var st = steps.filter(function (s) { return s.id === r.id; })[0] || (r.id == null ? q : {});
+    var line = byLine[st.line] || null;
+    var role = line ? line.role : null;
+    var choice = (st.choices || []).filter(function (c) { return c.key === r.chosen; })[0];
+    var aspect = r.aspect === "reason" ? "reason" : "claim";
+    var f = { question_id: q.id, step: r.id, line: line ? line.id : null, role: role, part: st.part || aspect, aspect: aspect, correct: false,
+      chosen: r.chosen == null ? null : r.chosen, answer: st.answer, kind: choice ? choice.kind || null : null,
+      confusion: aspect === "reason" && r.chosen != null && SC.geometry ? SC.geometry.confusionOf(st.aspect ? st : { aspect: "reason", answer: st.answer }, r.chosen) : null,
+      diagnostic_target: null, prereqs: [], route: "", reason_only: false };
+    // 同じ行の、もう一方の面の結果
+    var sib = line ? results.filter(function (x) { var s = steps.filter(function (y) { return y.id === x.id; })[0]; return s && s.line === line.id && x.id !== r.id; })[0] : null;
+    var required = requiredGeometry(q);
+    var skill = q.type === "order" ? "proofBuild" : role ? ROLE_SKILL[role] : (st.skill || q.skill);
+    if (q.type === "order") {
+      var tag = r.tag || orderCheck(q, r.chosen).tag;
+      f.kind = tag; f.confusion = tag; f.diagnostic_target = "proofBuild";
+      f.prereqs = tag === "condition_early" ? ["congCond"] : tag === "use_early" ? ["congUse"] : [];
+      f.route = ORDER_JA[tag] || "";
+      f.violation = r.violation || null;
+      return f;
+    }
+    if (skill === "proofFigureFacts") return routeFigureFact(f, line ? line.reason : (required.length ? q.basis : null) || q.basis, required, !!(sib && !sib.correct && sib.aspect === "reason"));
+    if (skill === "proofHypConc") {
+      f.diagnostic_target = "proofHypConc";
+      if (aspect === "reason" && (!sib || sib.correct)) { f.reason_only = true; f.route = "仮定の行で、根拠（仮定）だけ取り違えた"; }
+      else f.route = "仮定を拾えない／結論を仮定にした";
+      return f;
+    }
+    if (skill === "congCond") {
+      // 合同条件の行：条件を選ぶ（reason）まちがいでも、記録は reason、学び直すのは合同条件（根拠だけの確認にはしない）
+      f.diagnostic_target = "congCond";
+      if (aspect === "claim" && role === "condition") { f.prereqs = ["congCorr"]; f.route = "合同の対応（頂点の順番）をまちがえた → 合同条件 → 対応する辺・角"; }
+      else f.route = "合同条件の選び方" + (f.kind === "SSA" || /SSA/.test(r.chosen || "") ? "（2辺と、その間でない角）" : "") + " → 合同条件そのもの";
+      return f;
+    }
+    if (skill === "congUse") {
+      if (f.kind === "corr_shift") { f.diagnostic_target = role ? "congUse" : "congCorr"; f.prereqs = role ? ["congCorr"] : []; f.route = "対応しない辺・角を選んだ → 対応する辺・角の可能性"; return f; }
+      f.diagnostic_target = "congUse";
+      if (aspect === "reason" && role && (!sib || sib.correct)) { f.reason_only = true; f.route = "合同から言えることの行で、根拠だけ取り違えた"; }
+      else f.route = f.kind === "use_before_cong" ? "合同を示す前に、対応する辺・角の等しさを使った → 合同から言えること"
+        : f.kind === "already_known" ? "合同から新しく言えることが分からない（すでに分かっていることを選んだ）→ 合同から言えること"
+        : "合同から言えることの使い方 → 合同から言えること";
+      return f;
+    }
+    // 対応する辺・角 などの1段階の問題
+    f.diagnostic_target = skill;
+    f.route = "「" + (E.SKILLS[skill] ? E.SKILLS[skill].label : skill) + "」の1段階の問題で止まった";
+    return f;
+  }
   // results：L.checkSteps の結果（小問ごと：id, skill, correct, aspect, chosen）または orderResults。
-  // 返り値は js/rootcause.js の geometryEntry と同じ形（entry: none / reason_only / concept / not_learned）
+  // 返り値は js/rootcause.js の geometryEntry と同じ形（entry: none / reason_only / concept / not_learned）＋ findings / pending_findings
   function entry(q, results, opts) {
     opts = opts || {};
-    if (!Array.isArray(results)) results = [{ id: null, skill: q.skill, correct: !!results, aspect: "claim" }];
-    var steps = q.steps || [], byId = {};
-    (q.proof ? q.proof.lines : []).forEach(function (l) { byId[l.id] = l; });
-    function stepOf(r) { return steps.filter(function (s) { return s.id === r.id; })[0] || {}; }
+    if (!Array.isArray(results)) results = [{ id: null, skill: q.skill, correct: !!results, aspect: q.aspect || "claim" }];
     var claims = results.filter(function (r) { return r.aspect !== "reason"; }), reasons = results.filter(function (r) { return r.aspect === "reason"; });
     var out = { question_id: q.id, value_ok: claims.every(function (r) { return r.correct; }), reason_ok: reasons.length ? reasons.every(function (r) { return r.correct; }) : null,
-      first_miss_step: null, entry: "none", skill: null, why: "", then_calc: false, confusions: [], concept_prereqs: [], calc_prereqs: [], direct: false, proof: {} };
-    reasons.forEach(function (r) {
-      if (r.correct) return;
-      var st = stepOf(r);
-      out.confusions.push({ skill: r.skill, step: r.id, chosen: r.chosen, answer: st.answer, confusion: SC.geometry && r.chosen != null ? SC.geometry.confusionOf(st, r.chosen) : null });
+      first_miss_step: null, entry: "none", skill: null, diagnostic_target: null, wrong_aspect: null, why: "", then_calc: false, confusions: [], concept_prereqs: [], calc_prereqs: [],
+      direct: false, proof: {}, findings: [], pending_findings: [], required_geometry_skills: requiredGeometry(q) };
+    out.findings = results.filter(function (r) { return !r.correct; }).map(function (r) { return findingOf(q, r, results); });
+    out.findings.forEach(function (f) {
+      if (f.aspect === "reason" && f.confusion) out.confusions.push({ skill: f.line ? ROLE_SKILL[f.role] : q.skill, step: f.step, chosen: f.chosen, answer: f.answer, confusion: f.confusion, diagnostic_target: f.diagnostic_target });
     });
-    var first = results.filter(function (r) { return !r.correct; })[0];
+    var first = out.findings[0];
     if (!first) return out;
-    out.first_miss_step = first.id;
-    function set(skill, prereqs, why, direct) {
-      out.entry = "concept"; out.skill = skill; out.concept_prereqs = prereqs.filter(function (x, i, a) { return a.indexOf(x) === i; }); out.why = why; out.direct = !!direct || !out.concept_prereqs.length;
+    out.first_miss_step = first.step;
+    out.diagnostic_target = first.diagnostic_target;
+    out.wrong_aspect = first.aspect;
+    out.skill = first.diagnostic_target;
+    out.why = first.route;
+    out.proof = { line: first.line, role: first.role, part: first.part, chosen_kind: first.kind, basis: first.line && q.proof ? q.proof.lines.filter(function (l) { return l.id === first.line; })[0].reason : null, tag: q.type === "order" ? first.kind : null, violation: first.violation || null };
+    if (first.reason_only) { out.entry = "reason_only"; out.also = first.also || []; }
+    else { out.entry = "concept"; out.concept_prereqs = first.prereqs.filter(function (x, i, a) { return a.indexOf(x) === i; }); out.direct = !out.concept_prereqs.length; }
+    // 今回は追わない誤り（学び直す場所が今回と同じものは重ねない）
+    var seen = {}; seen[first.diagnostic_target] = true;
+    out.pending_findings = out.findings.slice(1).filter(function (f) { if (seen[f.diagnostic_target]) return false; seen[f.diagnostic_target] = true; return true; });
+    if (out.skill && E.schoolSkillStatus(out.skill, opts.school) === "not_learned") {
+      out.entry = "not_learned"; out.why = "学校でまだ習っていない（先取り）なので、苦手にせず原因さがしもしない";
     }
-    // 並べかえ：最初に依存関係を破った行の役割で
-    if (q.type === "order") {
-      var tag = first.tag || orderCheck(q, first.chosen).tag;
-      out.proof = { tag: tag, violation: first.violation || null };
-      if (tag === "condition_early") set("proofBuild", ["congCond"], ORDER_JA[tag] + "：合同条件の使い方から確かめる");
-      else if (tag === "use_early") set("proofBuild", ["congUse"], ORDER_JA[tag] + "：合同から言えることの使い方から確かめる");
-      else set("proofBuild", [], ORDER_JA[tag] || "行の順番がずれた：組み立てそのものを確認", true);
-      return finish();
-    }
-    var st = stepOf(first), line = byId[st.line] || null;
-    if (!line) {
-      // 1段階だけの短い問題：そのスキルそのもの
-      var ch = st.choices ? st.choices.filter(function (c) { return c.key === first.chosen; })[0] : null;
-      var kind0 = ch && ch.kind;
-      if (first.aspect === "reason" && claims.every(function (r) { return r.correct; })) { out.entry = "reason_only"; out.skill = first.skill || q.skill; out.why = "主張は合っていて、根拠だけまちがえた"; return finish(); }
-      set(first.skill || q.skill, kind0 === "corr_shift" ? ["congCorr"] : E.prereqSide(first.skill || q.skill, "concept"), "1段階の問題で止まった");
-      return finish();
-    }
-    var role = line.role, lineSkill = ROLE_SKILL[role];
-    var mine = results.filter(function (r) { var s = stepOf(r); return s.line === line.id; });
-    var claimR = mine.filter(function (r) { return stepOf(r).part === "claim"; })[0], reasonR = mine.filter(function (r) { return stepOf(r).part === "reason"; })[0];
-    var chosen = st.choices ? st.choices.filter(function (c) { return c.key === first.chosen; })[0] : null;
-    var kind = chosen ? chosen.kind : null;
-    var basis = BASIS_SKILL[line.reason] || null;
-    out.proof = { line: line.id, role: role, part: st.part, chosen_kind: kind, basis: line.reason };
-    // 主張は合っていて、根拠だけまちがえた（合同条件の行は、条件を選ぶこと自体が中身なので除く）
-    if (st.part === "reason" && role !== "condition" && (!claimR || claimR.correct)) {
-      out.entry = "reason_only"; out.skill = lineSkill;
-      out.why = ROLE_JA[role] + "の行で、主張は合っていて根拠だけまちがえた";
-      return finish();
-    }
-    if (role === "hyp_fact") set("proofHypConc", [], "仮定の行で止まった（仮定を拾えない）", true);
-    else if (role === "figure_fact") {
-      // 主張を間違えた＝対応、とは決めない。選んだ答えの種類で戻る先を決める
-      var pre = [];
-      if (reasonR && !reasonR.correct && basis) pre.push(basis);
-      if (kind === "corr_shift") pre.push("congCorr");
-      if (kind === "goal_used") pre.push("proofHypConc");
-      if (basis) pre.push(basis);
-      set("proofFigureFacts", pre, kind === "corr_shift" ? "図から使える事実の行で、対応する辺・角を取り違えた"
-        : kind === "goal_used" ? "図から使える事実の行で、まだ示していない（結論の側の）ことを使った"
-        : "図から使える事実の行で、図の読み取りをまちがえた", !pre.length);
-    } else if (role === "condition") {
-      if (st.part === "claim") set("congCond", ["congCorr"], "合同条件の行で、三角形の対応（頂点の順番）をまちがえた");
-      else set("congCond", [], "合同条件の行で、条件の選び方をまちがえた" + (kind === "SSA" ? "（2辺と、その間でない角）" : ""), true);
-    } else if (role === "use") {
-      set("congUse", kind === "corr_shift" ? ["congCorr"] : [], kind === "corr_shift" ? "合同から言えることの行で、対応しない辺・角を選んだ" : "合同から言えることの行で止まった", kind !== "corr_shift");
-    }
-    return finish();
-    function finish() {
-      if (out.skill && out.entry !== "none" && E.schoolSkillStatus(out.skill, opts.school) === "not_learned") {
-        out.entry = "not_learned"; out.why = "学校でまだ習っていない（先取り）なので、苦手にせず原因さがしもしない";
-      }
-      out.direct_message = out.direct && out.skill ? "「" + E.SKILLS[out.skill].label + "」そのもの（" + out.why + "）を、もう一度確認すると理解しやすくなりそうです。" : null;
-      return out;
-    }
+    out.direct_message = out.direct && out.skill ? "「" + E.SKILLS[out.skill].label + "」そのもの（" + out.why + "）を、もう一度確認すると理解しやすくなりそうです。" : null;
+    return out;
   }
 
   SC.proof = { ROLE_SKILL: ROLE_SKILL, ROLE_JA: ROLE_JA, BASIS_SKILL: BASIS_SKILL, COND_JA: COND_JA, ORDER_JA: ORDER_JA,
-    part: part, claimText: claimText, verify: verify, orderCheck: orderCheck, orderResults: orderResults, entry: entry, conditionHolds: conditionHolds };
+    part: part, claimText: claimText, verify: verify, requiredGeometry: requiredGeometry, orderCheck: orderCheck, orderResults: orderResults, entry: entry, conditionHolds: conditionHolds };
 })(typeof window !== "undefined" ? window : globalThis);

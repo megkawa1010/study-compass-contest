@@ -1473,43 +1473,89 @@
   function viewProofDebug() {
     var PF = SC.proof, items = Object.keys(QS).map(function (id) { return QS[id]; }).filter(function (q) { return q.proof || q.proof_stage; });
     var sk = function (k) { return E.SKILLS[k] ? E.SKILLS[k].label : k; };
-    var diag = function (g) { return g.entry === "reason_only" ? "根拠だけ記録（理由を確認）" : g.entry === "none" ? "−" : sk(g.skill) + (g.concept_prereqs.length ? " → " + g.concept_prereqs.map(sk).join(" → ") : "（そのもの）"); };
+    var T = Date.parse("2026-10-01T07:00:00Z");
+    // この回答を記録したとき、どの skill_state のどの面がどう変わるか（記録のない状態からの before → after）
+    function saved(q, res, f, value) {
+      var recs = [];
+      if (q.type === "steps") q.steps.forEach(function (st, i) {
+        recs.push(E.makeAnswerRecord(stepRecord(q, st), stepResult(st, res[i], res[i].correct ? "correct" : "incorrect", false), { userId: "dbg", context: "compass_check", now: T + i * 1000 }));
+      });
+      else recs.push(E.makeAnswerRecord(q, plainResult(q, res.every(function (r) { return r.correct; }) ? "correct" : "incorrect", false, value !== undefined ? value : res[0].chosen), { userId: "dbg", context: "compass_check", now: T }));
+      var rec = q.type === "steps" ? recs.filter(function (r) { return r.question_id === q.id + "#" + f.step; })[0] : recs[0];
+      var skill = rec.skill, face = rec.aspect === "reason" ? "reason" : "value";
+      var after = E.computeSkillStates(recs, { now: T + 3600e3 })[skill][face];
+      return esc(sk(skill)) + "／" + esc(rec.aspect || (q.proof || q.proof_stage ? "claim" : "value")) + "：0/0 → " + after.correct + "/" + after.attempts + "（" + esc(E.STATUS_VIEW[after.status].label) + "）" +
+        (face === "reason" && Object.keys(after.confusions || {}).length ? "／" + esc(Object.keys(after.confusions).join("、")) : "");
+    }
+    // 今回たどる経路（前提が全部まだのとき、追加4問の上限まで）
+    function route(q, res) {
+      var r = R.simulate(q, res, {}, { now: T, budget: R.CONFIG.BUDGET_INITIAL });
+      if (!r.trail) return "−";
+      if (r.trail.conclusion && r.trail.conclusion.kind === "reason_only") return "追加の問題なし（根拠だけ記録 → 理由を確認）";
+      return R.pathText(r.trail) + (r.asked.length ? "（追加 " + r.asked.length + "問）" : "（追加なし）");
+    }
+    function rowOf(q, res, value) {
+      var g = PF.entry(q, res), f = g.findings[0];
+      if (!f) return "";
+      var claimR = res.filter(function (r) { return r.aspect !== "reason"; }), reasonR = res.filter(function (r) { return r.aspect === "reason"; });
+      var mark = function (list) { return !list.length ? "−" : list.every(function (r) { return r.correct; }) ? "○" : "×"; };
+      return "<tr><td>" + esc(f.step || "−") + "</td><td>" + esc(f.line || "−") + "</td><td>" + esc(f.role ? ROLE_JA2[f.role] : "−") + "</td><td>" + esc(String(f.chosen)) + "（" + esc(f.kind || "−") + "）</td>" +
+        "<td>" + mark(claimR) + "</td><td>" + mark(reasonR) + "</td><td>" + esc(f.aspect) + "</td><td>" + esc(f.confusion || "−") + "</td><td><strong>" + esc(sk(g.diagnostic_target)) + "</strong>" +
+        (g.entry === "reason_only" ? "（根拠だけ）" : g.concept_prereqs.length ? " → " + esc(g.concept_prereqs.map(sk).join(" → ")) : "（そのもの）") + "<br><span class=\"muted\">" + esc(f.route) + "</span></td>" +
+        "<td>" + esc((g.required_geometry_skills || []).map(sk).join("・") || "なし") + "</td><td>" + esc(route(q, res)) + "</td>" +
+        "<td>" + esc(g.pending_findings.map(function (p) { return p.step + "（" + p.aspect + "）→ " + sk(p.diagnostic_target); }).join("、") || "−") + "</td>" +
+        "<td>" + saved(q, res, f, value) + "</td></tr>";
+    }
+    var HEAD = "<tr><th>小問</th><th>行</th><th>役割</th><th>選んだ答え（種類）</th><th>主張</th><th>根拠</th><th>まちがえた面</th><th>取り違え</th><th>学び直す場所（diagnostic_target）と理由</th><th>使った図形①</th><th>今回たどる経路</th><th>今回は追わない誤り（pending）</th><th>保存先・面・before → after</th></tr>";
     var cards = items.map(function (q) {
       var v = q.proof ? PF.verify(q) : null;
       var lines = q.proof ? q.proof.lines.map(function (l) {
         return "<tr><td>" + l.id + "</td><td>" + esc(ROLE_JA2[l.role]) + "</td><td>" + esc(PF.claimText(l.claim)) + "</td><td>" + esc(l.reason) + "</td><td>" + esc((l.depends_on || []).join("・") || "−") + "</td><td>" + esc(sk(PF.ROLE_SKILL[l.role])) + "</td></tr>";
       }).join("") : "";
-      // 穴うめ：誤答ごとに、どこを入口にするか
-      var wrongs = (q.steps || []).map(function (st) {
-        return st.choices.filter(function (c) { return c.key !== st.answer; }).map(function (c) {
-          var vals = {}; q.steps.forEach(function (x) { vals[x.id] = x.id === st.id ? c.key : x.answer; });
-          var g = PF.entry(q, L.checkSteps(q, vals));
-          return "<li>" + esc(st.id) + " に「" + esc(c.label) + "」（" + esc(c.kind || "−") + "）→ " + esc(diag(g)) + "</li>";
-        }).join("");
-      }).join("");
-      if (q.type === "choice") wrongs = q.choices.filter(function (c) { return c.key !== q.answer; }).map(function (c) {
-        return "<li>「" + esc(c.label) + "」（" + esc(c.kind || "−") + "）→ " + esc(diag(PF.entry(q, [{ id: null, skill: q.skill, correct: false, aspect: "claim", chosen: c.key }]))) + "</li>";
-      }).join("");
+      var rows = "";
+      if (q.type === "steps") {
+        q.steps.forEach(function (st) {
+          st.choices.filter(function (c) { return c.key !== st.answer; }).forEach(function (c) {
+            var vals = {}; q.steps.forEach(function (x) { vals[x.id] = x.id === st.id ? c.key : x.answer; });
+            rows += rowOf(q, L.checkSteps(q, vals));
+          });
+        });
+        // 複数の誤り：先の行と後の行を両方まちがえた例（今回は最初の行、後は pending）
+        if (q.steps.length >= 2) {
+          var first = q.steps[0], last = q.steps[q.steps.length - 1], vals2 = {};
+          q.steps.forEach(function (x) { vals2[x.id] = x.answer; });
+          vals2[first.id] = first.choices.filter(function (c) { return c.key !== first.answer; })[0].key;
+          vals2[last.id] = last.choices.filter(function (c) { return c.key !== last.answer; })[0].key;
+          rows += rowOf(q, L.checkSteps(q, vals2)).replace("<tr>", '<tr class="multi">');
+        }
+      } else if (q.type === "choice") {
+        q.choices.filter(function (c) { return c.key !== q.answer; }).forEach(function (c) {
+          rows += rowOf(q, [{ id: null, skill: q.skill, correct: false, aspect: q.aspect || "claim", chosen: c.key }]);
+        });
+      } else if (q.type === "order") {
+        var ids = q.proof.lines.map(function (l) { return l.id; });
+        [[ids[0], ids[1], ids[3], ids[2], ids[4]], [ids[0], ids[1], ids[2], ids[4], ids[3]]].forEach(function (o) { rows += rowOf(q, PF.orderResults(q, o), o); });
+      }
       var orders = "";
       if (q.type === "order") {
-        var ids = q.proof.lines.map(function (l) { return l.id; });
-        var tries = [ids, [ids[2], ids[0], ids[1], ids[3], ids[4]], [ids[0], ids[1], ids[3], ids[2], ids[4]], [ids[0], ids[1], ids[2], ids[4], ids[3]]];
-        orders = tries.map(function (o) {
-          var c = PF.orderCheck(q, o), g = c.ok ? null : PF.entry(q, PF.orderResults(q, o));
-          return "<li>" + esc(o.join(" → ")) + "：" + (c.ok ? '<span class="geo-ok">正解</span>' : '<span class="geo-warn">' + esc(PF.ORDER_JA[c.tag]) + "</span> → " + esc(diag(g))) + "</li>";
+        var ids2 = q.proof.lines.map(function (l) { return l.id; });
+        orders = [ids2, [ids2[2], ids2[0], ids2[1], ids2[3], ids2[4]], [ids2[1], ids2[2], ids2[0], ids2[3], ids2[4]]].map(function (o) {
+          return "<li>" + esc(o.join(" → ")) + "：" + (PF.orderCheck(q, o).ok ? '<span class="geo-ok">正解</span>' : '<span class="geo-warn">×</span>') + "</li>";
         }).join("");
       }
       return '<article class="card" id="' + esc(q.id) + '"><p class="eyebrow">' + esc(q.id) + "（" + esc(q.type) + "）</p><p>" + esc(q.text) + "</p>" +
         '<div class="geo-debug"><div>' + (q.figure ? qFigure(q) : "") + "</div><div>" +
         (lines ? '<div class="table-wrap"><table><thead><tr><th>行</th><th>役割</th><th>主張</th><th>根拠</th><th>先に必要</th><th>スキル</th></tr></thead><tbody>' + lines + "</tbody></table></div>" : "") +
         (v ? '<p class="small"><strong>検証：</strong>' + (v.ok ? '<span class="geo-ok">OK（' + v.checks.length + "項目）</span>" : '<span class="geo-warn">' + esc(v.messages.join("／")) + "</span>") + "</p>" : "") +
-        (wrongs ? '<p class="small"><strong>誤答ごとの入口</strong></p><ul class="small debug-log">' + wrongs + "</ul>" : "") +
-        (orders ? '<p class="small"><strong>並べかえの採点（依存関係）</strong></p><ul class="small debug-log">' + orders + "</ul>" : "") +
+        '<p class="small"><strong>使った図形①の性質（required_geometry_skills）：</strong>' + esc(PF.requiredGeometry(q).map(sk).join("・") || "なし（図形①へは戻らない）") + "</p>" +
+        (orders ? '<p class="small"><strong>並べかえの正解の例（依存関係）</strong></p><ul class="small debug-log">' + orders + "</ul>" : "") +
         '<a class="secondary-button link-button" href="./?debug=figure&try=' + encodeURIComponent(q.id) + '">この問題を解いてみる</a>' +
-        "</div></div></article>";
+        "</div></div>" +
+        (rows ? '<p class="small"><strong>誤答ごとの診断</strong>（最後の行の色ちがいは、先の行と後の行の両方をまちがえた例）</p><div class="table-wrap proof-diag"><table><thead>' + HEAD + "</thead><tbody>" + rows + "</tbody></table></div>" : "") +
+        "</article>";
     }).join("");
     return '<section class="card"><p class="eyebrow">DEBUG / PROOF</p><h1 class="h-md">証明（図形②：合同と証明）</h1>' +
-      '<p class="small muted">' + items.length + "問。証明は行ごとに 役割・主張（claim）・根拠（reason）・依存関係（depends_on）を持ち、最初に止まった行の役割と、選んだ答えの種類（kind）で入口を決める。並べかえは依存関係を壊していなければ正解。</p>" +
+      '<p class="small muted">' + items.length + "問。まちがえた面（aspect）・学び直す場所（diagnostic_target）・判断の理由（confusion / route）を分けて表示。今回たどるのは最初に止まった誤りだけで、後の誤りは pending に残す。並べかえは依存関係を壊していなければ正解。</p>" +
       '<div class="actions"><a class="secondary-button link-button" href="./?debug=1">アプリへ</a></div></section>' + cards;
   }
 

@@ -3381,8 +3381,9 @@
     def.lines.forEach(function (l) { byId[l.id] = l; });
     var steps = blanks.map(function (b, i) {
       var l = byId[b.line], ans = b.choices.filter(function (c) { return c[2] === "correct"; })[0][0];
-      // 合同条件の行の根拠（どの条件か）は、条件を選ぶこと自体が中身なので claim として記録する
-      var aspect = b.part === "reason" && l.role !== "condition" ? "reason" : "claim";
+      // 何をまちがえたか（aspect）は、穴の種類そのまま：主張の穴は claim、根拠の穴は reason（合同条件の行の「どの条件か」も reason）。
+      // どこを学び直すか（diagnostic_target）は js/proof.js が別に決める
+      var aspect = b.part === "reason" ? "reason" : "claim";
       return { id: b.line + (b.part === "claim" ? "c" : "r"), line: b.line, part: b.part, role: l.role, skill: PR_SKILL[l.role], aspect: aspect, type: "choice", answer: ans,
         text: "［" + (i + 1) + "］に入るのは？（" + (b.part === "claim" ? "何が等しい・合同か" : l.role === "condition" ? "合同条件" : "根拠") + "）",
         choices: b.choices.map(function (c) { return { key: c[0], label: c[1], kind: c[2] }; }),
@@ -3549,7 +3550,7 @@
     text: "△ABC ≡ △DEF のとき、辺 BC に対応する辺はどれ？", type: "choice", answer: "ef",
     choices: [{ key: "de", label: "DE", kind: "corr_shift" }, { key: "ef", label: "EF", kind: "correct" }, { key: "df", label: "DF", kind: "corr_shift" }],
     hint: "≡ の記号の前後で、同じ位置にある頂点どうしが対応する。", explanation: "B と E、C と F が対応するので、BC に対応するのは EF です。" });
-  stageQ({ id: "congCond-basic-1", skill: "congCond", level: "basic",
+  stageQ({ id: "congCond-basic-1", skill: "congCond", level: "basic", aspect: "reason",
     text: "△ABC と △DEF で、AB ＝ DE、BC ＝ EF、∠B ＝ ∠E のとき、使える合同条件はどれ？", type: "choice", answer: "SAS",
     choices: [{ key: "SSS", label: PR_REASON.SSS, kind: "SSS" }, { key: "SAS", label: PR_REASON.SAS, kind: "correct" }, { key: "ASA", label: PR_REASON.ASA, kind: "ASA" }],
     hint: "等しい角は、等しい2辺の間にある？", explanation: "∠B は辺 AB と BC の間の角なので、2組の辺とその間の角がそれぞれ等しい、です。" });
@@ -3557,11 +3558,27 @@
     text: "△ABC と △DEF で、AB ＝ DE、AC ＝ DF、∠B ＝ ∠E のとき、合同といえる？", type: "choice", answer: "no",
     choices: [{ key: "SAS", label: "いえる（2組の辺とその間の角）", kind: "SSA" }, { key: "no", label: "いえない（角が2辺の間にない）", kind: "correct" }],
     hint: "∠B は辺 AB と AC の間の角？", explanation: "∠B は AB と AC の間の角ではありません（間の角は ∠A）。この3つだけでは合同とはいえません。" });
-  stageQ({ id: "congUse-basic-1", skill: "congUse", level: "basic",
+  // 対応だけで答えられるので「対応する辺・角」の問題として扱う（合同から言えることの独立した測定は下の3問）
+  stageQ({ id: "congCorr-basic-2", skill: "congCorr", level: "basic",
     text: "△ABC ≡ △DEF がわかっています。∠C と等しい角はどれ？", type: "choice", answer: "f",
     choices: [{ key: "e", label: "∠E", kind: "corr_shift" }, { key: "f", label: "∠F", kind: "correct" }, { key: "d", label: "∠D", kind: "corr_shift" }],
     hint: "合同な図形の対応する角は等しい。C に対応する頂点は？", explanation: "C と F が対応するので、∠C ＝ ∠F です。" });
-  stageQ({ id: "proofFigureFacts-basic-1", skill: "proofFigureFacts", level: "basic", format: "figure",
+  // ---------- 合同から言えること（⑤）：「合同を示したあとだから、対応する辺・角の等しさを結論に使える」を測る ----------
+  //   対応する辺・角（②）は「どれとどれが対応するか」。こちらは「いつ・何のために使えるか」
+  stageQ({ id: "congUse-basic-1", skill: "congUse", level: "basic", aspect: "reason", format: "figure", figure: figP1(),
+    text: "△ABC ≡ △DCB を示しました。このあと AC ＝ DB と言うときの理由はどれ？", type: "choice", answer: "congruent_parts",
+    choices: [{ key: "hypothesis", label: "仮定", kind: "use_confused" }, { key: "congruent_parts", label: "合同な図形の対応する辺（角）は等しい", kind: "correct" },
+      { key: "common", label: "共通", kind: "use_confused" }],
+    hint: "AC ＝ DB は、はじめから分かっていたこと？", explanation: "AC ＝ DB は仮定ではありません。△ABC ≡ △DCB を示したので、合同な図形の対応する辺は等しい、が理由です。" });
+  stageQ({ id: "congUse-basic-2", skill: "congUse", level: "basic", format: "figure", figure: figP1(),
+    text: "AB ＝ DC、∠ABC ＝ ∠DCB が分かっています。まだ △ABC ≡ △DCB を示していないとき、「対応する辺は等しいので AC ＝ DB」と書いてよい？", type: "choice", answer: "no",
+    choices: [{ key: "yes", label: "書いてよい（AC と DB は対応する辺だから）", kind: "use_before_cong" }, { key: "no", label: "まだ書けない（先に合同を示す）", kind: "correct" }],
+    hint: "「対応する辺は等しい」は、何が分かったあとに使える？", explanation: "対応する辺が等しいと言えるのは、合同を示したあとです。先に △ABC ≡ △DCB を示します。" });
+  stageQ({ id: "congUse-basic-3", skill: "congUse", level: "basic", format: "figure", figure: figP2(),
+    text: "△AOC ≡ △BOD を示しました。合同から、新しく言えることはどれ？", type: "choice", answer: "acbd",
+    choices: [{ key: "aobo", label: "AO ＝ BO", kind: "already_known" }, { key: "acbd", label: "AC ＝ BD", kind: "correct" }, { key: "acbo", label: "AC ＝ BO", kind: "corr_shift" }],
+    hint: "AO ＝ BO は、合同を示す前から分かっていた。", explanation: "AO ＝ BO は仮定です。合同から新しく言えるのは、対応する辺 AC ＝ BD です。" });
+  stageQ({ id: "proofFigureFacts-basic-1", skill: "proofFigureFacts", level: "basic", format: "figure", basis: "vertical", required_geometry_skills: ["lineAngles"],
     text: "線分ABとCDが点Oで交わっています。△AOC と △BOD の証明に使える、等しい角を見つけよう。", figure: figP2(), type: "steps",
     steps: [{ id: "s1", skill: "proofFigureFacts", aspect: "claim", type: "choice", answer: "aocbod", text: "等しい角はどれ？",
         choices: [{ key: "aocbod", label: "∠AOC ＝ ∠BOD", kind: "correct" }, { key: "aoccob", label: "∠AOC ＝ ∠COB", kind: "misread" }, { key: "oacobd", label: "∠OAC ＝ ∠OBD", kind: "goal_used" }],

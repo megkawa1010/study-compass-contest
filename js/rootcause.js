@@ -150,6 +150,8 @@
       trail.geometry = { question_id: g.question_id, value_ok: g.value_ok, reason_ok: g.reason_ok, first_miss_step: g.first_miss_step,
         entry: g.entry, why: g.why, concept_prereqs: g.concept_prereqs, calc_prereqs: g.calc_prereqs, confusions: g.confusions,
         direct: !!g.direct, direct_message: g.direct_message || null, proof: g.proof || null,
+        diagnostic_target: g.diagnostic_target || g.skill, wrong_aspect: g.wrong_aspect || null, findings: g.findings || [], pending_findings: g.pending_findings || [],
+        required_geometry_skills: g.required_geometry_skills || null,
         sides: g.entry === "calc" ? ["calc"] : g.then_calc ? ["concept", "calc"] : ["concept"], side_idx: 0, skipped: [] };
       trail.log.push("入口：" + (g.entry === "calc" ? "計算側" : "図形の性質側") + "（" + g.why + "）");
       if (g.entry === "calc") trail.geometry.skipped.push({ side: "concept", why: "根拠が正しい・式が立てられている＝図形の性質はわかっているので、図形側は確かめない" });
@@ -159,19 +161,24 @@
 
   // 角度○・根拠× のとき：原因さがしの問題は出さず、理由だけを記録した道すじ（結論ずみ）
   function reasonOnly(q, g, now) {
+    var isProof = !!(q.proof || q.proof_stage), what = isProof ? "主張" : "角度";
     var trail = start({ question: q, skill: g.skill, now: now });
     trail.path[0].correct = true;
-    trail.path[0].label = label(g.skill) + "（角度）";
+    trail.path[0].label = label(g.skill) + "（" + what + "）";
     trail.path.push({ skill: g.skill, label: label(g.skill) + "（根拠）", question_id: q.id, correct: false, via: "reason", depth: 0 });
     trail.tested = {};
     trail.geometry = { question_id: q.id, value_ok: true, reason_ok: false, first_miss_step: g.first_miss_step, entry: "reason_only", why: g.why,
       concept_prereqs: g.concept_prereqs, calc_prereqs: g.calc_prereqs, confusions: g.confusions, sides: [], side_idx: 0,
+      diagnostic_target: g.diagnostic_target || g.skill, wrong_aspect: "reason", findings: g.findings || [], pending_findings: g.pending_findings || [],
+      required_geometry_skills: g.required_geometry_skills || null,
       skipped: [{ side: "concept", why: "角度は求められているので、図形の性質側の深い原因さがしはしない" }, { side: "calc", why: "値は正しいので、計算側は確かめない" }] };
     var RS = SC.geometry ? SC.geometry.REASONS : {};
     var c = g.confusions[0] || {};
     trail.status = "done";
-    trail.conclusion = { kind: "reason_only", gap_skill: null, return_to: null, solid_skills: [], pending_skills: [], reason_practice: g.skill, confusions: g.confusions,
-      message: "「" + label(g.skill) + "」の角度は正しく求められています。理由" + (c.chosen && RS[c.chosen] ? "（選んだ根拠「" + RS[c.chosen] + "」→ 正しくは「" + (RS[c.answer] || c.answer) + "」）" : "") +
+    trail.conclusion = { kind: "reason_only", gap_skill: null, return_to: null, solid_skills: [], pending_skills: [], reason_practice: g.diagnostic_target || g.skill, confusions: g.confusions,
+      pending_findings: g.pending_findings || [],
+      message: isProof ? "主張は合っています。根拠" + (c.chosen && RS[c.chosen] ? "（選んだ「" + RS[c.chosen] + "」→ 正しくは「" + (RS[c.answer] || c.answer) + "」）" : "") + "を、短く確認しましょう。"
+        : "「" + label(g.skill) + "」の角度は正しく求められています。理由" + (c.chosen && RS[c.chosen] ? "（選んだ根拠「" + RS[c.chosen] + "」→ 正しくは「" + (RS[c.answer] || c.answer) + "」）" : "") +
         "がまだ不安定なので、根拠を短く確認しましょう。" };
     trail.log.push("角度は正しく、根拠だけまちがえた → 原因さがしはせず、根拠を記録（" + (c.confusion || "") + "）");
     trail.log.push("結論：" + trail.conclusion.message);
@@ -325,7 +332,7 @@
     // 証明：さかのぼる前提がなく、止まった行のスキルそのものに戻る（例：合同条件の選び方・仮定を拾う）
     if (g && g.direct && gap === trail.symptom.skill && !trail.pending.length && trail.reproduced !== false) {
       trail.status = "done";
-      trail.conclusion = { kind: "in_skill", gap_skill: gap, return_to: gap, solid_skills: solid, pending_skills: [], message: g.direct_message };
+      trail.conclusion = { kind: "in_skill", gap_skill: gap, return_to: gap, solid_skills: solid, pending_skills: [], pending_findings: g.pending_findings || [], message: g.direct_message };
       trail.log.push("結論：" + trail.conclusion.message);
       return trail;
     }
@@ -350,6 +357,7 @@
     else if (gap === trail.symptom.skill) kind = prereqs.length ? "in_skill" : "root";
     else kind = prereqs.length ? "gap_found" : "root";
     trail.conclusion = {
+      pending_findings: g ? g.pending_findings || [] : [],
       kind: kind,
       gap_skill: kind === "not_reproduced" ? null : gap,
       return_to: kind === "not_reproduced" ? null : gap,        // ここまで戻って練習するとよさそう
