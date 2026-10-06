@@ -38,9 +38,17 @@
   var TYPE_LABEL = { review: "復習・ウォームアップ", practice: "もどって確認", current_unit: "学校の学習", check: "確認", challenge: "もう少し先へ", test: "テストに出る形で", preview: "先取り", reason_review: "理由を確認" };
   // 戻る場所の、子ども向けの言い方（図形は「何を確かめるか」が分かる言葉に）
   var FRIENDLY = { angleNames: "角の位置関係", lineAngles: "対頂角と一直線の角", parallelAngles: "平行線と角の関係", triangleSum: "三角形の角の和", exteriorAngle: "三角形の外角", angleBasics: "角の基本" };
-  function typeLabel(c) { return c.type === "review" && c.level === "retention" ? "定着チェック" : TYPE_LABEL[c.type]; }
+  function typeLabel(c) { return c.type === "review" && c.level === "retention" ? "定着チェック" : TYPE_LABEL[c.display || c.type]; }
+  // 表示の分類（display）：内部の type（優先度・原因さがし）とは分けて、学校との位置関係で決める。
+  //   戻る勉強（practice）でも、学校でいま学習中のスキルなら「学校の学習」、まだ習っていないスキルなら「先取り」。前に習ったスキルだけ「もどって確認」
+  function displayOf(c, detail) {
+    if (c.type !== "practice") return c.type;
+    var st = E.schoolSkillStatus(c.skill, detail);
+    return st === "current" ? "current_unit" : st === "not_learned" ? "preview" : "practice";
+  }
   // 今日の学習の一覧に出す、パートごとのひとこと
   function partNote(c) {
+    if (c.type === "practice" && c.display === "current_unit") return "学校で習っている「" + label(c.skill) + "」を、もう少していねいに確認しよう。";
     if (c.type === "practice" && c.meta) {
       var what = FRIENDLY[c.skill] || "「" + label(c.skill) + "」";
       return c.meta.symptom_skill && c.meta.symptom_skill !== c.skill ? "「" + label(c.meta.symptom_skill) + "」の前に、" + what + "を少し確認しよう。" : what + "を少し確認しよう。";
@@ -623,9 +631,9 @@
   // 「なぜこの配分？」— 子どもにもわかる言葉で
   function allocWhy(alloc, plan) {
     var s = plan.sessions;
-    var practice = s.filter(function (x) { return x.type === "practice"; })[0];
-    var school = s.filter(function (x) { return x.type === "current_unit"; })[0];
-    var preview = s.filter(function (x) { return x.type === "preview"; })[0];
+    var practice = s.filter(function (x) { return x.type === "practice" && x.display === "practice"; })[0];
+    var school = s.filter(function (x) { return x.display === "current_unit"; })[0];
+    var preview = s.filter(function (x) { return x.display === "preview"; })[0];
     var curUnit = plan.school_progress ? plan.school_progress.current_unit : "一次関数";
     if (practice && school) {
       var back = backToLine(practice.skill, curUnit);
@@ -898,6 +906,8 @@
 
     // 問題を選ぶ
     var used = [];
+    var detailForDisplay = input.school && input.school.detail;
+    chosen.forEach(function (c) { c.display = displayOf(c, detailForDisplay); });
     var sessions = chosen.map(function (c) {
       var n = questionCount(c.minutes);
       var picks = [];
@@ -925,7 +935,7 @@
         : "まず位置関係を見つけて、次に根拠を選び、最後に簡単な角度を求めます。むずかしい角度の計算には、まだ戻りません。"] };
       return {
         kind: kind,
-        minutes: c.minutes, type: c.type, type_label: typeLabel(c), note: partNote(c), role: c.role,
+        minutes: c.minutes, type: c.type, display: c.display || c.type, type_label: typeLabel(c), note: partNote(c), role: c.role,
         skill: c.skill, skill_label: label(c.skill), level: c.level, level_label: LEVEL_JA[c.level],
         title: typeLabel(c) + "：" + label(c.skill) + "（" + LEVEL_JA[c.level] + "）",
         why: c.why, intro: intro,

@@ -178,7 +178,15 @@ for (let d = 1; d <= DAYS; d++) {
   E.UNITS[sc.unit].forEach((k) => { if (E.schoolSkillStatus(k, S.school()) === "current") { p[k] = Math.min(0.96, p[k] + 0.015); pr[k] = Math.min(0.96, pr[k] + 0.01); } });
   const day = { day: d, unit: sc.unit, at: sc.at, minutes: MINUTES[(d - 1) % MINUTES.length] };
   // 単元がかわった日：はじめてのチェック。3日ごと：定期チェック（お知らせが出ていれば）
-  if (sc.first) day.check = runCheck(C.unitCheck(sc.unit, S.school()), "unit_check");
+  if (sc.first) {
+    // ホームの案内（js/app.js unitCheckNoticeInfo と同じ条件）。修正前のアプリには案内がない
+    day.unitNotice = !!S.unitCheckDone && S.get().answer_history.length > 0 && !S.unitCheckDone(sc.unit);
+    const uc = C.unitCheck(sc.unit, S.school());
+    day.unitCheckQ = uc.questions.length;
+    day.unitCheckSkills = new Set(uc.chosen.map((c) => c.skill)).size;
+    day.check = runCheck(uc, "unit_check");
+    day.unitNoticeAfter = !!S.unitCheckDone && !S.unitCheckDone(sc.unit); // チェックのあとも案内が残るか（残ってはいけない）
+  }
   else if (d % 3 === 0) {
     const chk = C.buildCheck({ states: S.get().skill_state, history: S.get().answer_history, sessions: S.get().sessions, explorations: S.get().explorations, now: S.now(), school: S.school(), rng: SC.bank.seeded(d) });
     if (chk.chosen.length) day.check = runCheck(chk, "periodic");
@@ -192,7 +200,7 @@ for (let d = 1; d <= DAYS; d++) {
   day.test_left = ti ? ti.left : null;
   const plan = P.build(input);
   S.addPlan(plan);
-  day.plan = plan.sessions.map((s) => ({ type: s.type, kind: s.kind || null, skill: s.skill, unit: E.SKILLS[s.skill].unit, minutes: s.minutes, level: s.level, q: s.questions.length,
+  day.plan = plan.sessions.map((s) => ({ type: s.type, display: s.display || s.type, school: E.schoolSkillStatus(s.skill, S.school()), kind: s.kind || null, skill: s.skill, unit: E.SKILLS[s.skill].unit, minutes: s.minutes, level: s.level, q: s.questions.length,
     reused: s.picks.filter((x) => x.reused).length, relaxed: s.picks.filter((x) => x.stage >= 2).length }));
   day.why = plan.why;
   day.focus = plan.focus_skill;
@@ -250,7 +258,7 @@ line("\n=== 今日の学習の配分（分数ごと） ===");
   ds.forEach((d) => d.plan.forEach((s) => { const k = s.kind === "reason_review" ? "理由を確認" : s.type === "practice" ? "もどって確認" : s.type === "current_unit" ? "学校の学習" : s.type === "test" ? "テスト範囲" : s.type === "review" && s.level === "retention" ? "定着チェック" : s.type === "preview" ? "先取り" : P.TYPE_LABEL[s.type]; sum[k] = (sum[k] || 0) + s.minutes; }));
   line(m + "分の日（" + ds.length + "日）：" + Object.keys(sum).map((k) => k + " " + Math.round(sum[k] / ds.length * 10) / 10 + "分").join("・"));
 });
-const noSchool = log.days.filter((d) => d.plan.some((s) => s.type === "practice") && !d.plan.some((s) => s.type === "current_unit" || s.type === "test" || (s.type === "challenge" && E.UNITS[d.unit].includes(s.skill))));
+const noSchool = log.days.filter((d) => d.plan.some((s) => s.display === "practice") && !d.plan.some((s) => s.display === "current_unit" || s.type === "test" || (s.type === "challenge" && E.UNITS[d.unit].includes(s.skill))));
 line("もどって確認があって、学校の単元に0分の日：" + (noSchool.map((d) => d.day + "日").join(",") || "なし"));
 const rootHeavy = log.days.filter((d) => { const r = d.plan.filter((s) => s.type === "practice").reduce((a, s) => a + s.minutes, 0); return r > d.minutes / 2; });
 line("もどって確認が半分を超えた日：" + (rootHeavy.map((d) => d.day + "日").join(",") || "なし"));
@@ -295,7 +303,15 @@ if (process.env.METRICS) {
     practiceSkills: prDays.length, graduated: prDays.filter((ds) => DAYS - ds[ds.length - 1] >= 5).length, maxPracticeDays: Math.max(0, ...prDays.map((ds) => ds.length)),
     repeat4: Object.keys(practiceSeen).filter((k) => practiceSeen[k].length >= 4).map(lab),
     finalWeak: Object.keys(st).filter((k) => ["needs_review", "learning"].includes(st[k].learning_status)).length,
-    learnedNever: learnedNever.map(lab), formMeasured: !!st.form.attempt_count
+    learnedNever: learnedNever.map(lab), formMeasured: !!st.form.attempt_count,
+    unitChecks: log.days.filter((d) => d.unitCheckQ != null).map((d) => d.unit + ":" + d.unitCheckQ + "問/" + d.unitCheckSkills + "スキル"),
+    unitNotice: log.days.filter((d) => d.unitCheckQ != null).map((d) => d.unit + ":" + (d.unitNotice ? "案内" : "なし") + (d.unitNoticeAfter ? "（チェック後も残る）" : "")),
+    // 「もどって確認」と表示された部分のうち、学校でいま学習中のスキルだった数（0にしたい）
+    backButCurrent: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "practice" && p.school === "current").length, 0),
+    backParts: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "practice").length, 0),
+    practiceParts: log.days.reduce((a, d) => a + d.plan.filter((p) => p.type === "practice").length, 0),
+    schoolMinutes: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "current_unit" || p.type === "test").reduce((x, p) => x + p.minutes, 0), 0),
+    backMinutes: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "practice").reduce((x, p) => x + p.minutes, 0), 0)
   }));
 }
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ store: S.get(), log }, null, 0));

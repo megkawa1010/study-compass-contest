@@ -373,7 +373,31 @@
   }
 
   // 定期コンパスチェックのお知らせ。強制はしない（今チェックする / 今日はあとで）
+  // 学校の単元が変わって、その単元のはじめてのチェックがまだのとき：軽い案内（強制しない。「今日はあとで」はその日だけ）
+  function unitCheckNoticeInfo() {
+    if (!ST.get().answer_history.length) return null; // はじめての人は、ホームの「コンパスチェックをはじめる」から
+    var s = ST.school(), unit = s.current_unit, u = s.units[unit];
+    if (!unit || !u || u.status === "not_learned" || ST.unitCheckDone(unit)) return null;
+    return { unit: unit, snoozed: ST.unitCheckSnoozed(unit, C.dateKey(ST.now())) };
+  }
+  function unitCheckNotice() {
+    var n = unitCheckNoticeInfo();
+    if (!n || n.snoozed) return "";
+    return '<section class="card notice-card">' +
+      '<p class="eyebrow">NEW UNIT</p>' +
+      '<h2 class="h-sm">新しい単元に進んだね。今のところを少し確認しよう。</h2>' +
+      "<p>「" + esc(n.unit) + "」の、学校で習ったところだけを3〜5問。まだ習っていないところは出しません。</p>" +
+      '<div class="actions">' +
+        '<button class="primary-button" type="button" data-action="start-unit-check">チェックする</button>' +
+        '<button class="secondary-button" type="button" data-action="snooze-unit-check">今日はあとで</button>' +
+      "</div></section>";
+  }
+
   function compassNotice() {
+    // 単元のはじめてのチェックを案内している日は、定期チェックのお知らせは出さない（チェックの案内を2つ並べない）
+    // 「今日はあとで」にした日は、定期チェックのお知らせも出さない（断ったすぐあとに別のチェックをすすめない）
+    var un = unitCheckNoticeInfo();
+    if (un) return un.snoozed ? "" : unitCheckNotice();
     var n = C.notice(compassInput());
     if (n.snoozed && n.count) {
       return '<p class="small muted snoozed-note">今日のコンパスチェックは「あとで」にしました。明日またお知らせします。' +
@@ -1043,6 +1067,20 @@
 
   // ---------- 学校のようすの確認ページ（?debug=school） ----------
 
+  // 単元のはじめてのチェック：候補スキル・選んだ問題・除外したスキルと理由・最終問題数。案内を出すかどうかも
+  function unitCheckDebug(s) {
+    var unit = s.current_unit, S = E.SKILLS;
+    if (unit === "一次関数") return '<section class="card"><h2 class="h-sm">はじめてのチェック（' + esc(unit) + "）</h2><p class=\"small\">一次関数は B1〜B5（原因確認 C1〜C5 つき）の別の流れ</p></section>";
+    var c = C.unitCheck(unit, s), d = c.debug, info = unitCheckNoticeInfo();
+    return '<section class="card"><h2 class="h-sm">はじめてのチェック（' + esc(unit) + "）</h2><ul class=\"small debug-log\">" +
+      "<li>候補スキル：" + esc(d.candidates.map(function (x) { return S[x.skill].label + "（" + x.school + (x.diagnosis ? "・診断用あり" : "・基礎で代用") + "）"; }).join("、") || "なし") + "</li>" +
+      "<li>選んだ問題：" + esc(c.chosen.map(function (x) { return x.question_id + "（" + S[x.skill].label + "）"; }).join("、") || "なし") + "</li>" +
+      "<li>除外したスキル：" + esc(d.excluded.map(function (x) { return S[x.skill].label + "（" + x.why + "）"; }).join("、") || "なし") + "</li>" +
+      "<li>最終問題数：" + d.final_count + "問（原則 " + C.UNIT_CHECK.MIN + "〜" + C.UNIT_CHECK.MAX + "問。習ったスキルが少ないときは、学習中のスキルに2問目）</li>" +
+      "<li>この単元のはじめてのチェック：" + (ST.unitCheckDone(unit) ? "済み（案内しない）" : info ? (info.snoozed ? "まだ・今日は「あとで」" : "まだ・ホームで案内中") : "まだ・記録がないので案内しない（ホームのコンパスチェックから）") + "</li>" +
+      "</ul></section>";
+  }
+
   function viewSchoolDebug() {
     var s = ST.school(), states = ST.get().skill_state;
     var S = E.SKILLS, MARK = { learned: "習った", current: "学習中", not_learned: "まだ" };
@@ -1081,6 +1119,7 @@
         "<li>先取りしてよい次のスキル：" + esc(preview ? S[preview].label : "なし") + "</li></ul>" +
         '<p class="small muted">まだ習っていないスキル：苦手にしない・確かさを下げない（先取りのまちがいは理解度の計算に入れない）・定期チェックと原因さがしの対象にしない。</p>' +
         (stateRows ? '<div class="table-wrap"><table><thead><tr><th>まだのスキル</th><th>learning_status</th><th>確かさ</th><th>先取りでまちがえた回数（計算に入れない）</th></tr></thead><tbody>' + stateRows + "</tbody></table></div>" : "") + "</section>" +
+      unitCheckDebug(s) +
       '<section class="card"><h2 class="h-sm">今日の学習の「学校」の枠</h2>' +
         (plan ? (schoolSessions.length ? '<ul class="small debug-log">' + schoolSessions.map(function (x) {
           return "<li>" + esc(x.type_label) + "：" + esc(x.skill_label) + "（" + esc(x.level_label) + "）" + x.minutes + "分・" + x.questions.length + "問／" + esc(x.why) + "</li>";
@@ -2441,6 +2480,15 @@
         go(state.mode === "periodic" ? "checkResult" : state.mode === "daily" || state.mode === "fallback" ? "home" : "result");
         break;
       case "start-periodic": startPeriodic(); break;
+      case "start-unit-check": {
+        var us = ST.school(), uu = us.units[us.current_unit];
+        startUnitCheck(us.current_unit, ST.schoolProgress(us.current_unit), uu.status === "learning" ? uu.current_skill : null);
+        break;
+      }
+      case "snooze-unit-check":
+        ST.setUnitCheckSnooze(ST.school().current_unit, C.dateKey(ST.now()));
+        render();
+        break;
       case "start-range-check":
         (function () {
           var tc = testContext(), d = ST.get();

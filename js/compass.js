@@ -317,21 +317,64 @@
 
   // 単元のはじめてのコンパスチェック（一次関数は B1〜B5。それ以外の単元は、問題バンクの診断用の問題）。
   // まちがえたら、定期チェックと同じしくみで原因さがし（追加は最初のチェックの上限まで）をする
-  // school：学校のようす。学校でまだ習っていないスキルの問題は出さない
+  // school：学校のようす。学校でまだ習っていないスキルの問題は出さない（未学習は苦手ではない）
+  // 問題数は原則3〜5問。いまの単元の「複数のスキル」から現在地を見るのが目的：
+  //   1. 習ったスキル（学習中をふくむ）から1問ずつ。診断用の問題があるスキルを先に、なければ基礎の問題
+  //   2. 5問をこえるときは、学校でいま学習中のスキルを残して、前提に近い順
+  //   3. 3問に満たないとき（学校が単元を始めたばかり）は、学習中のスキル → 習ったスキルの順に2問目（基礎・別の問題）
+  //   習ったスキルが1つ・2つしかなければ、未学習の問題は足さない
+  var UNIT_CHECK = { MIN: 3, MAX: 5 };
   function unitCheck(unit, school) {
-    var ids = Object.keys(SC.QUESTIONS).filter(function (id) {
-      var q = SC.QUESTIONS[id];
-      return q.origin === "bank" && q.usage === "diagnosis" && E.SKILLS[q.skill] && E.SKILLS[q.skill].unit === unit &&
-        E.schoolSkillStatus(q.skill, school) !== "not_learned";
-    }).sort(function (a, b) {
-      return E.ROOT_ORDER.indexOf(SC.QUESTIONS[a].skill) - E.ROOT_ORDER.indexOf(SC.QUESTIONS[b].skill) || (a < b ? -1 : 1);
+    var debug = { unit: unit, candidates: [], excluded: [], final_count: 0 };
+    var cands = [];
+    (E.UNITS[unit] || []).forEach(function (k) {
+      var st = E.schoolSkillStatus(k, school);
+      if (st === "not_learned") { debug.excluded.push({ skill: k, why: "学校でまだ習っていない" }); return; }
+      var pool = Object.keys(SC.QUESTIONS).map(function (id) { return SC.QUESTIONS[id]; })
+        .filter(function (q) { return q.origin === "bank" && q.skill === k && !q.reason_only; });
+      var diag = pool.filter(function (q) { return q.usage === "diagnosis"; }).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+      var basic = pool.filter(function (q) { return q.usage !== "diagnosis" && q.level === "basic"; }).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+      if (!diag.length && !basic.length) { debug.excluded.push({ skill: k, why: "問題バンクに診断用・基礎の問題がない" }); return; }
+      cands.push({ skill: k, school: st || "learned", first: (diag[0] || basic[0]).id, diag: !!diag.length, moreDiag: diag.slice(1).map(function (q) { return q.id; }), second: basic.map(function (q) { return q.id; }) });
     });
-    var chosen = ids.map(function (id) {
-      var q = SC.QUESTIONS[id];
-      return { skill: q.skill, label: E.SKILLS[q.skill].label, level: q.level, planned_level: q.level, question_id: id,
-        reason: "「" + unit + "」のはじめてのチェック：「" + E.SKILLS[q.skill].label + "」の今の力を確かめる" };
+    debug.candidates = cands.map(function (c) { return { skill: c.skill, school: c.school, diagnosis: c.diag }; });
+    var rank = function (c) { return E.ROOT_ORDER.indexOf(c.skill); };
+    // 診断用の問題（単元ごとに作ったセット）を先に、5問まで。学校でいま学習中のスキル → 前提に近い順。
+    // 診断用の問題がないスキルは、残りの枠に基礎の問題で1問ずつ
+    var order = function (a, b) { return (a.school === "current" ? 0 : 1) - (b.school === "current" ? 0 : 1) || rank(a) - rank(b); };
+    var items = [], picked = [];
+    cands.filter(function (c) { return c.diag; }).sort(order).forEach(function (c) {
+      [c.first].concat(c.moreDiag).forEach(function (id, i) {
+        if (items.length >= UNIT_CHECK.MAX) return;
+        items.push({ skill: c.skill, question_id: id, second: false });
+        if (i === 0) picked.push(c);
+      });
     });
-    return { chosen: chosen, questions: ids, unit: unit };
+    cands.filter(function (c) { return !c.diag; }).sort(order).forEach(function (c) {
+      if (items.length >= UNIT_CHECK.MAX) return;
+      items.push({ skill: c.skill, question_id: c.first, second: false });
+      picked.push(c);
+    });
+    cands.forEach(function (c) { if (picked.indexOf(c) === -1) debug.excluded.push({ skill: c.skill, why: "問題数の上限（" + UNIT_CHECK.MAX + "問）。診断用の問題・学習中のスキル・前提に近いスキルを先に出す" }); });
+    // 3問に満たないとき：学習中のスキルから2問目（同じ問題はくり返さない）
+    var extra = picked.slice().sort(function (a, b) { return (a.school === "current" ? 0 : 1) - (b.school === "current" ? 0 : 1) || rank(a) - rank(b); });
+    for (var round = 0; items.length < UNIT_CHECK.MIN && round < 2; round++) {
+      extra.forEach(function (c) {
+        if (items.length >= UNIT_CHECK.MIN) return;
+        var used = items.map(function (x) { return x.question_id; });
+        var id = c.second.filter(function (x) { return used.indexOf(x) === -1; })[0];
+        if (id) items.push({ skill: c.skill, question_id: id, second: true });
+      });
+    }
+    items.sort(function (a, b) { return E.ROOT_ORDER.indexOf(a.skill) - E.ROOT_ORDER.indexOf(b.skill) || (a.second ? 1 : 0) - (b.second ? 1 : 0); });
+    var chosen = items.map(function (x) {
+      var q = SC.QUESTIONS[x.question_id];
+      return { skill: x.skill, label: E.SKILLS[x.skill].label, level: q.level, planned_level: q.level, question_id: x.question_id,
+        reason: "「" + unit + "」のはじめてのチェック：「" + E.SKILLS[x.skill].label + "」の今の力を確かめる" + (x.second ? "（学校が単元を始めたばかりなので、もう1問）" : "") };
+    });
+    debug.selected = chosen.map(function (c) { return c.question_id; });
+    debug.final_count = chosen.length;
+    return { chosen: chosen, questions: chosen.map(function (c) { return c.question_id; }), unit: unit, debug: debug };
   }
 
   // ホームに出すお知らせ。「今日はあとで」を選んだ日は出さない
@@ -440,7 +483,7 @@
 
   SC.compass = {
     CONFIG: CONFIG, PRIORITY_TEXT: PRIORITY_TEXT, RELAX_STAGES: RELAX_STAGES, dateKey: dateKey, baseId: baseId, exclusions: exclusions,
-    pickProbe: pickProbe, pendingFromExplorations: pendingFromExplorations, unitCheck: unitCheck,
+    pickProbe: pickProbe, pendingFromExplorations: pendingFromExplorations, unitCheck: unitCheck, UNIT_CHECK: UNIT_CHECK,
     buildCheck: buildCheck, notice: notice, snapshotSkills: snapshotSkills, compare: compare,
     planFromStates: planFromStates, planForSkill: planForSkill, planWhy: planWhy
   };

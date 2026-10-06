@@ -377,13 +377,20 @@
 
   // 「今日はあとで」。その日のあいだだけホームのお知らせを出さない
   function setSnooze(dateKey) { get().profile.compass_snooze_date = dateKey; persist(); }
+  // 単元のはじめてのチェックをしたか（その単元の compass_check のセッションが終わっている）
+  function unitCheckDone(unit) {
+    return finishedSessions().some(function (s) { return s.type === "compass_check" && s.unit === unit; });
+  }
+  // 「新しい単元に進んだね」の案内を「今日はあとで」にした日（単元ごと）
+  function setUnitCheckSnooze(unit, dateKey) { get().profile.unit_check_snooze = { unit: unit, date: dateKey }; persist(); }
+  function unitCheckSnoozed(unit, dateKey) { var z = get().profile.unit_check_snooze; return !!z && z.unit === unit && z.date === dateKey; }
   function snoozeDate() { return get().profile.compass_snooze_date || null; }
 
   SC.store = {
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
     schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress, currentUnit: currentUnit, setCurrentUnit: setCurrentUnit,
     school: school, setSchool: setSchool, setSchoolSnooze: setSchoolSnooze, schoolSkillStatus: schoolSkillStatus,
-    startSession: startSession, session: session, finishedChecks: finishedChecks, addAnswer: addAnswer, finishSession: finishSession,
+    startSession: startSession, session: session, finishedChecks: finishedChecks, unitCheckDone: unitCheckDone, setUnitCheckSnooze: setUnitCheckSnooze, unitCheckSnoozed: unitCheckSnoozed, addAnswer: addAnswer, finishSession: finishSession,
     setSelfEvaluation: setSelfEvaluation, previousSnapshot: previousSnapshot, finishedSessions: finishedSessions,
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,
     addCompassCheck: addCompassCheck, compassHistory: compassHistory, compassCheck: compassCheck,
