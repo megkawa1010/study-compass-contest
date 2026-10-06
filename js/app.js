@@ -292,7 +292,9 @@
     var dr = state.schoolDraft || (state.schoolDraft = {
       unit: s.current_unit,
       skill: s.units[s.current_unit].status === "not_learned" ? "__notyet" : (s.units[s.current_unit].current_skill || ""),
-      testDate: s.next_test ? s.next_test.date : "", testUnits: s.next_test ? s.next_test.units.slice() : [s.current_unit]
+      // 終わったテスト（今日より前の日）は入力に残さない。残すと「今日より後の日を選んでね」で保存できなくなる
+      testDate: s.next_test && SC.testprep.daysLeft(s.next_test.date, ST.now()) >= 0 ? s.next_test.date : "",
+      testUnits: s.next_test && SC.testprep.daysLeft(s.next_test.date, ST.now()) >= 0 ? s.next_test.units.slice() : [s.current_unit]
     });
     var today = SC.testprep.dateKey(ST.now());
     var options = E.schoolOptions(dr.unit).map(function (k) { return { value: k, label: E.schoolOptionLabel(k) }; })
@@ -320,7 +322,7 @@
   // ---------- 画面 ----------
 
   function viewHome() {
-    var sessions = ST.finishedSessions();
+    var sessions = ST.finishedChecks();
     var last = sessions[sessions.length - 1];
     // 記録があれば、ホームの中心は「今日の学習」。はじめての人には、まずコンパスチェック
     var hasRecords = ST.get().answer_history.length > 0;
@@ -664,7 +666,7 @@
   function historyCard() {
     var states = ST.get().skill_state;
     var prev = ST.previousSnapshot(state.sessionId);
-    var sessions = ST.finishedSessions().length;
+    var sessions = ST.finishedChecks().length;
     var rows = E.SKILL_ORDER.filter(function (k) {
       var s = states[k];
       return s && (s.attempt_count || s.learning_status === "not_learned");
@@ -795,7 +797,7 @@
       soso: "次回は、今日のところをもう一度だけ確認してから先に進みます。",
       hard: "次回は、もう一段やさしいところから一緒に確かめます。わからなかったと言えたことが、次の一歩になります。"
     }[state.feeling];
-    var sessions = ST.finishedSessions().length;
+    var sessions = ST.finishedChecks().length;
     var fs = focus && ST.get().skill_state[focus.key];
     var fsView = fs && E.STATUS_VIEW[fs.learning_status];
     return '' +

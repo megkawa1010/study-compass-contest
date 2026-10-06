@@ -32,7 +32,8 @@
     2: "標準・応用に「要確認」がある",
     3: "一度できたが、定着をまだ確かめていない",
     4: "定着していたが、前回の確認から時間がたった",
-    5: "最近まちがいが増えている"
+    5: "最近まちがいが増えている",
+    6: "学校で習ったが、まだ一度も確かめていない"
   };
   var LEVEL_REASON = {
     basic: "基礎がまだ不安定なので、基礎の問題で確かめる",
@@ -150,7 +151,9 @@
     history.forEach(function (a) { everAnswered[baseId(a.question_id)] = true; });
     var shortage = [];
 
-    var candidates = [], maintenance = [], notDue = [];
+    var candidates = [], maintenance = [], notDue = [], unmeasured = [];
+    var curUnit = input.school && input.school.current_unit, unitAt = E.SELECTABLE_UNITS.indexOf(curUnit);
+    var recentUnits = unitAt === -1 ? [] : E.SELECTABLE_UNITS.slice(Math.max(0, unitAt - 1), unitAt + 1);
     E.SKILL_ORDER.forEach(function (skill, order) {
       var s = states[skill];
       var act = activity(skill, history);
@@ -159,7 +162,19 @@
         status: s ? s.learning_status : "not_checked", due: due, reasons: [], priority: null };
       // 学校でまだ習っていないスキルは、定期チェックに出さない（未学習は苦手ではない）
       if (E.schoolSkillStatus(skill, input.school) === "not_learned") { entry.why_not = "学校でまだ習っていない"; notDue.push(entry); return; }
-      if (!due) { entry.why_not = s && s.learning_status === "not_learned" ? "未学習" : "まだ記録がない"; notDue.push(entry); return; }
+      if (!due) {
+        var never = (!s || !s.attempt_count) && !(s && s.reason && s.reason.attempts);
+        var schoolSt = E.schoolSkillStatus(skill, input.school);
+        // まだ一度もチェックしていない人（記録なし）には出さない：まず、はじめてのチェックから
+        if (never && history.length && (schoolSt === "learned" || schoolSt === "current") && recentUnits.indexOf(E.SKILLS[skill].unit) !== -1) {
+          entry.reasons = [{ p: 6, text: PRIORITY_TEXT[6] }];
+          entry.priority = 6; entry.level = "basic"; entry.levelReason = "まだ記録がないので、基礎の問題で確かめる";
+          entry.retentionPurpose = false; entry.everIds = act.everIds;
+          unmeasured.push(entry);
+          return;
+        }
+        entry.why_not = s && s.learning_status === "not_learned" ? "未学習" : "まだ記録がない"; notDue.push(entry); return;
+      }
       if (!due.byDays && !due.byAttempts) {
         entry.why_not = "前回の確認から" + CONFIG.COMPASS_CHECK_DAYS + "日たっておらず、練習も" + CONFIG.COMPASS_CHECK_MIN_ATTEMPTS + "問未満";
         notDue.push(entry);
@@ -235,8 +250,13 @@
       return true;
     }
 
-    // 1巡目：優先度の高いスキルから1問ずつ
-    candidates.forEach(function (c) { pickFor(c); });
+    // 1巡目：優先度の高いスキルから1問ずつ。
+    // 学校で習ったのに一度も確かめていないスキル（いまの単元と、ひとつ前の単元・1回2つまで）は、
+    // 原因さがしの続きのすぐあとに入れる（後ろに回すと、問題数の上限で毎回あふれて、いつまでも測れない）
+    var urgent = candidates.filter(function (c) { return c.priority === 0; }), rest = candidates.filter(function (c) { return c.priority > 0; });
+    urgent.forEach(function (c) { pickFor(c); });
+    unmeasured.sort(function (a, b) { return a.order - b.order; }).slice(0, 2).forEach(function (c) { if (pickFor(c)) candidates.push(c); });
+    rest.forEach(function (c) { pickFor(c); });
     // 2巡目：確かさが低い・誤答が増えているスキルに2問目
     candidates.forEach(function (c) {
       if (c.reasons.some(function (r) { return r.p === 1 || r.p === 5; })) pickFor(c);
@@ -248,7 +268,7 @@
 
     return {
       now: now,
-      candidates: candidates, maintenance: maintenance, notDue: notDue,
+      candidates: candidates, maintenance: maintenance, notDue: notDue, unmeasured: unmeasured,
       excluded: Object.keys(excluded).map(function (id) { return { id: id, why: excluded[id] }; }),
       shortage: shortage,
       chosen: chosen,

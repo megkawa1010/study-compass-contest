@@ -1,5 +1,6 @@
 // 開発用：統合シナリオテスト（中2数学を1人の子どもとして、学校の進度に合わせて30日通す）
 //   node scripts/integrated-scenario.js [日数=30] [出力JSON]
+//   SEED=数字 で乱数を変える（同じ子ども像で、答えの出方だけを変える）。METRICS=1 で最後に集計を1行の JSON（METRICS ...）で出す
 //
 // 本物の store（記録・skill_state の計算）・compass（定期チェック・単元のはじめてのチェック）・rootcause（原因さがし）・
 // planner（今日の学習）・testprep（テスト）を、アプリの画面と同じ順番で呼ぶ。データは途中でリセットしない。
@@ -19,7 +20,7 @@ const OUT = process.argv[3] || null;
 const DAY = 864e5;
 
 // ---------- 乱数（固定） ----------
-let seed = 20261005;
+let seed = Number(process.env.SEED || 20261005);
 function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
 
 // ---------- 子ども像 ----------
@@ -273,5 +274,28 @@ line("チェックの不足：" + (log.days.filter((d) => d.check_shortage && d.
 const fin = log.days[log.days.length - 1].status;
 line("\n=== 30日後の状態 ===");
 Object.keys(fin).forEach((k) => line(lab(k).padEnd(14, "　") + " " + fin[k]));
-console.log(out.join("\n"));
+if (!process.env.METRICS) console.log(out.join("\n"));
+// ---------- 比較用の集計 ----------
+if (process.env.METRICS) {
+  const st = S.get().skill_state;
+  const prDays = Object.values(practiceSeen);
+  const share = (left) => { const d = log.days.find((x) => x.test_left === left); if (!d) return null; const range = TP.unitSkills("連立方程式").concat(TP.unitSkills("一次関数")); return Math.round(d.plan.filter((s) => range.includes(s.skill)).reduce((a, s) => a + s.minutes, 0) / d.minutes * 100); };
+  // 原因さがしの戻る場所が、その日か次の日の「もどって確認」に入ったか
+  const found = log.trails.filter((t) => t.return_to && t.kind !== "value_slip");
+  const used = found.filter((t) => log.days.filter((d) => d.day === t.day || d.day === t.day + 1).some((d) => d.plan.some((s) => ["practice", "current_unit", "test"].includes(s.type) && s.skill === t.return_to)));
+  const learnedNever = Object.keys(E.SKILLS).filter((k) => E.SELECTABLE_UNITS.includes(E.SKILLS[k].unit) && E.schoolSkillStatus(k, S.school()) !== "not_learned" && !(st[k].attempt_count || (st[k].reason && st[k].reason.attempts)));
+  console.log("METRICS " + JSON.stringify({
+    school0: noSchool.length, rootHalf: rootHeavy.length, notLearnedWeakDays: log.days.filter((d) => d.notLearnedWeak.length).length,
+    reasonDays: log.days.filter((d) => d.plan.some((s) => s.kind === "reason_review")).length,
+    retentionParts: log.days.reduce((a, d) => a + d.plan.filter((s) => s.level === "retention").length, 0),
+    test: { w2: share(14), w1: share(7), d3: share(3), d1: share(1), after: log.days.filter((d) => d.day > TEST_DAY && d.plan.some((s) => s.type === "test")).length },
+    checks: log.checks.length, extras: log.checks.reduce((a, c) => a + c.extra, 0), extraMax: Math.max(...log.checks.map((c) => c.extra)),
+    sessionsAll: S.finishedSessions().length, sessionsChecks: S.finishedChecks ? S.finishedChecks().length : null,
+    trails: log.trails.length, rootFound: found.length, rootUsed: used.length,
+    practiceSkills: prDays.length, graduated: prDays.filter((ds) => DAYS - ds[ds.length - 1] >= 5).length, maxPracticeDays: Math.max(0, ...prDays.map((ds) => ds.length)),
+    repeat4: Object.keys(practiceSeen).filter((k) => practiceSeen[k].length >= 4).map(lab),
+    finalWeak: Object.keys(st).filter((k) => ["needs_review", "learning"].includes(st[k].learning_status)).length,
+    learnedNever: learnedNever.map(lab), formMeasured: !!st.form.attempt_count
+  }));
+}
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ store: S.get(), log }, null, 0));

@@ -124,6 +124,10 @@
 
     var excluded = [];
     var p1 = [], p2 = [], p3 = [], p4 = [];
+    function recoveredSince(k, at) {
+      var after = history.filter(function (a) { return a.skill === k && !a.preview && a.aspect !== "reason" && t(a) > at; }).sort(function (x, y) { return t(x) - t(y); });
+      return after.length >= 2 && after.slice(-2).every(function (a) { return a.correct && !a.hint_used; });
+    }
 
     // --- 優先度1：根本のつまずき（原因さがしの「戻る場所」＋ いちばん根元の不安定なスキル） ---
     var fromExpl = {}, symptomOf = {}, depthOf = {}, geoKindOf = {}; // 戻る場所 → 最初にまちがえた問題のスキル（補強のあと、そこへ戻る）・さかのぼった深さ
@@ -131,8 +135,10 @@
       var c = x.conclusion;
       if (!c || !c.return_to || c.kind === "not_reproduced") return;
       if (now - Date.parse(x.date) > CONFIG.EXPLORATION_DAYS * E.DAY) return;
-      if (!weak(c.return_to) && rank(c.return_to) >= 3) {
-        var msg = "原因さがしの戻る場所「" + label(c.return_to) + "」は、そのあとできるようになったので優先度1から外す";
+      // 外すのは「原因さがしのあと」の記録で立て直したときだけ（そのあと2回以上答えて、最後の2回が正解）。
+      // 総合状態だけで判断すると、前からの記録で「活用できる」のスキルは、今日の原因さがしで見つかっても外れてしまう
+      if (recoveredSince(c.return_to, Date.parse(x.date))) {
+        var msg = "原因さがしの戻る場所「" + label(c.return_to) + "」は、そのあとの練習で続けて正解できたので優先度1から外す";
         if (log.indexOf(msg) === -1) log.push(msg);
         return;
       }
@@ -153,6 +159,8 @@
         return;
       }
       var lv = nextLevel(k, ["basic", "standard"]);
+      // 原因さがしで今回まちがえた戻る場所は、前の記録で基礎・標準が「できた」になっていても、基礎から確かめ直す
+      if (!lv && fromExpl[k]) lv = "basic";
       if (!lv) {
         excluded.push({ skill: k, why: "つまずきの補強は、最近の練習で基礎・標準ともできている" });
         return;

@@ -264,6 +264,10 @@
   function finishedSessions() {
     return get().sessions.filter(function (s) { return s.finished_at; });
   }
+  // 終わったコンパスチェック（はじめてのチェック・定期チェック・テスト範囲チェック）。毎日の学習（daily）は数えない
+  function finishedChecks() {
+    return finishedSessions().filter(function (s) { return s.type !== "daily"; });
+  }
 
   // 記録をすべて消す（v1 の記録も一緒に。消さないと次に開いたとき取り込み直してしまう）
   function reset() {
@@ -379,7 +383,7 @@
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
     schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress, currentUnit: currentUnit, setCurrentUnit: setCurrentUnit,
     school: school, setSchool: setSchool, setSchoolSnooze: setSchoolSnooze, schoolSkillStatus: schoolSkillStatus,
-    startSession: startSession, session: session, addAnswer: addAnswer, finishSession: finishSession,
+    startSession: startSession, session: session, finishedChecks: finishedChecks, addAnswer: addAnswer, finishSession: finishSession,
     setSelfEvaluation: setSelfEvaluation, previousSnapshot: previousSnapshot, finishedSessions: finishedSessions,
     reset: reset, addDays: addDays, resetDays: resetDays, exportJSON: exportJSON,
     addCompassCheck: addCompassCheck, compassHistory: compassHistory, compassCheck: compassCheck,
