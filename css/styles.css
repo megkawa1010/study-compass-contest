@@ -523,3 +523,5 @@ br.pc { display: none; }
 .order-tools .secondary-button { flex: 1; }
 .proof-diag table { font-size: 12px; }
 .proof-diag tr.multi td { background: rgba(255, 217, 138, .08); }
+.hs-more { margin-top: 14px; }
+.hs-more summary { cursor: pointer; font-size: 14px; color: var(--text-soft); }

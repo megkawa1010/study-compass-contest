@@ -625,7 +625,7 @@
       "</section>" +
       '<section class="card"><h2 class="card-label">今回のチェック</h2>' + routeMap(d) + "</section>" +
       trailsCard(state.trails) +
-      historyCard() +
+      historyCard(state.trails, Object.keys(state.answers).map(function (id) { return QS[id] && QS[id].skill; }).filter(Boolean)) +
       '<div class="result-grid">' +
         '<section class="card list-card ok-card"><h2>できているところ</h2>' +
           (okList.length || d.foundOk.length
@@ -687,14 +687,24 @@
   }
 
   // これまでの記録（answer_history 全体）から見た現在地。前回のチェックからの変化も出す
-  function historyCard() {
+  // trails：今回の原因さがし。今回確かめたスキル・道すじのスキルだけを開いて見せ、ほかは「ほかのスキル」にたたむ（長い一覧にしない）。
+  // 今回の原因さがしで「戻って練習するところ」になったスキルは、記録全体の段階が高くても、今回はここから練習することを書きそえる
+  function historyCard(trails, checked) {
     var states = ST.get().skill_state;
     var prev = ST.previousSnapshot(state.sessionId);
     var sessions = ST.finishedChecks().length;
-    var rows = E.SKILL_ORDER.filter(function (k) {
+    var focus = {}, back = {};
+    (checked || []).forEach(function (k) { focus[k] = true; });
+    (trails || []).forEach(function (t) {
+      (t.path || []).forEach(function (p) { if (p.skill) focus[p.skill] = true; });
+      var c = t.conclusion;
+      if (c && c.return_to && c.kind !== "not_reproduced" && c.kind !== "value_slip") { focus[c.return_to] = true; back[c.return_to] = true; }
+    });
+    var shown = E.SKILL_ORDER.filter(function (k) {
       var s = states[k];
       return s && (s.attempt_count || s.learning_status === "not_learned");
-    }).map(function (k) {
+    });
+    var rows = shown.map(function (k) {
       var s = states[k], v = E.STATUS_VIEW[s.learning_status];
       var delta = "";
       if (prev && prev[k] && s.attempt_count) {
@@ -714,13 +724,19 @@
           '<div class="hs-top"><strong>' + esc(s.skill) + "</strong>" + unitTag(k) + '<span class="hs-status">' + v.label + "</span>" + delta + "</div>" +
           (s.attempt_count ? '<div class="hs-meter"><span class="meter wide"><i style="width:' + Math.round(s.confidence * 100) + '%"></i></span></div>' +
             '<div class="hs-levels">' + levels + "</div>" : "") +
+          (back[k] ? '<p class="root">今回の確認でまちがえたので、ここから練習します' + (E.STATUS_RANK[s.learning_status] >= E.STATUS_RANK.understood ? "（これまでの記録では「" + esc(v.label) + "」）" : "") + "</p>" : "") +
           (s.suspected_root_causes.length ? '<p class="root">確認したいところ：' + esc(s.suspected_root_causes.join("、")) + "（可能性）</p>" : "") +
         "</div></li>";
-    }).join("");
+    });
+    var hasFocus = Object.keys(focus).length > 0;
+    var main = hasFocus ? rows.filter(function (_, i) { return focus[shown[i]]; }) : rows;
+    var rest = hasFocus ? rows.filter(function (_, i) { return !focus[shown[i]]; }) : [];
     return '<section class="card history-card">' +
       '<h2 class="card-label">これまでの記録から見た現在地</h2>' +
-      '<p class="small muted">コンパスチェック ' + sessions + " 回分の記録から計算しています。1回の結果だけで決めつけず、記録が増えるほど正確になります。</p>" +
-      '<ul class="hs-list">' + rows + "</ul>" +
+      '<p class="small muted">コンパスチェック ' + sessions + " 回分の記録から計算しています。1回の結果だけで決めつけず、記録が増えるほど正確になります。" +
+        (hasFocus ? "ここでは、今回確かめたスキルだけを出しています。" : "") + "</p>" +
+      '<ul class="hs-list">' + main.join("") + "</ul>" +
+      (rest.length ? '<details class="hs-more"><summary>ほかのスキル（' + rest.length + "）</summary>" + '<ul class="hs-list">' + rest.join("") + "</ul></details>" : "") +
     "</section>";
   }
 
@@ -880,7 +896,7 @@
       '<section class="card discovery"><h2><span class="spark" aria-hidden="true">✦</span> Study Compass のコメント</h2>' +
         "<p>" + nl(entry.comment) + "</p>" +
         '<p class="small muted">1回の結果だけで決めつけず、これからの記録もあわせて現在地を更新していきます。</p></section>' +
-      historyCard() +
+      historyCard(ST.explorationsFor(state.sessionId), entry.skill_ids || []) +
       '<div class="sticky-cta"><button class="primary-button big full" type="button" data-action="to-plan">今日の学習を作る</button></div>';
   }
 
