@@ -1081,6 +1081,21 @@
       "</ul></section>";
   }
 
+  // ?debug=plan：パートの組み立て（同じスキルのまとめ・目的・20分で削った候補・テストの表示名）
+  function composeDebug(c, plan) {
+    if (!c) return "";
+    var S = E.SKILLS, lab = function (k) { return S[k] ? S[k].label : k; };
+    var row = function (x) { return x.minutes + "分 " + x.type + "：" + lab(x.skill) + (x.purposes ? "［" + x.purposes.join("＋") + "］" : ""); };
+    return '<h3 class="small">パートの組み立て</h3><ul class="small debug-log">' +
+      "<li>original candidates：" + esc(c.original.map(row).join(" ／ ")) + "</li>" +
+      "<li>merged candidates：" + esc(c.merged.map(row).join(" ／ ")) + "</li>" +
+      "<li>同じスキルのまとめ：" + esc(c.merges.length ? c.merges.map(function (m) { return lab(m.skill) + "（" + m.what + " → " + m.into + "）" + m.why; }).join("、") : "なし") + "</li>" +
+      "<li>理由の確認の候補：" + esc(c.reason ? lab(c.reason) + (plan.sessions.some(function (s) { return (s.purposes || []).indexOf("reason_review") !== -1; }) ? "（残した）" : "（今日は入れなかった）") : "なし") + "</li>" +
+      "<li>20分の制約で削った候補：" + esc(c.cut.length ? c.cut.map(function (x) { return x.minutes + "分 " + x.type + "：" + lab(x.skill) + "／" + x.why; }).join("、") : "なし") + "</li>" +
+      "<li>表示カテゴリ：" + esc(plan.sessions.map(function (s) { return s.type + "→" + s.display + "「" + s.type_label + "」：" + s.skill_label; }).join(" ／ ")) + "</li>" +
+      "<li>テストの文脈による表示名の変更：" + esc((c.renamed || []).length ? c.renamed.map(function (x) { return lab(x.skill) + "「" + x.from + "」→「" + x.to + "」"; }).join("、") : "なし") + "</li></ul>";
+  }
+
   function viewSchoolDebug() {
     var s = ST.school(), states = ST.get().skill_state;
     var S = E.SKILLS, MARK = { learned: "習った", current: "学習中", not_learned: "まだ" };
@@ -1388,6 +1403,7 @@
         '<p class="small"><strong>なぜ今日はこれ？：</strong>' + esc(plan.why) + "</p>" +
         '<h3 class="small">時間配分と選んだ問題（合計 ' + plan.total_minutes + "分）</h3>" +
         '<div class="table-wrap"><table><thead><tr><th>時間</th><th>種類</th><th>スキル</th><th>理由</th><th>問題</th></tr></thead><tbody>' + sessRows + "</tbody></table></div>" +
+        composeDebug(dbg.alloc && dbg.alloc.compose, plan) +
         '<h3 class="small">生成の記録</h3><ol class="small muted debug-log">' + dbg.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></section>" +
       geometryPlanDebug(dbg.geometry);
   }

@@ -3201,6 +3201,14 @@
   geo({ id: "polygonInterior-standard-3", skill: "polygonInterior", level: "standard", format: "word",
     text: "正九角形の1つの内角は何度？", relation: { type: "polygonInterior", n: 9, sum: { a: 9, b: 0 } }, type: "number", answer: 140,
     hint: "内角の和を出して、9 でわる。", explanation: "内角の和は 180 × 7 = 1260°。1260 ÷ 9 = 140° です。" });
+  // 補強（20分プランで学校のスキルを飛ばさなくなり、学習中の「多角形の内角」の標準を使う回数が増えたため）
+  geo({ id: "polygonInterior-standard-4", skill: "polygonInterior", level: "standard", format: "word",
+    text: "内角の和が 1440° の多角形は何角形？（数字で答えよう）", relation: { type: "polygonInterior", n: "answer", sum: 1440 },
+    type: "number", answer: 10, answer_display: "十角形", placeholder: "例：7", prerequisite_skills: ["triangleSum", "eqParen"],
+    hint: "180 ×（n − 2）＝ 1440 を解く。", explanation: "n − 2 = 8 なので n = 10。十角形です。" });
+  geo({ id: "polygonInterior-standard-5", skill: "polygonInterior", level: "standard", format: "word",
+    text: "正十二角形の1つの内角は何度？", relation: { type: "polygonInterior", n: 12, sum: { a: 12, b: 0 } }, type: "number", answer: 150,
+    hint: "内角の和を出して、12 でわる。", explanation: "内角の和は 180 × 10 = 1800°。1800 ÷ 12 = 150° です。" });
   (function () {
     // AB と CD が点Oで交わる。描く角：∠AOC＝∠BOD 50°、∠A 67°・∠C 63°・∠B 74°・∠D 56°（本当は 55°・48°・62°・41°）
     var O = [170, 135], s = function (d) { return Math.sin(d * Math.PI / 180); };

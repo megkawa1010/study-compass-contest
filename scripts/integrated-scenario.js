@@ -200,7 +200,10 @@ for (let d = 1; d <= DAYS; d++) {
   day.test_left = ti ? ti.left : null;
   const plan = P.build(input);
   S.addPlan(plan);
-  day.plan = plan.sessions.map((s) => ({ type: s.type, display: s.display || s.type, school: E.schoolSkillStatus(s.skill, S.school()), kind: s.kind || null, skill: s.skill, unit: E.SKILLS[s.skill].unit, minutes: s.minutes, level: s.level, q: s.questions.length,
+  day.reasonCand = plan.debug && plan.debug.alloc && plan.debug.alloc.candidates ? plan.debug.alloc.candidates.reason : null;
+  // 理由の確認に時間を配ったか（配ったのに問題がなくて出せなかった＝問題不足、配らなかった＝時間の都合）
+  day.reasonBlock = !!(plan.debug && plan.debug.alloc && (plan.debug.alloc.blocks || []).some((b) => b.id === "reason" && b.minutes > 0));
+  day.plan = plan.sessions.map((s) => ({ label: s.type_label, purposes: s.purposes || [s.kind === "reason_review" ? "reason_review" : s.type], type: s.type, display: s.display || s.type, school: E.schoolSkillStatus(s.skill, S.school()), kind: s.kind || null, skill: s.skill, unit: E.SKILLS[s.skill].unit, minutes: s.minutes, level: s.level, q: s.questions.length,
     reused: s.picks.filter((x) => x.reused).length, relaxed: s.picks.filter((x) => x.stage >= 2).length }));
   day.why = plan.why;
   day.focus = plan.focus_skill;
@@ -311,6 +314,17 @@ if (process.env.METRICS) {
     backParts: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "practice").length, 0),
     practiceParts: log.days.reduce((a, d) => a + d.plan.filter((p) => p.type === "practice").length, 0),
     schoolMinutes: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "current_unit" || p.type === "test").reduce((x, p) => x + p.minutes, 0), 0),
+    parts20: (() => { const ds = log.days.filter((d) => d.minutes === 20); return Math.round(ds.reduce((a, d) => a + d.plan.length, 0) / ds.length * 100) / 100; })(),
+    parts20max: Math.max(...log.days.filter((d) => d.minutes === 20).map((d) => d.plan.length)),
+    reasonCandDays: log.days.filter((d) => d.reasonCand).length,
+    reasonLost: log.days.filter((d) => d.reasonCand && !d.plan.some((p) => p.purposes.includes("reason_review"))).length,
+    reasonLost20: log.days.filter((d) => d.minutes === 20 && d.reasonCand && !d.plan.some((p) => p.purposes.includes("reason_review"))).length,
+    reasonLostTime: log.days.filter((d) => d.reasonCand && !d.reasonBlock && !d.plan.some((p) => p.purposes.includes("reason_review"))).length,
+    reasonLostBank: log.days.filter((d) => d.reasonCand && d.reasonBlock && !d.plan.some((p) => p.purposes.includes("reason_review"))).length,
+    reasonLostTime20: log.days.filter((d) => d.minutes === 20 && d.reasonCand && !d.reasonBlock && !d.plan.some((p) => p.purposes.includes("reason_review"))).length,
+    reasonMerged: log.days.filter((d) => d.plan.some((p) => p.type !== "reason_review" && p.purposes.includes("reason_review"))).length,
+    dupDays: log.days.filter((d) => { const ks = d.plan.filter((p) => p.type !== "check").map((p) => p.skill); return new Set(ks).size < ks.length; }).length,
+    nearTestLabels: (() => { const out = {}; const range = TP.unitSkills("連立方程式").concat(TP.unitSkills("一次関数")); log.days.filter((d) => d.test_left != null && d.test_left >= 1 && d.test_left <= 3).forEach((d) => d.plan.filter((p) => range.includes(p.skill)).forEach((p) => { out[p.label] = (out[p.label] || 0) + 1; })); return out; })(),
     backMinutes: log.days.reduce((a, d) => a + d.plan.filter((p) => p.display === "practice").reduce((x, p) => x + p.minutes, 0), 0)
   }));
 }
