@@ -888,16 +888,33 @@
         esc(res.crossed.map(function (i) { return i.label; }).join("・")) + " が、次の段階に進みました。</p></div></div>"
       : "";
     return '' +
-      '<section class="result-head"><p class="eyebrow">COMPASS CHECK</p><h1 class="h-md">今回わかったこと</h1>' +
+      '<section class="result-head"><p class="eyebrow">COMPASS CHECK</p><h1 class="h-md">チェックの結果</h1>' +
         '<p class="muted small">' + (entry.extra_count == null ? entry.questions.length + " 問" : "基本チェック " + (entry.questions.length - entry.extra_count) + " 問" + (entry.extra_count ? "（＋追加確認 " + entry.extra_count + " 問）" : "")) + "で、" + esc(entry.skills.join("・")) + " を確かめました。点数ではなく、前回からの変化を見ています。</p></section>" +
       crossed +
       '<section class="card"><ul class="cr-list">' + items + "</ul></section>" +
       trailsCard(ST.explorationsFor(state.sessionId)) +
-      '<section class="card discovery"><h2><span class="spark" aria-hidden="true">✦</span> Study Compass のコメント</h2>' +
+      '<section class="card discovery"><h2><span class="spark" aria-hidden="true">✦</span> 今回わかったこと</h2>' +
         "<p>" + nl(entry.comment) + "</p>" +
+        (nextStepLine() ? '<h2 class="next-head">これからやること</h2><p>' + esc(nextStepLine()) + "</p>" : "") +
         '<p class="small muted">1回の結果だけで決めつけず、これからの記録もあわせて現在地を更新していきます。</p></section>' +
       historyCard(ST.explorationsFor(state.sessionId), entry.skill_ids || []) +
       '<div class="sticky-cta"><button class="primary-button big full" type="button" data-action="to-plan">今日の学習を作る</button></div>';
+  }
+
+  // 結果画面の「これからやること」：今日の学習（同じプラン）から1行で
+  function nextStepLine() {
+    var p;
+    try { p = buildToday(); } catch (e) { return ""; }
+    if (!p || !p.sessions || !p.sessions.length) return "";
+    var d = function (x) { return x.display || x.type; };
+    var back = p.sessions.filter(function (x) { return x.type === "practice" && d(x) === "practice"; })[0];
+    var school = p.sessions.filter(function (x) { return d(x) === "current_unit" || x.type === "test"; })[0];
+    var reason = p.sessions.filter(function (x) { return x.kind === "reason_review" || (x.purposes || []).indexOf("reason_review") !== -1; })[0];
+    var line = back && school ? "まず「" + back.skill_label + "」を" + back.minutes + "分確認してから、学校で習っている「" + school.skill_label + "」に戻ります。"
+      : back ? "まず「" + back.skill_label + "」を" + back.minutes + "分確認します。"
+      : school ? "学校で習っている「" + school.skill_label + "」を進めます。" : "";
+    if (reason) line += "「" + reason.skill_label + "」は、どうしてそう言えるか（根拠）も短く確認します。";
+    return line;
   }
 
   // ---------- 定期コンパスチェックの確認ページ（?debug=compass） ----------
@@ -1059,10 +1076,15 @@
         }).join("") + "</ul>" +
         (r.growth.length > 3 ? '<p class="small muted">ほかに「' + r.growth.slice(3).map(function (g) { return g.label; }).join("」「") + "」も、前より安定してきています。</p>" : "")
       : '<p class="small muted">この1週間で大きく変わったところは、まだありません。少しずつ積み重ねています。</p>';
-    var stumbles = r.stumbles.length
-      ? '<ul class="pr-list">' + r.stumbles.map(function (s) { return "<li><p>" + esc(s.text) + "</p></li>"; }).join("") + "</ul>" +
+    // 今確認していること：いちばん大事なところ（いま確認しているところ）を先頭に、理由までくわしく
+    var checks = r.checking.slice().sort(function (a, b) { return (r.focus && a.skill === r.focus.skill ? 0 : 1) - (r.focus && b.skill === r.focus.skill ? 0 : 1); });
+    var checking = checks.length
+      ? '<ul class="pr-list">' + checks.map(function (c) {
+          var text = r.focus && c.skill === r.focus.skill ? r.focus.why : c.text;
+          return '<li><div class="pr-top"><strong>' + esc(c.label) + "</strong></div><p>" + esc(text) + "</p></li>";
+        }).join("") + "</ul>" +
         '<p class="small muted">1回の結果では決めつけず、何度か様子を見たうえでお伝えしています。</p>'
-      : '<p class="small muted">いまは、目立ったつまずきは見つかっていません。</p>';
+      : '<p class="small muted">いまは、特に確かめ直しているところはありません。学校の内容を進めています。</p>';
     return head +
       '<section class="card pr-message"><p class="eyebrow">今週のひとこと</p><p class="pr-message-text">' + esc(r.message) + "</p></section>" +
       '<section class="card"><h2 class="h-sm">今週の学習</h2><div class="pr-stats">' +
@@ -1071,10 +1093,9 @@
         '<div><span>いまの単元</span><strong>' + esc(w.unit) + "</strong><small>学校：" + ({ done: "習った", learning: "学習中", notyet: "これから" }[w.school_status] || "") + "</small></div>" +
       "</div>" +
       '<p class="small pr-school">学校の進度：「' + esc(schoolText()) + "」" + (testDaysText() ? "　" + esc(testDaysText()) : "") + "</p></section>" +
-      '<section class="card"><h2 class="h-sm">最近できるようになったこと</h2>' + growth + "</section>" +
-      (r.focus ? '<section class="card"><h2 class="h-sm">いま確認しているところ</h2><p class="pr-focus">「' + esc(r.focus.label) + "」</p><p>" + esc(r.focus.why) + "</p></section>" : "") +
-      '<section class="card"><h2 class="h-sm">つまずきの可能性</h2>' + stumbles + "</section>" +
-      '<section class="card"><h2 class="h-sm">Study Compass の予定</h2><ol class="pr-next">' + r.next.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></section>" +
+      '<section class="card"><h2 class="h-sm">今できていること</h2>' + growth + "</section>" +
+      '<section class="card"><h2 class="h-sm">今確認していること</h2>' + checking + "</section>" +
+      '<section class="card"><h2 class="h-sm">次に進むこと</h2><ol class="pr-next">' + r.next.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol></section>" +
       '<section class="card"><h2 class="h-sm">単元の地図</h2><p class="small muted">点数ではなく、いまどの段階にいるかを表しています。</p><ul class="pr-map">' +
         r.map.map(function (m) { return '<li><span class="pr-mark">' + m.mark + "</span><strong>" + esc(m.label) + unitTag(m.skill) + "</strong><span class=\"muted small\">" + esc(m.word) + "</span></li>"; }).join("") + "</ul></section>" +
       '<p class="small muted center">このページでは、毎回の正誤や点数、ほかの子との比較は表示しません。</p>' +

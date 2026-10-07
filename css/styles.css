@@ -525,3 +525,4 @@ br.pc { display: none; }
 .proof-diag tr.multi td { background: rgba(255, 217, 138, .08); }
 .hs-more { margin-top: 14px; }
 .hs-more summary { cursor: pointer; font-size: 14px; color: var(--text-soft); }
+.discovery .next-head { margin-top: 16px; }

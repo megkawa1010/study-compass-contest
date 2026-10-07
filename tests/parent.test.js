@@ -62,7 +62,7 @@ test("今確認しているところ：理由まで（子ども向けより詳�
   const r = scenario();
   assert.ok(r.focus);
   assert.ok(r.focus.why.length > 20);
-  assert.match(r.message, new RegExp("次は「" + r.focus.label + "」を中心に進めます"));
+  assert.match(r.message, new RegExp("いまは「" + r.focus.label + "」を確認"));
 });
 
 test("つまずきの可能性：断定しない・解決したものは出さない・1回の×だけでは取り上げない", () => {
@@ -83,9 +83,10 @@ test("つまずきの可能性：断定しない・解決したものは出さ�
 
 test("次に取り組むこと：今日の学習の流れ ＋ 次のコンパスチェックの目安", () => {
   const r = scenario();
-  assert.ok(r.next.length >= 2);
+  assert.ok(r.next.length >= 1);
   assert.match(r.next[r.next.length - 1], /コンパスチェック/);
-  assert.ok(r.next.some((s) => /復習|補強|戻る|挑戦/.test(s)));
+  // 戻って確認しているスキルは「今確認していること」で伝え、予定には重ねない
+  r.checking.forEach((c) => assert.ok(!r.next.some((s) => s.includes("「" + c.label + "」")), c.label));
 });
 
 test("監視・比較をしない：点数・正誤の数・ランキング・他の子を出さない", () => {
@@ -116,4 +117,35 @@ test("記録がなくても止まらない", () => {
   const r = PR.report({ history: [], states: E.computeSkillStates([], {}), now: T0, school: SCHOOL });
   assert.equal(r.empty, true);
   assert.match(r.message, /無理のないペース/);
+});
+
+test("3つに分ける：今できていること・今確認していること・次に進むこと に同じスキルを出さない（「今週は変化量が安定。次は変化量」のような文にしない）", () => {
+  // 変化量：1週間で「まだ → 練習しているところ」に上がったが、今日の学習でも戻って確認している
+  const L = learner();
+  L.add(T0, ["B1", "B2", "B3", "B4", "B5", "C4", "C5"], [c, c, c, x, x, x, c]);
+  const now = T0 + 9 * DAY;
+  L.add(T0 + 8 * DAY, ["change-basic-1", "change-basic-2", "change-standard-1"], [c, x, c]);
+  const states = E.computeSkillStates(L.history, { now });
+  const todayPlan = P.build({ states, history: L.history, explorations: [EXPL], school: SCHOOL, minutes: 30, goal: "daily_learning", now, rng: B.seeded(1) });
+  const r = PR.report({ history: L.history, states, compassHistory: [], explorations: [EXPL], plans: [], now, school: SCHOOL, todayPlan });
+  const g = r.growth.map((x) => x.skill), ch = r.checking.map((x) => x.skill);
+  g.forEach((k) => assert.ok(!ch.includes(k), k + " ができている と 確認している の両方に入っている"));
+  r.growth.forEach((x) => assert.ok(E.STATUS_RANK[states[x.skill].learning_status] >= E.STATUS_RANK.understood, x.skill + " は練習中なのに「できるようになった」"));
+  // ひとことで同じスキルを2回言わない
+  const names = (r.message.match(/「[^」]+」/g) || []);
+  assert.equal(new Set(names).size, names.length, r.message);
+  // 戻って確認しているスキルは「確認していること」に入る（つまずきの欄と今日の学習が食いちがわない）
+  todayPlan.sessions.filter((s) => s.type === "practice" && (s.display || s.type) === "practice").forEach((s) => assert.ok(ch.includes(s.skill), s.skill));
+});
+
+test("確認していることの説明は単元に合わせる：一次関数以外で「表・グラフ」と言わない。根拠だけの確認は根拠のことばで", () => {
+  const sch = { grade: "中2", subject: "数学", current_unit: "図形の角", school_status: "learning" };
+  const L = learner();
+  L.add(T0, ["angleNames-basic-1", "angleNames-basic-2"], [x, x]);
+  const now = T0 + DAY;
+  const states = E.computeSkillStates(L.history, { now });
+  const expl = { date: new Date(T0).toISOString(), symptom: { skill: "parallelAngles", label: "平行線と角" }, conclusion: { kind: "gap_found", return_to: "angleNames", solid_skills: [] } };
+  const todayPlan = P.build({ states, history: L.history, explorations: [expl], school: sch, minutes: 30, goal: "daily_learning", now, rng: B.seeded(1) });
+  const r = PR.report({ history: L.history, states, compassHistory: [], explorations: [expl], plans: [], now, school: sch, todayPlan });
+  [r.focus ? r.focus.why : ""].concat(r.checking.map((c) => c.text)).forEach((t2) => assert.doesNotMatch(t2, /表・グラフ/, t2));
 });
