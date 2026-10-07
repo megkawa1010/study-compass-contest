@@ -177,10 +177,12 @@ test("データ → 回答 → 記録：角度の小問は value、根拠の小�
 });
 
 test("問題バンク：約70問・約4割が角度＋根拠の小問・はじめてのチェック5問・レベル分類", () => {
-  assert.ok(UNIT.length >= 65 && UNIT.length <= 120, "問題数 " + UNIT.length); // 約70問から、10日試算で足りなくなった所だけ補強
-  const withReason = UNIT.filter((q) => (q.steps || []).some((s) => s.aspect === "reason"));
-  const ratio = withReason.length / UNIT.length;
-  assert.ok(ratio >= 0.35 && ratio <= 0.55, "根拠つき " + withReason.length + "/" + UNIT.length);
+  // ふだんの問題（根拠だけの短い問題は別に数える：今日の学習の「理由を確認」だけで使い、30日試算で足りないスキルを補強している）
+  const REG = UNIT.filter((q) => !q.reason_only);
+  assert.ok(REG.length >= 65 && REG.length <= 120, "問題数 " + REG.length); // 約70問から、10日試算で足りなくなった所だけ補強
+  const withReason = REG.filter((q) => (q.steps || []).some((s) => s.aspect === "reason"));
+  const ratio = withReason.length / REG.length;
+  assert.ok(ratio >= 0.35 && ratio <= 0.55, "根拠つき " + withReason.length + "/" + REG.length);
   // 根拠の選択肢は、共通のことば（js/geometry.js の REASONS）と同じ
   withReason.forEach((q) => q.steps.filter((s) => s.aspect === "reason").forEach((s) => {
     assert.equal(s.type, "choice", q.id + " 根拠は1つ選ぶ（複数選択は使わない）");

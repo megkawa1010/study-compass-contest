@@ -3371,6 +3371,180 @@
       { type: "angleSum", values: ["a", "b"], total: "r" }, "点Rを通って ℓ に平行な直線を引くと、x は 33° と 42° の錯角に分かれるからです。");
   })();
 
+  // ---------- 根拠だけの問題の補強（20分プランで理由の確認を残すようになり、問題不足で消える日があったため） ----------
+  //   30日シナリオ（SEED 1〜8）で理由の確認の候補になった回数と「問題不足で消えた」日から、
+  //   三角形の内角・角度を式で表す・三角形の外角 は6問、多角形の内角 5問、角の組み合わせ・多角形の外角 4問、同位角・錯角 3問、対頂角・一直線の角 4問。
+  //   角度は問題文や図の印（式の形でも）で示し、計算はさせない。記録はそのスキルの reason だけ
+  // 対頂角・一直線の角
+  (function () {
+    var f = crossFig(-15, drawOne(118, 5));
+    f.angles.push(ang("g", "O", "B", "C", { value: 118 }), ang("x", "O", "C", "A", { value: 62, label: "x" }));
+    f.highlight = [{ angle: "x" }];
+    reasonQ("lineAngles-reason-4", "lineAngles", f, "2つの直線が交わっています。x = 180° − 118° と求められる理由はどれ？", "straight", ["vertical", "straight", "alternate", "around"],
+      { type: "angleSum", values: ["g", "x"], total: 180 }, "x と 118° はとなり合っていて、合わせると一直線（180°）だからです。向かい合う角（対頂角）ではありません。");
+  })();
+  // 同位角・錯角（位置の名前から、どちらの性質を使うか）
+  function nameReason(id, truthTheta, given, x, o, answer, keys, text, explanation) {
+    var f = parFig(drawOne(truthTheta, o.seed), o.fig);
+    var gv = quadTruth(truthTheta, given[1]), xv = quadTruth(truthTheta, x[1]);
+    f.angles.push(quad("g", given[0], given[1], { value: gv }), quad("x", x[0], x[1], { value: xv, label: "x" }));
+    f.highlight = [{ angle: "x" }];
+    reasonQ(id, "angleNames", f, text.replace(/\{x\}/g, xv).replace(/\{g\}/g, gv), answer, keys, { type: "equalAngles", source: "g", target: "x" }, explanation.replace(/\{g\}/g, gv));
+  }
+  nameReason("angleNames-reason-1", 68, ["P", "ul"], ["Q", "ul"], { fig: { phi: 15 }, seed: 3 }, "corresponding", ["vertical", "alternate", "corresponding", "straight"],
+    "直線ℓとmは平行です。x と {g}° の角の位置に注目すると、x = {g}° とわかります。使った性質はどれ？", "x と {g}° は、それぞれの交点で同じ位置（左上どうし）にある角＝同位角です。");
+  nameReason("angleNames-reason-2", 52, ["P", "dr"], ["Q", "ul"], { fig: { phi: -10, half: 125 }, seed: 6 }, "alternate", ["alternate", "corresponding", "straight", "vertical"],
+    "直線ℓとmは平行です。図の x と {g}° は等しくなります。そう言える理由はどれ？", "x と {g}° は、2直線ℓ・mの内側で、横切る直線の反対側にある角＝錯角です。");
+  nameReason("angleNames-reason-3", 75, ["Q", "dl"], ["P", "dl"], { fig: { phi: -25, c: [170, 135] }, seed: 2 }, "corresponding", ["straight", "corresponding", "vertical", "alternate"],
+    "直線ℓとmは平行です。下の交点の角 {g}° から、上の交点の x がわかります。使った性質はどれ？", "x と {g}° は、それぞれの交点で同じ位置（左下どうし）にある角＝同位角です。");
+  // 三角形の内角
+  function triReason(id, truths, xAt, o, text, keys, explanation) {
+    var d = drawSum([truths.B, truths.C, truths.A], o.seed), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: o.rot || 0 });
+    var def = { A: ["A", "B", "C"], B: ["B", "A", "C"], C: ["C", "A", "B"] }, ids = [];
+    ["A", "B", "C"].forEach(function (v) {
+      var id2 = v === xAt ? "x" : v.toLowerCase();
+      ids.push(id2);
+      f.angles.push(ang(id2, def[v][0], def[v][1], def[v][2], v === xAt ? { value: truths[v], label: "x" } : { value: truths[v] }));
+    });
+    f.highlight = [{ angle: "x" }];
+    reasonQ(id, "triangleSum", f, text, "triangleSum", keys, { type: "angleSum", values: ids, total: 180 }, explanation);
+  }
+  triReason("triangleSum-reason-2", { B: 35, C: 95, A: 50 }, "B", { seed: 2, rot: -8 }, "△ABCで、x = 180° − (95° + 50°) と求められる理由はどれ？", ["straight", "exterior", "triangleSum", "polygonSum"],
+    "三角形の3つの内角の和は 180° だからです。");
+  triReason("triangleSum-reason-3", { B: 90, C: 34, A: 56 }, "A", { seed: 1, rot: 4 }, "∠B が直角の三角形ABCで、x = 90° − 34° と求められる理由はどれ？", ["exterior", "triangleSum", "vertical", "straight"],
+    "3つの内角の和が 180° なので、直角（90°）以外の2つの角を合わせると 90° になるからです。");
+  triReason("triangleSum-reason-4", { B: 70, C: 70, A: 40 }, "C", { seed: 3, rot: 0 }, "AB ＝ AC の二等辺三角形で、∠A ＝ 40° です。x = (180° − 40°) ÷ 2 と求められる理由はどれ？（底角が等しいことのほかに使う性質）", ["triangleSum", "around", "exterior", "straight"],
+    "三角形の3つの内角の和は 180° なので、残りの 140° を等しい2つの底角で分けます。");
+  triReason("triangleSum-reason-5", { B: 64, C: 48, A: 68 }, "A", { seed: 4, rot: 10 }, "△ABCで x を求めるのに、x = 180° − 64° − 48° という式を立てました。この式のもとになる性質はどれ？", ["polygonSum", "straight", "triangleSum", "exteriorSum"],
+    "三角形の3つの内角の和は 180° です（多角形の 180° ×（n − 2）で n ＝ 3 としても同じですが、ここは三角形の内角の和）。");
+  triReason("triangleSum-reason-6", { B: 27, C: 35, A: 118 }, "C", { seed: 5, rot: -4 }, "△ABCで、x = 180° − (118° + 27°) と求められる理由はどれ？", ["triangleSum", "exterior", "straight", "around"],
+    "三角形の3つの内角の和は 180° だからです。");
+  // 三角形の外角
+  function extReason(id, truths, side, o, text, keys, explanation, given) {
+    var d = drawSum([truths.B, truths.C, truths.A], o.seed), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: o.rot || 0, ext: { D: side } });
+    var at = side[1], other = side[0], third = ["A", "B", "C"].filter(function (v) { return v !== at && v !== other; })[0];
+    // 外角：のばした先 D と、のばしていない辺の頂点 third のあいだ
+    var ext = 180 - truths[at];
+    var def = { A: ["A", "B", "C"], B: ["B", "A", "C"], C: ["C", "A", "B"] };
+    var g = given || "ext";
+    if (g === "ext") {
+      [other, third].forEach(function (v) { f.angles.push(ang(v.toLowerCase(), def[v][0], def[v][1], def[v][2], { value: truths[v] })); });
+      f.angles.push(ang("x", at, third, "D", { value: ext, label: "x" }));
+      f.highlight = [{ angle: "x" }];
+      reasonQ(id, "exteriorAngle", f, text, "exterior", keys, { type: "angleSum", values: [other.toLowerCase(), third.toLowerCase()], total: "x" }, explanation);
+    } else {
+      // 外角と1つの内角がわかっていて、もう1つの内角 x を求める
+      f.angles.push(ang("e", at, third, "D", { value: ext }), ang(g.toLowerCase(), def[g][0], def[g][1], def[g][2], { value: truths[g] }));
+      var xv = g === other ? third : other;
+      f.angles.push(ang("x", def[xv][0], def[xv][1], def[xv][2], { value: truths[xv], label: "x" }));
+      f.highlight = [{ angle: "x" }];
+      reasonQ(id, "exteriorAngle", f, text, "exterior", keys, { type: "angleSum", values: [g.toLowerCase(), "x"], total: "e" }, explanation);
+    }
+  }
+  extReason("exteriorAngle-reason-2", { B: 52, C: 70, A: 58 }, ["B", "C"], { seed: 3, rot: 6 }, "辺BCをのばした直線上に点Dがあります。x = 52° + 58° と求められる理由はどれ？", ["straight", "exterior", "triangleSum", "vertical"],
+    "三角形の外角は、となり合わない2つの内角の和に等しいからです。");
+  extReason("exteriorAngle-reason-3", { B: 64, C: 46, A: 70 }, ["C", "B"], { seed: 2, rot: -6 }, "辺CBをBの方へのばした直線上に点Dがあります。x = 46° + 70° と求められる理由はどれ？", ["exterior", "triangleSum", "around", "straight"],
+    "Bでの外角は、となり合わない2つの内角（∠C と ∠A）の和に等しいからです。");
+  extReason("exteriorAngle-reason-4", { B: 48, C: 55, A: 77 }, ["B", "C"], { seed: 1, rot: 0 }, "辺BCをのばした直線上に点Dがあります。x = 125° − 48° と求められる理由はどれ？", ["triangleSum", "straight", "exterior", "alternate"],
+    "外角 125° は、となり合わない2つの内角（48° と x）の和なので、x = 125° − 48° です。", "B");
+  extReason("exteriorAngle-reason-5", { B: 40, C: 85, A: 55 }, ["A", "C"], { seed: 4, rot: 8 }, "辺ACをCの方へのばした直線上に点Dがあります。x = 40° + 55° と求められる理由はどれ？", ["exterior", "vertical", "triangleSum", "straight"],
+    "Cでの外角は、となり合わない2つの内角（∠A と ∠B）の和に等しいからです。");
+  extReason("exteriorAngle-reason-6", { B: 30, C: 115, A: 35 }, ["B", "C"], { seed: 5, rot: -10 }, "辺BCをのばした直線上に点Dがあります。x = 30° + 35° と求められる理由はどれ？", ["around", "triangleSum", "exterior", "straight"],
+    "三角形の外角は、となり合わない2つの内角の和に等しいからです（∠C が鈍角でも同じ）。");
+  // 角度を式で表す（どの性質を使って式を立てたか）
+  (function () {
+    var d = drawSum([105, 75], 3), f = rayFig({ C: d[1] });
+    f.angles.push(ang("e1", "O", "A", "C", { value: 105, label: "(3x − 15)°" }), ang("e2", "O", "C", "B", { value: 75, label: "(x + 35)°" }));
+    reasonQ("angleEq-reason-1", "angleEq", f, "点A、O、Bは一直線上にあります。(3x − 15) + (x + 35) = 180 という式を立てられる理由はどれ？", "straight", ["vertical", "straight", "around", "triangleSum"],
+      { type: "angleSum", values: ["e1", "e2"], total: 180 }, "2つの角を合わせると一直線（180°）だからです。");
+  })();
+  (function () {
+    var f = crossFig(30, drawOne(64, 2));
+    f.angles.push(ang("e1", "O", "B", "C", { value: 64, label: "(2x + 4)°" }), ang("e2", "O", "A", "D", { value: 64, label: "(x + 34)°" }));
+    reasonQ("angleEq-reason-2", "angleEq", f, "2つの直線が交わっています。2x + 4 = x + 34 という式を立てられる理由はどれ？", "vertical", ["straight", "vertical", "corresponding", "around"],
+      { type: "equalAngles", source: "e1", target: "e2" }, "2つの角は向かい合う角（対頂角）なので等しいからです。");
+  })();
+  (function () {
+    var d = drawSum([50, 70, 60], 2), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: 6 });
+    f.angles.push(ang("e1", "B", "A", "C", { value: 50, label: "x°" }), ang("e2", "C", "A", "B", { value: 70, label: "(x + 20)°" }), ang("e3", "A", "B", "C", { value: 60, label: "(x + 10)°" }));
+    reasonQ("angleEq-reason-3", "angleEq", f, "△ABCで、x + (x + 20) + (x + 10) = 180 という式を立てられる理由はどれ？", "triangleSum", ["exterior", "triangleSum", "straight", "around"],
+      { type: "angleSum", values: ["e1", "e2", "e3"], total: 180 }, "三角形の3つの内角の和は 180° だからです。");
+  })();
+  (function () {
+    var d = drawSum([40, 115, 25], 4), f = triFig({ B: d[0], C: d[1], A: d[2] }, { rot: 6, ext: { D: ["B", "C"] } });
+    f.angles.push(ang("a", "A", "B", "C", { value: 25, label: "x°" }), ang("b", "B", "A", "C", { value: 40 }), ang("e", "C", "A", "D", { value: 65, label: "(3x − 10)°" }));
+    reasonQ("angleEq-reason-4", "angleEq", f, "辺BCをのばした直線上に点Dがあります。3x − 10 = x + 40 という式を立てられる理由はどれ？", "exterior", ["triangleSum", "straight", "exterior", "vertical"],
+      { type: "angleSum", values: ["a", "b"], total: "e" }, "三角形の外角は、となり合わない2つの内角の和に等しいからです。");
+  })();
+  (function () {
+    var f = crossFig(-20, drawOne(105, 1));
+    f.angles.push(ang("e1", "O", "B", "C", { value: 105, label: "(2x + 5)°" }), ang("e2", "O", "C", "A", { value: 75, label: "(x + 25)°" }));
+    reasonQ("angleEq-reason-5", "angleEq", f, "2つの直線が交わっています。(2x + 5) + (x + 25) = 180 という式を立てられる理由はどれ？", "straight", ["vertical", "around", "straight", "alternate"],
+      { type: "angleSum", values: ["e1", "e2"], total: 180 }, "となり合う2つの角を合わせると一直線（180°）だからです。");
+  })();
+  (function () {
+    var d = drawSum([70, 140, 150], 2), O = [170, 140], a0 = 60;
+    var f = { type: "geometry", points: { O: O, A: polar(O, a0, 110), B: polar(O, a0 + d[0], 110), C: polar(O, a0 + d[0] + d[1], 110) },
+      segments: [["O", "A"], ["O", "B"], ["O", "C"]], labels: [],
+      angles: [ang("e1", "O", "A", "B", { value: 70, label: "x°" }), ang("e2", "O", "B", "C", { value: 140, label: "2x°" }), ang("g", "O", "C", "A", { value: 150 })] };
+    reasonQ("angleEq-reason-6", "angleEq", f, "x + 2x + 150 = 360 という式を立てられる理由はどれ？", "around", ["straight", "around", "polygonSum", "vertical"],
+      { type: "angleSum", values: ["e1", "e2", "g"], total: 360 }, "1点のまわりの角をすべて合わせると 360° だからです。");
+  })();
+  // 多角形の内角
+  function polyReason(id, names, truths, lens, o, text, keys, explanation) {
+    var d = drawSum(truths, o.seed), f = polyFig(names, d, lens, { rot: o.rot || 0, size: o.size });
+    var n = names.length, ids = [];
+    names.forEach(function (v, i) {
+      var last = i === n - 1, id2 = last ? "x" : v.toLowerCase();
+      ids.push(id2);
+      f.angles.push(ang(id2, v, names[(i - 1 + n) % n], names[(i + 1) % n], last ? { value: truths[i], label: "x" } : { value: truths[i] }));
+    });
+    f.highlight = [{ angle: "x" }];
+    reasonQ(id, "polygonInterior", f, text, "polygonSum", keys, { type: "angleSum", values: ids, total: 180 * (n - 2) }, explanation);
+  }
+  polyReason("polygonInterior-reason-2", ["A", "B", "C", "D", "E"], [80, 130, 120, 100, 110], [130, 120, 130], { seed: 2, rot: -6 },
+    "五角形ABCDEで、x = 540° − (80° + 130° + 120° + 100°) と求められる理由はどれ？", ["exteriorSum", "polygonSum", "triangleSum", "around"],
+    "五角形の内角の和は 180° ×（5 − 2）＝ 540° だからです。");
+  polyReason("polygonInterior-reason-3", ["A", "B", "C", "D", "E", "F"], [118, 125, 112, 130, 115, 120], [110, 100, 110, 100], { seed: 3, rot: 4 },
+    "六角形ABCDEFで、x = 720° − (118° + 125° + 112° + 130° + 115°) と求められる理由はどれ？", ["polygonSum", "around", "exteriorSum", "straight"],
+    "六角形の内角の和は 180° ×（6 − 2）＝ 720° だからです。");
+  polyReason("polygonInterior-reason-4", ["A", "B", "C", "D"], [90, 110, 85, 75], [170, 150], { seed: 1, rot: 0 },
+    "四角形ABCDで ∠A は直角です。x = 360° − (90° + 110° + 85°) と求められる理由はどれ？", ["triangleSum", "exteriorSum", "around", "polygonSum"],
+    "四角形の内角の和は 180° ×（4 − 2）＝ 360° だからです（1点のまわりの 360° とは別の理由）。");
+  polyReason("polygonInterior-reason-5", ["A", "B", "C", "D", "E", "F"], [120, 120, 120, 120, 120, 120], [100, 100, 100, 100], { seed: 5, rot: 0 },
+    "正六角形で、1つの内角 x を x = 720° ÷ 6 と求めました。720° はどの性質から出てきた？", ["around", "polygonSum", "exteriorSum", "triangleSum"],
+    "六角形の内角の和が 180° ×（6 − 2）＝ 720° で、正六角形は6つの角が等しいからです。");
+  // 多角形の外角
+  function extPolyReason(id, names, ext, lens, o, text, keys, explanation) {
+    var given = names.slice(0, names.length - 1).map(function (v) { return v.toLowerCase(); });
+    var f = extFig(names, ext, lens, o, given);
+    var xi = f.angles.length - 1;
+    f.angles[xi].value = ext[ext.length - 1]; f.angles[xi].label = "x"; delete f.angles[xi].unknown;
+    reasonQ(id, "polygonExterior", f, text, "exteriorSum", keys, { type: "angleSum", values: given.concat(["x"]), total: 360 }, explanation);
+  }
+  extPolyReason("polygonExterior-reason-2", ["A", "B", "C", "D"], [95, 80, 100, 85], [170, 150], { seed: 2, rot: -4, size: 200 },
+    "四角形ABCDの外角で、x = 360° − (95° + 80° + 100°) と求められる理由はどれ？", ["exteriorSum", "polygonSum", "straight", "around"],
+    "多角形の外角の和は、何角形でも 360° だからです。");
+  extPolyReason("polygonExterior-reason-3", ["A", "B", "C", "D", "E", "F"], [55, 65, 58, 50, 70, 62], [100, 95, 105, 95], { seed: 3, rot: 6, size: 200 },
+    "六角形の外角で、x = 360° − (55° + 65° + 58° + 50° + 70°) と求められる理由はどれ？", ["polygonSum", "around", "exteriorSum", "triangleSum"],
+    "多角形の外角の和は、何角形でも 360° だからです。");
+  extPolyReason("polygonExterior-reason-4", ["A", "B", "C", "D", "E", "F"], [60, 60, 60, 60, 60, 60], [100, 100, 100, 100], { seed: 1, rot: 0, size: 200 },
+    "正六角形で、1つの外角 x を x = 360° ÷ 6 と求めました。360° はどの性質から出てきた？", ["straight", "exteriorSum", "polygonSum", "around"],
+    "多角形の外角の和は 360° で、正六角形は6つの外角が等しいからです。");
+  // 角の組み合わせ・補助線
+  function auxReason(id, a, b, o, text, keys, explanation) {
+    var zd = drawTwo(a, b, function (d1, d2) { return [[a + b, d1 + d2]]; }, null, o.seed), f = zFig(zd[0], zd[1], { left: !!o.left });
+    f.angles[0].value = a; f.angles[1].value = b; f.angles[2].value = a + b; f.angles[2].label = "x";
+    f.highlight = [{ angle: "r" }];
+    reasonQ(id, "angleCombo", f, text, "auxParallel", keys, { type: "angleSum", values: ["a", "b"], total: "r" }, explanation);
+  }
+  auxReason("angleCombo-reason-2", 28, 50, { seed: 3, left: true }, "直線ℓとmは平行です。x = 28° + 50° と求められる理由はどれ？", ["vertical", "auxParallel", "triangleSum", "straight"],
+    "点Rを通って ℓ に平行な直線を引くと、x は 28° と 50° の錯角に分かれるからです。");
+  auxReason("angleCombo-reason-3", 45, 37, { seed: 4 }, "直線ℓとmは平行です。折れ曲がった点Rの角 x を、x = 45° + 37° と求めました。この式を立てるときに考えたことはどれ？", ["auxParallel", "exterior", "vertical", "triangleSum"],
+    "Rを通る、ℓ に平行な補助線を引くと、x が錯角2つ（45° と 37°）に分かれます。");
+  auxReason("angleCombo-reason-4", 52, 31, { seed: 1, left: true }, "直線ℓとmは平行です。x = 52° + 31° と求められる理由はどれ？", ["straight", "triangleSum", "alternate", "auxParallel"],
+    "点Rを通って ℓ に平行な直線を引くと、錯角が2つできて、x はその和になるからです（錯角だけでは x 全体は出ません）。");
+
   // =====================================================================
   // 中2 合同と証明（図形②）：代表的な証明 6題（穴うめ）＋並べかえ 3題＋1段階だけの短い問題 6題
   //   証明の検証・並べかえの採点・診断の入口は js/proof.js。図は合同な三角形を本当に合同に描く（答えは測ることではなく論理で決まる）
