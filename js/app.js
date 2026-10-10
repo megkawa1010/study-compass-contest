@@ -24,6 +24,11 @@
   var restartButton = document.getElementById("restart-button");
 
   ST.load();
+  // パイロット用の起動アイコンから開いたとき（?pilot=start）：パイロットを始めて、ふだんのホームを出す
+  if (/(?:^|[?&])pilot=start(?:&|$)/.test(window.location.search.slice(1))) {
+    if (!ST.pilot().active) ST.setPilotActive(true);
+    if (window.history && window.history.replaceState) window.history.replaceState(null, "", window.location.pathname);
+  }
   ST.recompute(); // 日付によって変わる「次にやること」を、開いた時点の日付で計算し直す
   var COMPASS_VIEW = /(?:^|[?&])debug=compass(?:&|$)/.test(window.location.search.slice(1));
   var PLAN_VIEW = /(?:^|[?&])debug=plan(?:&|$)/.test(window.location.search.slice(1));
