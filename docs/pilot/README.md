@@ -11,7 +11,9 @@
 
 ## はじめる前に（1回だけ）
 
-1. パイロット用の PC で `node serve.js` を起動する
+1. パイロット用の PC で、アプリのフォルダに移動してから `node serve.js` を起動する
+   - `cd "C:\Users\PC_User\OneDrive\ドキュメント\Compass Learning\study-compass-contest"`
+   - `node serve.js`（「Study Compass: http://localhost:5178」と出たら起動済み。使い終わるまで閉じない）
 2. 子どもが使う端末で開く
    - 同じ PC なら `http://localhost:5178/`
    - タブレット・スマホなら `http://<PCのIPアドレス>:5178/`（同じ Wi-Fi）
