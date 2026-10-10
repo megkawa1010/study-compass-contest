@@ -526,3 +526,12 @@ br.pc { display: none; }
 .hs-more { margin-top: 14px; }
 .hs-more summary { cursor: pointer; font-size: 14px; color: var(--text-soft); }
 .discovery .next-head { margin-top: 16px; }
+
+/* 実利用パイロット：その場で一言メモ（パイロット中だけ表示） */
+.pilot-memo { position: fixed; right: 16px; bottom: 16px; z-index: 20; border: 1px solid var(--line-strong); background: var(--hint); color: #10202f; border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 14px rgba(0, 0, 0, .3); }
+.pilot-day summary { cursor: pointer; }
+.pilot-note { display: block; margin-top: 8px; }
+.pilot-note textarea, #pilot-issue-text { width: 100%; box-sizing: border-box; margin-top: 4px; font: inherit; padding: 6px 8px; border-radius: 8px; }
+.pilot-issues { list-style: none; padding: 0; margin: 10px 0 0; }
+.pilot-issue { border-top: 1px solid var(--line-strong); padding: 8px 0; }
+.pilot-issue.urgent strong { color: #ff9b8a; }

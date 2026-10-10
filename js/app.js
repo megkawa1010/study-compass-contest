@@ -33,6 +33,7 @@
   var SCHOOL_VIEW = /(?:^|[?&])debug=school(?:&|$)/.test(window.location.search.slice(1));
   var FIGURE_VIEW = /(?:^|[?&])debug=figure(?:&|$)/.test(window.location.search.slice(1));
   var PROOF_VIEW = /(?:^|[?&])debug=proof(?:&|$)/.test(window.location.search.slice(1));
+  var PILOT_VIEW = /(?:^|[?&])debug=pilot(?:&|$)/.test(window.location.search.slice(1));
   // ?debug=figure&try=問題ID：その問題をふだんと同じ入力欄で解き、記録・解説・状態の変化まで確かめる
   var FIGURE_TRY = FIGURE_VIEW ? decodeURIComponent((window.location.search.match(/[?&]try=([^&]+)/) || [])[1] || "") : "";
   var figTry = null;
@@ -441,6 +442,7 @@
         '<a class="secondary-button link-button" href="./?debug=bank">問題バンク</a>' +
         '<a class="secondary-button link-button" href="./?debug=figure">図形の図</a>' +
         '<a class="secondary-button link-button" href="./?debug=proof">証明</a>' +
+        '<a class="secondary-button link-button" href="./?debug=pilot">パイロットの記録</a>' +
       "</div></section>";
   }
 
@@ -1740,8 +1742,8 @@
 
   function render() {
     var html;
-    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW || FIGURE_VIEW || PROOF_VIEW) {
-      app.innerHTML = '<div class="screen">' + (PROOF_VIEW ? viewProofDebug() : FIGURE_VIEW ? viewFigureDebug() : BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
+    if (BANK_VIEW || COMPASS_VIEW || PLAN_VIEW || TEST_VIEW || PARENT_DEBUG || MAP_VIEW || SCHOOL_VIEW || FIGURE_VIEW || PROOF_VIEW || PILOT_VIEW) {
+      app.innerHTML = '<div class="screen">' + (PILOT_VIEW ? viewPilot() : PROOF_VIEW ? viewProofDebug() : FIGURE_VIEW ? viewFigureDebug() : BANK_VIEW ? viewBank() : COMPASS_VIEW ? viewCompassDebug() : PLAN_VIEW ? viewPlanDebug() : TEST_VIEW ? viewTestDebug() : MAP_VIEW ? viewMapDebug() : SCHOOL_VIEW ? viewSchoolDebug() : viewParentDebug()) + "</div>";
       restartButton.hidden = true;
       return;
     }
@@ -1757,7 +1759,9 @@
     var screenKey = state.screen + ":" + state.idx + ":" + state.lesson.step + ":" + (state.daily ? state.daily.si + "." + state.daily.qi : "");
     var enter = screenKey !== lastScreenKey ? " enter" : "";
     lastScreenKey = screenKey;
-    app.innerHTML = '<div class="screen screen-' + state.screen + enter + '">' + html + "</div>";
+    // .screen には動き（transform）があるので、メモボタンはその外に置く（画面の右下に固定するため）
+    var memo = ST.pilot().active ? '<button class="pilot-memo" type="button" data-action="pilot-memo" title="気になったことを一言メモ（パイロット用）">メモ</button>' : "";
+    app.innerHTML = '<div class="screen screen-' + state.screen + enter + '">' + html + "</div>" + memo;
     restartButton.hidden = state.screen === "home";
     save(STATE_KEY, state);
     var f = app.querySelector("[data-autofocus]");
@@ -2420,6 +2424,76 @@
     go("setup");
   }
 
+  // ---------- 実利用パイロットの記録（?debug=pilot） ----------
+  var SCREEN_JA = { home: "ホーム", setup: "チェックの準備", check: "チェックの問題", bridge: "チェックの途中", result: "チェックの結果", plan: "学習プラン", lesson: "学習（3ステップ）",
+    reflect: "ふり返り", checkResult: "チェックの結果", daily: "今日の学習の問題", dailyPlan: "今日の学習", testSetup: "テスト対策の準備", testPlan: "テスト対策の計画", parent: "保護者画面", school: "学校のようす" };
+  function pilotMemo() {
+    var text = window.prompt("気になったことを一言で（例：このボタンがわかりにくい／この問題はむずかしすぎる）");
+    if (!text || !text.trim()) return;
+    var qid = null;
+    try {
+      if (state.screen === "check") qid = state.queue[state.idx] || null;
+      if (state.screen === "daily" && state.daily) qid = dailyCurrent().qid;
+    } catch (e) { qid = null; }
+    var t = ST.now();
+    ST.addPilotMemo({ date: SC.pilot.dateKey(t), time: new Date(t).toTimeString().slice(0, 5), screen: SCREEN_JA[state.screen] || state.screen, question: qid, text: text.trim() });
+    window.alert("メモしました。");
+  }
+  function downloadText(text, name, type) {
+    var blob = new Blob([text], { type: type });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  function viewPilot() {
+    var P = SC.pilot, pl = ST.pilot(), list = P.days(ST.get()), today = P.dateKey(ST.now());
+    if (!list.some(function (d) { return d.date === today; })) list.unshift(P.days({ pilot: { notes: (function () { var o = {}; o[today] = {}; return o; })() } })[0]);
+    var catOpts = function (sel) {
+      return '<optgroup label="すぐ直す">' + P.CATEGORIES.filter(function (c) { return c.urgent; }).map(function (c) { return '<option value="' + c.key + '"' + (sel === c.key ? " selected" : "") + ">" + esc(c.label) + "</option>"; }).join("") + "</optgroup>" +
+        '<optgroup label="あとでまとめて判断">' + P.CATEGORIES.filter(function (c) { return !c.urgent; }).map(function (c) { return '<option value="' + c.key + '"' + (sel === c.key ? " selected" : "") + ">" + esc(c.label) + "</option>"; }).join("") + "</optgroup>";
+    };
+    var STATUS = { open: "未対応", fixed: "直した", hold: "保留" };
+    var issues = pl.issues.slice().reverse().map(function (x) {
+      var c = P.CAT[x.category] || P.CAT.other;
+      return '<li class="pilot-issue' + (c.urgent ? " urgent" : "") + '"><p class="small"><strong>' + esc(c.urgent ? "すぐ直す" : "あとで") + "｜" + esc(c.label) + "</strong>（" + esc(x.date) + "）</p><p>" + esc(x.text) + "</p>" +
+        '<select data-pilot-issue="' + esc(x.id) + '">' + Object.keys(STATUS).map(function (k) { return '<option value="' + k + '"' + (x.status === k ? " selected" : "") + ">" + STATUS[k] + "</option>"; }).join("") + "</select></li>";
+    }).join("");
+    var dayCards = list.map(function (d) {
+      var auto = '<ul class="small debug-log">' +
+        "<li>学校の進度：" + esc(d.school || "（今日の学習を開くと記録されます）") + (d.test_date ? "／次のテスト " + esc(d.test_date) : "") + "</li>" +
+        "<li>学習可能時間：" + (d.available_minutes ? d.available_minutes + "分" : "−") + "</li>" +
+        "<li>提案：" + (d.proposed.length ? esc(d.proposed.map(function (x) { return x.label + "「" + x.skill + "」" + x.minutes + "分・" + x.questions + "問"; }).join(" ／ ")) : "−") + "</li>" +
+        "<li>実際：" + (d.done.length ? (d.completed ? "完了" : "途中まで") + "｜" + esc(d.done.map(function (x) { return "「" + x.skill + "」" + x.answered + "/" + x.total + "問（正解" + x.correct + "）"; }).join(" ／ ")) : "今日の学習なし") + (d.plan_starts > 1 ? "（開始 " + d.plan_starts + " 回）" : "") + "</li>" +
+        (d.checks.length ? "<li>チェック：" + esc(d.checks.map(function (c) { return c.kind + "（" + c.unit + "・" + c.questions + "問・" + c.at + "）"; }).join(" ／ ")) + "</li>" : "") +
+        "<li>回答：" + d.answers + "問（まちがい" + d.wrong + "・わからない" + d.unknown + "・ヒント" + d.hints + "）" + (d.span ? "｜" + esc(d.span) : "") + (d.feeling ? "｜ふり返り：" + esc(d.feeling) : "") + "</li>" +
+        (d.missed.length ? "<li>まちがえた問題：" + esc(d.missed.join("、")) + "</li>" : "") +
+        d.memos.map(function (m) { return "<li>メモ（" + esc(m.time + "・" + m.screen + (m.question ? "・" + m.question : "")) + "）：" + esc(m.text) + "</li>"; }).join("") +
+        "</ul>";
+      var notes = P.NOTE_FIELDS.map(function (fl) {
+        return '<label class="pilot-note"><span class="small">' + esc(fl.label) + '</span><textarea rows="2" data-pilot-note="' + esc(d.date + "|" + fl.key) + '">' + esc(d.note[fl.key] || "") + "</textarea></label>";
+      }).join("");
+      return '<details class="card pilot-day"' + (d.date === today ? " open" : "") + "><summary><strong>" + esc(d.date) + "</strong>" + (d.date === today ? "（今日）" : "") +
+        '<span class="small muted">　' + d.answers + "問" + (d.completed ? "・今日の学習 完了" : "") + "</span></summary>" + auto +
+        '<p class="small muted">保護者のメモ（書いたら自動で保存されます。なければ空欄で大丈夫です）</p>' + notes + "</details>";
+    }).join("");
+    return '<section class="card debug"><h1 class="h-sm">実利用パイロットの記録</h1>' +
+      '<p class="small muted">1日の終わりに、その日の欄を5分ほどで書きます。学習の判断には使いません。' + (pl.started ? "開始：" + esc(pl.started) : "") + "</p>" +
+      '<div class="actions">' +
+        (pl.active ? '<button class="secondary-button" type="button" data-action="pilot-off">メモボタンをしまう</button>' : '<button class="primary-button" type="button" data-action="pilot-on">パイロットを始める（画面にメモボタンを出す）</button>') +
+        '<button class="secondary-button" type="button" data-action="pilot-export-md">記録を書き出す（Markdown）</button>' +
+        '<button class="secondary-button" type="button" data-action="debug-export">記録を書き出す（JSON）</button>' +
+        '<a class="secondary-button link-button" href="./">アプリへ</a></div></section>' +
+      '<section class="card"><h2 class="h-sm">見つけたこと</h2>' +
+        '<p class="small muted">「すぐ直す」は、学習できない・データが壊れる・明らかに間違った問題・学習判断が大きく誤る、の4つだけ。ほかはパイロットが終わってからまとめて判断します。</p>' +
+        '<textarea id="pilot-issue-text" rows="2" placeholder="例：今日の学習で同じ問題が2回出た"></textarea>' +
+        '<div class="actions"><select id="pilot-issue-cat">' + catOpts("wording") + '</select><button class="secondary-button" type="button" data-action="pilot-add-issue">追加する</button></div>' +
+        (issues ? '<ul class="pilot-issues">' + issues + "</ul>" : '<p class="small muted">まだありません。</p>') + "</section>" +
+      dayCards;
+  }
+
   function downloadJSON() {
     var blob = new Blob([ST.exportJSON()], { type: "application/json" });
     var a = document.createElement("a");
@@ -2436,6 +2510,10 @@
   });
 
   app.addEventListener("change", function (e) {
+    var pn = e.target.getAttribute && e.target.getAttribute("data-pilot-note");
+    if (pn) { ST.setPilotNote(pn.split("|")[0], pn.split("|")[1], e.target.value); return; }
+    var pi = e.target.getAttribute && e.target.getAttribute("data-pilot-issue");
+    if (pi) { ST.updatePilotIssue(pi, { status: e.target.value }); return; }
     if (e.target.name === "study-status") { state.setup.status = e.target.value; render(); }
     if (e.target.name === "study-skill") state.setup.skill = e.target.value;
     // 学校のようす：単元を変えたら、その単元の「どこまで」を出しなおす
@@ -2524,6 +2602,17 @@
         break;
       case "debug-days-reset": ST.resetDays(); render(); break;
       case "debug-export": downloadJSON(); break;
+      case "pilot-memo": pilotMemo(); break;
+      case "pilot-on": ST.setPilotActive(true); render(); break;
+      case "pilot-off": ST.setPilotActive(false); render(); break;
+      case "pilot-export-md": downloadText(SC.pilot.toMarkdown(ST.get()), "study-compass-pilot-" + SC.pilot.dateKey(ST.now()) + ".md", "text/markdown"); break;
+      case "pilot-add-issue": {
+        var it = document.getElementById("pilot-issue-text");
+        if (!it || !it.value.trim()) break;
+        ST.addPilotIssue({ date: SC.pilot.dateKey(ST.now()), text: it.value.trim(), category: document.getElementById("pilot-issue-cat").value });
+        render();
+        break;
+      }
       case "hint": state.hintOpen = true; render(); break;
       case "figtry-reset": figTry = null; draft = {}; render(); break;
       case "lesson-hint": state.hintOpen = true; render(); break;

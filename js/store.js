@@ -339,6 +339,11 @@
   function addPlan(plan) {
     var rec = JSON.parse(JSON.stringify(plan));
     delete rec.debug;
+    // パイロットの記録用：その日の学校の進度と学習可能時間（学習判断には使わない）
+    var sc = school(), cu = sc.current_unit, cs = cu && sc.units[cu] ? sc.units[cu].current_skill : null, tp = testPrep();
+    rec.started_at = new Date(now()).toISOString();
+    rec.context = { available_minutes: settings().minutes, school_unit: cu || null, school_status: cu && sc.units[cu] ? sc.units[cu].status : null,
+      school_skill: cs && E.SKILLS[cs] ? E.SKILLS[cs].label : null, test_date: (tp && tp.test_date) || (sc.next_test && sc.next_test.date) || null };
     get().plans.push(rec);
     if (get().plans.length > 60) get().plans = get().plans.slice(-60);
     persist();
@@ -352,6 +357,31 @@
     return null;
   }
   function plans() { return get().plans; }
+
+  // ---------- 実利用パイロットの記録（?debug=pilot） ----------
+  // { active, started, notes: { "YYYY-MM-DD": { confused, tedious, ... } }, memos: [...], issues: [...] }
+  function pilot() {
+    var d = get();
+    d.pilot = d.pilot || { active: false, started: null, notes: {}, memos: [], issues: [] };
+    return d.pilot;
+  }
+  function setPilotActive(on) {
+    var p = pilot(); p.active = !!on;
+    if (on && !p.started) p.started = new Date(now()).toISOString().slice(0, 10);
+    persist();
+  }
+  function setPilotNote(dateKey, key, value) {
+    var p = pilot(); p.notes[dateKey] = p.notes[dateKey] || {}; p.notes[dateKey][key] = value; persist();
+  }
+  function addPilotMemo(memo) { pilot().memos.push(memo); persist(); }
+  function addPilotIssue(issue) {
+    var x = { id: E.makeId("iss", now()), date: issue.date, text: issue.text, category: issue.category || "other", status: "open" };
+    pilot().issues.push(x); persist(); return x;
+  }
+  function updatePilotIssue(id, patch) {
+    pilot().issues.forEach(function (x) { if (x.id === id) for (var k in patch) x[k] = patch[k]; });
+    persist();
+  }
 
   // ---------- テスト対策（Phase 6） ----------
   // { test_date: "YYYY-MM-DD", range_skills: [...], created_at, active }
@@ -398,6 +428,7 @@
     addExploration: addExploration, explorations: explorations, explorationsFor: explorationsFor,
     settings: settings, setSettings: setSettings, schoolProgressInfo: schoolProgressInfo,
     addPlan: addPlan, updatePlan: updatePlan, plans: plans,
+    pilot: pilot, setPilotActive: setPilotActive, setPilotNote: setPilotNote, addPilotMemo: addPilotMemo, addPilotIssue: addPilotIssue, updatePilotIssue: updatePilotIssue,
     testPrep: testPrep, setTestPrep: setTestPrep, endTestPrep: endTestPrep,
     _backend: backend
   };
