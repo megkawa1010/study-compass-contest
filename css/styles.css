@@ -540,3 +540,14 @@ br.pc { display: none; }
 .pilot-issues { list-style: none; padding: 0; margin: 10px 0 0; }
 .pilot-issue { border-top: 1px solid var(--line-strong); padding: 8px 0; }
 .pilot-issue.urgent strong { color: #ff9b8a; }
+
+/* 単元の説明 */
+.guide-units { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 8px; }
+.guide-unit { border: 1px solid var(--line-strong); background: rgba(255, 255, 255, .04); color: var(--text); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.guide-unit:hover { background: rgba(255, 255, 255, .08); }
+.guide-unit.now { background: rgba(255, 255, 255, .16); font-weight: 700; }
+.guide-skill { border-top: 1px solid var(--line-strong); padding-top: 16px; margin-top: 16px; }
+.guide-skill h2 { font-size: 18px; margin: 0 0 8px; }
+.guide-trap strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.guide-peek { margin: 10px 0; }
+.guide-peek summary { cursor: pointer; font-size: 14px; }

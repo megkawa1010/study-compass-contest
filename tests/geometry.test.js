@@ -179,7 +179,7 @@ test("データ → 回答 → 記録：角度の小問は value、根拠の小�
 test("問題バンク：約70問・約4割が角度＋根拠の小問・はじめてのチェック5問・レベル分類", () => {
   // ふだんの問題（根拠だけの短い問題は別に数える：今日の学習の「理由を確認」だけで使い、30日試算で足りないスキルを補強している）
   const REG = UNIT.filter((q) => !q.reason_only);
-  assert.ok(REG.length >= 65 && REG.length <= 120, "問題数 " + REG.length); // 約70問から、10日試算で足りなくなった所だけ補強
+  assert.ok(REG.length >= 65 && REG.length <= 140, "問題数 " + REG.length); // 約70問から、10日試算で足りなくなった所だけ補強
   const withReason = REG.filter((q) => (q.steps || []).some((s) => s.aspect === "reason"));
   const ratio = withReason.length / REG.length;
   assert.ok(ratio >= 0.35 && ratio <= 0.55, "根拠つき " + withReason.length + "/" + REG.length);

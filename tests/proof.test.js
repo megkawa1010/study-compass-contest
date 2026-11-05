@@ -224,6 +224,7 @@ const UNIT_Q = Object.values(Q).filter((q) => E.SKILLS[q.skill].unit === "合同
 
 test("合同と証明の全問が自動検算に通る（行・主張・根拠・依存・合同条件・図の印・仮定・結論・required_geometry_skills）", () => {
   for (const q of UNIT_Q) {
+    if (q.checked_in) continue; // 証明の行を持たない文章の応用問題は tests/applications.test.js で確かめる
     const v = P.check(q);
     assert.ok(v.ok, q.id + "：" + v.messages.join(" / "));
   }

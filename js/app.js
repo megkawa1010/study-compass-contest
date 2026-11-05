@@ -76,7 +76,7 @@
     };
   }
 
-  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan", "parent", "school"];
+  var SCREENS = ["home", "setup", "check", "bridge", "result", "plan", "lesson", "reflect", "checkResult", "daily", "dailyPlan", "testSetup", "testPlan", "parent", "school", "guide"];
   function restore() {
     var s = load(STATE_KEY);
     if (!s || SCREENS.indexOf(s.screen) === -1 || !Array.isArray(s.queue) || typeof s.answers !== "object") return freshState();
@@ -353,6 +353,7 @@
           cycleItem("4", "学習して、また確かめる", "ふり返りで現在地を更新していく") +
         "</ol>" +
       "</section>" +
+      '<button class="parent-link" type="button" data-action="to-guide">単元の説明を読む →</button>' +
       '<details class="card about">' +
         "<summary>このアプリについて</summary>" +
         "<ul>" +
@@ -1748,7 +1749,7 @@
   var lastScreenKey = "";
   var VIEWS = { home: viewHome, setup: viewSetup, check: viewCheck, bridge: viewBridge, result: viewResult, plan: viewPlan, lesson: viewLesson, reflect: viewReflect, checkResult: viewCheckResult,
     daily: viewDaily, dailyPlan: function () { return todayCard(buildToday(), true); },
-    testSetup: viewTestSetup, testPlan: viewTestPlan, parent: viewParent, school: viewSchool };
+    testSetup: viewTestSetup, testPlan: viewTestPlan, parent: viewParent, school: viewSchool, guide: viewGuide };
 
   function render() {
     var html;
@@ -2261,6 +2262,33 @@
   }
 
   // 学習画面：パートごとに、ミニ解説 → 問題（1問ずつ）
+  // 単元の説明。スキルごとに「大事なこと・例・まちがえやすいところ」（js/guide.js）
+  var guideUnit = null;
+  function guideBody(g) {
+    return '<p>' + esc(g.point) + '</p>' +
+      '<div class="example"><span>例</span><p>' + esc(g.example) + '</p></div>' +
+      '<p class="guide-trap"><strong>まちがえやすいところ</strong>' + esc(g.trap) + '</p>';
+  }
+  function viewGuide() {
+    var units = E.SELECTABLE_UNITS, u = guideUnit && units.indexOf(guideUnit) !== -1 ? guideUnit : units[0];
+    return '<section class="card narrow guide">' +
+      '<p class="eyebrow">単元の説明</p><h1 class="h-md">' + esc(u) + '</h1>' +
+      '<p class="lead-sm">' + esc(SC.guide.units[u]) + '</p>' +
+      '<div class="guide-units" role="group" aria-label="単元を選ぶ">' + units.map(function (x) {
+        return '<button type="button" class="guide-unit' + (x === u ? " now" : "") + '" data-action="guide-unit" data-unit="' + esc(x) + '"' + (x === u ? ' aria-current="true"' : "") + '>' + esc(x) + "</button>";
+      }).join("") + "</div>" +
+      E.UNITS[u].map(function (k) {
+        return '<article class="guide-skill"><h2>' + esc(E.SKILLS[k].label) + "</h2>" + guideBody(SC.guide.skills[k]) + "</article>";
+      }).join("") +
+      '<div class="actions"><button class="secondary-button" type="button" data-action="home">ホームへ戻る</button></div>' +
+    "</section>";
+  }
+  // 今日の学習で開ける説明。定着の確認は自力で思い出す問題なので出さない
+  function guidePeek(q) {
+    var g = q.level !== "retention" && SC.guide.skills[q.skill];
+    return g ? '<details class="guide-peek"><summary>このスキルの説明を見る</summary>' + guideBody(g) + "</details>" : "";
+  }
+
   function viewDaily() {
     var cur = dailyCurrent(), d = cur.d, sess = cur.sess, q = cur.q, plan = d.plan;
     var res = d.results[cur.qid];
@@ -2281,7 +2309,7 @@
         }).join("") + "</ol>" +
         '<h1 class="h-md">' + esc(sess.type_label) + '<span class="min-tag">' + sess.minutes + "分</span></h1>" +
         '<p class="muted small">' + esc(sess.skill_label) + "（" + esc(sess.level_label) + "）・" + (d.qi + 1) + " / " + sess.questions.length + " 問目</p>" +
-        intro +
+        intro + guidePeek(q) +
         (sess.type === "preview" ? '<p class="preview-note">先取り：学校でこれから習うところです。まちがえても「苦手」にはなりません。</p>' : "") +
         '<div class="practice">' +
           '<p class="practice-label">やってみよう</p>' +
@@ -2440,7 +2468,7 @@
 
   // ---------- 実利用パイロットの記録（?debug=pilot） ----------
   var SCREEN_JA = { home: "ホーム", setup: "チェックの準備", check: "チェックの問題", bridge: "チェックの途中", result: "チェックの結果", plan: "学習プラン", lesson: "学習（3ステップ）",
-    reflect: "ふり返り", checkResult: "チェックの結果", daily: "今日の学習の問題", dailyPlan: "今日の学習", testSetup: "テスト対策の準備", testPlan: "テスト対策の計画", parent: "保護者画面", school: "学校のようす" };
+    reflect: "ふり返り", checkResult: "チェックの結果", daily: "今日の学習の問題", dailyPlan: "今日の学習", testSetup: "テスト対策の準備", testPlan: "テスト対策の計画", parent: "保護者画面", guide: "単元の説明", school: "学校のようす" };
   function pilotMemo() {
     var text = window.prompt("気になったことを一言で（例：このボタンがわかりにくい／この問題はむずかしすぎる）");
     if (!text || !text.trim()) return;
@@ -2680,6 +2708,8 @@
         break;
       case "to-test-plan": go("testPlan"); break;
       case "to-parent": go("parent"); break;
+      case "to-guide": go("guide"); break;
+      case "guide-unit": guideUnit = el.getAttribute("data-unit"); render(); window.scrollTo(0, 0); break;
       case "save-test":
         (function () {
           var date = (document.getElementById("test-date") || {}).value;
