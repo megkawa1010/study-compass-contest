@@ -112,7 +112,16 @@
     // 合同を示したあと、対応する辺・角が等しいことを使う。学校の進み具合では「証明の組み立て」と一緒に扱う
     congUse:        { label: "合同から言えること", unit: "合同と証明", grade: "中2", follows: "proofBuild", concept: ["congCorr"], calc: [] },
     // 行をどの順番で組み立てるか（依存関係）
-    proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", school_label: "証明まで", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] }
+    proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", school_label: "証明まで", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] },
+
+    // --- 中2 確率 ---
+    // 数え上げ（場合の数）と確率の意味が土台。2つのさいころ・取り出す問題は「確率の求め方」と「場合の数」の両方を使う
+    probMeaning:    { label: "確率の意味",     unit: "確率", grade: "中2", prerequisites: [] },
+    probCount:      { label: "場合の数",       unit: "確率", grade: "中2", prerequisites: [] },
+    probBasic:      { label: "確率の求め方",   unit: "確率", grade: "中2", prerequisites: ["probMeaning", "probCount"] },
+    probTwo:        { label: "2つのさいころ・硬貨の確率", unit: "確率", grade: "中2", prerequisites: ["probBasic", "probCount"] },
+    probDraw:       { label: "取り出す・くじの確率", unit: "確率", grade: "中2", prerequisites: ["probBasic", "probCount"] },
+    probNot:        { label: "「〜でない」確率", unit: "確率", grade: "中2", prerequisites: ["probBasic"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -133,7 +142,8 @@
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
-    "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild"];
+    "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild",
+    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "angleBasics",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -141,7 +151,8 @@
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
-    "proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild"];
+    "proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild",
+    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -151,10 +162,11 @@
     // 教科書の順（対頂角 → 同位角・錯角 → 平行線 → 三角形 → 多角形）
     "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"],
     // 教科書の順（合同な図形 → 合同条件 → 仮定と結論 → 証明）
-    "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"]
+    "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"],
+    "確率": ["probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "確率"];
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -478,7 +490,8 @@
     parallelAngles: "review_parallel_angles", triangleSum: "review_triangle_sum", exteriorAngle: "review_exterior_angle", angleCombo: "practice_angle_combination",
     polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior",
     congCorr: "review_congruent_correspondence", congCond: "review_congruence_conditions", proofFigureFacts: "practice_proof_figure_facts",
-    proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order"
+    proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order",
+    probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement"
   };
 
   function nextAction(skillId, s, rootIds, now) {

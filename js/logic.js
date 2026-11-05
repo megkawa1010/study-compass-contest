@@ -97,6 +97,24 @@
     return ka.join() === kb.join() && ka.every(function (k) { return same(a[k], b[k]); });
   }
 
+  // 分数の答え。「3分の1」も 1/3 と読む
+  function fractionText(value) {
+    return normalize(value).replace(/^(\d+)分の(\d+)$/, "$2/$1");
+  }
+  // 答えの形について、採点の前に声をかける内容（なければ null）。約分は、まちがいにせずに直してもらう
+  function answerNote(q, value) {
+    if (q.type === "steps") {
+      for (var i = 0; i < q.steps.length; i++) { var n = answerNote(q.steps[i], value && value[q.steps[i].id]); if (n) return n; }
+      return null;
+    }
+    if (q.type !== "fraction") return null;
+    var m = fractionText(value).match(/^(\d+)\/(\d+)$/);
+    if (!m || Number(m[2]) === 0) return null;
+    var a = Number(m[1]), b = Number(m[2]);
+    while (b) { var t = a % b; a = b; b = t; }
+    return a > 1 ? "約分できるよ。いちばん簡単な分数にしてから答えてね。" : null;
+  }
+
   function isBlank(q, value) {
     if (q.type === "pair") {
       return q.fields.some(function (f) { return normalize(value && value[f.key]) === ""; });
@@ -111,6 +129,7 @@
   // 正誤判定。pair は両方そろって正解。steps は全部の小問が正解で正解。
   function check(q, value) {
     if (q.type === "number") return same(parseNumber(value), q.answer);
+    if (q.type === "fraction") return same(toNumber(fractionText(value)), toNumber(String(q.answer)));
     if (q.type === "linear") {
       var p = parseLinear(value);
       return !!p && same(p.a, q.answer.a) && same(p.b, q.answer.b);
@@ -661,7 +680,7 @@
 
   SC.logic = {
     normalize: normalize, parseNumber: parseNumber, parseLinear: parseLinear, parsePoly: parsePoly, polyText: polyText,
-    isBlank: isBlank, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry, lessonIntro: lessonIntro, planCross: planCross,
+    isBlank: isBlank, answerNote: answerNote, check: check, checkSteps: checkSteps, analyzeSteps: analyzeSteps, followUps: followUps, retryStep: retry, lessonIntro: lessonIntro, planCross: planCross,
     diagnose: diagnose, buildPlan: buildPlan, ROUTE: ROUTE
   };
 })(typeof window !== "undefined" ? window : globalThis);

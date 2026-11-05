@@ -22,7 +22,8 @@ const SCENARIOS = [
   ["一次関数"], ["連立方程式"], ["連立方程式", "polyAddSub"], ["連立方程式", "signed"],
   ["式の計算"], ["式の計算", "signed"], ["式の計算", "eqProperty"],
   ["図形の角"], ["図形の角", "transpose"], ["図形の角", "triangleSum"],
-  ["合同と証明"], ["合同と証明", "parallelAngles"], ["合同と証明", "proofHypConc"]
+  ["合同と証明"], ["合同と証明", "parallelAngles"], ["合同と証明", "proofHypConc"],
+  ["確率"], ["確率", "probCount"], ["確率", "probMeaning"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;

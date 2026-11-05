@@ -227,7 +227,7 @@
     }
     var inputId = prefix + "-v";
     // 文字式の答え（poly）は、文字・2乗の入力を補助する
-    var chipKeys = q.type === "linear" ? ["y =", "x", "−", "+", "/"]
+    var chipKeys = q.type === "fraction" ? ["/"] : q.type === "linear" ? ["y =", "x", "−", "+", "/"]
       : q.type === "poly" ? (/[ab]/.test(q.answer) ? ["a", "b", "−", "+"] : /\^/.test(q.answer) ? ["x", "y", "^2", "^3"] : ["x", "y", "−", "+"]) : null;
     var chips = chipKeys
       ? '<div class="chips" aria-label="入力の補助">' + chipKeys.map(function (c) {
@@ -356,7 +356,7 @@
       '<details class="card about">' +
         "<summary>このアプリについて</summary>" +
         "<ul>" +
-          "<li>いまは試用版です。中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」を収録しています。</li>" +
+          "<li>いまは試用版です。中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「確率」を収録しています。</li>" +
           "<li>点数を出すのではなく、問題ごとに「どのスキル・どの前提知識を見たか」から、つまずきの場所を推定します。</li>" +
           "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は使っていません。</li>" +
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
@@ -486,7 +486,7 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">いまは「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」が選べます。</p>' +
+        '<p class="muted small">いまは「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「確率」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
@@ -504,7 +504,10 @@
                 return '<label class="radio-chip"><input type="radio" name="study-skill" value="' + esc(o.value) + '"' + ((s.skill || "") === o.value ? " checked" : "") + "><span>" + esc(o.label) + "</span></label>";
               }).join("") + "</fieldset>"
           : "") +
-        '<button class="primary-button big full" type="button" data-action="start-check">現在地をチェックする</button>' +
+        (s.status === "notyet" && s.unit !== "一次関数"
+          ? '<p class="muted small">まだ習っていない単元はチェックしません。学校で習い始めたら、ここからチェックしよう。</p>' +
+            '<button class="primary-button big full" type="button" data-action="start-check">ホームへ進む</button>'
+          : '<button class="primary-button big full" type="button" data-action="start-check">現在地をチェックする</button>') +
       "</section>";
   }
 
@@ -1561,6 +1564,8 @@
   function submitFigTry() {
     var q = QS[FIGURE_TRY], v = readInput(q);
     if (L.isBlank(q, v)) { message = "答えを入力してね。"; render(); return; }
+    var note = L.answerNote(q, v);
+    if (note) { message = note; render(); return; }
     message = "";
     var res = q.type === "steps" ? L.checkSteps(q, v) : plainResults(q, v, L.check(q, v));
     var ctx = { sessionId: null, context: "lesson" };
@@ -1674,6 +1679,7 @@
     var n = SC.figures.num;
     if (q.answer_display) return q.answer_display;
     if (q.type === "number") return n(q.answer);
+    if (q.type === "fraction") return String(q.answer);
     if (q.type === "linear") {
       var a = q.answer.a, b = q.answer.b;
       var as = a === 1 ? "" : a === -1 ? "−" : n(a);
@@ -1876,6 +1882,8 @@
       render();
       return;
     }
+    var note = L.answerNote(q, v);
+    if (note) { message = note; render(); return; }
     if (q.type === "steps") {
       var res = L.checkSteps(q, v);
       recordAnswer(res.every(function (r) { return r.correct; }) ? "correct" : "incorrect", res);
@@ -2320,6 +2328,8 @@
       render();
       return;
     }
+    var note = L.answerNote(q, v);
+    if (note) { message = note; render(); return; }
     message = "";
     var stepRes = q.type === "steps" ? L.checkSteps(q, v) : null;
     var ok = stepRes ? stepRes.every(function (r) { return r.correct; }) : L.check(q, v);
@@ -2535,7 +2545,8 @@
     if (e.target.id === "unit") {
       // 単元を変えたら、その単元の「習った／途中／まだ」を前回の答えから出しなおす
       state.setup.unit = e.target.value;
-      state.setup.status = ST.schoolProgress(e.target.value);
+      // 「今勉強している単元」で選んだので、記録が「まだ」の単元は「習っている途中」から始める
+      state.setup.status = ST.schoolProgress(e.target.value) === "notyet" ? "learning" : ST.schoolProgress(e.target.value);
       state.setup.skill = ST.school().units[e.target.value] ? ST.school().units[e.target.value].current_skill || "" : "";
       render();
     }

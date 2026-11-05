@@ -16,6 +16,7 @@ const BASE_SKILLS = ["signed", "algebra", "proportion", "coord"];
 // 問題の「正解」を、実際に入力される形の文字列にする
 function asInput(q) {
   if (q.type === "number") return String(q.answer);
+  if (q.type === "fraction") return q.answer;
   if (q.type === "linear") return `y=${q.answer.a}x${q.answer.b >= 0 ? "+" : ""}${q.answer.b}`;
   if (q.type === "pair") return Object.fromEntries(Object.entries(q.answer).map(([k, v]) => [k, String(v)]));
   if (q.type === "choice") return q.answer;
@@ -25,6 +26,7 @@ function asInput(q) {
 }
 function asWrong(q) {
   if (q.type === "number") return String(q.answer + 1);
+  if (q.type === "fraction") return "999/1000";
   if (q.type === "linear") return `y=${q.answer.a + 1}x+${q.answer.b}`;
   if (q.type === "pair") return Object.fromEntries(Object.entries(q.answer).map(([k, v]) => [k, String(v + 1)]));
   if (q.type === "poly") return q.answer + "+1";
@@ -134,7 +136,7 @@ test("グラフの点は直線の上にあり、答えは図と食いちがわ�
 });
 
 test("一次関数の表は、値がすべて一直線上にあり、? の答えも同じ直線上にある", () => {
-  for (const q of bank.filter((q) => q.figure && q.figure.type === "table")) {
+  for (const q of bank.filter((q) => q.figure && q.figure.type === "table" && q.unit !== "確率")) {
     const [xr, yr] = q.figure.rows;
     const pts = xr.values.map((x, i) => [x, yr.values[i]]).filter(([, y]) => y !== null);
     const [x0, y0] = pts[0], [x1, y1] = pts[1];
@@ -197,6 +199,8 @@ test("定着用の問題は、同じスキルの他の問題と見た目・数�
     for (const o of Object.values(Q).filter((q) => q.skill === r.skill && q.id !== r.id)) {
       // 連立方程式は本文が共通（「次の連立方程式を解きましょう。」）で、式は図（{ }）にあるので、本文と図をあわせてくらべる
       assert.notEqual(r.text + JSON.stringify(r.figure || {}), o.text + JSON.stringify(o.figure || {}), r.id + " と " + o.id + " の本文が同じ");
+      // 確率は 2個・3枚 のような小さい数がどの問題にも出るので、数の重なりでは比べない（同じ場面の重複は tests/probability.test.js）
+      if (r.unit === "確率") continue;
       const on = numbersOf(o);
       const inter = [...rn].filter((n) => on.has(n)).length;
       const union = new Set([...rn, ...on]).size || 1;
