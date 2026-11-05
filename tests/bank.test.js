@@ -199,8 +199,9 @@ test("定着用の問題は、同じスキルの他の問題と見た目・数�
     for (const o of Object.values(Q).filter((q) => q.skill === r.skill && q.id !== r.id)) {
       // 連立方程式は本文が共通（「次の連立方程式を解きましょう。」）で、式は図（{ }）にあるので、本文と図をあわせてくらべる
       assert.notEqual(r.text + JSON.stringify(r.figure || {}), o.text + JSON.stringify(o.figure || {}), r.id + " と " + o.id + " の本文が同じ");
-      // 確率は 2個・3枚 のような小さい数がどの問題にも出るので、数の重なりでは比べない（同じ場面の重複は tests/probability.test.js）
-      if (r.unit === "確率") continue;
+      // 確率は 2個・3枚 のような小さい数が、箱ひげ図は目もりの数がどの問題にも出るので、数の重なりでは比べない
+      // （同じ場面の重複は tests/probability.test.js・tests/data-unit.test.js）
+      if (r.unit === "確率" || r.unit === "データの活用") continue;
       const on = numbersOf(o);
       const inter = [...rn].filter((n) => on.has(n)).length;
       const union = new Set([...rn, ...on]).size || 1;

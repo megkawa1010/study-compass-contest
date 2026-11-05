@@ -30,6 +30,39 @@
     }).join("") + "</table></div>";
   }
 
+  // ---------- データの一覧 ----------
+  // { type: "data", label: "7人の点数", values: [3, 5, 8] }
+  function dataList(fig) {
+    return '<div class="fig fig-data"><p class="fig-data-label">' + esc(fig.label) + '</p><ul class="fig-data-values">' +
+      fig.values.map(function (v) { return "<li>" + esc(num(v)) + "</li>"; }).join("") + "</ul></div>";
+  }
+
+  // ---------- 箱ひげ図 ----------
+  // { type: "boxplot", axis: [最小, 最大, 目もり, 数字を書く間かく], boxes: [{ label, min, q1, med, q3, max }] }
+  // 値は図に書かない（目もりから読み取る）
+  function boxplot(fig) {
+    var a = fig.axis, W = 340, left = 50, right = 14, rowH = 46, top = 8, n = fig.boxes.length, axisY = top + n * rowH + 4, H = axisY + 24;
+    var X = function (v) { return left + (v - a[0]) / (a[1] - a[0]) * (W - left - right); };
+    var out = [];
+    for (var t = a[0]; t <= a[1] + 1e-9; t += a[2]) {
+      var named = Math.abs((t - a[0]) / a[3] - Math.round((t - a[0]) / a[3])) < 1e-9;
+      out.push('<line class="fig-grid" x1="' + X(t) + '" y1="' + top + '" x2="' + X(t) + '" y2="' + axisY + '"/>');
+      out.push('<line class="fig-axis" x1="' + X(t) + '" y1="' + axisY + '" x2="' + X(t) + '" y2="' + (axisY + (named ? 6 : 3)) + '"/>');
+      if (named) out.push('<text class="fig-text" text-anchor="middle" x="' + X(t) + '" y="' + (axisY + 17) + '">' + esc(num(t)) + "</text>");
+    }
+    out.push('<line class="fig-axis" x1="' + X(a[0]) + '" y1="' + axisY + '" x2="' + X(a[1]) + '" y2="' + axisY + '"/>');
+    fig.boxes.forEach(function (b, i) {
+      var y = top + i * rowH + rowH / 2, h = 13;
+      out.push('<text class="fig-text point-label" text-anchor="end" x="' + (left - 8) + '" y="' + (y + 4) + '">' + esc(b.label) + "</text>");
+      out.push('<line class="fig-line" x1="' + X(b.min) + '" y1="' + y + '" x2="' + X(b.q1) + '" y2="' + y + '"/>');
+      out.push('<line class="fig-line" x1="' + X(b.q3) + '" y1="' + y + '" x2="' + X(b.max) + '" y2="' + y + '"/>');
+      [b.min, b.max].forEach(function (v) { out.push('<line class="fig-line" x1="' + X(v) + '" y1="' + (y - 7) + '" x2="' + X(v) + '" y2="' + (y + 7) + '"/>'); });
+      out.push('<rect class="fig-box" x="' + X(b.q1) + '" y="' + (y - h) + '" width="' + (X(b.q3) - X(b.q1)) + '" height="' + h * 2 + '"/>');
+      out.push('<line class="fig-line" x1="' + X(b.med) + '" y1="' + (y - h) + '" x2="' + X(b.med) + '" y2="' + (y + h) + '"/>');
+    });
+    return '<div class="fig fig-boxplot"><svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="箱ひげ図">' + out.join("") + "</svg></div>";
+  }
+
   // ---------- グラフ ----------
   // { type: "graph", x: [min, max, 目盛り], y: [min, max, 目盛り],
   //   lines: [{ a, b, from?, to? }], points: [{ x, y, label?, coords? }], xLabel?, yLabel? }
@@ -123,6 +156,8 @@
     if (!fig) return "";
     if (fig.type === "system") return system(fig);
     if (fig.type === "table") return table(fig);
+    if (fig.type === "data") return dataList(fig);
+    if (fig.type === "boxplot") return boxplot(fig);
     if (fig.type === "graph") return graph(fig);
     if (fig.type === "numberline") return numberline(fig);
     // 図形（点・直線・角）は js/geometry.js の共通 renderer で描く

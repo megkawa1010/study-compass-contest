@@ -121,7 +121,16 @@
     probBasic:      { label: "確率の求め方",   unit: "確率", grade: "中2", prerequisites: ["probMeaning", "probCount"] },
     probTwo:        { label: "2つのさいころ・硬貨の確率", unit: "確率", grade: "中2", prerequisites: ["probBasic", "probCount"] },
     probDraw:       { label: "取り出す・くじの確率", unit: "確率", grade: "中2", prerequisites: ["probBasic", "probCount"] },
-    probNot:        { label: "「〜でない」確率", unit: "確率", grade: "中2", prerequisites: ["probBasic"] }
+    probNot:        { label: "「〜でない」確率", unit: "確率", grade: "中2", prerequisites: ["probBasic"] },
+
+    // --- 中2 データの活用 ---
+    // 中央値（中1の内容）→ 四分位数 → 四分位範囲・箱ひげ図 → 比べる
+    dataMedian:     { label: "中央値と範囲",   unit: "データの活用", grade: "中2", prerequisites: [] },
+    dataQuartile:   { label: "四分位数",       unit: "データの活用", grade: "中2", prerequisites: ["dataMedian"] },
+    dataIqr:        { label: "四分位範囲",     unit: "データの活用", grade: "中2", prerequisites: ["dataQuartile"] },
+    dataBoxRead:    { label: "箱ひげ図を読む", unit: "データの活用", grade: "中2", prerequisites: ["dataQuartile"] },
+    dataBoxMake:    { label: "データから箱ひげ図へ", unit: "データの活用", grade: "中2", prerequisites: ["dataQuartile", "dataBoxRead"] },
+    dataCompare:    { label: "箱ひげ図で比べる", unit: "データの活用", grade: "中2", prerequisites: ["dataBoxRead", "dataIqr"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -143,7 +152,8 @@
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
     "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild",
-    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"];
+    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
+    "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "angleBasics",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -152,7 +162,8 @@
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
     "proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild",
-    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"];
+    "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
+    "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -163,10 +174,11 @@
     "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"],
     // 教科書の順（合同な図形 → 合同条件 → 仮定と結論 → 証明）
     "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"],
-    "確率": ["probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"]
+    "確率": ["probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"],
+    "データの活用": ["dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "確率"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "確率", "データの活用"];
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -491,7 +503,8 @@
     polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior",
     congCorr: "review_congruent_correspondence", congCond: "review_congruence_conditions", proofFigureFacts: "practice_proof_figure_facts",
     proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order",
-    probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement"
+    probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
+    dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"
   };
 
   function nextAction(skillId, s, rootIds, now) {

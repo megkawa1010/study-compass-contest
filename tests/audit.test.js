@@ -7,7 +7,7 @@ const assert = require("node:assert/strict");
 const { execFileSync } = require("child_process");
 const path = require("path");
 
-const GROUPS = [["一次関数", "連立方程式", "式の計算"], ["図形の角"], ["合同と証明"], ["確率"]];
+const GROUPS = [["一次関数", "連立方程式", "式の計算"], ["図形の角"], ["合同と証明"], ["確率"], ["データの活用"]];
 
 GROUPS.forEach((units) => {
   test("10日分の利用シミュレーション（" + units.join("・") + "）：fallback なし・不自然な再利用がほぼない・チェックで出題できないスキルがない", () => {

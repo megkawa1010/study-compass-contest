@@ -4379,10 +4379,13 @@
     for (var k in (extra || {})) q[k] = extra[k];
     add(q);
   }
+  // 問題ごとに決まる、選択肢をまわす数（同じ問題はいつも同じ並び）
+  function rotationOf(id, n) { var t = 0; for (var i = 0; i < id.length; i++) t = (t * 31 + id.charCodeAt(i)) % 9973; return t % n; }
+  // labels の1番目が正解。正解の場所が毎回1番目にならないよう、問題ごとに選択肢をまわす
   function ch(id, skill, level, text, labels, hint, explanation, extra) {
-    var keys = ["a", "b", "c", "d"];
-    var q = { id: id, skill: skill, level: level, format: "word", text: text, type: "choice", answer: "a",
-      choices: labels.map(function (l, i) { return { key: keys[i], label: l }; }), hint: hint, explanation: explanation };
+    var keys = ["a", "b", "c", "d"], n = labels.length, rot = rotationOf(id, n);
+    var q = { id: id, skill: skill, level: level, format: "word", text: text, type: "choice", answer: keys[rot], rotation: rot,
+      choices: labels.map(function (_, i) { return { key: keys[i], label: labels[(i - rot + n) % n] }; }), hint: hint, explanation: explanation };
     for (var k in (extra || {})) q[k] = extra[k];
     add(q);
   }
@@ -4615,6 +4618,253 @@
   fr("probNot-retention-3", "probNot", "retention", "5枚の硬貨を投げるとき、少なくとも1枚は表が出る確率は？", "31/32", "反対は「5枚とも裏」。全部で32通り。", "1 − 1/32 = 31/32 です。", RS);
   fr("probNot-retention-4", "probNot", "retention", "大小2個のさいころを投げるとき、目の積が偶数になる確率は？", "3/4", "反対は「積が奇数」＝両方とも奇数。", "1 − 9/36 = 3/4 です。", RS);
   fr("probNot-retention-5", "probNot", "retention", "赤玉3個、白玉5個が入った袋から、同時に2個取り出します。少なくとも1個は白玉になる確率は？", "25/28", "反対は「2個とも赤」。全部で28通り。", "2個とも赤は3通りなので、1 − 3/28 = 25/28 です。", RS);
+
+  // =====================================================================
+  // 中2 データの活用（四分位数・箱ひげ図）
+  //   数の答えは、データから計算して作る（stat に何を求める問題かを残す。tests/data-unit.test.js が別の計算で確かめる）
+  //   四分位数は教科書の決め方：データの個数が奇数のときは、真ん中の値をのぞいて前半・後半に分ける
+  // =====================================================================
+  function sortedOf(v) { return v.slice().sort(function (a, b) { return a - b; }); }
+  function medianOf(s) { var n = s.length, h = Math.floor(n / 2); return n % 2 ? s[h] : (s[h - 1] + s[h]) / 2; }
+  function fiveOf(v) {
+    var s = sortedOf(v), h = Math.floor(s.length / 2);
+    return { min: s[0], q1: medianOf(s.slice(0, h)), med: medianOf(s), q3: medianOf(s.slice(s.length - h)), max: s[s.length - 1] };
+  }
+  function statOf(f, kind) { return kind === "range" ? f.max - f.min : kind === "iqr" ? f.q3 - f.q1 : f[kind]; }
+  var STAT_JA = { med: "中央値", q1: "第1四分位数", q3: "第3四分位数", min: "最小値", max: "最大値", range: "範囲", iqr: "四分位範囲" };
+  var STAT_HINT = { med: "小さい順に並べて、真ん中の値を見る。個数が偶数なら、真ん中の2つの平均。",
+    q1: "小さい順に並べて前半と後半に分け、前半の中央値を求める。", q3: "小さい順に並べて前半と後半に分け、後半の中央値を求める。",
+    min: "いちばん小さい値。", max: "いちばん大きい値。", range: "最大値 − 最小値。", iqr: "第3四分位数 − 第1四分位数。" };
+  function dataExplain(data, kind) {
+    var s = sortedOf(data), f = fiveOf(data), h = Math.floor(s.length / 2), v = statOf(f, kind);
+    var line = "小さい順に " + s.join("、") + "。";
+    if (kind === "med") return line + "中央値は " + v + " です。";
+    if (kind === "range") return "最大値 " + f.max + " − 最小値 " + f.min + " = " + v + " です。";
+    if (kind === "q1") return line + "前半 " + s.slice(0, h).join("、") + " の中央値で " + v + " です。";
+    if (kind === "q3") return line + "後半 " + s.slice(s.length - h).join("、") + " の中央値で " + v + " です。";
+    return line + "第1四分位数 " + f.q1 + "、第3四分位数 " + f.q3 + " なので、" + f.q3 + " − " + f.q1 + " = " + v + " です。";
+  }
+  function dataFig(data, scene) { return { type: "data", label: scene, values: data }; }
+  // データから1つの値を求める問題
+  function dq(id, skill, level, kind, data, scene, extra) {
+    var q = { id: id, skill: skill, level: level, format: "table", text: "下のデータの" + STAT_JA[kind] + "を求めましょう。", figure: dataFig(data, scene),
+      type: "number", answer: statOf(fiveOf(data), kind), stat: { data: data, kind: kind }, hint: STAT_HINT[kind], explanation: dataExplain(data, kind) };
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  // データから順に求める応用問題
+  function dsteps(id, skill, data, scene, kinds, used) {
+    add({ id: id, skill: skill, level: "application", format: "table", text: "下のデータについて答えましょう。", figure: dataFig(data, scene), type: "steps",
+      steps: kinds.map(function (k, i) {
+        var sk = k === "med" || k === "range" ? "dataMedian" : k === "iqr" ? "dataIqr" : "dataQuartile";
+        return { id: "s" + (i + 1), skill: sk, text: STAT_JA[k] + "を求めましょう。", type: "number", answer: statOf(fiveOf(data), k), stat: { data: data, kind: k }, hint: STAT_HINT[k], explanation: dataExplain(data, k) };
+      }),
+      skills_used: used, hint: "はじめに小さい順に並べると、どの値も見つけやすい。", explanation: "小さい順に " + sortedOf(data).join("、") + " と並べて求めます。" });
+  }
+  function boxFig(boxes, axis) { return { type: "boxplot", boxes: boxes, axis: axis }; }
+  function bx(label, min, q1, med, q3, max) { return { label: label, min: min, q1: q1, med: med, q3: q3, max: max }; }
+  var BOX_EXPLAIN = { med: "箱の中の線が中央値です。", q1: "箱の左はしが第1四分位数です。", q3: "箱の右はしが第3四分位数です。", min: "左のひげのはしが最小値です。", max: "右のひげのはしが最大値です。",
+    range: "右のひげのはし − 左のひげのはし です。", iqr: "箱の右はし − 箱の左はし です。" };
+  // 箱ひげ図から1つの値を読み取る問題
+  function bq(id, skill, level, kind, box, axis, extra) {
+    var q = { id: id, skill: skill, level: level, format: "graph", text: "下の箱ひげ図の" + STAT_JA[kind] + "はいくつ？", figure: boxFig([box], axis),
+      type: "number", answer: statOf(box, kind), stat: { box: 0, kind: kind }, hint: STAT_HINT[kind] + "図の目もりを読む。", explanation: BOX_EXPLAIN[kind] + "答えは " + statOf(box, kind) + " です。" };
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  // 箱ひげ図の小問
+  function bs(id, skill, boxAt, kind, box) {
+    return { id: id, skill: skill, text: box.label + "の" + STAT_JA[kind] + "はいくつ？", type: "number", answer: statOf(box, kind), stat: { box: boxAt, kind: kind }, hint: STAT_HINT[kind], explanation: BOX_EXPLAIN[kind] + "答えは " + statOf(box, kind) + " です。" };
+  }
+  function bsteps(id, skill, boxes, axis, text, steps, used, hint, explanation) {
+    add({ id: id, skill: skill, level: "application", format: "graph", text: text, figure: boxFig(boxes, axis), type: "steps", steps: steps, skills_used: used, hint: hint, explanation: explanation });
+  }
+  // 箱ひげ図を見て答えを選ぶ問題（labels の1番目が正解）
+  function bc(id, skill, level, boxes, axis, text, labels, hint, explanation, extra) {
+    var e = { format: "graph", figure: boxFig(boxes, axis) };
+    for (var k in (extra || {})) e[k] = extra[k];
+    ch(id, skill, level, text, labels, hint, explanation, e);
+  }
+  // データに合う箱ひげ図を選ぶ問題（ほかの3つは、中央値・箱・ひげのどれかを変えたもの）
+  function bm(id, level, data, scene, axis, extra) {
+    var f = fiveOf(data), names = ["ア", "イ", "ウ", "エ"], step = axis[2] * 2;
+    var kinds = [{}, { med: Math.min(f.q3, f.med + step) }, { q1: Math.max(f.min, f.q1 - step), q3: Math.min(f.max, f.q3 + step) }, { max: Math.max(f.q3, f.max - step) }];
+    var at = rotationOf(id, 4), order = [0, 1, 2, 3].map(function (i) { return (i - at + 4) % 4; });
+    var boxes = order.map(function (o, i) {
+      var c = kinds[o], b = bx(names[i], f.min, f.q1, f.med, f.q3, f.max);
+      for (var k in c) b[k] = c[k];
+      return b;
+    });
+    var q = { id: id, skill: "dataBoxMake", level: level, format: "graph", text: "下のデータを表す箱ひげ図はどれ？", figure: { type: "data", label: scene, values: data }, figure2: boxFig(boxes, axis),
+      type: "choice", choices: names.map(function (n, i) { return { key: "abcd".charAt(i), label: n }; }), answer: "abcd".charAt(at), stat: { data: data, match: at },
+      hint: "最小値・第1四分位数・中央値・第3四分位数・最大値の5つを先に求める。",
+      explanation: "5つの値は 最小値 " + f.min + "、第1四分位数 " + f.q1 + "、中央値 " + f.med + "、第3四分位数 " + f.q3 + "、最大値 " + f.max + " です。" + names[at] + " がこの値の図です。" };
+    for (var k2 in (extra || {})) q[k2] = extra[k2];
+    add(q);
+  }
+
+  // --- 中央値と範囲 ---
+  dq("dataMedian-basic-1", "dataMedian", "basic", "med", [2, 4, 5, 7, 9], "5人が1か月に読んだ本の冊数", { usage: "diagnosis" });
+  dq("dataMedian-basic-2", "dataMedian", "basic", "med", [1, 3, 4, 6, 8, 9], "6人の小テストの点数");
+  dq("dataMedian-basic-3", "dataMedian", "basic", "range", [12, 15, 18, 20, 26], "5日間の最高気温（℃）");
+  nm("dataMedian-basic-4", "dataMedian", "basic", "データが9個あります。中央値は、小さい順に何番目の値？", 5, "前と後ろに同じ数ずつ残る場所。", "前に4個、後ろに4個残るので、5番目です。", { format: "word" });
+  ch("dataMedian-basic-5", "dataMedian", "basic", "データが10個あります。中央値はどれ？", ["小さい順に5番目と6番目の値の平均", "小さい順に5番目の値", "小さい順に6番目の値", "10個の値の平均"], "個数が偶数のときは、真ん中が2つある。", "個数が偶数なので、真ん中の5番目と6番目の平均です。");
+  dq("dataMedian-standard-1", "dataMedian", "standard", "med", [7, 3, 9, 4, 8, 2, 6], "7人の1週間の運動時間（時間）");
+  dq("dataMedian-standard-2", "dataMedian", "standard", "med", [12, 5, 9, 14, 7, 10, 3, 8], "8人の通学時間（分）");
+  dq("dataMedian-standard-3", "dataMedian", "standard", "range", [31, 18, 25, 40, 22, 36], "6人の握力（kg）");
+  dq("dataMedian-standard-4", "dataMedian", "standard", "med", [6, 6, 2, 8, 5, 6, 9, 3], "8人の小テストの点数");
+  ch("dataMedian-standard-5", "dataMedian", "standard", "データに、ほかより大きくはなれた値が1つあります。その影響を受けにくいのはどれ？", ["中央値", "平均値", "範囲", "最大値"], "真ん中の順番にある値は、はしの値が変わっても動きにくい。", "中央値は順番で決まるので、はなれた値の影響を受けにくいです。");
+  dsteps("dataMedian-application-1", "dataMedian", [14, 9, 21, 17, 12, 25, 16], "7人の1日のスマホの使用時間（×10分）", ["med", "range"], ["dataMedian"]);
+  dsteps("dataMedian-application-2", "dataMedian", [38, 44, 29, 51, 47, 33], "6人の垂直とびの記録（cm）", ["med", "range"], ["dataMedian"]);
+  add({ id: "dataMedian-application-3", skill: "dataMedian", level: "application", format: "table", text: "下のデータに、あとから 12 を1つ加えます。", figure: dataFig([4, 6, 7, 9, 10], "5人の小テストの点数"), type: "steps", steps: [
+    { id: "s1", skill: "dataMedian", text: "加える前の中央値を求めましょう。", type: "number", answer: 7, stat: { data: [4, 6, 7, 9, 10], kind: "med" }, hint: "5個の真ん中。", explanation: "3番目の 7 です。" },
+    { id: "s2", skill: "dataMedian", text: "加えたあとの中央値を求めましょう。", type: "number", answer: 8, stat: { data: [4, 6, 7, 9, 10, 12], kind: "med" }, hint: "6個になるので、真ん中が2つ。", explanation: "3番目の 7 と4番目の 9 の平均で 8 です。" }
+  ], skills_used: ["dataMedian"], hint: "個数が変わると、真ん中の場所も変わる。", explanation: "中央値は 7 から 8 に変わります。" });
+  dsteps("dataMedian-application-4", "dataMedian", [80, 62, 95, 71, 88, 54, 76, 67], "8人の体力テストの得点", ["med", "range"], ["dataMedian"]);
+  dq("dataMedian-retention-1", "dataMedian", "retention", "med", [13, 16, 19, 23, 27], "5人の計算テストの時間（秒）", { evidence_level: "basic" });
+  dq("dataMedian-retention-2", "dataMedian", "retention", "range", [41, 47, 52, 58, 66], "5つの店の商品の値段（×10円）", { evidence_level: "basic" });
+  dq("dataMedian-retention-3", "dataMedian", "retention", "med", [72, 65, 88, 91, 77, 60], "6人の音楽テストの点数", RS);
+  dq("dataMedian-retention-4", "dataMedian", "retention", "med", [150, 142, 163, 155, 148, 171, 158, 145, 160], "9人の身長（cm）", RS);
+  dq("dataMedian-retention-5", "dataMedian", "retention", "range", [83, 56, 94, 61, 70], "5回のゲームの得点", RS);
+
+  // --- 四分位数 ---
+  dq("dataQuartile-basic-1", "dataQuartile", "basic", "q1", [2, 3, 5, 6, 8, 9, 11, 12], "8人の小テストの点数", { usage: "diagnosis" });
+  dq("dataQuartile-basic-2", "dataQuartile", "basic", "q3", [2, 3, 5, 6, 8, 9, 11, 12], "8人の小テストの点数（同じデータ）");
+  dq("dataQuartile-basic-3", "dataQuartile", "basic", "q1", [1, 4, 6, 7, 10, 12, 15], "7人の読書の冊数");
+  ch("dataQuartile-basic-4", "dataQuartile", "basic", "第2四分位数と同じ値はどれ？", ["中央値", "平均値", "最小値", "最大値"], "四分位数はデータを4等分する3つの値。真ん中が第2。", "第2四分位数は真ん中の値なので、中央値と同じです。");
+  ch("dataQuartile-basic-5", "dataQuartile", "basic", "データが7個あります。第1四分位数の求め方として正しいものはどれ？", ["真ん中の値をのぞいた前半3個の中央値", "前半4個の中央値", "全部の値の中央値", "最小値と最大値の平均"], "奇数個のときは、真ん中の値はどちらにも入れない。", "4番目が中央値なので、それをのぞいた前半3個の中央値です。");
+  dq("dataQuartile-standard-1", "dataQuartile", "standard", "q3", [11, 4, 8, 15, 6, 13, 9, 2, 17], "9人の通学時間（分）");
+  dq("dataQuartile-standard-2", "dataQuartile", "standard", "q1", [20, 35, 15, 40, 30, 25, 45, 10, 50, 55], "10人の的あての得点");
+  dq("dataQuartile-standard-3", "dataQuartile", "standard", "q3", [20, 35, 15, 40, 30, 25, 45, 10, 50, 55], "10人の的あての得点（同じデータ）");
+  dq("dataQuartile-standard-4", "dataQuartile", "standard", "q1", [7, 12, 3, 9, 16, 5, 14], "7日間の来店者数（×10人）");
+  dq("dataQuartile-standard-5", "dataQuartile", "standard", "q3", [33, 21, 48, 27, 39, 42], "6人の50m走の練習回数");
+  dsteps("dataQuartile-application-1", "dataQuartile", [6, 13, 9, 18, 3, 15, 11, 20, 8], "9人の1週間の勉強時間（時間）", ["med", "q1", "q3"], ["dataQuartile", "dataMedian"]);
+  dsteps("dataQuartile-application-2", "dataQuartile", [24, 31, 19, 37, 28, 42, 22, 35], "8人の反復横とびの回数", ["med", "q1", "q3"], ["dataQuartile", "dataMedian"]);
+  dsteps("dataQuartile-application-3", "dataQuartile", [54, 47, 62, 70, 58, 66, 51, 73, 45, 60, 68], "11人の国語のテストの点数", ["med", "q1", "q3"], ["dataQuartile", "dataMedian"]);
+  dq("dataQuartile-retention-1", "dataQuartile", "retention", "q1", [10, 14, 17, 21, 26, 29, 33, 38], "8人の的あての得点", { evidence_level: "basic" });
+  dq("dataQuartile-retention-2", "dataQuartile", "retention", "q3", [41, 46, 52, 57, 63, 69, 74], "7人の理科のテストの点数", { evidence_level: "basic" });
+  dq("dataQuartile-retention-3", "dataQuartile", "retention", "q1", [86, 72, 95, 64, 78, 91, 83, 69, 75], "9人の数学のテストの点数", RS);
+  dq("dataQuartile-retention-4", "dataQuartile", "retention", "q3", [118, 104, 132, 126, 110, 140], "6人の縄とびの回数", RS);
+  dq("dataQuartile-retention-5", "dataQuartile", "retention", "q1", [205, 230, 215, 260, 245, 220, 250, 235, 270, 225], "10軒の1か月の水の使用量（×10L）", RS);
+
+  // --- 四分位範囲 ---
+  nm("dataIqr-basic-1", "dataIqr", "basic", "第1四分位数が 12、第3四分位数が 27 のデータの四分位範囲はいくつ？", 15, STAT_HINT.iqr, "27 − 12 = 15 です。", { format: "word", stat: { q1: 12, q3: 27 }, usage: "diagnosis" });
+  nm("dataIqr-basic-2", "dataIqr", "basic", "第1四分位数が 35、第3四分位数が 60 のデータの四分位範囲はいくつ？", 25, STAT_HINT.iqr, "60 − 35 = 25 です。", { format: "word", stat: { q1: 35, q3: 60 } });
+  dq("dataIqr-basic-3", "dataIqr", "basic", "iqr", [1, 2, 4, 6, 7, 9, 10, 12], "8人の小テストの点数");
+  ch("dataIqr-basic-4", "dataIqr", "basic", "四分位範囲の求め方として正しいものはどれ？", ["第3四分位数 − 第1四分位数", "最大値 − 最小値", "第3四分位数 − 中央値", "中央値 − 第1四分位数"], "「箱」の長さのこと。", "四分位範囲は 第3四分位数 − 第1四分位数 です。");
+  ch("dataIqr-basic-5", "dataIqr", "basic", "四分位範囲は、データのどの部分の散らばりを表す？", ["真ん中の約半分", "全部", "小さいほうの約4分の1", "大きいほうの約4分の1"], "第1四分位数から第3四分位数までに、どのくらいのデータが入る？", "第1四分位数から第3四分位数までの、真ん中の約半分のデータの散らばりです。");
+  dq("dataIqr-standard-1", "dataIqr", "standard", "iqr", [15, 8, 22, 11, 30, 19, 26], "7人の家庭学習の時間（×10分）");
+  dq("dataIqr-standard-2", "dataIqr", "standard", "iqr", [44, 38, 52, 60, 47, 35, 58, 41, 55, 49], "10人の上体起こしの回数");
+  dq("dataIqr-standard-3", "dataIqr", "standard", "iqr", [90, 75, 60, 85, 70, 95, 65, 80, 55], "9人の英語のテストの点数");
+  ch("dataIqr-standard-4", "dataIqr", "standard", "データの最大値だけが、ほかよりとても大きい値に変わりました。正しいものはどれ？", ["範囲は大きくなるが、四分位範囲はほとんど変わらない", "範囲も四分位範囲も大きくなる", "範囲は変わらず、四分位範囲が大きくなる", "範囲も四分位範囲も変わらない"], "四分位範囲は、はしの値を使わない。", "範囲は最大値を使うので大きくなります。四分位範囲は真ん中の約半分で決まるので、ほとんど変わりません。");
+  nm("dataIqr-standard-5", "dataIqr", "standard", "四分位範囲が 18 で、第1四分位数が 24 のデータの第3四分位数はいくつ？", 42, "第3四分位数 − 24 = 18。", "24 + 18 = 42 です。", { format: "word", stat: { q1: 24, q3: 42, find: "q3" } });
+  dsteps("dataIqr-application-1", "dataIqr", [12, 18, 7, 25, 15, 30, 21, 10, 27], "9人の1週間の読書時間（×10分）", ["q1", "q3", "iqr"], ["dataIqr", "dataQuartile"]);
+  dsteps("dataIqr-application-2", "dataIqr", [64, 71, 58, 80, 75, 69, 83, 62], "8人の社会のテストの点数", ["q1", "q3", "iqr"], ["dataIqr", "dataQuartile"]);
+  dsteps("dataIqr-application-3", "dataIqr", [5, 16, 9, 21, 12, 3, 18, 14, 7, 24, 11], "11人の1日の歩数（×1000歩）", ["q1", "q3", "iqr"], ["dataIqr", "dataQuartile"]);
+  dsteps("dataIqr-application-4", "dataIqr", [35, 20, 52, 46, 26, 61, 31, 40], "8人の通学の距離（×100m）", ["q1", "q3", "iqr"], ["dataIqr", "dataQuartile"]);
+  dsteps("dataIqr-application-5", "dataIqr", [120, 95, 140, 110, 155, 100, 130], "7人の持久走の記録（×10m）", ["q1", "q3", "iqr"], ["dataIqr", "dataQuartile"]);
+  nm("dataIqr-retention-1", "dataIqr", "retention", "第1四分位数が 46、第3四分位数が 73 のデータの四分位範囲はいくつ？", 27, STAT_HINT.iqr, "73 − 46 = 27 です。", { format: "word", stat: { q1: 46, q3: 73 }, evidence_level: "basic" });
+  dq("dataIqr-retention-2", "dataIqr", "retention", "iqr", [13, 17, 23, 28, 33, 39, 43, 48], "8人の的あての得点", { evidence_level: "basic" });
+  dq("dataIqr-retention-3", "dataIqr", "retention", "iqr", [102, 88, 116, 94, 125, 109, 81], "7人の縄とびの回数", RS);
+  dq("dataIqr-retention-4", "dataIqr", "retention", "iqr", [67, 74, 92, 86, 79, 98, 61, 83, 89, 96], "10人の美術の作品の得点", RS);
+  nm("dataIqr-retention-5", "dataIqr", "retention", "四分位範囲が 31 で、第3四分位数が 80 のデータの第1四分位数はいくつ？", 49, "80 − 第1四分位数 = 31。", "80 − 31 = 49 です。", { format: "word", stat: { q1: 49, q3: 80, find: "q1" }, evidence_level: "standard" });
+
+  // --- 箱ひげ図を読む ---
+  var AX100 = [0, 100, 10, 20], AX50 = [0, 50, 5, 10], AX20 = [0, 20, 1, 2];
+  var BR1 = bx("データ", 20, 40, 50, 70, 90), BR2 = bx("データ", 5, 15, 25, 30, 45), BR3 = bx("データ", 3, 6, 9, 14, 18);
+  bq("dataBoxRead-basic-1", "dataBoxRead", "basic", "med", BR1, AX100, { usage: "diagnosis" });
+  bq("dataBoxRead-basic-2", "dataBoxRead", "basic", "q1", BR1, AX100);
+  bq("dataBoxRead-basic-3", "dataBoxRead", "basic", "max", BR2, AX50);
+  bq("dataBoxRead-basic-4", "dataBoxRead", "basic", "q3", BR2, AX50);
+  bc("dataBoxRead-basic-5", "dataBoxRead", "basic", [BR1], AX100, "下の箱ひげ図の、箱の中の線は何を表す？", ["中央値", "平均値", "最大値", "第1四分位数"], "箱の中の線は、データの真ん中。", "箱の中の線は中央値です。");
+  bq("dataBoxRead-standard-1", "dataBoxRead", "standard", "iqr", BR1, AX100);
+  bq("dataBoxRead-standard-2", "dataBoxRead", "standard", "range", BR2, AX50);
+  bq("dataBoxRead-standard-3", "dataBoxRead", "standard", "iqr", BR3, AX20);
+  bc("dataBoxRead-standard-4", "dataBoxRead", "standard", [BR3], AX20, "下の箱ひげ図から読み取れないものはどれ？", ["平均値", "中央値", "最大値", "四分位範囲"], "箱ひげ図に使われている5つの値を思い出す。", "箱ひげ図は5つの値でかくので、平均値は読み取れません。");
+  bc("dataBoxRead-standard-5", "dataBoxRead", "standard", [BR1], AX100, "下の箱ひげ図で、データ全体のおよそ半分が入っているのはどの部分？", ["箱の部分", "左のひげの部分", "右のひげの部分", "両方のひげの部分"], "箱は第1四分位数から第3四分位数まで。", "箱の部分に、真ん中の約半分のデータが入ります。");
+  var BR4 = bx("1組", 30, 40, 60, 70, 100), BR5 = bx("B班", 4, 10, 13, 17, 20), BR6 = bx("記録", 10, 20, 35, 40, 50);
+  bsteps("dataBoxRead-application-1", "dataBoxRead", [BR4], AX100, "下の箱ひげ図は、1組の40人のテストの得点です。", [
+    bs("s1", "dataBoxRead", 0, "med", BR4), bs("s2", "dataBoxRead", 0, "iqr", BR4),
+    { id: "s3", skill: "dataBoxRead", text: "70点以上の人は、およそ何人？", type: "number", answer: 10, stat: { box: 0, kind: "aboveQ3", n: 40 }, hint: "第3四分位数より上には、約4分の1のデータがある。", explanation: "40 ÷ 4 = 10 人です。" }
+  ], ["dataBoxRead", "dataIqr"], "箱とひげで、データがおよそ4等分されている。", "中央値は 60、四分位範囲は 30、70点以上は およそ 10 人です。");
+  bsteps("dataBoxRead-application-2", "dataBoxRead", [BR5], AX20, "下の箱ひげ図は、B班の20人の記録です。", [
+    bs("s1", "dataBoxRead", 0, "q3", BR5), bs("s2", "dataBoxRead", 0, "range", BR5),
+    { id: "s3", skill: "dataBoxRead", text: "10以下の記録の人は、およそ何人？", type: "number", answer: 5, stat: { box: 0, kind: "belowQ1", n: 20 }, hint: "第1四分位数より下には、約4分の1のデータがある。", explanation: "20 ÷ 4 = 5 人です。" }
+  ], ["dataBoxRead"], "ひげと箱のそれぞれに、データの約4分の1が入る。", "第3四分位数は 17、範囲は 16、10以下は およそ 5 人です。");
+  bsteps("dataBoxRead-application-3", "dataBoxRead", [BR6], AX50, "下の箱ひげ図は、ある記録を調べた結果です。", [
+    bs("s1", "dataBoxRead", 0, "min", BR6), bs("s2", "dataBoxRead", 0, "q1", BR6), bs("s3", "dataIqr", 0, "iqr", BR6)
+  ], ["dataBoxRead", "dataIqr"], "はしから順に、5つの値を読む。", "最小値は 10、第1四分位数は 20、四分位範囲は 20 です。");
+  var BR10 = bx("2組", 20, 50, 60, 90, 100);
+  bsteps("dataBoxRead-application-4", "dataBoxRead", [BR10], AX100, "下の箱ひげ図は、2組の32人の得点です。", [
+    bs("s1", "dataBoxRead", 0, "q1", BR10), bs("s2", "dataIqr", 0, "iqr", BR10),
+    { id: "s3", skill: "dataBoxRead", text: "50点以下の人は、およそ何人？", type: "number", answer: 8, stat: { box: 0, kind: "belowQ1", n: 32 }, hint: "第1四分位数より下には、約4分の1のデータがある。", explanation: "32 ÷ 4 = 8 人です。" }
+  ], ["dataBoxRead", "dataIqr"], "基準の点数が図のどの値かを見る。", "第1四分位数は 50、四分位範囲は 40、50点以下は およそ 8 人です。");
+  var BR7 = bx("データ", 30, 50, 60, 80, 100), BR8 = bx("データ", 10, 15, 30, 40, 50), BR9 = bx("データ", 2, 5, 8, 11, 19);
+  bq("dataBoxRead-retention-1", "dataBoxRead", "retention", "q3", BR7, AX100, { evidence_level: "basic" });
+  bq("dataBoxRead-retention-2", "dataBoxRead", "retention", "med", BR8, AX50, { evidence_level: "basic" });
+  bq("dataBoxRead-retention-3", "dataBoxRead", "retention", "range", BR7, AX100, RS);
+  bq("dataBoxRead-retention-4", "dataBoxRead", "retention", "iqr", BR8, AX50, RS);
+  bq("dataBoxRead-retention-5", "dataBoxRead", "retention", "iqr", BR9, AX20, RS);
+
+  // --- データから箱ひげ図へ ---
+  ch("dataBoxMake-basic-1", "dataBoxMake", "basic", "箱ひげ図をかくのに必要な5つの値はどれ？", ["最小値・第1四分位数・中央値・第3四分位数・最大値", "最小値・平均値・中央値・最頻値・最大値", "第1四分位数・第2四分位数・第3四分位数・平均値・範囲", "最小値・最大値・範囲・平均値・個数"], "箱の両はし、箱の中の線、ひげの両はし。", "最小値・第1四分位数・中央値・第3四分位数・最大値の5つです。", { usage: "diagnosis" });
+  ch("dataBoxMake-basic-2", "dataBoxMake", "basic", "箱ひげ図の箱の左はしは、どの値にする？", ["第1四分位数", "最小値", "中央値", "第3四分位数"], "ひげのはしではなく、箱のはし。", "箱の左はしは第1四分位数です。");
+  ch("dataBoxMake-basic-3", "dataBoxMake", "basic", "箱ひげ図の右のひげのはしは、どの値にする？", ["最大値", "第3四分位数", "中央値", "最小値"], "いちばん右にある値。", "右のひげのはしは最大値です。");
+  bm("dataBoxMake-basic-4", "basic", [2, 4, 6, 9, 12, 14, 18], "7人の小テストの点数", AX20);
+  bm("dataBoxMake-basic-5", "basic", [1, 5, 7, 10, 13, 15, 19], "7人の家庭学習の時間（×10分）", AX20);
+  bm("dataBoxMake-basic-6", "basic", [3, 5, 8, 10, 11, 16, 17], "7人の計算テストの点数", AX20);
+  bm("dataBoxMake-basic-7", "basic", [0, 2, 6, 8, 13, 15, 20], "7人の1週間の読書時間（時間）", AX20);
+  bm("dataBoxMake-standard-1", "standard", [17, 3, 11, 6, 14, 9, 19], "7人の読書の冊数", AX20);
+  bm("dataBoxMake-standard-2", "standard", [4, 18, 7, 15, 10, 2, 13], "7日間の練習時間（×10分）", AX20);
+  bm("dataBoxMake-standard-3", "standard", [10, 45, 20, 35, 30, 5, 40], "7人の的あての得点", AX50);
+  bm("dataBoxMake-standard-4", "standard", [50, 15, 25, 45, 35, 10, 30, 20, 40, 5, 0], "11人の上体起こしの回数", AX50);
+  ch("dataBoxMake-standard-5", "dataBoxMake", "standard", "データを小さい順に4等分したとき、箱ひげ図の左のひげの部分に入るデータはおよそどれだけ？", ["全体の約4分の1", "全体の約半分", "全体の約4分の3", "全体の全部"], "左のひげは、最小値から第1四分位数まで。", "最小値から第1四分位数までなので、全体の約4分の1です。");
+  dsteps("dataBoxMake-application-1", "dataBoxMake", [8, 15, 3, 19, 11, 6, 13], "7人の1週間の勉強時間（時間）", ["min", "q1", "med", "q3", "max"], ["dataBoxMake", "dataQuartile", "dataMedian"]);
+  dsteps("dataBoxMake-application-2", "dataBoxMake", [22, 40, 31, 15, 36, 27, 45, 18], "8人の反復横とびの回数", ["min", "q1", "med", "q3", "max"], ["dataBoxMake", "dataQuartile", "dataMedian"]);
+  dsteps("dataBoxMake-application-3", "dataBoxMake", [60, 85, 70, 95, 75, 55, 90, 65, 80], "9人の国語のテストの点数", ["min", "q1", "med", "q3", "max"], ["dataBoxMake", "dataQuartile", "dataMedian"]);
+  dsteps("dataBoxMake-application-4", "dataBoxMake", [34, 12, 27, 45, 19, 38, 23], "7人の1週間の運動時間（×10分）", ["min", "q1", "med", "q3", "max"], ["dataBoxMake", "dataQuartile", "dataMedian"]);
+  dsteps("dataBoxMake-application-5", "dataBoxMake", [72, 58, 91, 66, 84, 49, 77, 63, 95, 70], "10人の英語のテストの点数", ["min", "q1", "med", "q3", "max"], ["dataBoxMake", "dataQuartile", "dataMedian"]);
+  bm("dataBoxMake-retention-1", "retention", [0, 3, 8, 11, 16, 17, 20], "7人の縄とびの連続回数（×10回）", AX20, { evidence_level: "basic" });
+  ch("dataBoxMake-retention-2", "dataBoxMake", "retention", "箱ひげ図の箱の右はしは、どの値にする？", ["第3四分位数", "最大値", "中央値", "第1四分位数"], "ひげのはしではなく、箱のはし。", "箱の右はしは第3四分位数です。", { evidence_level: "basic" });
+  bm("dataBoxMake-retention-3", "retention", [13, 1, 16, 7, 12, 4, 20], "7人のシュートの成功数", AX20, RS);
+  bm("dataBoxMake-retention-4", "retention", [25, 50, 0, 15, 40, 45, 10], "7人の的あての得点", AX50, RS);
+  bm("dataBoxMake-retention-5", "retention", [45, 5, 20, 35, 30, 15, 50], "7人の腕立てふせの回数", AX50, RS);
+
+  // --- 箱ひげ図で比べる ---
+  var CA = bx("A組", 20, 40, 50, 70, 90), CB = bx("B組", 30, 50, 60, 70, 100);
+  var C1 = bx("1組", 10, 30, 40, 50, 80), C2 = bx("2組", 20, 30, 50, 70, 90);
+  var two = ["B組", "A組", "同じ", "図からは分からない"];
+  bc("dataCompare-basic-1", "dataCompare", "basic", [CA, CB], AX100, "下の箱ひげ図で、中央値が大きいのはどちら？", two, "箱の中の線をくらべる。", "A組は 50、B組は 60 なので、B組です。", { usage: "diagnosis" });
+  bc("dataCompare-basic-2", "dataCompare", "basic", [CA, CB], AX100, "下の箱ひげ図で、範囲が大きいのはどちら？", ["同じ", "A組", "B組", "図からは分からない"], "ひげのはしからはしまでの長さ。", "A組は 90 − 20 = 70、B組は 100 − 30 = 70 で同じです。");
+  bc("dataCompare-basic-3", "dataCompare", "basic", [CA, CB], AX100, "下の箱ひげ図で、四分位範囲が大きいのはどちら？", ["A組", "B組", "同じ", "図からは分からない"], "箱の長さをくらべる。", "A組は 30、B組は 20 なので、A組です。");
+  bc("dataCompare-basic-4", "dataCompare", "basic", [C1, C2], AX100, "下の箱ひげ図で、箱が長いのはどちら？", ["2組", "1組", "同じ", "図からは分からない"], "箱の左はしから右はしまで。", "1組は 20、2組は 40 なので、2組です。");
+  bc("dataCompare-basic-5", "dataCompare", "basic", [C1, C2], AX100, "下の箱ひげ図で、最大値が大きいのはどちら？", ["2組", "1組", "同じ", "図からは分からない"], "右のひげのはしをくらべる。", "1組は 80、2組は 90 なので、2組です。");
+  var CC = bx("A組", 30, 50, 60, 80, 90), CD = bx("B組", 20, 30, 40, 60, 100);
+  bc("dataCompare-standard-1", "dataCompare", "standard", [CC, CD], AX100, "下の箱ひげ図は、A組とB組のテストの得点です。正しいものはどれ？", ["A組は、約半数の人が60点以上である", "B組は、約半数の人が60点以上である", "A組は、全員が50点以上である", "B組は、全員が30点以上である"], "中央値より上に約半数がいる。", "A組の中央値が 60 なので、約半数が60点以上です。");
+  add({ id: "dataCompare-standard-2", skill: "dataCompare", level: "standard", format: "graph", text: "下の箱ひげ図は、各組40人のテストの得点です。B組で60点以上の人は、およそ何人？", figure: boxFig([CC, CD], AX100), type: "number", answer: 10, stat: { box: 1, kind: "aboveQ3", n: 40 }, hint: "60 はB組の第3四分位数。", explanation: "第3四分位数より上は約4分の1なので、40 ÷ 4 = 10 人です。" });
+  add({ id: "dataCompare-standard-3", skill: "dataCompare", level: "standard", format: "graph", text: "下の箱ひげ図で、A組とB組の中央値の差はいくつ？", figure: boxFig([CC, CD], AX100), type: "number", answer: 20, stat: { kind: "medDiff" }, hint: "箱の中の線の値を読んで、ひく。", explanation: "60 − 40 = 20 です。" });
+  bc("dataCompare-standard-4", "dataCompare", "standard", [CC, CD], AX100, "下の箱ひげ図で、全体の散らばり（範囲）が大きいのはどちら？", two, "ひげのはしからはしまで。", "A組は 60、B組は 80 なので、B組です。");
+  bc("dataCompare-standard-5", "dataCompare", "standard", [CC, CD], AX100, "下の箱ひげ図で、真ん中の約半分の散らばりについて正しいものはどれ？", ["A組とB組で同じ", "A組のほうが大きい", "B組のほうが大きい", "図からは分からない"], "四分位範囲をくらべる。", "どちらも 30 で同じです。");
+  var CE = bx("1回目", 10, 20, 25, 35, 45), CF = bx("2回目", 15, 25, 35, 40, 50), CG = bx("A町", 2, 6, 10, 13, 18), CH = bx("B町", 4, 8, 9, 11, 20), CI = bx("男子", 20, 40, 50, 60, 80), CJ = bx("女子", 30, 40, 60, 70, 90);
+  bsteps("dataCompare-application-1", "dataCompare", [CE, CF], AX50, "下の箱ひげ図は、同じ40人の1回目と2回目の記録です。", [
+    bs("s1", "dataBoxRead", 0, "med", CE), bs("s2", "dataBoxRead", 1, "med", CF),
+    { id: "s3", skill: "dataCompare", text: "中央値はいくつ上がった？", type: "number", answer: 10, stat: { kind: "medDiff" }, hint: "2回目 − 1回目。", explanation: "35 − 25 = 10 です。" }
+  ], ["dataCompare", "dataBoxRead"], "箱の中の線の動きを見る。", "中央値は 25 から 35 へ、10 上がりました。");
+  bsteps("dataCompare-application-2", "dataCompare", [CG, CH], AX20, "下の箱ひげ図は、A町とB町の毎日の気温の差です。", [
+    bs("s1", "dataIqr", 0, "iqr", CG), bs("s2", "dataIqr", 1, "iqr", CH),
+    { id: "s3", skill: "dataCompare", text: "四分位範囲の差はいくつ？", type: "number", answer: 4, stat: { kind: "iqrDiff" }, hint: "大きいほう − 小さいほう。", explanation: "7 − 3 = 4 です。" }
+  ], ["dataCompare", "dataIqr"], "箱の長さをそれぞれ読む。", "四分位範囲は A町が 7、B町が 3 で、差は 4 です。");
+  bsteps("dataCompare-application-3", "dataCompare", [CI, CJ], AX100, "下の箱ひげ図は、男子40人と女子40人の得点です。", [
+    bs("s1", "dataBoxRead", 0, "q3", CI),
+    { id: "s2", skill: "dataCompare", text: "女子で60点以上の人は、およそ何人？", type: "number", answer: 20, stat: { box: 1, kind: "aboveMed", n: 40 }, hint: "60 は女子の中央値。", explanation: "中央値より上は約半数なので、40 ÷ 2 = 20 人です。" },
+    { id: "s3", skill: "dataCompare", text: "男子で60点以上の人は、およそ何人？", type: "number", answer: 10, stat: { box: 0, kind: "aboveQ3", n: 40 }, hint: "60 は男子の第3四分位数。", explanation: "第3四分位数より上は約4分の1なので、40 ÷ 4 = 10 人です。" }
+  ], ["dataCompare", "dataBoxRead"], "基準の点数が、それぞれの図のどの値にあたるかを見る。", "女子は およそ 20 人、男子は およそ 10 人です。");
+  var CK = bx("東中", 10, 30, 40, 60, 70), CL = bx("西中", 20, 40, 70, 80, 100), CM = bx("春", 5, 10, 20, 25, 35), CN = bx("秋", 15, 20, 25, 40, 50);
+  bc("dataCompare-retention-1", "dataCompare", "retention", [CK, CL], AX100, "下の箱ひげ図で、中央値が大きいのはどちら？", ["西中", "東中", "同じ", "図からは分からない"], "箱の中の線をくらべる。", "東中は 40、西中は 70 なので、西中です。", { evidence_level: "basic" });
+  bc("dataCompare-retention-2", "dataCompare", "retention", [CM, CN], AX50, "下の箱ひげ図で、四分位範囲が大きいのはどちら？", ["秋", "春", "同じ", "図からは分からない"], "箱の長さをくらべる。", "春は 15、秋は 20 なので、秋です。", { evidence_level: "basic" });
+  bc("dataCompare-retention-3", "dataCompare", "retention", [CK, CL], AX100, "下の箱ひげ図は、東中と西中の得点です。正しいものはどれ？", ["西中は、約4分の3の人が40点以上である", "東中は、約半数の人が60点以上である", "西中は、全員が40点以上である", "東中の最大値は西中の中央値より大きい"], "第1四分位数より上に、約4分の3がいる。", "西中の第1四分位数が 40 なので、約4分の3が40点以上です。", RS);
+  add({ id: "dataCompare-retention-4", skill: "dataCompare", level: "retention", evidence_level: "standard", format: "graph", text: "下の箱ひげ図で、春と秋の中央値の差はいくつ？", figure: boxFig([CM, CN], AX50), type: "number", answer: 5, stat: { kind: "medDiff" }, hint: "箱の中の線の値を読んで、ひく。", explanation: "25 − 20 = 5 です。" });
+  bc("dataCompare-retention-5", "dataCompare", "retention", [CM, CN], AX50, "下の箱ひげ図から言えることとして正しいものはどれ？", ["秋のほうが、最小値も最大値も大きい", "春のほうが、中央値が大きい", "春の平均値は秋より小さい", "秋のほうが、データの個数が多い"], "図から読める値だけで判断する。平均値と個数は読めない。", "最小値は 5 と 15、最大値は 35 と 50 で、どちらも秋が大きいです。平均値と個数は図からは分かりません。", RS);
 
   // =====================================================================
   // 共通の情報を足して、問題一覧に登録する

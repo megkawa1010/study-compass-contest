@@ -291,6 +291,11 @@ th { font-size: 11px; color: var(--text-soft); }
 .fig-table td.blank { color: var(--star); background: rgba(255, 217, 138, .12); }
 .fig-graph svg { display: block; width: 100%; max-width: 300px; margin: 0 auto; background: var(--inset); border-radius: 12px; border: 1px solid var(--line); }
 .fig-numberline svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
+.fig-boxplot svg { display: block; width: 100%; max-width: 420px; margin: 0 auto; background: var(--inset); border-radius: 12px; border: 1px solid var(--line); }
+.fig-box { fill: rgba(255, 217, 138, .14); stroke: var(--star); stroke-width: 2; }
+.fig-data-label { margin: 0 0 6px; font-size: 14px; color: var(--text-soft); text-align: center; }
+.fig-data-values { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.fig-data-values li { min-width: 38px; padding: 4px 8px; text-align: center; font-weight: 700; background: var(--inset); border: 1px solid var(--line); border-radius: 8px; }
 .fig-system { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 19px; font-weight: 700; letter-spacing: .02em; }
 .fig-system .brace { font-size: 52px; font-weight: 300; line-height: 1; color: var(--star); transform: scaleX(.7); }
 .fig-system .eqs { display: flex; flex-direction: column; gap: 4px; white-space: nowrap; }
