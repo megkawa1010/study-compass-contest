@@ -192,6 +192,18 @@
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
+  // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
+  // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
+  var GRADE_UNITS = { "中学1年": ["一次方程式"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": [] };
+  var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
+  var currentGrade = "中学2年";
+  function setGrade(g) {
+    if (!GRADE_UNITS[g] || !GRADE_UNITS[g].length) return currentGrade;
+    SELECTABLE_UNITS.length = 0;
+    GRADE_UNITS[g].forEach(function (u) { SELECTABLE_UNITS.push(u); });
+    currentGrade = g;
+    return g;
+  }
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -667,6 +679,7 @@
 
   SC.engine = {
     SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
+    GRADE_UNITS: GRADE_UNITS, ALL_UNITS: ALL_UNITS, setGrade: setGrade, grade: function () { return currentGrade; },
     expandUnit: expandUnit, schoolOptions: schoolOptions, schoolOptionLabel: schoolOptionLabel, prereqSide: prereqSide, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot,
     aspectState: aspectState, overallOf: overallOf, geometryRoute: geometryRoute

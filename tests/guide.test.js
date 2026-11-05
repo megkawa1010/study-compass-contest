@@ -7,7 +7,7 @@ const E = SC.engine, G = SC.guide;
 
 test("選べる単元のスキルすべてに、大事なこと・例・まちがえやすいところがある", () => {
   const all = [];
-  E.SELECTABLE_UNITS.forEach((u) => {
+  E.ALL_UNITS.forEach((u) => {
     assert.ok(G.units[u], u + " の説明がない");
     E.UNITS[u].forEach((k) => {
       all.push(k);
@@ -17,7 +17,7 @@ test("選べる単元のスキルすべてに、大事なこと・例・まち�
     });
   });
   assert.deepEqual(Object.keys(G.skills).sort(), all.slice().sort(), "どの単元にも入らない説明がある");
-  assert.deepEqual(Object.keys(G.units).sort(), E.SELECTABLE_UNITS.slice().sort());
+  assert.deepEqual(Object.keys(G.units).sort(), E.ALL_UNITS.slice().sort());
 });
 
 test("説明の例の計算が合っている", () => {

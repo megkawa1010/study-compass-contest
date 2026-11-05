@@ -328,10 +328,12 @@
     persist();
     return s;
   }
+  // 学年。単元の一覧を切りかえて、次に開いたときのために覚えておく
+  function setGrade(g) { get().profile.grade = E.setGrade(g); persist(); return get().profile.grade; }
   // 学校の進み具合（Phase 5 の形）。状況は初期設定の「習った／途中／まだ」から
   function schoolProgressInfo(unit) {
     unit = unit || currentUnit();
-    return { grade: "中2", subject: "数学", current_unit: unit, school_status: schoolProgress(unit),
+    return { grade: E.grade().replace("学", "").replace("年", ""), subject: "数学", current_unit: unit, school_status: schoolProgress(unit),
       by_unit: JSON.parse(JSON.stringify(get().profile.school_progress)),
       detail: JSON.parse(JSON.stringify(school())) }; // スキル単位の「習った／学習中／まだ」と次のテスト
   }
@@ -416,7 +418,7 @@
   function unitCheckSnoozed(unit, dateKey) { var z = get().profile.unit_check_snooze; return !!z && z.unit === unit && z.date === dateKey; }
   function snoozeDate() { return get().profile.compass_snooze_date || null; }
 
-  SC.store = {
+  SC.store = { setGrade: setGrade,
     KEY: KEY, load: load, get: get, now: now, recompute: recompute,
     schoolProgress: schoolProgress, setSchoolProgress: setSchoolProgress, currentUnit: currentUnit, setCurrentUnit: setCurrentUnit,
     school: school, setSchool: setSchool, setSchoolSnooze: setSchoolSnooze, schoolSkillStatus: schoolSkillStatus,
