@@ -354,14 +354,13 @@
         "</ol>" +
       "</section>" +
       '<details class="card about">' +
-        "<summary>このデモについて</summary>" +
+        "<summary>このアプリについて</summary>" +
         "<ul>" +
-          "<li>コンテスト版として、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」を収録しています。</li>" +
+          "<li>いまは試用版です。中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」を収録しています。</li>" +
           "<li>点数を出すのではなく、問題ごとに「どのスキル・どの前提知識を見たか」から、つまずきの場所を推定します。</li>" +
-          "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は、このデモでは使っていません。</li>" +
+          "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は使っていません。</li>" +
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
         "</ul>" +
-        '<p class="small"><strong>おすすめのデモ手順：</strong>Q1〜Q3は正解（−2、6、7）、Q4とQ5は「わからない」を押す → 追加確認で原因を探す流れが見られます。</p>' +
       "</details>" +
       (hasRecords ? '<button class="parent-link" type="button" data-action="to-parent">保護者の方へ：学習のようすを見る →</button>' : "") +
       '<details class="card about">' +
@@ -487,7 +486,7 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">デモ版では「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」が選べます。</p>' +
+        '<p class="muted small">いまは「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」が選べます。</p>' +
         '<div class="form-grid">' +
           sel("grade", "学年", [{ text: "中学2年", selected: true }, { text: "中学1年（準備中）", disabled: true }, { text: "中学3年（準備中）", disabled: true }]) +
           sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
