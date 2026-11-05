@@ -367,7 +367,7 @@
   }
   function setPilotActive(on) {
     var p = pilot(); p.active = !!on;
-    if (on && !p.started) p.started = new Date(now()).toISOString().slice(0, 10);
+    if (on && !p.started) p.started = SC.pilot.dateKey(now());
     persist();
   }
   function setPilotNote(dateKey, key, value) {
