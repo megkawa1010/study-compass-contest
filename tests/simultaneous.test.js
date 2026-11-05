@@ -193,7 +193,7 @@ test("今日の学習：学校が連立方程式・原因が移項 → 移項を
 });
 
 test("テスト対策：範囲に一次関数と連立方程式を選べる。仕上がりの低いスキルから確かめる", () => {
-  assert.deepEqual(TP.RANGE_UNITS, ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "確率", "データの活用"]);
+  assert.deepEqual(TP.RANGE_UNITS, ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"]);
   const range = TP.unitSkills("連立方程式").concat(TP.unitSkills("一次関数"));
   const H = history();
   H.add("simElim-basic-1", "incorrect"); H.add("simElim-basic-2", "incorrect");

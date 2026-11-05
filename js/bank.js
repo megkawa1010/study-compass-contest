@@ -4867,6 +4867,332 @@
   bc("dataCompare-retention-5", "dataCompare", "retention", [CM, CN], AX50, "下の箱ひげ図から言えることとして正しいものはどれ？", ["秋のほうが、最小値も最大値も大きい", "春のほうが、中央値が大きい", "春の平均値は秋より小さい", "秋のほうが、データの個数が多い"], "図から読める値だけで判断する。平均値と個数は読めない。", "最小値は 5 と 15、最大値は 35 と 50 で、どちらも秋が大きいです。平均値と個数は図からは分かりません。", RS);
 
   // =====================================================================
+  // 中2 三角形と四角形
+  //   角度の図は図形の角と同じ決まり（答えと描いた角度をずらす）。答えは tests/quad.test.js が別の計算で確かめる
+  //   証明は proof_sheet（穴うめの紙）＋小問の選択で出す。合同と証明の証明エンジンは使わない（根拠の種類がちがうため）
+  // =====================================================================
+  var TQ_SHIFT = [12, -12, 9, -9, 15, -15, 18, -18, 10, -10, 21, -21];
+  function sameSide(t, d) { return (t < 90) === (d < 90) && t !== 90 && d !== 90; }
+  function isoDraw(b) {
+    for (var i = 0; i < TQ_SHIFT.length; i++) {
+      var d = b + TQ_SHIFT[i];
+      if (d >= 22 && d <= 76 && 180 - 2 * d >= 24 && sameSide(180 - 2 * b, 180 - 2 * d)) return d;
+    }
+    throw new Error("描く角度が決まりません：" + b);
+  }
+  function paraDraw(t) {
+    for (var i = 0; i < TQ_SHIFT.length; i++) { var d = t + TQ_SHIFT[i]; if (d >= 42 && d <= 138 && sameSide(t, d)) return d; }
+    throw new Error("描く角度が決まりません：" + t);
+  }
+  // AB ＝ AC の二等辺三角形。kind：base（頂角 v から底角）／apex（底角 v から頂角）
+  function tqIso(id, level, kind, v, extra) {
+    var b = kind === "base" ? (180 - v) / 2 : v, ans = kind === "base" ? b : 180 - 2 * b, d = isoDraw(b), fig = triFig({ A: 180 - 2 * d, B: d, C: d });
+    fig.equalSides = [{ segments: [["A", "B"], ["A", "C"]], marks: 1 }];
+    fig.angles = kind === "base" ? [ang("a", "A", "B", "C", { value: v }), ang("x", "B", "A", "C", { unknown: true })]
+      : [ang("b", "B", "A", "C", { value: v }), ang("x", "A", "B", "C", { unknown: true })];
+    fig.highlight = [{ angle: "x" }];
+    var q = { id: id, skill: "isoProps", level: level, text: "AB ＝ AC の二等辺三角形ABCで、x の大きさを求めなさい。", figure: fig, type: "number", answer: ans,
+      relation: { type: "angleSum", values: kind === "base" ? ["a", "answer", "answer"] : ["b", "b", "answer"], total: 180 },
+      hint: kind === "base" ? "底角は等しい。180° から頂角をひいて、2でわる。" : "2つの底角は等しい。180° から2つの底角をひく。",
+      explanation: kind === "base" ? "(180 − " + v + ") ÷ 2 = " + ans + " なので x = " + ans + "° です。" : "180 − " + v + " × 2 = " + ans + " なので x = " + ans + "° です。" };
+    for (var k in (extra || {})) q[k] = extra[k];
+    geo(q);
+  }
+  // 平行四辺形ABCDの図。∠B が v（描く角度はずらす）
+  function paraPts(d) {
+    var B = [90, 200], C = [280, 200], A = polar(B, d, 125);
+    return { A: A, B: B, C: C, D: [A[0] + 190, A[1]] };
+  }
+  // kind：opp（向かい合う角）／adj（となり合う角）
+  function tqPara(id, level, kind, v, extra) {
+    var fig = { type: "geometry", points: paraPts(paraDraw(v)), polygons: [["A", "B", "C", "D"]], labels: ["A", "B", "C", "D"],
+      angles: [ang("b", "B", "C", "A", { value: v }), kind === "opp" ? ang("x", "D", "A", "C", { unknown: true }) : ang("x", "A", "B", "D", { unknown: true })], highlight: [{ angle: "x" }] };
+    var ans = kind === "opp" ? v : 180 - v;
+    var q = { id: id, skill: "paraProps", level: level, text: "平行四辺形ABCDで、x の大きさを求めなさい。", figure: fig, type: "number", answer: ans,
+      relation: kind === "opp" ? { type: "equalAngles", source: "b", target: "answer" } : { type: "angleSum", values: ["b", "answer"], total: 180 },
+      hint: kind === "opp" ? "平行四辺形の向かい合う角は等しい。" : "平行四辺形のとなり合う角の和は180°。",
+      explanation: kind === "opp" ? "向かい合う角は等しいので x = " + ans + "° です。" : "となり合う角の和は180°なので、180 − " + v + " = " + ans + "° です。" };
+    for (var k in (extra || {})) q[k] = extra[k];
+    geo(q);
+  }
+  function deg(id, skill, level, text, answer, hint, explanation, extra) { var e = { answer_display: answer + "°", placeholder: "例：65" }; for (var k in (extra || {})) e[k] = extra[k]; nm(id, skill, level, text, answer, hint, explanation, e); }
+  function cm(id, skill, level, text, answer, hint, explanation, extra) { var e = { answer_display: answer + "cm" }; for (var k in (extra || {})) e[k] = extra[k]; nm(id, skill, level, text, answer, hint, explanation, e); }
+  // 小問の選択（labels の1番目が正解）
+  function sc(id, skill, text, labels, hint, explanation) {
+    var keys = ["a", "b", "c", "d"], n = labels.length, rot = rotationOf(skill + id + text, n);
+    return { id: id, skill: skill, text: text, type: "choice", answer: keys[rot], rotation: rot, choices: labels.map(function (_, i) { return { key: keys[i], label: labels[(i - rot + n) % n] }; }), hint: hint, explanation: explanation };
+  }
+  // 穴うめの証明。sheet：[書き出し, 行...]（穴は［1］［2］…）。blanks：[[正解, ほか...], ...]
+  function tqProof(id, skill, fig, text, sheet, blanks, used, hint, explanation) {
+    add({ id: id, skill: skill, level: "application", format: "figure", text: text, figure: fig, proof_sheet: sheet, type: "steps",
+      steps: blanks.map(function (b, i) { return sc("s" + (i + 1), skill, "［" + (i + 1) + "］に入るのは？", b.slice(0, -1), hint, b[b.length - 1]); }),
+      skills_used: used, hint: hint, explanation: explanation });
+  }
+  function footOf(p, a, b) {
+    var dx = b[0] - a[0], dy = b[1] - a[1], t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy);
+    return [Math.round((a[0] + t * dx) * 1000) / 1000, Math.round((a[1] + t * dy) * 1000) / 1000];
+  }
+  function tqSegs(pairs) { return pairs.map(function (p) { return [p.charAt(0), p.charAt(1)]; }); }
+
+  // --- 二等辺三角形の性質 ---
+  tqIso("isoProps-basic-1", "basic", "base", 40, { usage: "diagnosis" });
+  tqIso("isoProps-basic-2", "basic", "apex", 65);
+  tqIso("isoProps-basic-3", "basic", "base", 100);
+  ch("isoProps-basic-4", "isoProps", "basic", "二等辺三角形の定義はどれ？", ["2つの辺が等しい三角形", "2つの角が直角の三角形", "3つの辺が等しい三角形", "1つの角が直角の三角形"], "定義は、そのことばの意味を決めたもの。", "2つの辺が等しい三角形を二等辺三角形といいます。");
+  ch("isoProps-basic-5", "isoProps", "basic", "二等辺三角形の底角について正しいものはどれ？", ["2つの底角は等しい", "2つの底角の和は180°", "底角は頂角より必ず大きい", "底角は必ず直角"], "等しい辺に向かい合う角を考える。", "二等辺三角形の2つの底角は等しいです。");
+  tqIso("isoProps-standard-1", "standard", "apex", 38);
+  tqIso("isoProps-standard-2", "standard", "base", 56);
+  deg("isoProps-standard-3", "isoProps", "standard", "正三角形の1つの角は何度？", 60, "3つの角がすべて等しい。", "180 ÷ 3 = 60° です。");
+  deg("isoProps-standard-4", "isoProps", "standard", "AB ＝ AC の二等辺三角形ABCで、頂点Aの外角が 110° です。∠B は何度？", 55, "外角は、となり合わない2つの内角の和。", "∠B + ∠C = 110°、∠B ＝ ∠C なので 55° です。");
+  cm("isoProps-standard-5", "isoProps", "standard", "AB ＝ AC の二等辺三角形ABCで、頂角Aの二等分線が辺BCと交わる点をDとします。BC ＝ 10cm のとき、BD は何cm？", 5, "頂角の二等分線は、底辺を垂直に2等分する。", "BD ＝ 10 ÷ 2 = 5cm です。");
+  sp("isoProps-application-1", "isoProps", "AB ＝ AC の二等辺三角形ABCで ∠A ＝ 36° です。∠B の二等分線が辺ACと交わる点をDとします。", [
+    sn("s1", "isoProps", "∠ABC は何度？", 72, "底角を求める。", "(180 − 36) ÷ 2 = 72° です。"),
+    sn("s2", "isoProps", "∠DBC は何度？", 36, "∠ABC の半分。", "72 ÷ 2 = 36° です。"),
+    sn("s3", "isoProps", "∠BDC は何度？", 72, "△DBC の内角の和を使う。∠C は 72°。", "180 − 36 − 72 = 72° です。")
+  ], ["isoProps", "triangleSum"], "分かる角から順に書きこむ。", "∠ABC ＝ 72°、∠DBC ＝ 36°、∠BDC ＝ 72° です。");
+  sp("isoProps-application-2", "isoProps", "AB ＝ AC の二等辺三角形ABCで、辺BCをCのほうへのばした点をDとします。∠ACD ＝ 130° です。", [
+    sn("s1", "isoProps", "∠ACB は何度？", 50, "一直線の角は180°。", "180 − 130 = 50° です。"),
+    sn("s2", "isoProps", "∠ABC は何度？", 50, "底角は等しい。", "∠ABC ＝ ∠ACB ＝ 50° です。"),
+    sn("s3", "isoProps", "∠BAC は何度？", 80, "内角の和を使う。", "180 − 50 − 50 = 80° です。")
+  ], ["isoProps", "triangleSum"], "外側の角から、内側の角へ進む。", "∠ACB ＝ 50°、∠ABC ＝ 50°、∠BAC ＝ 80° です。");
+  sp("isoProps-application-3", "isoProps", "AB ＝ AC の二等辺三角形ABCで ∠A ＝ 40° です。辺AC上に、BD ＝ BC となる点Dをとります。", [
+    sn("s1", "isoProps", "∠ACB は何度？", 70, "△ABC の底角。", "(180 − 40) ÷ 2 = 70° です。"),
+    sn("s2", "isoProps", "∠BDC は何度？", 70, "△BCD も二等辺三角形。", "BD ＝ BC なので ∠BDC ＝ ∠BCD ＝ 70° です。"),
+    sn("s3", "isoProps", "∠DBC は何度？", 40, "△BCD の内角の和を使う。", "180 − 70 − 70 = 40° です。")
+  ], ["isoProps", "triangleSum"], "二等辺三角形が2つある。", "∠ACB ＝ 70°、∠BDC ＝ 70°、∠DBC ＝ 40° です。");
+  tqIso("isoProps-retention-1", "retention", "base", 24, { evidence_level: "basic" });
+  tqIso("isoProps-retention-2", "retention", "apex", 72, { evidence_level: "basic" });
+  deg("isoProps-retention-3", "isoProps", "retention", "AB ＝ AC の二等辺三角形ABCで、∠A は ∠B の2倍です。∠B は何度？", 45, "∠B ＝ x とすると、x + x + 2x = 180。", "4x = 180 より x = 45° です。", RS);
+  deg("isoProps-retention-4", "isoProps", "retention", "AB ＝ AC の二等辺三角形ABCで、頂点Aの外角が 140° です。∠C は何度？", 70, "外角は、となり合わない2つの内角の和。", "140 ÷ 2 = 70° です。", RS);
+  ch("isoProps-retention-5", "isoProps", "retention", "二等辺三角形の頂角の二等分線について正しいものはどれ？", ["底辺を垂直に2等分する", "底辺を3等分する", "底角を2等分する", "底辺と平行になる"], "図をかいて、左右の三角形をくらべる。", "頂角の二等分線は、底辺を垂直に2等分します。", RS);
+
+  // --- 二等辺三角形になる条件・ことがらの逆 ---
+  ch("isoCond-basic-1", "isoCond", "basic", "2つの角が等しい三角形は、どんな三角形？", ["二等辺三角形", "直角三角形", "正三角形", "どんな三角形ともいえない"], "底角の性質の逆。", "2つの角が等しい三角形は、二等辺三角形です。", { usage: "diagnosis" });
+  ch("isoCond-basic-2", "isoCond", "basic", "△ABCで ∠B ＝ ∠C のとき、等しい辺はどれ？", ["AB ＝ AC", "AB ＝ BC", "AC ＝ BC", "等しい辺はない"], "等しい角に向かい合う辺をさがす。", "∠B に向かい合うのは AC、∠C に向かい合うのは AB なので AB ＝ AC です。");
+  deg("isoCond-basic-3", "isoCond", "basic", "△ABCで ∠A ＝ 40°、∠B ＝ 70° です。∠C は何度？", 70, "内角の和は180°。", "180 − 40 − 70 = 70° です。∠B ＝ ∠C なので二等辺三角形です。");
+  ch("isoCond-basic-4", "isoCond", "basic", "3つの角が次のような三角形のうち、二等辺三角形はどれ？", ["50°、50°、80°", "40°、60°、80°", "30°、70°、80°", "20°、60°、100°"], "同じ大きさの角が2つあるものをさがす。", "50° が2つあるので、二等辺三角形です。");
+  ch("isoCond-basic-5", "isoCond", "basic", "あることがらの「逆」とは何？", ["仮定と結論を入れかえたもの", "結論を打ち消したもの", "仮定を打ち消したもの", "仮定と結論の両方を打ち消したもの"], "「○○ならば△△」の○○と△△をどうする？", "仮定と結論を入れかえたものを、逆といいます。");
+  ch("isoCond-standard-1", "isoCond", "standard", "△ABCで ∠A ＝ ∠C のとき、等しい辺はどれ？", ["BA ＝ BC", "AB ＝ AC", "AC ＝ BC", "等しい辺はない"], "等しい角に向かい合う辺をさがす。", "∠A に向かい合うのは BC、∠C に向かい合うのは AB なので BA ＝ BC です。");
+  ch("isoCond-standard-2", "isoCond", "standard", "△ABCで ∠A ＝ 30°、∠B ＝ 75° です。どんな三角形？", ["AB ＝ AC の二等辺三角形", "BA ＝ BC の二等辺三角形", "直角三角形", "正三角形"], "まず ∠C を求める。", "∠C ＝ 75° で ∠B ＝ ∠C なので、AB ＝ AC の二等辺三角形です。");
+  ch("isoCond-standard-3", "isoCond", "standard", "「x ＝ 2 ならば x + 1 ＝ 3」の逆はどれ？", ["x + 1 ＝ 3 ならば x ＝ 2", "x ≠ 2 ならば x + 1 ≠ 3", "x ＝ 3 ならば x + 1 ＝ 2", "x + 1 ≠ 3 ならば x ≠ 2"], "「ならば」の前とうしろを入れかえる。", "仮定と結論を入れかえて、x + 1 ＝ 3 ならば x ＝ 2 です。");
+  ch("isoCond-standard-4", "isoCond", "standard", "次のことがらのうち、逆が正しくないものはどれ？", ["△ABC ≡ △DEF ならば、△ABC と △DEF の面積は等しい", "x ＝ 2 ならば x + 1 ＝ 3", "二等辺三角形の2つの底角は等しい", "平行四辺形の向かい合う辺は等しい"], "それぞれ逆をつくって考える。", "面積が等しくても、合同とは限りません。");
+  ch("isoCond-standard-5", "isoCond", "standard", "正しいことがらの逆について、正しいものはどれ？", ["正しいとは限らない", "いつも正しい", "いつも正しくない", "仮定が同じになる"], "面積が等しい三角形を思い出す。", "逆は、正しいとは限りません。1つでも反例があれば正しくないといえます。");
+  sp("isoCond-application-1", "isoCond", "△ABCで ∠A ＝ 52°、∠B ＝ 64° です。", [
+    sn("s1", "isoCond", "∠C は何度？", 64, "内角の和は180°。", "180 − 52 − 64 = 64° です。"),
+    sc("s2", "isoCond", "等しい辺はどれ？", ["AB ＝ AC", "BA ＝ BC", "CA ＝ CB", "等しい辺はない"], "等しい角に向かい合う辺。", "∠B ＝ ∠C なので AB ＝ AC です。"),
+    sn("s3", "isoCond", "AB ＝ 7cm のとき、AC は何cm？", 7, "等しい辺の長さ。", "AC ＝ AB ＝ 7cm です。")
+  ], ["isoCond", "triangleSum"], "角から辺へ進む。", "∠C ＝ 64° で、AB ＝ AC ＝ 7cm です。");
+  sp("isoCond-application-2", "isoCond", "△ABCで ∠A ＝ 90°、∠B ＝ 45° です。", [
+    sn("s1", "isoCond", "∠C は何度？", 45, "内角の和は180°。", "180 − 90 − 45 = 45° です。"),
+    sc("s2", "isoCond", "等しい辺はどれ？", ["AB ＝ AC", "AB ＝ BC", "AC ＝ BC", "等しい辺はない"], "等しい角に向かい合う辺。", "∠B ＝ ∠C なので AB ＝ AC です。"),
+    sc("s3", "isoCond", "△ABCはどんな三角形？", ["直角二等辺三角形", "正三角形", "二等辺三角形ではない直角三角形", "鈍角三角形"], "角と辺の両方を見る。", "直角があり、2つの辺が等しいので、直角二等辺三角形です。")
+  ], ["isoCond", "triangleSum"], "角を全部出してから判断する。", "∠C ＝ 45° で、直角二等辺三角形です。");
+  sp("isoCond-application-3", "isoCond", "「四角形ABCDが長方形ならば、対角線の長さは等しい」ということがらについて考えます。", [
+    sc("s1", "isoCond", "このことがらの逆はどれ？", ["四角形ABCDの対角線の長さが等しいならば、長方形である", "四角形ABCDが長方形でないならば、対角線の長さは等しくない", "四角形ABCDの対角線の長さが等しくないならば、長方形でない", "四角形ABCDが正方形ならば、対角線の長さは等しい"], "仮定と結論を入れかえる。", "仮定と結論を入れかえたものです。"),
+    sc("s2", "isoCond", "逆は正しい？", ["正しくない", "正しい"], "対角線の長さが等しい四角形は、長方形だけ？", "正しくありません。"),
+    sc("s3", "isoCond", "逆が正しくないことを示す例（反例）はどれ？", ["上底と下底が平行で、左右の辺の長さが等しい台形", "正方形", "長方形", "1辺が5cmの正方形"], "長方形ではないのに、対角線の長さが等しい四角形。", "左右の辺が等しい台形は、対角線の長さが等しいですが長方形ではありません。")
+  ], ["isoCond"], "反例は1つあればよい。", "逆は正しくありません。左右の辺が等しい台形が反例です。");
+  ch("isoCond-basic-6", "isoCond", "basic", "△DEFで ∠D ＝ ∠E のとき、等しい辺はどれ？", ["FD ＝ FE", "DE ＝ DF", "ED ＝ EF", "等しい辺はない"], "等しい角に向かい合う辺をさがす。", "∠D に向かい合うのは EF、∠E に向かい合うのは DF なので FD ＝ FE です。");
+  ch("isoCond-basic-7", "isoCond", "basic", "△ABCで AB ＝ AC のとき、等しい角はどれ？", ["∠B ＝ ∠C", "∠A ＝ ∠B", "∠A ＝ ∠C", "等しい角はない"], "等しい辺に向かい合う角をさがす。", "AB に向かい合うのは ∠C、AC に向かい合うのは ∠B なので ∠B ＝ ∠C です。");
+  sp("isoCond-application-4", "isoCond", "△ABCで ∠A ＝ 36°、∠B ＝ 72° です。", [
+    sn("s1", "isoCond", "∠C は何度？", 72, "内角の和は180°。", "180 − 36 − 72 = 72° です。"),
+    sc("s2", "isoCond", "等しい辺はどれ？", ["AB ＝ AC", "BA ＝ BC", "CA ＝ CB", "等しい辺はない"], "等しい角に向かい合う辺。", "∠B ＝ ∠C なので AB ＝ AC です。"),
+    sn("s3", "isoCond", "AC ＝ 9cm のとき、AB は何cm？", 9, "等しい辺の長さ。", "AB ＝ AC ＝ 9cm です。")
+  ], ["isoCond", "triangleSum"], "角から辺へ進む。", "∠C ＝ 72° で、AB ＝ AC ＝ 9cm です。");
+  ch("isoCond-retention-1", "isoCond", "retention", "角の組が次のようになる三角形で、二等辺三角形といえるのはどれ？", ["35°、35°、110°", "25°、65°、90°", "45°、60°、75°", "15°、35°、130°"], "同じ大きさの角が2つあるものをさがす。", "35° が2つあるので、二等辺三角形です。", RB);
+  deg("isoCond-retention-2", "isoCond", "retention", "△ABCで ∠A ＝ 34°、∠B ＝ 73° です。∠C は何度？", 73, "内角の和は180°。", "180 − 34 − 73 = 73° です。", RB);
+  ch("isoCond-retention-3", "isoCond", "retention", "△PQRで ∠P ＝ ∠Q のとき、等しい辺はどれ？", ["RP ＝ RQ", "PQ ＝ PR", "QP ＝ QR", "等しい辺はない"], "等しい角に向かい合う辺をさがす。", "∠P に向かい合うのは QR、∠Q に向かい合うのは PR なので RP ＝ RQ です。", RS);
+  ch("isoCond-retention-4", "isoCond", "retention", "「n が4の倍数ならば、n は偶数である」の逆はどれ？", ["n が偶数ならば、n は4の倍数である", "n が4の倍数でないならば、n は偶数でない", "n が奇数ならば、n は4の倍数でない", "n が8の倍数ならば、n は偶数である"], "「ならば」の前とうしろを入れかえる。", "仮定と結論を入れかえたものです。", RS);
+  ch("isoCond-retention-5", "isoCond", "retention", "「n が偶数ならば、n は4の倍数である」の反例はどれ？", ["6", "8", "12", "16"], "偶数なのに4の倍数でない数。", "6 は偶数ですが4の倍数ではありません。", RS);
+
+  // --- 直角三角形の合同 ---
+  var RH = "斜辺と1つの鋭角がそれぞれ等しい", RO = "斜辺と他の1辺がそれぞれ等しい", RN = "2組の辺とその間の角がそれぞれ等しい", RX = "合同とはいえない";
+  ch("rightCong-basic-1", "rightCong", "basic", "直角三角形だけに使える合同条件はどれ？", [RH, "3組の角がそれぞれ等しい", "1組の辺が等しい", "2組の角がそれぞれ等しい"], "斜辺が等しいことが必要。", "直角三角形の合同条件は「斜辺と1つの鋭角」「斜辺と他の1辺」です。", { usage: "diagnosis" });
+  ch("rightCong-basic-2", "rightCong", "basic", "直角三角形の斜辺はどの辺？", ["直角に向かい合う辺", "直角をはさむ短いほうの辺", "直角をはさむ長いほうの辺", "底辺"], "いちばん長い辺。", "直角に向かい合う辺を斜辺といいます。");
+  ch("rightCong-basic-3", "rightCong", "basic", "∠C ＝ ∠F ＝ 90° の △ABC と △DEF で、AB ＝ DE、∠A ＝ ∠D です。どの合同条件が使える？", [RH, RO, RN, RX], "AB と DE は斜辺。", "斜辺と1つの鋭角がそれぞれ等しいので合同です。");
+  ch("rightCong-basic-4", "rightCong", "basic", "∠C ＝ ∠F ＝ 90° の △ABC と △DEF で、AB ＝ DE、AC ＝ DF です。どの合同条件が使える？", [RO, RH, RN, RX], "AB と DE は斜辺。AC と DF はほかの辺。", "斜辺と他の1辺がそれぞれ等しいので合同です。");
+  ch("rightCong-basic-5", "rightCong", "basic", "∠C ＝ 90° の △ABC で、斜辺はどれ？", ["AB", "AC", "BC", "どれでもない"], "C に向かい合う辺。", "直角の頂点 C に向かい合う AB が斜辺です。");
+  ch("rightCong-standard-1", "rightCong", "standard", "∠C ＝ ∠F ＝ 90° の △ABC と △DEF で、AC ＝ DF、BC ＝ EF です。どの合同条件が使える？", [RN, RH, RO, RX], "等しい2組の辺の間にある角は？", "直角をはさむ2組の辺が等しいので、2組の辺とその間の角がそれぞれ等しいです。");
+  ch("rightCong-standard-2", "rightCong", "standard", "∠C ＝ ∠F ＝ 90° の △ABC と △DEF で、∠A ＝ ∠D、∠B ＝ ∠E です。正しいものはどれ？", [RX, RH, RO, RN], "辺が1組も等しくない。", "角だけでは、大きさのちがう三角形があるので合同とはいえません。");
+  ch("rightCong-standard-3", "rightCong", "standard", "∠C ＝ ∠F ＝ 90° の △ABC と △DEF で、AB ＝ DE、∠B ＝ ∠E です。どの合同条件が使える？", [RH, RO, RN, RX], "斜辺はどれ？", "AB と DE が斜辺で、鋭角が1組等しいので合同です。");
+  ch("rightCong-standard-4", "rightCong", "standard", "「斜辺と1つの鋭角」が等しい直角三角形が合同になるのは、なぜ？", ["残りの鋭角も等しくなり、1組の辺とその両端の角が等しくなるから", "面積が等しくなるから", "3組の角が等しいから", "斜辺が必ず同じ向きになるから"], "内角の和から、もう1つの鋭角を考える。", "残りの鋭角も等しいので、斜辺とその両端の角が等しくなります。");
+  ch("rightCong-standard-5", "rightCong", "standard", "∠B ＝ ∠E ＝ 90° の △ABC と △DEF で、AC ＝ DF、AB ＝ DE です。どの合同条件が使える？", [RO, RH, RN, RX], "直角が B にあるので、斜辺は AC。", "AC と DF が斜辺で、AB ＝ DE なので、斜辺と他の1辺です。");
+  (function () {
+    var A = [170, 40], B = [70, 230], C = [270, 230];
+    tqProof("rightCong-application-1", "rightCong", { type: "geometry", points: { A: A, B: B, C: C, D: footOf(B, A, C), E: footOf(C, A, B) }, polygons: [["A", "B", "C"]], segments: tqSegs(["BD", "CE"]), equalSides: [{ segments: [["A", "B"], ["A", "C"]], marks: 1 }], right: [{ at: "D", from: "B", to: "C" }, { at: "E", from: "C", to: "B" }] },
+      "AB ＝ AC の二等辺三角形ABCで、頂点B、Cから向かい合う辺に垂線BD、CEをひきます。BD ＝ CE を証明します。",
+      ["△DBC と △ECB において、", "∠BDC ＝ ∠CEB ＝ 90°（仮定）", "BC ＝ CB（［1］）", "∠DCB ＝ ∠EBC（［2］）", "［3］がそれぞれ等しいので、△DBC ≡ △ECB", "合同な図形の対応する辺は等しいので、BD ＝ CE"],
+      [["共通", "仮定", "対頂角は等しい", "BC は2つの三角形の両方にある辺です。"], ["二等辺三角形の底角は等しい", "仮定", "対頂角は等しい", "AB ＝ AC なので、底角は等しいです。"], ["斜辺と1つの鋭角", "斜辺と他の1辺", "2組の辺とその間の角", "斜辺 BC と鋭角が等しいです。"]],
+      ["rightCong", "isoProps"], "直角三角形の斜辺をさがす。", "斜辺 BC は共通で、底角が等しいので、斜辺と1つの鋭角で合同です。");
+    var O = [50, 215], X = [330, 215], Y = polar(O, 50, 280), P = polar(O, 25, 215);
+    tqProof("rightCong-application-2", "rightCong", { type: "geometry", points: { O: O, X: X, Y: Y, P: P, A: footOf(P, O, X), B: footOf(P, O, Y) }, segments: tqSegs(["OX", "OY", "OP", "PA", "PB"]), right: [{ at: "A", from: "O", to: "P" }, { at: "B", from: "O", to: "P" }] },
+      "∠XOY の二等分線上の点Pから、辺OX、OYに垂線PA、PBをひきます。PA ＝ PB を証明します。",
+      ["△POA と △POB において、", "∠PAO ＝ ∠PBO ＝ 90°（仮定）", "∠POA ＝ ∠POB（［1］）", "PO ＝ PO（［2］）", "［3］がそれぞれ等しいので、△POA ≡ △POB", "合同な図形の対応する辺は等しいので、PA ＝ PB"],
+      [["OP は ∠XOY の二等分線", "対頂角は等しい", "共通", "OP が角を2等分しています。"], ["共通", "仮定", "対頂角は等しい", "PO は両方の三角形にある辺です。"], ["斜辺と1つの鋭角", "斜辺と他の1辺", "2組の辺とその間の角", "斜辺 PO と鋭角が等しいです。"]],
+      ["rightCong"], "2つの直角三角形の斜辺は、同じ辺。", "斜辺 PO は共通で、鋭角が等しいので合同です。");
+    var A3 = [170, 45], B3 = [70, 225], C3 = [270, 225], D3 = [170, 225];
+    tqProof("rightCong-application-3", "rightCong", { type: "geometry", points: { A: A3, B: B3, C: C3, D: D3 }, polygons: [["A", "B", "C"]], segments: tqSegs(["AD"]), equalSides: [{ segments: [["A", "B"], ["A", "C"]], marks: 1 }], right: [{ at: "D", from: "A", to: "C" }] },
+      "AB ＝ AC の二等辺三角形ABCで、頂点Aから辺BCに垂線ADをひきます。BD ＝ CD を証明します。",
+      ["△ABD と △ACD において、", "∠ADB ＝ ∠ADC ＝ 90°（仮定）", "AB ＝ AC（［1］）", "AD ＝ AD（［2］）", "［3］がそれぞれ等しいので、△ABD ≡ △ACD", "合同な図形の対応する辺は等しいので、BD ＝ CD"],
+      [["仮定", "共通", "対頂角は等しい", "問題に書いてあることです。"], ["共通", "仮定", "二等辺三角形の底角は等しい", "AD は両方の三角形にある辺です。"], ["斜辺と他の1辺", "斜辺と1つの鋭角", "3組の辺", "斜辺 AB、AC と、他の1辺 AD が等しいです。"]],
+      ["rightCong"], "斜辺がどれかを確かめる。", "斜辺と他の1辺がそれぞれ等しいので合同です。");
+  })();
+  ch("rightCong-retention-1", "rightCong", "retention", "∠R ＝ 90° の △PQR で、斜辺はどれ？", ["PQ", "PR", "QR", "どれでもない"], "R に向かい合う辺。", "直角の頂点 R に向かい合う PQ が斜辺です。", RB);
+  ch("rightCong-retention-2", "rightCong", "retention", "∠R ＝ ∠U ＝ 90° の △PQR と △STU で、PQ ＝ ST、∠P ＝ ∠S です。どの合同条件が使える？", [RH, RO, RN, RX], "PQ と ST は斜辺。", "斜辺と1つの鋭角がそれぞれ等しいので合同です。", RB);
+  ch("rightCong-retention-3", "rightCong", "retention", "∠R ＝ ∠U ＝ 90° の △PQR と △STU で、PQ ＝ ST、QR ＝ TU です。どの合同条件が使える？", [RO, RH, RN, RX], "PQ と ST は斜辺。", "斜辺と他の1辺がそれぞれ等しいので合同です。", RS);
+  ch("rightCong-retention-4", "rightCong", "retention", "∠A ＝ ∠D ＝ 90° の △ABC と △DEF で、AB ＝ DE、AC ＝ DF です。どの合同条件が使える？", [RN, RO, RH, RX], "等しい2組の辺は、斜辺ではない。", "直角をはさむ2組の辺が等しいので、2組の辺とその間の角です。", RS);
+  ch("rightCong-retention-5", "rightCong", "retention", "∠A ＝ ∠D ＝ 90° の △ABC と △DEF で、∠B ＝ ∠E です。正しいものはどれ？", [RX, RH, RO, RN], "辺が1組も等しくない。", "辺が等しいと分からないので、合同とはいえません。", RS);
+
+  // --- 平行四辺形の性質 ---
+  tqPara("paraProps-basic-1", "basic", "opp", 70, { usage: "diagnosis" });
+  tqPara("paraProps-basic-2", "basic", "adj", 65);
+  cm("paraProps-basic-3", "paraProps", "basic", "平行四辺形ABCDで AB ＝ 6cm です。CD は何cm？", 6, "向かい合う辺は等しい。", "CD ＝ AB ＝ 6cm です。");
+  cm("paraProps-basic-4", "paraProps", "basic", "平行四辺形ABCDの対角線の交点をOとします。AC ＝ 14cm のとき、AO は何cm？", 7, "対角線はそれぞれの中点で交わる。", "14 ÷ 2 = 7cm です。");
+  ch("paraProps-basic-5", "paraProps", "basic", "平行四辺形の定義はどれ？", ["2組の向かい合う辺がそれぞれ平行な四角形", "4つの角がすべて等しい四角形", "4つの辺がすべて等しい四角形", "1組の向かい合う辺が平行な四角形"], "「平行」四辺形という名前から考える。", "2組の向かい合う辺がそれぞれ平行な四角形です。");
+  tqPara("paraProps-standard-1", "standard", "opp", 112);
+  tqPara("paraProps-standard-2", "standard", "adj", 124);
+  cm("paraProps-standard-3", "paraProps", "standard", "平行四辺形ABCDで AB ＝ 5cm、BC ＝ 8cm です。まわりの長さは何cm？", 26, "向かい合う辺は等しい。", "(5 + 8) × 2 = 26cm です。");
+  deg("paraProps-standard-4", "paraProps", "standard", "平行四辺形ABCDで ∠A : ∠B ＝ 2 : 3 です。∠A は何度？", 72, "∠A + ∠B ＝ 180°。", "180 × 2/5 = 72° です。");
+  cm("paraProps-standard-5", "paraProps", "standard", "平行四辺形ABCDの対角線の交点をOとします。BD ＝ 18cm のとき、OD は何cm？", 9, "対角線はそれぞれの中点で交わる。", "18 ÷ 2 = 9cm です。");
+  sp("paraProps-application-1", "paraProps", "平行四辺形ABCDで ∠A ＝ 110°、AB ＝ 6cm です。∠B の二等分線が辺ADと交わる点をEとします。", [
+    sn("s1", "paraProps", "∠ABC は何度？", 70, "となり合う角の和は180°。", "180 − 110 = 70° です。"),
+    sn("s2", "paraProps", "∠AEB は何度？", 35, "AD // BC なので、錯角を使う。∠EBC は ∠ABC の半分。", "∠AEB ＝ ∠EBC ＝ 35° です。"),
+    sn("s3", "paraProps", "AE は何cm？", 6, "△ABE は二等辺三角形。", "∠ABE ＝ ∠AEB なので AE ＝ AB ＝ 6cm です。")
+  ], ["paraProps", "parallelAngles", "isoCond"], "平行線の錯角から、二等辺三角形を見つける。", "∠ABC ＝ 70°、∠AEB ＝ 35°、AE ＝ 6cm です。");
+  sp("paraProps-application-2", "paraProps", "平行四辺形ABCDのまわりの長さは 30cm で、AB ＝ 6cm です。", [
+    sn("s1", "paraProps", "AB + BC は何cm？", 15, "まわりの長さの半分。", "30 ÷ 2 = 15cm です。"),
+    sn("s2", "paraProps", "BC は何cm？", 9, "15 から AB をひく。", "15 − 6 = 9cm です。"),
+    sn("s3", "paraProps", "AD は何cm？", 9, "向かい合う辺は等しい。", "AD ＝ BC ＝ 9cm です。")
+  ], ["paraProps"], "向かい合う辺が等しいことを使う。", "AB + BC ＝ 15cm、BC ＝ AD ＝ 9cm です。");
+  sp("paraProps-application-3", "paraProps", "平行四辺形ABCDで ∠A : ∠B ＝ 4 : 5 です。", [
+    sn("s1", "paraProps", "∠A + ∠B は何度？", 180, "となり合う角の和。", "となり合う角の和は 180° です。"),
+    sn("s2", "paraProps", "∠A は何度？", 80, "180° を 4 : 5 に分ける。", "180 × 4/9 = 80° です。"),
+    sn("s3", "paraProps", "∠C は何度？", 80, "向かい合う角は等しい。", "∠C ＝ ∠A ＝ 80° です。")
+  ], ["paraProps"], "比は、全体の何分のいくつかで考える。", "∠A ＝ ∠C ＝ 80° です。");
+  cm("paraProps-basic-6", "paraProps", "basic", "平行四辺形ABCDで BC ＝ 9cm です。AD は何cm？", 9, "向かい合う辺は等しい。", "AD ＝ BC ＝ 9cm です。");
+  ch("paraProps-basic-7", "paraProps", "basic", "平行四辺形の対角線について、いつでも正しいものはどれ？", ["それぞれの中点で交わる", "長さが等しい", "垂直に交わる", "平行である"], "長方形やひし形だけの性質とまちがえない。", "平行四辺形の対角線は、それぞれの中点で交わります。");
+  tqPara("paraProps-retention-1", "retention", "opp", 58, { evidence_level: "basic" });
+  tqPara("paraProps-retention-2", "retention", "adj", 133, { evidence_level: "basic" });
+  cm("paraProps-retention-3", "paraProps", "retention", "平行四辺形PQRSの対角線の交点をOとします。QS ＝ 22cm のとき、OQ は何cm？", 11, "対角線はそれぞれの中点で交わる。", "22 ÷ 2 = 11cm です。", RS);
+  cm("paraProps-retention-4", "paraProps", "retention", "平行四辺形PQRSで PQ ＝ 7cm、QR ＝ 12cm です。まわりの長さは何cm？", 38, "向かい合う辺は等しい。", "(7 + 12) × 2 = 38cm です。", RS);
+  deg("paraProps-retention-5", "paraProps", "retention", "平行四辺形PQRSで ∠P : ∠Q ＝ 1 : 5 です。∠P は何度？", 30, "∠P + ∠Q ＝ 180°。", "180 × 1/6 = 30° です。", RS);
+
+  // --- 平行四辺形になる条件 ---
+  ch("paraCond-basic-1", "paraCond", "basic", "四角形が平行四辺形になる条件はどれ？", ["1組の向かい合う辺が平行で、長さが等しい", "1組の向かい合う辺が平行で、もう1組の辺の長さが等しい", "となり合う2つの辺が等しい", "対角線の長さが等しい"], "同じ1組の辺について、平行と長さの両方が必要。", "同じ1組の向かい合う辺が、平行で長さも等しければ平行四辺形です。", { usage: "diagnosis" });
+  var PC1 = "2組の向かい合う辺がそれぞれ等しい", PC2 = "2組の向かい合う角がそれぞれ等しい", PC3 = "対角線がそれぞれの中点で交わる", PC4 = "1組の向かい合う辺が平行で長さが等しい";
+  ch("paraCond-basic-2", "paraCond", "basic", "四角形ABCDで AB ＝ DC、AD ＝ BC です。どの条件で平行四辺形といえる？", [PC1, PC2, PC3, PC4], "向かい合う辺を見る。", "2組の向かい合う辺がそれぞれ等しいです。");
+  ch("paraCond-basic-3", "paraCond", "basic", "四角形ABCDの対角線の交点をOとします。AO ＝ CO、BO ＝ DO です。どの条件で平行四辺形といえる？", [PC3, PC1, PC2, PC4], "O は対角線の何にあたる？", "対角線がそれぞれの中点で交わります。");
+  ch("paraCond-basic-4", "paraCond", "basic", "四角形ABCDで ∠A ＝ ∠C、∠B ＝ ∠D です。どの条件で平行四辺形といえる？", [PC2, PC1, PC3, PC4], "向かい合う角を見る。", "2組の向かい合う角がそれぞれ等しいです。");
+  ch("paraCond-basic-5", "paraCond", "basic", "四角形ABCDで AD // BC、AD ＝ BC です。どの条件で平行四辺形といえる？", [PC4, PC1, PC2, PC3], "同じ1組の辺について書いてある。", "1組の向かい合う辺が平行で長さが等しいです。");
+  ch("paraCond-standard-1", "paraCond", "standard", "次の四角形ABCD（対角線の交点O）のうち、いつでも平行四辺形といえるものはどれ？", ["∠A ＝ 100°、∠B ＝ 80°、∠C ＝ 100°", "AB ＝ 5cm、BC ＝ 5cm、CD ＝ 7cm、DA ＝ 7cm", "AD // BC、AB ＝ DC ＝ 4cm", "AO ＝ 3cm、CO ＝ 3cm、BO ＝ 4cm、DO ＝ 5cm"], "∠D も計算してみる。", "∠D ＝ 80° となり、2組の向かい合う角がそれぞれ等しいです。");
+  ch("paraCond-standard-2", "paraCond", "standard", "いつでも平行四辺形とはいえないものはどれ？", ["AD // BC、AB ＝ DC", "AD // BC、AD ＝ BC", "AB ＝ DC、AD ＝ BC", "AB // DC、AD // BC"], "左右の辺が等しい台形を思い出す。", "AD // BC、AB ＝ DC は、左右の辺が等しい台形にもあてはまります。");
+  ch("paraCond-standard-3", "paraCond", "standard", "四角形ABCDで ∠A + ∠B ＝ 180°、∠B + ∠C ＝ 180° です。どの理由で平行四辺形といえる？", ["2組の向かい合う辺がそれぞれ平行", "対角線がそれぞれの中点で交わる", "2組の向かい合う辺がそれぞれ等しい", "1組の向かい合う辺が平行で長さが等しい"], "同側内角の和が180°なら、2直線は平行。", "AD // BC、AB // DC となるので、定義にあてはまります。");
+  nm("paraCond-standard-4", "paraCond", "standard", "四角形ABCDで AB ＝ (x + 3)cm、DC ＝ 7cm、AD ＝ BC です。平行四辺形になる x の値は？", 4, "AB ＝ DC となればよい。", "x + 3 = 7 より x = 4 です。");
+  nm("paraCond-standard-5", "paraCond", "standard", "四角形ABCDで ∠B ＝ ∠D、∠A ＝ (2x + 10)°、∠C ＝ 70° です。平行四辺形になる x の値は？", 30, "∠A ＝ ∠C となればよい。", "2x + 10 = 70 より x = 30 です。");
+  (function () {
+    var pts = { A: [90, 60], B: [50, 200], C: [250, 200], D: [290, 60] };
+    var f1 = { type: "geometry", points: { A: pts.A, B: pts.B, C: pts.C, D: pts.D, O: [170, 130], E: [110, 165], F: [230, 95] }, polygons: [["A", "B", "C", "D"]], segments: tqSegs(["AC", "BD", "AE", "EC", "CF", "FA"]), equalSides: [{ segments: [["B", "E"], ["D", "F"]], marks: 1 }] };
+    tqProof("paraCond-application-1", "paraCond", f1, "平行四辺形ABCDの対角線の交点をOとします。対角線BD上に BE ＝ DF となる点E、Fをとります。四角形AECFが平行四辺形であることを証明します。",
+      ["平行四辺形の対角線はそれぞれの中点で交わるので、", "OA ＝ OC … ①", "OB ＝ OD … ②", "BE ＝ DF（［1］）… ③", "②、③より OE ＝ OF … ④", "①、④より、［2］ので、四角形AECFは平行四辺形である"],
+      [["仮定", "共通", "対頂角は等しい", "問題に書いてあることです。"], ["対角線がそれぞれの中点で交わる", "2組の向かい合う角がそれぞれ等しい", "1組の向かい合う辺が平行で長さが等しい", "OA ＝ OC、OE ＝ OF です。"]],
+      ["paraCond", "paraProps"], "四角形AECFの対角線は AC と EF。", "OA ＝ OC、OE ＝ OF なので、対角線がそれぞれの中点で交わります。");
+    var f2 = { type: "geometry", points: { A: pts.A, B: pts.B, C: pts.C, D: pts.D, E: [170, 60], F: [170, 200] }, polygons: [["A", "B", "C", "D"]], segments: tqSegs(["AF", "EC"]), equalSides: [{ segments: [["A", "E"], ["C", "F"]], marks: 1 }] };
+    tqProof("paraCond-application-2", "paraCond", f2, "平行四辺形ABCDの辺AD、BC上に AE ＝ CF となる点E、Fをとります。四角形AFCEが平行四辺形であることを証明します。",
+      ["四角形ABCDは平行四辺形なので、", "AD // BC より AE // FC（［1］）", "AE ＝ CF（［2］）", "［3］ので、四角形AFCEは平行四辺形である"],
+      [["平行四辺形の向かい合う辺は平行", "対頂角は等しい", "仮定", "AD と BC は向かい合う辺です。"], ["仮定", "共通", "平行四辺形の向かい合う辺は等しい", "問題に書いてあることです。"], ["1組の向かい合う辺が平行で長さが等しい", "2組の向かい合う辺がそれぞれ等しい", "対角線がそれぞれの中点で交わる", "AE と FC が平行で長さも等しいです。"]],
+      ["paraCond", "paraProps"], "同じ1組の辺に注目する。", "AE // FC、AE ＝ FC なので、1組の向かい合う辺が平行で長さが等しいです。");
+    var f3 = { type: "geometry", points: { A: pts.A, B: pts.B, C: pts.C, D: pts.D, M: [70, 130], N: [270, 130] }, polygons: [["A", "B", "C", "D"]], segments: tqSegs(["MC", "AN"]), equalSides: [{ segments: [["A", "M"], ["M", "B"], ["C", "N"], ["N", "D"]], marks: 1 }] };
+    tqProof("paraCond-application-3", "paraCond", f3, "平行四辺形ABCDの辺AB、DCの中点をそれぞれM、Nとします。四角形AMCNが平行四辺形であることを証明します。",
+      ["四角形ABCDは平行四辺形なので、", "AB // DC より AM // NC", "AB ＝ DC（［1］）", "AM ＝ 1/2 AB、NC ＝ 1/2 DC なので AM ＝ NC", "［2］ので、四角形AMCNは平行四辺形である"],
+      [["平行四辺形の向かい合う辺は等しい", "仮定", "共通", "AB と DC は向かい合う辺です。"], ["1組の向かい合う辺が平行で長さが等しい", "2組の向かい合う角がそれぞれ等しい", "対角線がそれぞれの中点で交わる", "AM と NC が平行で長さも等しいです。"]],
+      ["paraCond", "paraProps"], "中点なので、辺の半分。", "AM // NC、AM ＝ NC なので、1組の向かい合う辺が平行で長さが等しいです。");
+  })();
+  ch("paraCond-basic-6", "paraCond", "basic", "四角形ABCDの対角線の交点をOとします。AO ＝ CO です。あと何が分かれば平行四辺形といえる？", ["BO ＝ DO", "AB ＝ AD", "AC ＝ BD", "∠A ＝ 90°"], "対角線がそれぞれの中点で交わればよい。", "BO ＝ DO なら、対角線がそれぞれの中点で交わります。");
+  ch("paraCond-basic-7", "paraCond", "basic", "四角形ABCDで AB // DC です。あと何が分かれば平行四辺形といえる？", ["AB ＝ DC", "AD ＝ BC", "AC ＝ BD", "∠A ＝ 90°"], "平行な辺と同じ組の辺を見る。", "AB ＝ DC なら、1組の向かい合う辺が平行で長さが等しくなります。");
+  ch("paraCond-basic-8", "paraCond", "basic", "四角形ABCDで AB ＝ DC です。あと何が分かれば平行四辺形といえる？", ["AD ＝ BC", "AB ＝ AD", "AC ＝ BD", "∠B ＝ 90°"], "もう1組の向かい合う辺を見る。", "AD ＝ BC なら、2組の向かい合う辺がそれぞれ等しくなります。");
+  ch("paraCond-basic-9", "paraCond", "basic", "四角形ABCDで ∠A ＝ ∠C です。あと何が分かれば平行四辺形といえる？", ["∠B ＝ ∠D", "∠A ＝ ∠B", "AB ＝ AD", "AC ＝ BD"], "もう1組の向かい合う角を見る。", "∠B ＝ ∠D なら、2組の向かい合う角がそれぞれ等しくなります。");
+  sp("paraCond-application-4", "paraCond", "四角形ABCDで ∠A ＝ 110°、∠B ＝ 70°、∠C ＝ 110°、AB ＝ 5cm です。", [
+    sn("s1", "paraCond", "∠D は何度？", 70, "四角形の内角の和は360°。", "360 − 110 − 70 − 110 = 70° です。"),
+    sc("s2", "paraCond", "平行四辺形といえる理由はどれ？", [PC2, PC1, PC3, PC4], "向かい合う角をくらべる。", "∠A ＝ ∠C、∠B ＝ ∠D です。"),
+    sn("s3", "paraCond", "CD は何cm？", 5, "平行四辺形の向かい合う辺は等しい。", "CD ＝ AB ＝ 5cm です。")
+  ], ["paraCond", "paraProps"], "まず残りの角を求める。", "∠D ＝ 70° で平行四辺形といえるので、CD ＝ 5cm です。");
+  ch("paraCond-retention-1", "paraCond", "retention", "四角形PQRSで PQ ＝ SR、PS ＝ QR です。どの条件で平行四辺形といえる？", [PC1, PC2, PC3, PC4], "向かい合う辺を見る。", "2組の向かい合う辺がそれぞれ等しいです。", RB);
+  ch("paraCond-retention-2", "paraCond", "retention", "四角形PQRSで PS // QR、PS ＝ QR です。どの条件で平行四辺形といえる？", [PC4, PC1, PC2, PC3], "同じ1組の辺について書いてある。", "1組の向かい合う辺が平行で長さが等しいです。", RB);
+  ch("paraCond-retention-3", "paraCond", "retention", "対角線の交点をOとする四角形ABCDで、いつでも平行四辺形といえるものはどれ？", ["AO ＝ 6cm、CO ＝ 6cm、BO ＝ 9cm、DO ＝ 9cm", "AB ＝ 8cm、AD ＝ 8cm、CB ＝ 3cm、CD ＝ 3cm", "∠A ＝ 75°、∠B ＝ 75°、∠C ＝ 105°", "AB // DC、AD ＝ BC ＝ 11cm"], "対角線の交点が、それぞれの中点になるものをさがす。", "AO ＝ CO、BO ＝ DO なので、対角線がそれぞれの中点で交わります。", RS);
+  nm("paraCond-retention-4", "paraCond", "retention", "四角形ABCDの対角線の交点をOとします。AO ＝ (3x − 2)cm、CO ＝ 13cm、BO ＝ DO です。平行四辺形になる x の値は？", 5, "AO ＝ CO となればよい。", "3x − 2 = 13 より x = 5 です。", RS);
+  ch("paraCond-retention-5", "paraCond", "retention", "四角形ABCDの条件のうち、平行四辺形にならないことがあるものはどれ？", ["AB // DC、AD ＝ BC", "AB // DC、AB ＝ DC", "∠A ＝ ∠C、∠B ＝ ∠D", "AB // DC、AD // BC"], "平行な辺と等しい辺が別の組のものに注意。", "AB // DC、AD ＝ BC は、左右の辺が等しい台形にもあてはまります。", RS);
+
+  // --- 特別な平行四辺形 ---
+  var QR = "長方形", QH = "ひし形", QS = "正方形", QT = "台形";
+  ch("specialQuad-basic-1", "specialQuad", "basic", "長方形の定義はどれ？", ["4つの角がすべて等しい四角形", "4つの辺がすべて等しい四角形", "1組の向かい合う辺が平行な四角形", "対角線が垂直に交わる四角形"], "角に注目した四角形。", "4つの角がすべて等しい四角形です。", { usage: "diagnosis" });
+  ch("specialQuad-basic-2", "specialQuad", "basic", "ひし形の定義はどれ？", ["4つの辺がすべて等しい四角形", "4つの角がすべて等しい四角形", "1組の向かい合う辺が平行な四角形", "対角線の長さが等しい四角形"], "辺に注目した四角形。", "4つの辺がすべて等しい四角形です。");
+  ch("specialQuad-basic-3", "specialQuad", "basic", "正方形の定義はどれ？", ["4つの辺がすべて等しく、4つの角がすべて等しい四角形", "4つの辺だけがすべて等しい四角形", "4つの角だけがすべて等しい四角形", "2組の向かい合う辺が平行な四角形"], "長方形でもあり、ひし形でもある。", "辺も角も、4つすべて等しい四角形です。");
+  ch("specialQuad-basic-4", "specialQuad", "basic", "長方形の対角線について正しいものはどれ？", ["長さが等しい", "垂直に交わる", "長さがちがう", "平行である"], "長方形を思い浮かべて、2本の対角線をくらべる。", "長方形の対角線は、長さが等しいです。");
+  ch("specialQuad-basic-5", "specialQuad", "basic", "ひし形の対角線について正しいものはどれ？", ["垂直に交わる", "長さが等しい", "平行である", "交わらない"], "ひし形を思い浮かべて、対角線の交わり方を見る。", "ひし形の対角線は、垂直に交わります。");
+  ch("specialQuad-standard-1", "specialQuad", "standard", "平行四辺形ABCDに ∠A ＝ 90° の条件を加えると、どんな四角形になる？", [QR, QH, QS, QT], "向かい合う角、となり合う角から全部の角を考える。", "4つの角がすべて 90° になるので長方形です。");
+  ch("specialQuad-standard-2", "specialQuad", "standard", "平行四辺形ABCDに AB ＝ BC の条件を加えると、どんな四角形になる？", [QH, QR, QS, QT], "向かい合う辺は等しいので、全部の辺を考える。", "4つの辺がすべて等しくなるのでひし形です。");
+  ch("specialQuad-standard-3", "specialQuad", "standard", "平行四辺形ABCDに AC ⊥ BD の条件を加えると、どんな四角形になる？", [QH, QR, QS, QT], "対角線が垂直に交わる四角形。", "対角線が垂直に交わるのでひし形です。");
+  ch("specialQuad-standard-4", "specialQuad", "standard", "平行四辺形ABCDに AC ＝ BD の条件を加えると、どんな四角形になる？", [QR, QH, QS, QT], "対角線の長さが等しい四角形。", "対角線の長さが等しいので長方形です。");
+  ch("specialQuad-standard-5", "specialQuad", "standard", "平行四辺形ABCDに AC ＝ BD、AC ⊥ BD の条件を加えると、どんな四角形になる？", [QS, QR, QH, QT], "長方形の条件と、ひし形の条件の両方。", "長方形でもひし形でもあるので正方形です。");
+  sp("specialQuad-application-1", "specialQuad", "1辺が 5cm のひし形ABCDがあり、∠A ＝ 70° です。", [
+    sn("s1", "specialQuad", "まわりの長さは何cm？", 20, "4つの辺が等しい。", "5 × 4 = 20cm です。"),
+    sn("s2", "specialQuad", "∠C は何度？", 70, "ひし形は平行四辺形でもある。", "向かい合う角は等しいので 70° です。"),
+    sn("s3", "specialQuad", "対角線が交わる角は何度？", 90, "ひし形の対角線の性質。", "垂直に交わるので 90° です。")
+  ], ["specialQuad", "paraProps"], "ひし形は、平行四辺形の性質も持っている。", "20cm、70°、90° です。");
+  sp("specialQuad-application-2", "specialQuad", "長方形ABCDの対角線の交点をOとします。AC ＝ 10cm です。", [
+    sn("s1", "specialQuad", "BD は何cm？", 10, "長方形の対角線の性質。", "長さが等しいので 10cm です。"),
+    sn("s2", "specialQuad", "OA は何cm？", 5, "対角線はそれぞれの中点で交わる。", "10 ÷ 2 = 5cm です。"),
+    sn("s3", "specialQuad", "OB は何cm？", 5, "BD の半分。", "10 ÷ 2 = 5cm です。")
+  ], ["specialQuad", "paraProps"], "長方形では、OA ＝ OB ＝ OC ＝ OD。", "BD ＝ 10cm、OA ＝ OB ＝ 5cm です。");
+  sp("specialQuad-application-3", "specialQuad", "正方形ABCDの対角線の交点をOとします。AC ＝ 8cm です。", [
+    sn("s1", "specialQuad", "∠ABC は何度？", 90, "正方形の角。", "90° です。"),
+    sn("s2", "specialQuad", "∠ABD は何度？", 45, "△ABD は直角二等辺三角形。", "(180 − 90) ÷ 2 = 45° です。"),
+    sn("s3", "specialQuad", "OB は何cm？", 4, "対角線の長さは等しく、中点で交わる。", "8 ÷ 2 = 4cm です。")
+  ], ["specialQuad", "isoProps"], "正方形は、長方形とひし形の性質を全部持っている。", "90°、45°、4cm です。");
+  ch("specialQuad-retention-1", "specialQuad", "retention", "長方形でもあり、ひし形でもある四角形はどれ？", [QS, "平行四辺形", QT, "どれでもない"], "両方の定義をみたす。", "辺も角も4つ等しいので正方形です。", RB);
+  cm("specialQuad-retention-2", "specialQuad", "retention", "長方形ABCDの対角線の交点をOとします。BD ＝ 16cm のとき、OC は何cm？", 8, "長方形の対角線は長さが等しく、中点で交わる。", "16 ÷ 2 = 8cm です。", RB);
+  cm("specialQuad-retention-3", "specialQuad", "retention", "ひし形ABCDのまわりの長さは 36cm です。1辺は何cm？", 9, "4つの辺が等しい。", "36 ÷ 4 = 9cm です。", RS);
+  ch("specialQuad-retention-4", "specialQuad", "retention", "正しいものはどれ？", ["正方形は長方形である", "長方形はひし形である", "ひし形は正方形である", "平行四辺形は長方形である"], "定義をみたしているかを確かめる。", "正方形は4つの角が等しいので長方形です。", RS);
+  deg("specialQuad-retention-5", "specialQuad", "retention", "ひし形ABCDで ∠A ＝ 64° です。対角線BDと辺ABがつくる ∠ABD は何度？", 58, "△ABD は AB ＝ AD の二等辺三角形。", "(180 − 64) ÷ 2 = 58° です。", RS);
+
+  // --- 平行線と面積 ---
+  function trapFig(n) {
+    return { type: "geometry", points: { [n[0]]: [110, 60], [n[3]]: [230, 60], [n[1]]: [50, 210], [n[2]]: [290, 210], O: { intersect: [[n[0], n[2]], [n[1], n[3]]] } },
+      lines: [{ id: "l", through: [n[0], n[3]], extend: 20 }, { id: "m", through: [n[1], n[2]], extend: 20 }], parallel: [{ lines: ["l", "m"], marks: 1 }],
+      segments: [[n[0], n[1]], [n[3], n[2]], [n[0], n[2]], [n[1], n[3]]], labels: [n[0], n[1], n[2], n[3], "O"] };
+  }
+  ch("areaEq-basic-1", "areaEq", "basic", "図で AD // BC です。△ABC と面積が等しい三角形はどれ？", ["△DBC", "△ABD", "△ACD", "△OBC"], "底辺 BC が同じで、高さも同じ三角形。", "底辺 BC が共通で、高さも等しいので △DBC です。", { format: "figure", figure: trapFig("ABCD"), usage: "diagnosis" });
+  nm("areaEq-basic-2", "areaEq", "basic", "図で AD // BC、△ABC の面積は 15cm² です。△DBC の面積は何cm²？", 15, "底辺と高さが同じ。", "面積は等しいので 15cm² です。", { format: "figure", figure: trapFig("ABCD") });
+  ch("areaEq-basic-3", "areaEq", "basic", "2つの三角形の底辺と高さがそれぞれ等しいとき、正しいものはどれ？", ["面積は等しい", "合同である", "形が同じである", "周の長さが等しい"], "三角形の面積の公式を思い出す。", "面積は 底辺 × 高さ ÷ 2 なので等しいです。");
+  ch("areaEq-basic-4", "areaEq", "basic", "図で AD // BC です。△ABO と面積が等しい三角形はどれ？", ["△DCO", "△AOD", "△OBC", "△ABC"], "△ABC と △DBC から、共通の △OBC をひく。", "△ABC ＝ △DBC から △OBC をひくと、△ABO ＝ △DCO です。", { format: "figure", figure: trapFig("ABCD") });
+  nm("areaEq-basic-5", "areaEq", "basic", "平行四辺形ABCDの面積は 40cm² です。対角線ACで分けた △ABC の面積は何cm²？", 20, "対角線で合同な2つの三角形に分かれる。", "40 ÷ 2 = 20cm² です。");
+  nm("areaEq-standard-1", "areaEq", "standard", "図で AD // BC、△ABC ＝ 30cm²、△OBC ＝ 18cm² です。△DCO の面積は何cm²？", 12, "△ABO を先に求める。", "△ABO ＝ 30 − 18 = 12cm²、△DCO ＝ △ABO です。", { format: "figure", figure: trapFig("ABCD") });
+  ch("areaEq-standard-2", "areaEq", "standard", "平行四辺形ABCDの辺BC上に点Eをとります。△AED の面積について正しいものはどれ？", ["平行四辺形の面積の半分", "平行四辺形の面積の3分の1", "点Eの位置で変わる", "平行四辺形の面積と等しい"], "底辺 AD、高さは平行四辺形の高さ。", "底辺と高さが平行四辺形と同じなので、面積は半分です。");
+  nm("areaEq-standard-3", "areaEq", "standard", "面積が 48cm² の平行四辺形ABCDの辺BC上に点Eをとります。△AED の面積は何cm²？", 24, "E がどこにあっても同じ。", "48 ÷ 2 = 24cm² です。");
+  nm("areaEq-standard-4", "areaEq", "standard", "△ABCの辺BC上に BD : DC ＝ 1 : 2 となる点Dをとります。△ABC の面積が 36cm² のとき、△ABD の面積は何cm²？", 12, "高さが同じ三角形の面積の比は、底辺の比。", "36 × 1/3 = 12cm² です。");
+  ch("areaEq-standard-5", "areaEq", "standard", "四角形ABCDと面積が等しい三角形を作ります。辺BCをのばした直線上に点Eをとって △ABE を作るには、点Eをどう決める？", ["点Dを通りACに平行な直線と、BCの延長との交点", "点Dを通りABに平行な直線と、BCの延長との交点", "点AとDの中点", "点Cから BC と同じ長さだけのばした点"], "△ACD と △ACE の面積が等しくなるようにする。", "AC // DE なら △ACD ＝ △ACE で、四角形ABCD ＝ △ABE です。");
+  sp("areaEq-application-1", "areaEq", "AD // BC の四角形ABCDの対角線の交点をOとします。△ABC ＝ 24cm²、△ABO ＝ 9cm² です。", [
+    sn("s1", "areaEq", "△DBC は何cm²？", 24, "底辺 BC と高さが同じ。", "△ABC と等しいので 24cm² です。"),
+    sn("s2", "areaEq", "△OBC は何cm²？", 15, "△ABC から △ABO をひく。", "24 − 9 = 15cm² です。"),
+    sn("s3", "areaEq", "△DCO は何cm²？", 9, "△DBC から △OBC をひく。", "24 − 15 = 9cm² です。")
+  ], ["areaEq"], "面積が等しい三角形から、共通部分をひく。", "24cm²、15cm²、9cm² です。");
+  sp("areaEq-application-2", "areaEq", "面積が 60cm² の平行四辺形ABCDの対角線の交点をOとします。", [
+    sn("s1", "areaEq", "△ABD は何cm²？", 30, "対角線で半分。", "60 ÷ 2 = 30cm² です。"),
+    sn("s2", "areaEq", "△ABO は何cm²？", 15, "2本の対角線で4等分される。", "60 ÷ 4 = 15cm² です。"),
+    sn("s3", "areaEq", "△ABC は何cm²？", 30, "対角線で半分。", "60 ÷ 2 = 30cm² です。")
+  ], ["areaEq", "paraProps"], "O は対角線の中点。", "30cm²、15cm²、30cm² です。");
+  sp("areaEq-application-3", "areaEq", "面積が 40cm² の △ABC の辺BC上に BD : DC ＝ 2 : 3 となる点Dをとります。", [
+    sn("s1", "areaEq", "△ABD は何cm²？", 16, "40 を 2 : 3 に分ける。", "40 × 2/5 = 16cm² です。"),
+    sn("s2", "areaEq", "△ADC は何cm²？", 24, "残りの面積。", "40 − 16 = 24cm² です。"),
+    sn("s3", "areaEq", "2つの面積の差は何cm²？", 8, "大きいほう − 小さいほう。", "24 − 16 = 8cm² です。")
+  ], ["areaEq"], "高さが同じなら、面積の比は底辺の比。", "16cm²、24cm²、差は 8cm² です。");
+  ch("areaEq-retention-1", "areaEq", "retention", "図で PS // QR です。△PQR と面積が等しい三角形はどれ？", ["△SQR", "△PQS", "△PRS", "△OQR"], "底辺 QR が同じで、高さも同じ三角形。", "底辺 QR が共通で、高さも等しいので △SQR です。", { format: "figure", figure: trapFig("PQRS"), evidence_level: "basic" });
+  nm("areaEq-retention-2", "areaEq", "retention", "図で AD // BC、△DBC の面積は 27cm² です。△ABC の面積は何cm²？", 27, "底辺と高さが同じ。", "面積は等しいので 27cm² です。", { format: "figure", figure: trapFig("ABCD"), evidence_level: "basic" });
+  nm("areaEq-retention-3", "areaEq", "retention", "面積が 70cm² の平行四辺形ABCDの辺AD上に点Eをとります。△EBC の面積は何cm²？", 35, "底辺 BC、高さは平行四辺形の高さ。", "70 ÷ 2 = 35cm² です。", RS);
+  nm("areaEq-retention-4", "areaEq", "retention", "△ABCの辺BC上に BD : DC ＝ 3 : 4 となる点Dをとります。△ABC の面積が 56cm² のとき、△ABD の面積は何cm²？", 24, "高さが同じ三角形の面積の比は、底辺の比。", "56 × 3/7 = 24cm² です。", RS);
+  nm("areaEq-retention-5", "areaEq", "retention", "図で AD // BC、△ABC ＝ 42cm²、△OBC ＝ 25cm² です。△DCO の面積は何cm²？", 17, "△ABO を先に求める。", "42 − 25 = 17cm²、△DCO ＝ △ABO です。", { format: "figure", figure: trapFig("ABCD"), evidence_level: "standard" });
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

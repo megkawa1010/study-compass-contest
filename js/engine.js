@@ -114,6 +114,16 @@
     // 行をどの順番で組み立てるか（依存関係）
     proofBuild:     { label: "証明の組み立て", unit: "合同と証明", grade: "中2", school_label: "証明まで", concept: ["proofHypConc", "proofFigureFacts", "congCond", "congUse"], calc: [] },
 
+    // --- 中2 三角形と四角形 ---
+    // 図形の角（三角形の内角・平行線と角）と合同条件が土台
+    isoProps:       { label: "二等辺三角形の性質", unit: "三角形と四角形", grade: "中2", prerequisites: ["triangleSum"] },
+    isoCond:        { label: "二等辺三角形になる条件・逆", unit: "三角形と四角形", grade: "中2", prerequisites: ["isoProps"] },
+    rightCong:      { label: "直角三角形の合同", unit: "三角形と四角形", grade: "中2", prerequisites: ["congCond"] },
+    paraProps:      { label: "平行四辺形の性質", unit: "三角形と四角形", grade: "中2", prerequisites: ["parallelAngles"] },
+    paraCond:       { label: "平行四辺形になる条件", unit: "三角形と四角形", grade: "中2", prerequisites: ["paraProps", "congCond"] },
+    specialQuad:    { label: "特別な平行四辺形", unit: "三角形と四角形", grade: "中2", prerequisites: ["paraProps"] },
+    areaEq:         { label: "平行線と面積",   unit: "三角形と四角形", grade: "中2", prerequisites: ["paraProps"] },
+
     // --- 中2 確率 ---
     // 数え上げ（場合の数）と確率の意味が土台。2つのさいころ・取り出す問題は「確率の求め方」と「場合の数」の両方を使う
     probMeaning:    { label: "確率の意味",     unit: "確率", grade: "中2", prerequisites: [] },
@@ -152,6 +162,7 @@
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "angleBasics", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
     "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild",
+    "isoProps", "isoCond", "rightCong", "paraProps", "paraCond", "specialQuad", "areaEq",
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
@@ -162,6 +173,7 @@
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
     "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
     "proofHypConc", "congCorr", "congCond", "proofFigureFacts", "congUse", "proofBuild",
+    "isoProps", "isoCond", "rightCong", "paraProps", "paraCond", "specialQuad", "areaEq",
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
@@ -174,11 +186,12 @@
     "図形の角": ["lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior"],
     // 教科書の順（合同な図形 → 合同条件 → 仮定と結論 → 証明）
     "合同と証明": ["congCorr", "congCond", "proofFigureFacts", "proofHypConc", "proofBuild", "congUse"],
+    "三角形と四角形": ["isoProps", "isoCond", "rightCong", "paraProps", "paraCond", "specialQuad", "areaEq"],
     "確率": ["probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"],
     "データの活用": ["dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"]
   };
   // 中2で選べる単元（学校の進む順）
-  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "確率", "データの活用"];
+  var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -503,6 +516,7 @@
     polygonInterior: "review_polygon_interior", polygonExterior: "review_polygon_exterior",
     congCorr: "review_congruent_correspondence", congCond: "review_congruence_conditions", proofFigureFacts: "practice_proof_figure_facts",
     proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order",
+    isoProps: "review_isosceles_properties", isoCond: "review_isosceles_conditions", rightCong: "review_right_triangle_congruence", paraProps: "review_parallelogram_properties", paraCond: "review_parallelogram_conditions", specialQuad: "review_special_parallelograms", areaEq: "review_parallel_area",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"
   };
