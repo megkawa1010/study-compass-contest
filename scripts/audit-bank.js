@@ -23,6 +23,7 @@ const SCENARIOS = [
   ["式の計算"], ["式の計算", "signed"], ["式の計算", "eqProperty"],
   ["図形の角"], ["図形の角", "transpose"], ["図形の角", "triangleSum"],
   ["合同と証明"], ["合同と証明", "parallelAngles"], ["合同と証明", "proofHypConc"],
+  ["正負の数"], ["正負の数", "negAddSub"],
   ["一次方程式"], ["一次方程式", "transpose"],
   ["三角形と四角形"], ["三角形と四角形", "isoProps"], ["三角形と四角形", "congCond"],
   ["確率"], ["確率", "probCount"], ["確率", "probMeaning"],

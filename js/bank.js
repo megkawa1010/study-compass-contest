@@ -5593,6 +5593,190 @@
   nm("eqWord-retention-5", "eqWord", "retention", "1本 50円の鉛筆 x 本と、150円のノートを買うと 400円でした。x はいくつ？", 5, "50x + 150 = 400 を解く。", "50x = 250 より x = 5 です。", RS);
 
   // =====================================================================
+  // 中1 正負の数（中2で前提に使う「正負の数（signed）」とは別のスキル。中1の単元として順に学ぶ）
+  //   「… を計算しましょう」の答えは tests/negative.test.js が式を計算して確かめる
+  // =====================================================================
+  function cal(id, skill, level, expr, answer, hint, explanation, extra) { nm(id, skill, level, expr + " を計算しましょう。", answer, hint, explanation, extra); }
+
+  // --- 正負の数の意味・大小 ---
+  nm("negMeaning-basic-1", "negMeaning", "basic", "0℃より 5℃低い温度は何℃？", -5, "0 より低いので、マイナスをつける。", "−5℃ です。", { usage: "diagnosis" });
+  ch("negMeaning-basic-2", "negMeaning", "basic", "−3 と −7 では、どちらが大きい？", ["−3", "−7", "同じ", "くらべられない"], "数直線で右にあるほうが大きい。", "負の数は、絶対値が小さいほうが大きいので −3 です。");
+  nm("negMeaning-basic-3", "negMeaning", "basic", "−6 の絶対値はいくつ？", 6, "0 からの距離。", "0 から 6 はなれているので 6 です。");
+  ch("negMeaning-basic-4", "negMeaning", "basic", "500円の利益を +500円 と表すとき、300円の損失はどう表す？", ["−300円", "+300円", "−500円", "+800円"], "反対の意味はマイナスで表す。", "−300円 です。");
+  nm("negMeaning-basic-5", "negMeaning", "basic", "数直線で 0 から右へ 4 進み、そこから左へ 9 進みました。いまの点の数は？", -5, "4 − 9 を考える。", "4 から左へ 9 進むと −5 です。");
+  ch("negMeaning-basic-6", "negMeaning", "basic", "負の数はどれ？", ["−0.5", "0", "2", "1/3"], "0 より小さい数。", "−0.5 は 0 より小さいので負の数です。");
+  ch("negMeaning-basic-7", "negMeaning", "basic", "自然数はどれ？", ["7", "−7", "0", "0.7"], "1、2、3…と数える数。", "正の整数を自然数といいます。");
+  ch("negMeaning-standard-1", "negMeaning", "standard", "小さい順に正しくならんでいるのはどれ？", ["−5、−2、0、3", "0、−2、−5、3", "−2、−5、0、3", "3、0、−2、−5"], "数直線の左から順に書く。", "−5、−2、0、3 です。");
+  nm("negMeaning-standard-2", "negMeaning", "standard", "絶対値が 4 の数のうち、負の数はいくつ？", -4, "4 と −4 の2つがある。", "−4 です。");
+  nm("negMeaning-standard-3", "negMeaning", "standard", "絶対値が 3 以下の整数は何個ある？", 7, "−3 から 3 まで数える。0 も入る。", "−3、−2、−1、0、1、2、3 の 7 個です。");
+  ch("negMeaning-standard-4", "negMeaning", "standard", "不等号の使い方が正しいものはどれ？", ["−8 < −3", "−8 > −3", "−3 < −8", "−8 = −3"], "数直線で左にあるほうが小さい。", "−8 のほうが小さいです。");
+  nm("negMeaning-standard-5", "negMeaning", "standard", "−2.5 より大きい整数のうち、いちばん小さいものはいくつ？", -2, "数直線で −2.5 のすぐ右の整数。", "−2 です。");
+  ax("negMeaning-application-1", "negMeaning", "ある日の気温は、朝 −3℃、昼 8℃、夜 −1℃ でした。", [
+    ["朝から昼まで、何℃上がった？", 11, "8 − (−3)。", "11℃ です。"],
+    ["昼から夜まで、何℃下がった？", 9, "8 − (−1)。", "9℃ です。"],
+    ["いちばん低い気温は何℃？", -3, "3つをくらべる。", "−3℃ です。"]
+  ], ["negMeaning"], "数直線で考える。", "11℃上がり、9℃下がりました。");
+  ax("negMeaning-application-2", "negMeaning", "50kg を基準にして、3人の体重の差を表しました。Aは +4kg、Bは −3kg、Cは +2kg です。", [
+    ["Aの体重は何kg？", 54, "50 + 4。", "54kg です。"],
+    ["Bの体重は何kg？", 47, "50 − 3。", "47kg です。"],
+    ["AとBの体重の差は何kg？", 7, "54 − 47。", "7kg です。"]
+  ], ["negMeaning"], "基準からの差で考える。", "54kg、47kg、差は 7kg です。");
+  ax("negMeaning-application-3", "negMeaning", "数直線上に −4 と 6 があります。", [
+    ["2つの数の間の距離はいくつ？", 10, "6 − (−4)。", "10 です。"],
+    ["2つの数のちょうど真ん中の数は？", 1, "−4 から 5 進む。", "−4 + 5 = 1 です。"],
+    ["−4 の絶対値はいくつ？", 4, "0 からの距離。", "4 です。"]
+  ], ["negMeaning"], "距離は大きいほうから小さいほうをひく。", "距離は 10、真ん中は 1 です。");
+  nm("negMeaning-retention-1", "negMeaning", "retention", "0℃より 18℃低い温度は何℃？", -18, "0 より低いので、マイナスをつける。", "−18℃ です。", RB);
+  ch("negMeaning-retention-2", "negMeaning", "retention", "−14 と −29 では、どちらが大きい？", ["−14", "−29", "同じ", "くらべられない"], "数直線で右にあるほうが大きい。", "−14 のほうが大きいです。", RB);
+  nm("negMeaning-retention-3", "negMeaning", "retention", "−37 の絶対値はいくつ？", 37, "0 からの距離。", "37 です。", RB);
+  nm("negMeaning-retention-4", "negMeaning", "retention", "絶対値が 12 の数のうち、負の数はいくつ？", -12, "12 と −12 の2つがある。", "−12 です。", RS);
+  nm("negMeaning-retention-5", "negMeaning", "retention", "絶対値が 6 より小さい整数は何個ある？", 11, "−5 から 5 まで数える。", "−5 から 5 までの 11 個です。", RS);
+
+  // --- 加法・減法 ---
+  cal("negAddSub-basic-1", "negAddSub", "basic", "(−3) + 5", 2, "絶対値の大きいほうの符号になる。", "5 − 3 = 2 です。", { usage: "diagnosis" });
+  cal("negAddSub-basic-2", "negAddSub", "basic", "(−4) + (−6)", -10, "同じ符号なら、絶対値をたす。", "−(4 + 6) = −10 です。");
+  cal("negAddSub-basic-3", "negAddSub", "basic", "7 + (−9)", -2, "9 のほうが絶対値が大きい。", "−(9 − 7) = −2 です。");
+  cal("negAddSub-basic-4", "negAddSub", "basic", "(−2) − 6", -8, "6 をひくのは −6 をたすのと同じ。", "(−2) + (−6) = −8 です。");
+  cal("negAddSub-basic-5", "negAddSub", "basic", "5 − (−3)", 8, "負の数をひくのは、正の数をたすのと同じ。", "5 + 3 = 8 です。");
+  cal("negAddSub-basic-6", "negAddSub", "basic", "(−8) − (−2)", -6, "−(−2) は +2。", "−8 + 2 = −6 です。");
+  cal("negAddSub-basic-7", "negAddSub", "basic", "0 − 7", -7, "0 から 7 をひく。", "−7 です。");
+  cal("negAddSub-standard-1", "negAddSub", "standard", "(−5) + 8 + (−6)", -3, "正の数と負の数に分けて計算する。", "8 − 11 = −3 です。");
+  cal("negAddSub-standard-2", "negAddSub", "standard", "3 − 7 + 2", -2, "左から順に計算する。", "−4 + 2 = −2 です。");
+  cal("negAddSub-standard-3", "negAddSub", "standard", "−4 + 9 − 12", -7, "正の数と負の数に分ける。", "9 − 16 = −7 です。");
+  cal("negAddSub-standard-4", "negAddSub", "standard", "6 − (−4) + (−3)", 7, "かっこをはずす。", "6 + 4 − 3 = 7 です。");
+  cal("negAddSub-standard-5", "negAddSub", "standard", "1.5 + (−2.5)", -1, "小数でも同じ。", "−(2.5 − 1.5) = −1 です。");
+  ax("negAddSub-application-1", "negAddSub", "60点を基準にして、5回のテストの差を表すと +8、−3、+5、−6、+1 でした。", [
+    ["差の合計はいくつ？", 5, "順にたす。", "8 − 3 + 5 − 6 + 1 = 5 です。"],
+    ["差の平均はいくつ？", 1, "5 ÷ 5。", "1 です。"],
+    ["平均点は何点？", 61, "60 + 1。", "61点 です。"]
+  ], ["negAddSub"], "基準との差で平均を出す。", "平均点は 61点 です。");
+  ax("negAddSub-application-2", "negAddSub", "はじめに 1000円ありました。お金の増減は +300円、−500円、+400円 でした。", [
+    ["増減の合計は何円？", 200, "300 − 500 + 400。", "200円 です。"],
+    ["最後の金額は何円？", 1200, "1000 + 200。", "1200円 です。"],
+    ["2回目のあとの金額は何円？", 800, "1000 + 300 − 500。", "800円 です。"]
+  ], ["negAddSub"], "順にたしていく。", "最後は 1200円 です。");
+  ax("negAddSub-application-3", "negAddSub", "エレベーターが3階にいます。上を + として、+4階、−6階、+1階 動きました。", [
+    ["1回目のあとは何階？", 7, "3 + 4。", "7階 です。"],
+    ["2回目のあとは何階？", 1, "7 − 6。", "1階 です。"],
+    ["最後は何階？", 2, "1 + 1。", "2階 です。"]
+  ], ["negAddSub"], "順に動きを計算する。", "最後は 2階 です。");
+  cal("negAddSub-retention-1", "negAddSub", "retention", "(−17) + 29", 12, "絶対値の大きいほうの符号になる。", "29 − 17 = 12 です。", RB);
+  cal("negAddSub-retention-2", "negAddSub", "retention", "(−23) + (−14)", -37, "同じ符号なら、絶対値をたす。", "−(23 + 14) = −37 です。", RB);
+  cal("negAddSub-retention-3", "negAddSub", "retention", "31 − (−16)", 47, "負の数をひくのは、正の数をたすのと同じ。", "31 + 16 = 47 です。", RB);
+  cal("negAddSub-retention-4", "negAddSub", "retention", "(−45) − (−18)", -27, "−(−18) は +18。", "−45 + 18 = −27 です。", RS);
+  cal("negAddSub-retention-5", "negAddSub", "retention", "−26 + 41 − 13", 2, "正の数と負の数に分ける。", "41 − 39 = 2 です。", RS);
+
+  // --- 乗法・除法 ---
+  cal("negMulDiv-basic-1", "negMulDiv", "basic", "(−3) × 4", -12, "符号がちがうと負。", "−(3 × 4) = −12 です。", { usage: "diagnosis" });
+  cal("negMulDiv-basic-2", "negMulDiv", "basic", "(−5) × (−6)", 30, "同じ符号なら正。", "5 × 6 = 30 です。");
+  cal("negMulDiv-basic-3", "negMulDiv", "basic", "24 ÷ (−6)", -4, "符号がちがうと負。", "−(24 ÷ 6) = −4 です。");
+  cal("negMulDiv-basic-4", "negMulDiv", "basic", "(−18) ÷ (−3)", 6, "同じ符号なら正。", "18 ÷ 3 = 6 です。");
+  cal("negMulDiv-basic-5", "negMulDiv", "basic", "0 × (−9)", 0, "0 にどんな数をかけても 0。", "0 です。");
+  cal("negMulDiv-basic-6", "negMulDiv", "basic", "(−7) × 2", -14, "符号がちがうと負。", "−14 です。");
+  cal("negMulDiv-basic-7", "negMulDiv", "basic", "(−20) ÷ 5", -4, "符号がちがうと負。", "−4 です。");
+  cal("negMulDiv-standard-1", "negMulDiv", "standard", "(−2) × 3 × (−4)", 24, "負の数が2個なら正。", "2 × 3 × 4 = 24 です。");
+  cal("negMulDiv-standard-2", "negMulDiv", "standard", "(−6) × (−5) × (−2)", -60, "負の数が3個なら負。", "−(6 × 5 × 2) = −60 です。");
+  cal("negMulDiv-standard-3", "negMulDiv", "standard", "36 ÷ (−4) ÷ 3", -3, "左から順に計算する。", "−9 ÷ 3 = −3 です。");
+  cal("negMulDiv-standard-4", "negMulDiv", "standard", "(−12) × 3 ÷ (−9)", 4, "負の数が2個なので正。", "36 ÷ 9 = 4 です。");
+  cal("negMulDiv-standard-5", "negMulDiv", "standard", "(−0.5) × (−8)", 4, "小数でも同じ。", "0.5 × 8 = 4 です。");
+  cal("negMulDiv-basic-8", "negMulDiv", "basic", "8 × (−4)", -32, "符号がちがうと負。", "−32 です。");
+  cal("negMulDiv-basic-9", "negMulDiv", "basic", "(−35) ÷ (−7)", 5, "同じ符号なら正。", "5 です。");
+  cal("negMulDiv-standard-6", "negMulDiv", "standard", "(−4) × (−3) ÷ 6", 2, "負の数が2個なので正。", "12 ÷ 6 = 2 です。");
+  cal("negMulDiv-standard-7", "negMulDiv", "standard", "(−48) ÷ 4 ÷ (−2)", 6, "負の数が2個なので正。", "12 ÷ 2 = 6 です。");
+  ax("negMulDiv-application-1", "negMulDiv", "(−2) × (−3) × (−5) × (−1) を計算します。", [
+    ["負の数は何個ある？", 4, "数える。", "4 個です。"],
+    ["答えの符号はどちら？", ["正", "負"], "負の数が偶数個なら正。", "4 個なので正です。"],
+    ["答えはいくつ？", 30, "絶対値をかける。", "2 × 3 × 5 × 1 = 30 です。"]
+  ], ["negMulDiv"], "先に符号を決める。", "答えは 30 です。");
+  ax("negMulDiv-application-2", "negMulDiv", "水の温度が毎分 3℃ ずつ下がっています。今の温度は 0℃ です。", [
+    ["5分後の温度は何℃？", -15, "(−3) × 5。", "−15℃ です。"],
+    ["4分前の温度は何℃？", 12, "(−3) × (−4)。", "12℃ です。"],
+    ["4分前と5分後の温度の差は何℃？", 27, "12 − (−15)。", "27℃ です。"]
+  ], ["negMulDiv"], "未来を +、過去を − として考える。", "−15℃、12℃、差は 27℃ です。");
+  ax("negMulDiv-application-3", "negMulDiv", "ある数を −4 でわると 6 になります。", [
+    ["ある数はいくつ？", -24, "6 × (−4)。", "−24 です。"],
+    ["ある数に −2 をかけるといくつ？", 48, "(−24) × (−2)。", "48 です。"],
+    ["ある数を 3 でわるといくつ？", -8, "(−24) ÷ 3。", "−8 です。"]
+  ], ["negMulDiv"], "わり算は、かけ算で確かめられる。", "ある数は −24 です。");
+  cal("negMulDiv-retention-1", "negMulDiv", "retention", "(−13) × 7", -91, "符号がちがうと負。", "−91 です。", RB);
+  cal("negMulDiv-retention-2", "negMulDiv", "retention", "(−15) × (−12)", 180, "同じ符号なら正。", "180 です。", RB);
+  cal("negMulDiv-retention-3", "negMulDiv", "retention", "144 ÷ (−16)", -9, "符号がちがうと負。", "−9 です。", RB);
+  cal("negMulDiv-retention-4", "negMulDiv", "retention", "(−96) ÷ (−8)", 12, "同じ符号なら正。", "12 です。", RS);
+  cal("negMulDiv-retention-5", "negMulDiv", "retention", "(−11) × (−3) × (−10)", -330, "負の数が3個なら負。", "−330 です。", RS);
+
+  // --- 累乗・四則の混じった計算 ---
+  cal("negPower-basic-1", "negPower", "basic", "(−3)²", 9, "(−3) × (−3)。", "9 です。", { usage: "diagnosis" });
+  cal("negPower-basic-2", "negPower", "basic", "−3²", -9, "2乗するのは 3 だけ。", "−(3 × 3) = −9 です。");
+  cal("negPower-basic-3", "negPower", "basic", "(−2)³", -8, "(−2) を3回かける。", "−8 です。");
+  cal("negPower-basic-4", "negPower", "basic", "2 × (−3) + 4", -2, "かけ算が先。", "−6 + 4 = −2 です。");
+  cal("negPower-basic-5", "negPower", "basic", "10 − (−2) × 3", 16, "かけ算が先。", "10 + 6 = 16 です。");
+  cal("negPower-basic-6", "negPower", "basic", "5²", 25, "5 × 5。", "25 です。");
+  cal("negPower-basic-7", "negPower", "basic", "(−1)³", -1, "負の数を奇数回かけると負。", "−1 です。");
+  cal("negPower-standard-1", "negPower", "standard", "(−2)² × 3", 12, "累乗が先。", "4 × 3 = 12 です。");
+  cal("negPower-standard-2", "negPower", "standard", "−4² ÷ 2", -8, "−(4 × 4) を先に。", "−16 ÷ 2 = −8 です。");
+  cal("negPower-standard-3", "negPower", "standard", "3 × (−2)² − 5", 7, "累乗 → かけ算 → ひき算。", "12 − 5 = 7 です。");
+  cal("negPower-standard-4", "negPower", "standard", "(−6) ÷ 2 + (−3) × (−4)", 9, "かけ算・わり算が先。", "−3 + 12 = 9 です。");
+  cal("negPower-standard-5", "negPower", "standard", "2 × (5 − 8)²", 18, "かっこ → 累乗 → かけ算。", "2 × 9 = 18 です。");
+  cal("negPower-basic-8", "negPower", "basic", "(−4)²", 16, "(−4) × (−4)。", "16 です。");
+  cal("negPower-basic-9", "negPower", "basic", "−2³", -8, "3乗するのは 2 だけ。", "−(2 × 2 × 2) = −8 です。");
+  cal("negPower-standard-6", "negPower", "standard", "(−3)² + (−2)³", 1, "累乗を先に計算する。", "9 − 8 = 1 です。");
+  cal("negPower-standard-7", "negPower", "standard", "20 ÷ (−5) − 3 × 2", -10, "わり算とかけ算が先。", "−4 − 6 = −10 です。");
+  ax("negPower-application-1", "negPower", "(−2)³ + 3 × (−4) を計算します。", [
+    ["(−2)³ はいくつ？", -8, "(−2) を3回かける。", "−8 です。"],
+    ["3 × (−4) はいくつ？", -12, "符号がちがうと負。", "−12 です。"],
+    ["答えはいくつ？", -20, "−8 + (−12)。", "−20 です。"]
+  ], ["negPower"], "累乗とかけ算を先に。", "答えは −20 です。");
+  ax("negPower-application-2", "negPower", "−3² − (−2)² を計算します。", [
+    ["−3² はいくつ？", -9, "2乗するのは 3 だけ。", "−9 です。"],
+    ["(−2)² はいくつ？", 4, "(−2) × (−2)。", "4 です。"],
+    ["答えはいくつ？", -13, "−9 − 4。", "−13 です。"]
+  ], ["negPower"], "かっこの有無で意味が変わる。", "答えは −13 です。");
+  ax("negPower-application-3", "negPower", "6 − 2 × (1 − 4)² を計算します。", [
+    ["(1 − 4) はいくつ？", -3, "かっこの中が先。", "−3 です。"],
+    ["(1 − 4)² はいくつ？", 9, "(−3) × (−3)。", "9 です。"],
+    ["答えはいくつ？", -12, "6 − 2 × 9。", "6 − 18 = −12 です。"]
+  ], ["negPower"], "かっこ → 累乗 → かけ算 → ひき算。", "答えは −12 です。");
+  cal("negPower-retention-1", "negPower", "retention", "(−7)²", 49, "(−7) × (−7)。", "49 です。", RB);
+  cal("negPower-retention-2", "negPower", "retention", "−8²", -64, "2乗するのは 8 だけ。", "−64 です。", RB);
+  cal("negPower-retention-3", "negPower", "retention", "(−5)³", -125, "(−5) を3回かける。", "−125 です。", RB);
+  cal("negPower-retention-4", "negPower", "retention", "15 − (−4) × 6", 39, "かけ算が先。", "15 + 24 = 39 です。", RS);
+  cal("negPower-retention-5", "negPower", "retention", "(−11)² − 100", 21, "累乗が先。", "121 − 100 = 21 です。", RS);
+
+  // --- 正負の数の利用 ---
+  nm("negUse-basic-1", "negUse", "basic", "基準の 100 との差が +7 の値はいくつ？", 107, "100 + 7。", "107 です。", { usage: "diagnosis" });
+  nm("negUse-basic-2", "negUse", "basic", "基準の 100 との差が −12 の値はいくつ？", 88, "100 − 12。", "88 です。");
+  nm("negUse-basic-3", "negUse", "basic", "基準を 50 とすると、46 は基準との差でいくつと表せる？", -4, "46 − 50。", "−4 です。");
+  nm("negUse-basic-4", "negUse", "basic", "+3、−1、+4 の平均はいくつ？", 2, "合計 ÷ 個数。", "6 ÷ 3 = 2 です。");
+  nm("negUse-basic-5", "negUse", "basic", "東へ進むことを + で表すと、西へ 5km 進むことはいくつと表せる？（km）", -5, "反対の向きはマイナス。", "−5km です。");
+  nm("negUse-basic-6", "negUse", "basic", "基準との差が +2、+6、−2 でした。差の合計はいくつ？", 6, "順にたす。", "6 です。");
+  ch("negUse-basic-7", "negUse", "basic", "3時間後を +3時間 と表すとき、2時間前はどう表す？", ["−2時間", "+2時間", "−3時間", "+5時間"], "反対の意味はマイナス。", "−2時間 です。");
+  nm("negUse-standard-1", "negUse", "standard", "70点を基準にして、4人の得点の差は +5、−3、+7、−1 でした。平均点は何点？", 72, "差の平均を 70 にたす。", "8 ÷ 4 = 2 で、72点 です。");
+  nm("negUse-standard-2", "negUse", "standard", "200個を基準にして、5日の売上の差は +10、−20、+30、0、−5 でした。差の合計はいくつ？", 15, "順にたす。", "15 です。");
+  nm("negUse-standard-3", "negUse", "standard", "200個を基準にして、5日の売上の差の合計が +15 でした。1日の平均は何個？", 203, "15 ÷ 5 を 200 にたす。", "203個 です。");
+  nm("negUse-standard-4", "negUse", "standard", "20℃を基準にして、3日の最高気温の差は −3、+1、+5 でした。平均は何℃？", 21, "差の平均を 20 にたす。", "3 ÷ 3 = 1 で、21℃ です。");
+  nm("negUse-standard-5", "negUse", "standard", "東を + とします。地点Oから東へ 3km 歩き、西へ 8km 歩きました。いまの位置はいくつと表せる？（km）", -5, "3 − 8。", "−5km です。");
+  ax("negUse-application-1", "negUse", "150cm を基準にして、4人の身長の差は +6、−4、+2、−8 です。", [
+    ["いちばん高い人は何cm？", 156, "150 + 6。", "156cm です。"],
+    ["いちばん高い人と低い人の差は何cm？", 14, "6 − (−8)。", "14cm です。"],
+    ["平均は何cm？", 149, "差の平均 −1 を 150 にたす。", "149cm です。"]
+  ], ["negUse", "negAddSub"], "基準との差のまま計算する。", "156cm、差 14cm、平均 149cm です。");
+  ax("negUse-application-2", "negUse", "30分を基準にして、5日の読書時間の差は +10、−5、+15、−10、0 です。", [
+    ["差の合計は何分？", 10, "順にたす。", "10分 です。"],
+    ["差の平均は何分？", 2, "10 ÷ 5。", "2分 です。"],
+    ["1日の平均は何分？", 32, "30 + 2。", "32分 です。"]
+  ], ["negUse", "negAddSub"], "差の平均を基準にたす。", "平均は 32分 です。");
+  ax("negUse-application-3", "negUse", "1000円を基準にして、5日の売上の差は +200、−100、+300、−200、−50 です。", [
+    ["差の合計は何円？", 150, "順にたす。", "150円 です。"],
+    ["差の平均は何円？", 30, "150 ÷ 5。", "30円 です。"],
+    ["1日の平均は何円？", 1030, "1000 + 30。", "1030円 です。"]
+  ], ["negUse", "negAddSub"], "差の平均を基準にたす。", "平均は 1030円 です。");
+  nm("negUse-retention-1", "negUse", "retention", "基準の 250 との差が +36 の値はいくつ？", 286, "250 + 36。", "286 です。", RB);
+  nm("negUse-retention-2", "negUse", "retention", "基準の 480 との差が −75 の値はいくつ？", 405, "480 − 75。", "405 です。", RB);
+  nm("negUse-retention-3", "negUse", "retention", "+13、−5、+22 の平均はいくつ？", 10, "合計 ÷ 個数。", "30 ÷ 3 = 10 です。", RS);
+  nm("negUse-retention-4", "negUse", "retention", "80点を基準にして、4人の得点の差は +9、−6、+12、−3 でした。平均点は何点？", 83, "差の平均を 80 にたす。", "12 ÷ 4 = 3 で、83点 です。", RS);
+  nm("negUse-retention-5", "negUse", "retention", "東を + とします。地点Oから東へ 17km 歩き、西へ 25km 歩きました。いまの位置はいくつと表せる？（km）", -8, "17 − 25。", "−8km です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
