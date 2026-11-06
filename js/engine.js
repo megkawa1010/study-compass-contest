@@ -42,6 +42,12 @@
     coord:          { label: "座標",           unit: "既習",     grade: "中1", prerequisites: ["signed"] },
     // 一直線は180°・一回り360°・角の表し方（∠ABC）。図形の角の土台
     angleBasics:    { label: "角の基本",       unit: "既習",     grade: "中1", prerequisites: [] },
+    // --- 中1 比例と反比例 ---
+    prFunc:         { label: "関数と変域",     unit: "比例と反比例", grade: "中1", prerequisites: ["litWord"] },
+    prDirect:       { label: "比例の式",       unit: "比例と反比例", grade: "中1", prerequisites: ["proportion", "litValue"] },
+    prGraph:        { label: "比例のグラフ",   unit: "比例と反比例", grade: "中1", prerequisites: ["prDirect", "coord"] },
+    prInverse:      { label: "反比例",         unit: "比例と反比例", grade: "中1", prerequisites: ["prDirect", "negMulDiv"] },
+    prUse:          { label: "比例と反比例の利用", unit: "比例と反比例", grade: "中1", prerequisites: ["prDirect", "prInverse"] },
     // --- 中1 一次方程式 ---
     eqMeaning:      { label: "方程式の意味",   unit: "一次方程式", grade: "中1", prerequisites: ["algebra"] },
     eqProperty:     { label: "等式の性質",     unit: "一次方程式", grade: "中1", prerequisites: ["signed"] },
@@ -169,7 +175,7 @@
     return (side === "calc" ? s.calc : s.concept).slice();
   }
   // 現在地画面で上から並べる順（土台 → 中1一次方程式 → 中2式の計算 → 中2連立方程式 → 中2一次関数）
-  var SKILL_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "proportion", "coord",
+  var SKILL_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "coord",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
@@ -180,7 +186,7 @@
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
-  var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "angleBasics",
+  var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
@@ -196,6 +202,7 @@
     "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form", "simGraph"],
     "連立方程式": ["simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord"],
     "正負の数": ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse"],
+    "比例と反比例": ["prFunc", "prDirect", "prGraph", "prInverse", "prUse"],
     "文字と式": ["litExpr", "litValue", "litCalc", "litWord", "litRel"],
     "一次方程式": ["eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord"],
     // 教科書の順（対頂角 → 同位角・錯角 → 平行線 → 三角形 → 多角形）
@@ -210,7 +217,7 @@
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
   // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
-  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": [] };
+  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": [] };
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
   var currentGrade = "中学2年";
   function setGrade(g) {
@@ -546,6 +553,7 @@
     proofHypConc: "review_hypothesis_conclusion", congUse: "review_congruent_parts", proofBuild: "practice_proof_order",
     isoProps: "review_isosceles_properties", isoCond: "review_isosceles_conditions", rightCong: "review_right_triangle_congruence", paraProps: "review_parallelogram_properties", paraCond: "review_parallelogram_conditions", specialQuad: "review_special_parallelograms", areaEq: "review_parallel_area",
     litExpr: "review_literal_notation", litValue: "review_literal_value", litCalc: "review_linear_expressions", litWord: "review_literal_quantities", litRel: "review_literal_relations",
+    prFunc: "review_function_domain", prDirect: "review_direct_proportion", prGraph: "review_proportion_graph", prInverse: "review_inverse_proportion", prUse: "review_proportion_use",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"

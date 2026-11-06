@@ -17,7 +17,9 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 
 const history = [];
 let n = 0;
-const knows = UNIT === "文字と式"
+const knows = UNIT === "比例と反比例"
+  ? { negMulDiv: true, litWord: true, litValue: true, proportion: true, coord: true, prFunc: true, prDirect: true, prGraph: false, prInverse: false, prUse: false }
+  : UNIT === "文字と式"
   ? { negMeaning: true, negAddSub: true, negMulDiv: true, negPower: true, negUse: true, litExpr: true, litValue: false, litCalc: false, litWord: false, litRel: false }
   : UNIT === "正負の数"
   ? { negMeaning: true, negAddSub: false, negMulDiv: false, negPower: false, negUse: false }
@@ -48,7 +50,7 @@ function answer(qid, at, context) {
 }
 const CAUSE = process.argv[5] || null;
 if (CAUSE) { knows[CAUSE] = false; if (UNIT === "合同と証明" && CAUSE !== "congCorr") knows.congCorr = true; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
-const FIRST = UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
+const FIRST = UNIT === "比例と反比例" || UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
   : UNIT === "合同と証明" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1"])
   : UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
   : UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
@@ -57,7 +59,9 @@ FIRST.forEach((id) => answer(id, T0, "compass_check"));
 // 想定（合同と証明）：合同条件でまちがえ、原因が「対応する辺・角」。原因に parallelAngles（図形①）を指定すると、図から使える事実（錯角）でつまずく子ども。
 //                      proofHypConc を指定すると、証明の組み立てで仮定と結論を取り違える子ども
 const PROOF_SYMPTOM = { congCorr: "congCond", parallelAngles: "proofFigureFacts", proofHypConc: "proofBuild" };
-const explorations = UNIT === "文字と式"
+const explorations = UNIT === "比例と反比例"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "prInverse", label: E.SKILLS.prInverse.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "prDirect" } }]
+  : UNIT === "文字と式"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "litCalc", label: E.SKILLS.litCalc.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "litExpr" } }]
   : UNIT === "正負の数"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "negPower", label: E.SKILLS.negPower.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "negMulDiv" } }]
