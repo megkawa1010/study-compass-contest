@@ -326,7 +326,7 @@
     var recent = history.filter(function (x) { return x.skill === root.skill && !(x.preview && !x.correct); }).sort(function (x, y) { return t(x) - t(y); }).slice(-4);
     var recentErr = recent.filter(function (x) { return !x.correct; }).length;
     var curUnit = (input.school && input.school.current_unit) || "一次関数";
-    var unitAt = function (k) { var u = E.SKILLS[k].unit; return u === "既習" ? 0 : u === "正負の数" ? 0.5 : u === "一次方程式" ? 1 : 2 + E.SELECTABLE_UNITS.indexOf(u); };
+    var unitAt = function (k) { var u = E.SKILLS[k].unit; return u === "既習" ? 0 : u === "正負の数" ? 0.3 : u === "文字と式" ? 0.6 : u === "一次方程式" ? 1 : 2 + E.SELECTABLE_UNITS.indexOf(u); };
     var crossUnit = unitAt(root.skill) < unitAt(E.UNITS[curUnit] ? E.UNITS[curUnit][0] : root.skill) ? 1 : 0;
     var errRate = recent.length ? recentErr / recent.length : 0.5;
     var factors = { skill: root.skill, confidence: Math.round(conf * 100) / 100, recent_errors: recentErr, recent_answers: recent.length, depth: root.depth || 0, weak_skills: a.p1.length, cross_unit: crossUnit };

@@ -5777,6 +5777,195 @@
   nm("negUse-retention-5", "negUse", "retention", "東を + とします。地点Oから東へ 17km 歩き、西へ 25km 歩きました。いまの位置はいくつと表せる？（km）", -8, "17 − 25。", "−8km です。", RS);
 
   // =====================================================================
+  // 中1 文字と式。答えは tests/literal.test.js が式を計算して確かめる
+  // =====================================================================
+  var LIT_PH = "例：3x + 2";
+  function litPoly(id, skill, level, expr, answer, hint, explanation, extra) {
+    var e = { format: "expression", type: "poly", placeholder: LIT_PH }, q = { id: id, skill: skill, level: level, text: expr + " を計算しましょう。", answer: answer, hint: hint, explanation: explanation };
+    for (var k in e) q[k] = e[k];
+    for (var m in (extra || {})) q[m] = extra[m];
+    add(q);
+  }
+  function litStep(id, skill, text, answer, hint, explanation) { return { id: id, skill: skill, text: text, type: "poly", answer: answer, placeholder: LIT_PH, hint: hint, explanation: explanation }; }
+  var NOX = " を、× や ÷ の記号を使わずに表すと？";
+  function litNote(id, level, expr, labels, hint, explanation, extra) { ch(id, "litExpr", level, expr + NOX, labels, hint, explanation, extra); }
+  function litVal(id, level, cond, expr, answer, hint, explanation, extra) { nm(id, "litValue", level, cond + " のとき、" + expr + " の値はいくつ？", answer, hint, explanation, extra); }
+
+  // --- 文字式の表し方 ---
+  litNote("litExpr-basic-1", "basic", "a × 3", ["3a", "a3", "a + 3", "a − 3"], "数は文字の前に書く。", "× を省いて、数を前に書きます。", { usage: "diagnosis" });
+  litNote("litExpr-basic-2", "basic", "x × y × 2", ["2xy", "xy2", "2 + xy", "x + y + 2"], "数を前に、文字はアルファベット順。", "2xy です。");
+  litNote("litExpr-basic-3", "basic", "a ÷ 4", ["a/4", "4/a", "4a", "a − 4"], "わり算は分数の形にする。", "a/4 です。");
+  litNote("litExpr-basic-4", "basic", "x × x", ["x²", "2x", "x + x", "x + 2"], "同じ文字の積は累乗で書く。", "x² です。");
+  litNote("litExpr-basic-5", "basic", "(−1) × a", ["−a", "a − 1", "1 − a", "a + 1"], "1 は省く。", "−a です。");
+  litNote("litExpr-basic-6", "basic", "b × 1", ["b", "b + 1", "b − 1", "2b"], "1 は省く。", "b です。");
+  litNote("litExpr-basic-7", "basic", "a × a × a", ["a³", "3a", "a + 3", "a² + a"], "同じ文字を3回かける。", "a³ です。");
+  litNote("litExpr-standard-1", "standard", "x × 5 + y × 3", ["5x + 3y", "15xy", "8xy", "5y + 3x"], "+ は省けない。", "5x + 3y です。");
+  litNote("litExpr-standard-2", "standard", "(a + b) ÷ 3", ["(a + b)/3", "a + b/3", "3/(a + b)", "3(a + b)"], "かっこのまま分子にする。", "(a + b)/3 です。");
+  litNote("litExpr-standard-3", "standard", "a × (−2) × b", ["−2ab", "2ab", "a − 2b", "ab − 2"], "負の数も前に書く。", "−2ab です。");
+  ch("litExpr-standard-4", "litExpr", "standard", "2a² を × の記号を使って表すと？", ["2 × a × a", "2 × a × 2", "2 × 2 × a", "a × a × a"], "2乗するのは a だけ。", "2 × a × a です。");
+  litNote("litExpr-standard-5", "standard", "x ÷ y × 3", ["3x/y", "x/(3y)", "3y/x", "xy/3"], "左から順に考える。", "x/y に3をかけて 3x/y です。");
+  ax("litExpr-application-1", "litExpr", "1個 a 円のパンを3個と、1本 b 円のジュースを2本買います。", [
+    ["代金の合計はどれ？", ["(3a + 2b) 円", "6ab 円", "5ab 円", "(2a + 3b) 円"], "それぞれの代金をたす。", "(3a + 2b) 円です。"],
+    ["a = 100、b = 150 のとき、代金は何円？", 600, "300 + 300。", "600円 です。"],
+    ["1000円出したときのおつりはどれ？", ["(1000 − 3a − 2b) 円", "(1000 − 3a + 2b) 円", "(3a + 2b − 1000) 円", "(1000 − 5ab) 円"], "1000 から代金全体をひく。", "(1000 − 3a − 2b) 円です。"]
+  ], ["litExpr"], "数量を文字の式で書く。", "代金は (3a + 2b) 円です。");
+  ax("litExpr-application-2", "litExpr", "縦 a cm、横 b cm の長方形があります。", [
+    ["面積はどれ？", ["ab cm²", "(a + b) cm²", "2ab cm²", "2(a + b) cm²"], "縦 × 横。", "ab cm² です。"],
+    ["まわりの長さはどれ？", ["2(a + b) cm", "ab cm", "(a + b) cm", "4ab cm"], "(縦 + 横) × 2。", "2(a + b) cm です。"],
+    ["a = 3、b = 5 のとき、面積は何cm²？", 15, "3 × 5。", "15cm² です。"]
+  ], ["litExpr"], "公式を文字で書く。", "面積は ab cm²、まわりは 2(a + b) cm です。");
+  ax("litExpr-application-3", "litExpr", "x × x × y ÷ 2 という式を考えます。", [
+    ["× や ÷ を使わずに表すと？", ["x²y/2", "2x²y", "x²/2y", "2xy/2"], "かけ算をまとめて、2 を分母に。", "x²y/2 です。"],
+    ["x = 2、y = 3 のとき、値は？", 6, "4 × 3 ÷ 2。", "6 です。"],
+    ["x = 4、y = 1 のとき、値は？", 8, "16 × 1 ÷ 2。", "8 です。"]
+  ], ["litExpr", "litValue"], "表し方と値の両方を確かめる。", "x²y/2 です。");
+  litNote("litExpr-retention-1", "retention", "y × 7", ["7y", "y7", "y + 7", "y − 7"], "数は文字の前に書く。", "7y です。", RB);
+  litNote("litExpr-retention-2", "retention", "m ÷ 9", ["m/9", "9/m", "9m", "m − 9"], "わり算は分数の形にする。", "m/9 です。", RB);
+  litNote("litExpr-retention-3", "retention", "p × p × 6", ["6p²", "12p", "p² + 6", "6 + 2p"], "同じ文字の積は累乗で書く。", "6p² です。", RB);
+  litNote("litExpr-retention-4", "retention", "n × 6 − m × 8", ["6n − 8m", "−2mn", "48mn", "6m − 8n"], "− は省けない。", "6n − 8m です。", RS);
+  litNote("litExpr-retention-5", "retention", "(p − q) ÷ 11", ["(p − q)/11", "p − q/11", "11/(p − q)", "11(p − q)"], "かっこのまま分子にする。", "(p − q)/11 です。", RS);
+
+  // --- 式の値 ---
+  litVal("litValue-basic-1", "basic", "x = 3", "2x + 1", 7, "2 × 3 + 1。", "7 です。", { usage: "diagnosis" });
+  litVal("litValue-basic-2", "basic", "a = −2", "3a", -6, "3 × (−2)。", "−6 です。");
+  litVal("litValue-basic-3", "basic", "x = −4", "x + 9", 5, "(−4) + 9。", "5 です。");
+  litVal("litValue-basic-4", "basic", "a = 5", "a²", 25, "5 × 5。", "25 です。");
+  litVal("litValue-basic-5", "basic", "x = 2", "5 − x", 3, "5 − 2。", "3 です。");
+  litVal("litValue-basic-6", "basic", "a = −3", "−a", 3, "−(−3)。", "3 です。");
+  litVal("litValue-basic-7", "basic", "x = −1", "4x − 2", -6, "4 × (−1) − 2。", "−6 です。");
+  litVal("litValue-standard-1", "standard", "a = −3", "a²", 9, "(−3) × (−3)。", "9 です。");
+  litVal("litValue-standard-2", "standard", "a = −3", "−a²", -9, "−{(−3) × (−3)}。", "−9 です。");
+  litVal("litValue-standard-3", "standard", "x = 2、y = −3", "3x + 2y", 0, "6 + (−6)。", "0 です。");
+  litVal("litValue-standard-4", "standard", "x = −2、y = 4", "xy − y", -12, "−8 − 4。", "−12 です。");
+  litVal("litValue-standard-5", "standard", "a = 6", "12/a", 2, "12 ÷ 6。", "2 です。");
+  ax("litValue-application-1", "litValue", "1辺が a cm の正方形があります。まわりの長さは 4a cm、面積は a² cm² です。", [
+    ["a = 6 のとき、まわりの長さは何cm？", 24, "4 × 6。", "24cm です。"],
+    ["a = 6 のとき、面積は何cm²？", 36, "6 × 6。", "36cm² です。"],
+    ["まわりの長さが 40cm のとき、a はいくつ？", 10, "40 ÷ 4。", "10 です。"]
+  ], ["litValue"], "式に数を入れる。", "24cm、36cm²、a = 10 です。");
+  ax("litValue-application-2", "litValue", "地上の気温が 20℃ のとき、高さ x km の気温はおよそ (20 − 6x)℃ です。", [
+    ["x = 2 のときの気温は何℃？", 8, "20 − 12。", "8℃ です。"],
+    ["x = 3 のときの気温は何℃？", 2, "20 − 18。", "2℃ です。"],
+    ["x = 5 のときの気温は何℃？", -10, "20 − 30。", "−10℃ です。"]
+  ], ["litValue"], "x に数を入れる。", "8℃、2℃、−10℃ です。");
+  ax("litValue-application-3", "litValue", "a = −2 のときの式の値を求めます。", [
+    ["a² の値は？", 4, "(−2) × (−2)。", "4 です。"],
+    ["a³ の値は？", -8, "(−2) を3回かける。", "−8 です。"],
+    ["a² + a³ の値は？", -4, "4 + (−8)。", "−4 です。"]
+  ], ["litValue"], "負の数は、かっこをつけて入れる。", "4、−8、−4 です。");
+  litVal("litValue-retention-1", "retention", "x = 9", "5x − 8", 37, "5 × 9 − 8。", "37 です。", RB);
+  litVal("litValue-retention-2", "retention", "a = −8", "7a", -56, "7 × (−8)。", "−56 です。", RB);
+  litVal("litValue-retention-3", "retention", "a = −9", "a²", 81, "(−9) × (−9)。", "81 です。", RB);
+  litVal("litValue-retention-4", "retention", "x = −6、y = 8", "3x − 7y", -74, "−18 − 56。", "−74 です。", RS);
+  litVal("litValue-retention-5", "retention", "a = 4", "28/a", 7, "28 ÷ 4。", "7 です。", RS);
+
+  // --- 一次式の計算 ---
+  litPoly("litCalc-basic-1", "litCalc", "basic", "3x + 2x", "5x", "同じ文字の項をまとめる。", "5x です。", { usage: "diagnosis" });
+  litPoly("litCalc-basic-2", "litCalc", "basic", "7a − 4a", "3a", "係数をひく。", "3a です。");
+  litPoly("litCalc-basic-3", "litCalc", "basic", "2x + 3 + 4x", "6x+3", "文字の項と数の項を分ける。", "6x + 3 です。");
+  litPoly("litCalc-basic-4", "litCalc", "basic", "5a − 2 − 3a + 6", "2a+4", "文字の項と数の項を分ける。", "2a + 4 です。");
+  litPoly("litCalc-basic-5", "litCalc", "basic", "3 × 2x", "6x", "係数をかける。", "6x です。");
+  litPoly("litCalc-basic-6", "litCalc", "basic", "8x ÷ 2", "4x", "係数をわる。", "4x です。");
+  litPoly("litCalc-basic-7", "litCalc", "basic", "2(x + 3)", "2x+6", "かっこの中の全部にかける。", "2x + 6 です。");
+  litPoly("litCalc-standard-1", "litCalc", "standard", "(3x + 2) + (x − 5)", "4x-3", "かっこをはずしてまとめる。", "4x − 3 です。");
+  litPoly("litCalc-standard-2", "litCalc", "standard", "(4a − 1) − (2a + 3)", "2a-4", "ひく式の符号を変える。", "4a − 1 − 2a − 3 = 2a − 4 です。");
+  litPoly("litCalc-standard-3", "litCalc", "standard", "3(2x − 1) + 2(x + 4)", "8x+5", "それぞれかっこをはずす。", "6x − 3 + 2x + 8 = 8x + 5 です。");
+  litPoly("litCalc-standard-4", "litCalc", "standard", "−2(a − 3) + 5a", "3a+6", "−2 を両方にかける。", "−2a + 6 + 5a = 3a + 6 です。");
+  litPoly("litCalc-standard-5", "litCalc", "standard", "(6x − 9) ÷ 3", "2x-3", "両方の項を3でわる。", "2x − 3 です。");
+  litPoly("litCalc-basic-8", "litCalc", "basic", "−4a + 9a", "5a", "係数をたす。", "5a です。");
+  litPoly("litCalc-basic-9", "litCalc", "basic", "4x + 7 − x", "3x+7", "x は 1x と考える。", "3x + 7 です。");
+  litPoly("litCalc-standard-6", "litCalc", "standard", "4(x − 2) − 3(x − 1)", "x-5", "−3 を両方にかける。", "4x − 8 − 3x + 3 = x − 5 です。");
+  litPoly("litCalc-standard-7", "litCalc", "standard", "(10a + 5) ÷ 5", "2a+1", "両方の項を5でわる。", "2a + 1 です。");
+  sp("litCalc-application-1", "litCalc", "A ＝ 2x + 1、B ＝ 3x − 4 です。", [
+    litStep("s1", "litCalc", "A + B を計算すると？", "5x-3", "同じ種類の項をまとめる。", "5x − 3 です。"),
+    litStep("s2", "litCalc", "A − B を計算すると？", "-x+5", "B の符号を全部変える。", "2x + 1 − 3x + 4 = −x + 5 です。"),
+    sn("s3", "litCalc", "x = 2 のとき、A − B の値は？", 3, "−x + 5 に入れる。", "−2 + 5 = 3 です。")
+  ], ["litCalc", "litValue"], "かっこをつけて式を書く。", "A + B ＝ 5x − 3、A − B ＝ −x + 5 です。");
+  sp("litCalc-application-2", "litCalc", "縦 x cm、横 (x + 3) cm の長方形があります。", [
+    litStep("s1", "litCalc", "まわりの長さの式は？（cm）", "4x+6", "2(x + x + 3)。", "4x + 6 です。"),
+    sn("s2", "litCalc", "x = 2 のとき、まわりの長さは何cm？", 14, "4 × 2 + 6。", "14cm です。"),
+    sn("s3", "litCalc", "まわりの長さが 30cm のとき、x はいくつ？", 6, "4x + 6 = 30。", "x = 6 です。")
+  ], ["litCalc"], "式を簡単にしてから使う。", "まわりは (4x + 6) cm です。");
+  sp("litCalc-application-3", "litCalc", "1個 x 円のパンを4個と、パンより 20円高いおかしを3個買います。", [
+    litStep("s1", "litCalc", "代金の式は？（円）", "7x+60", "4x + 3(x + 20)。", "4x + 3x + 60 = 7x + 60 です。"),
+    sn("s2", "litCalc", "x = 100 のとき、代金は何円？", 760, "700 + 60。", "760円 です。"),
+    litStep("s3", "litCalc", "パン1個とおかし1個の代金の式は？（円）", "2x+20", "x + (x + 20)。", "2x + 20 です。")
+  ], ["litCalc"], "おかし1個は (x + 20) 円。", "代金は (7x + 60) 円です。");
+  litPoly("litCalc-retention-1", "litCalc", "retention", "9y − 14y", "-5y", "係数をひく。", "−5y です。", RB);
+  litPoly("litCalc-retention-2", "litCalc", "retention", "6a + 11 − 2a − 19", "4a-8", "文字の項と数の項を分ける。", "4a − 8 です。", RB);
+  litPoly("litCalc-retention-3", "litCalc", "retention", "5(x − 7)", "5x-35", "かっこの中の全部にかける。", "5x − 35 です。", RB);
+  litPoly("litCalc-retention-4", "litCalc", "retention", "(8x + 13) − (3x − 6)", "5x+19", "ひく式の符号を変える。", "8x + 13 − 3x + 6 = 5x + 19 です。", RS);
+  litPoly("litCalc-retention-5", "litCalc", "retention", "(20a − 15) ÷ 5", "4a-3", "両方の項を5でわる。", "4a − 3 です。", RS);
+
+  // --- 数量を文字で表す ---
+  ch("litWord-basic-1", "litWord", "basic", "1本 x 円の鉛筆を5本買ったときの代金はどれ？", ["5x 円", "(x + 5) 円", "x/5 円", "(x − 5) 円"], "1本の値段 × 本数。", "5x 円です。", { usage: "diagnosis" });
+  ch("litWord-basic-2", "litWord", "basic", "a 円持っていて b 円使ったときの残りはどれ？", ["(a − b) 円", "(b − a) 円", "(a + b) 円", "ab 円"], "持っていた分からひく。", "(a − b) 円です。");
+  ch("litWord-basic-3", "litWord", "basic", "x 人に3個ずつ配るのに必要な個数はどれ？", ["3x 個", "(x + 3) 個", "x/3 個", "(x − 3) 個"], "1人分 × 人数。", "3x 個です。");
+  ch("litWord-basic-4", "litWord", "basic", "時速 a km で2時間進んだ道のりはどれ？", ["2a km", "a/2 km", "(a + 2) km", "2/a km"], "速さ × 時間。", "2a km です。");
+  ch("litWord-basic-5", "litWord", "basic", "x cm のひもを4等分した1本の長さはどれ？", ["x/4 cm", "4x cm", "(x − 4) cm", "4/x cm"], "全体 ÷ 4。", "x/4 cm です。");
+  ch("litWord-basic-6", "litWord", "basic", "十の位が a、一の位が b の2けたの整数はどれ？", ["10a + b", "ab", "a + b", "10b + a"], "十の位は10が何個か。", "10a + b です。");
+  ch("litWord-basic-7", "litWord", "basic", "a の3割はどれ？", ["3a/10", "3a", "a/3", "a + 3"], "3割は 3/10。", "3a/10 です。");
+  ch("litWord-standard-1", "litWord", "standard", "x km の道のりを時速4km で歩くときの時間はどれ？", ["x/4 時間", "4x 時間", "4/x 時間", "(x − 4) 時間"], "道のり ÷ 速さ。", "x/4 時間です。");
+  ch("litWord-standard-2", "litWord", "standard", "定価 a 円の2割引の値段はどれ？", ["0.8a 円", "0.2a 円", "(a − 2) 円", "(a − 0.2) 円"], "2割引は定価の8割。", "0.8a 円です。");
+  ch("litWord-standard-3", "litWord", "standard", "1個 a 円の品物を b 個買って 1000円出したときのおつりはどれ？", ["(1000 − ab) 円", "(ab − 1000) 円", "(1000 − a − b) 円", "(1000 − a + b) 円"], "代金は ab 円。", "(1000 − ab) 円です。");
+  ch("litWord-standard-4", "litWord", "standard", "平均60点の男子 x 人と、平均70点の女子 y 人の得点の合計はどれ？", ["(60x + 70y) 点", "130xy 点", "(60y + 70x) 点", "(60 + 70)(x + y) 点"], "平均 × 人数。", "(60x + 70y) 点です。");
+  ch("litWord-standard-5", "litWord", "standard", "百の位が a、十の位が b、一の位が c の3けたの整数はどれ？", ["100a + 10b + c", "abc", "a + b + c", "100c + 10b + a"], "それぞれの位の大きさをかける。", "100a + 10b + c です。");
+  ax("litWord-application-1", "litWord", "定価 a 円のノートを、1割引で買います。", [
+    ["1冊の値段はどれ？", ["0.9a 円", "0.1a 円", "(a − 1) 円", "(a − 0.1) 円"], "1割引は定価の9割。", "0.9a 円です。"],
+    ["a = 200 のとき、1冊は何円？", 180, "0.9 × 200。", "180円 です。"],
+    ["a = 200 のとき、5冊で何円？", 900, "180 × 5。", "900円 です。"]
+  ], ["litWord"], "割合を小数で表す。", "1冊 180円、5冊 900円 です。");
+  ax("litWord-application-2", "litWord", "x km はなれた町まで、行きは時速4km、帰りは時速6km で歩きます。", [
+    ["行きにかかる時間はどれ？", ["x/4 時間", "4x 時間", "4/x 時間", "(x + 4) 時間"], "道のり ÷ 速さ。", "x/4 時間です。"],
+    ["帰りにかかる時間はどれ？", ["x/6 時間", "6x 時間", "6/x 時間", "(x + 6) 時間"], "道のり ÷ 速さ。", "x/6 時間です。"],
+    ["x = 12 のとき、往復で何時間？", 5, "3 + 2。", "5時間 です。"]
+  ], ["litWord", "litValue"], "時間 ＝ 道のり ÷ 速さ。", "往復 5時間 です。");
+  ax("litWord-application-3", "litWord", "2けたの整数の十の位を a、一の位を b とします。", [
+    ["もとの整数はどれ？", ["10a + b", "ab", "a + b", "10b + a"], "十の位は10が何個か。", "10a + b です。"],
+    ["十の位と一の位を入れかえた整数はどれ？", ["10b + a", "10a + b", "ba", "a + b"], "b が十の位になる。", "10b + a です。"],
+    ["a = 3、b = 7 のとき、2つの整数の差は？", 36, "73 − 37。", "36 です。"]
+  ], ["litWord"], "位の大きさを考える。", "差は 36 です。");
+  ch("litWord-retention-1", "litWord", "retention", "1冊 y 円のノートを8冊買ったときの代金はどれ？", ["8y 円", "(y + 8) 円", "y/8 円", "(y − 8) 円"], "1冊の値段 × 冊数。", "8y 円です。", RB);
+  ch("litWord-retention-2", "litWord", "retention", "m 円持っていて n 円もらったときの金額はどれ？", ["(m + n) 円", "(m − n) 円", "mn 円", "(n − m) 円"], "増えるのでたす。", "(m + n) 円です。", RB);
+  ch("litWord-retention-3", "litWord", "retention", "x m のロープを7等分した1本の長さはどれ？", ["x/7 m", "7x m", "(x − 7) m", "7/x m"], "全体 ÷ 7。", "x/7 m です。", RB);
+  ch("litWord-retention-4", "litWord", "retention", "時速 x km で y 時間進んだ道のりはどれ？", ["xy km", "x/y km", "y/x km", "(x + y) km"], "速さ × 時間。", "xy km です。", RS);
+  ch("litWord-retention-5", "litWord", "retention", "定価 b 円の3割引の値段はどれ？", ["0.7b 円", "0.3b 円", "(b − 3) 円", "(b − 0.3) 円"], "3割引は定価の7割。", "0.7b 円です。", RS);
+
+  // --- 関係を式で表す ---
+  ch("litRel-basic-1", "litRel", "basic", "「a は b より3大きい」を等式で表すとどれ？", ["a = b + 3", "a = b − 3", "a + 3 = b", "a = 3b"], "b に3をたすと a になる。", "a = b + 3 です。", { usage: "diagnosis" });
+  ch("litRel-basic-2", "litRel", "basic", "「x の2倍は y に等しい」を等式で表すとどれ？", ["2x = y", "x = 2y", "x + 2 = y", "x/2 = y"], "言葉の順に書く。", "2x = y です。");
+  ch("litRel-basic-3", "litRel", "basic", "「a は5以上」を不等式で表すとどれ？", ["a ≧ 5", "a > 5", "a ≦ 5", "a < 5"], "以上は、その数もふくむ。", "a ≧ 5 です。");
+  ch("litRel-basic-4", "litRel", "basic", "「x は3より小さい」を不等式で表すとどれ？", ["x < 3", "x ≦ 3", "x > 3", "x ≧ 3"], "3 はふくまない。", "x < 3 です。");
+  ch("litRel-basic-5", "litRel", "basic", "「1個 a 円の品物3個の代金は600円」を等式で表すとどれ？", ["3a = 600", "a + 3 = 600", "a/3 = 600", "a − 3 = 600"], "代金 ＝ 1個の値段 × 個数。", "3a = 600 です。");
+  ch("litRel-basic-6", "litRel", "basic", "「x は10未満」を不等式で表すとどれ？", ["x < 10", "x ≦ 10", "x > 10", "x ≧ 10"], "未満は、その数をふくまない。", "x < 10 です。");
+  ch("litRel-basic-7", "litRel", "basic", "「a は7以下」を不等式で表すとどれ？", ["a ≦ 7", "a < 7", "a ≧ 7", "a > 7"], "以下は、その数もふくむ。", "a ≦ 7 です。");
+  ch("litRel-standard-1", "litRel", "standard", "「x 円のノート2冊と y 円のペン1本の代金は500円より高い」を表す式はどれ？", ["2x + y > 500", "2x + y < 500", "2x + y = 500", "2x + y ≦ 500"], "より高いは > 。", "2x + y > 500 です。");
+  ch("litRel-standard-2", "litRel", "standard", "「全部で30個あり、a 人に4個ずつ配ると b 個余る」を表す式はどれ？", ["4a + b = 30", "4a − b = 30", "a + 4b = 30", "4ab = 30"], "配った数と余りをたすと全部。", "4a + b = 30 です。");
+  ch("litRel-standard-3", "litRel", "standard", "「x 円で、1個 a 円の品物を5個買える」を表す式はどれ？", ["5a ≦ x", "5a ≧ x", "a ≦ 5x", "5 + a ≦ x"], "代金が持っているお金以下ならよい。", "5a ≦ x です。");
+  ch("litRel-standard-4", "litRel", "standard", "「時速 x km で3時間進むと、道のりは10km以上」を表す式はどれ？", ["3x ≧ 10", "3x > 10", "x/3 ≧ 10", "3x ≦ 10"], "以上は ≧ 。", "3x ≧ 10 です。");
+  ch("litRel-standard-5", "litRel", "standard", "「a の2倍から3をひいた数は b より小さい」を表す式はどれ？", ["2a − 3 < b", "2a − 3 > b", "2(a − 3) < b", "3 − 2a < b"], "言葉の順に書く。", "2a − 3 < b です。");
+  ax("litRel-application-1", "litRel", "1000円を持って、1個 a 円のパン4個と1本 b 円のジュース1本を買います。", [
+    ["代金はどれ？", ["(4a + b) 円", "(a + 4b) 円", "4ab 円", "5ab 円"], "それぞれの代金をたす。", "(4a + b) 円です。"],
+    ["おつりがもらえることを表す式はどれ？", ["4a + b < 1000", "4a + b > 1000", "4a + b = 1000", "4a + b ≧ 1000"], "代金が 1000円より少ない。", "4a + b < 1000 です。"],
+    ["a = 150、b = 120 のとき、代金は何円？", 720, "600 + 120。", "720円 です。"]
+  ], ["litRel", "litWord"], "数量を式にしてから比べる。", "代金は 720円 です。");
+  ax("litRel-application-2", "litRel", "x 人の生徒に鉛筆を3本ずつ配ると5本余ります。", [
+    ["鉛筆の本数はどれ？", ["(3x + 5) 本", "(3x − 5) 本", "(5x + 3) 本", "8x 本"], "配った数と余りをたす。", "(3x + 5) 本です。"],
+    ["x = 10 のとき、鉛筆は何本？", 35, "30 + 5。", "35本 です。"],
+    ["4本ずつ配るには足りないことを表す式はどれ？", ["4x > 3x + 5", "4x < 3x + 5", "4x = 3x + 5", "4x ≦ 3x"], "必要な本数のほうが多い。", "4x > 3x + 5 です。"]
+  ], ["litRel", "litWord"], "同じ本数を2通りに見る。", "鉛筆は (3x + 5) 本です。");
+  ax("litRel-application-3", "litRel", "縦 x cm、横 y cm の長方形のまわりの長さは 30cm です。", [
+    ["この関係を表す式はどれ？", ["2(x + y) = 30", "xy = 30", "x + y = 30", "2xy = 30"], "(縦 + 横) × 2。", "2(x + y) = 30 です。"],
+    ["x = 6 のとき、y はいくつ？", 9, "x + y = 15。", "9 です。"],
+    ["そのときの面積は何cm²？", 54, "6 × 9。", "54cm² です。"]
+  ], ["litRel"], "関係の式から、残りの値を求める。", "y = 9、面積は 54cm² です。");
+  ch("litRel-retention-1", "litRel", "retention", "「p は q より8小さい」を等式で表すとどれ？", ["p = q − 8", "p = q + 8", "p − 8 = q", "p = 8q"], "q から8をひくと p になる。", "p = q − 8 です。", RB);
+  ch("litRel-retention-2", "litRel", "retention", "「m の9倍は n に等しい」を等式で表すとどれ？", ["9m = n", "m = 9n", "m + 9 = n", "m/9 = n"], "言葉の順に書く。", "9m = n です。", RB);
+  ch("litRel-retention-3", "litRel", "retention", "「y は12以上」を不等式で表すとどれ？", ["y ≧ 12", "y > 12", "y ≦ 12", "y < 12"], "以上は、その数もふくむ。", "y ≧ 12 です。", RB);
+  ch("litRel-retention-4", "litRel", "retention", "「z は15未満」を不等式で表すとどれ？", ["z < 15", "z ≦ 15", "z > 15", "z ≧ 15"], "未満は、その数をふくまない。", "z < 15 です。", RS);
+  ch("litRel-retention-5", "litRel", "retention", "「1本 m 円のペン11本の代金は900円より安い」を表す式はどれ？", ["11m < 900", "11m > 900", "11m = 900", "11m ≧ 900"], "より安いは < 。", "11m < 900 です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
