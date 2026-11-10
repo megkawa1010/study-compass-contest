@@ -42,6 +42,12 @@
     coord:          { label: "座標",           unit: "既習",     grade: "中1", prerequisites: ["signed"] },
     // 一直線は180°・一回り360°・角の表し方（∠ABC）。図形の角の土台
     angleBasics:    { label: "角の基本",       unit: "既習",     grade: "中1", prerequisites: [] },
+    // --- 中1 空間図形 ---
+    spSolid:        { label: "立体の種類",     unit: "空間図形", grade: "中1", prerequisites: ["plLine"] },
+    spPosition:     { label: "直線や平面の位置関係", unit: "空間図形", grade: "中1", prerequisites: ["plLine", "spSolid"] },
+    spNet:          { label: "展開図と投影図", unit: "空間図形", grade: "中1", prerequisites: ["spSolid", "plSector"] },
+    spArea:         { label: "表面積",         unit: "空間図形", grade: "中1", prerequisites: ["spNet", "plCircle"] },
+    spVolume:       { label: "体積",           unit: "空間図形", grade: "中1", prerequisites: ["spSolid", "plCircle"] },
     // --- 中1 平面図形 ---
     plLine:         { label: "直線と角の記号", unit: "平面図形", grade: "中1", prerequisites: ["angleBasics"] },
     plMove:         { label: "図形の移動",     unit: "平面図形", grade: "中1", prerequisites: ["plLine", "coord"] },
@@ -186,13 +192,13 @@
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
     "change", "substitution", "rate", "slopeIntercept", "form", "simGraph",
-    "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
+    "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "lineAngles", "angleEq", "angleNames", "parallelAngles", "triangleSum", "exteriorAngle", "angleCombo", "polygonInterior", "polygonExterior",
     "congCorr", "congCond", "proofFigureFacts", "proofHypConc", "congUse", "proofBuild",
     "isoProps", "isoCond", "rightCong", "paraProps", "paraCond", "specialQuad", "areaEq",
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
-  var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector",
+  var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
     "polyAddSub", "polyMixed", "monoMulDiv", "eqTransform",
     "simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord",
@@ -208,6 +214,7 @@
     "一次関数": ["change", "substitution", "rate", "slopeIntercept", "form", "simGraph"],
     "連立方程式": ["simMeaning", "simCoef", "simElim", "simSubst", "simParen", "simFraction", "simWord"],
     "正負の数": ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse"],
+    "空間図形": ["spSolid", "spPosition", "spNet", "spArea", "spVolume"],
     "平面図形": ["plLine", "plMove", "plConstruct", "plCircle", "plSector"],
     "比例と反比例": ["prFunc", "prDirect", "prGraph", "prInverse", "prUse"],
     "文字と式": ["litExpr", "litValue", "litCalc", "litWord", "litRel"],
@@ -224,7 +231,7 @@
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
   // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
-  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": [] };
+  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": [] };
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
   var currentGrade = "中学2年";
   function setGrade(g) {
@@ -562,6 +569,7 @@
     litExpr: "review_literal_notation", litValue: "review_literal_value", litCalc: "review_linear_expressions", litWord: "review_literal_quantities", litRel: "review_literal_relations",
     prFunc: "review_function_domain", prDirect: "review_direct_proportion", prGraph: "review_proportion_graph", prInverse: "review_inverse_proportion", prUse: "review_proportion_use",
     plLine: "review_lines_and_symbols", plMove: "review_transformations", plConstruct: "review_constructions", plCircle: "review_circle_tangent", plSector: "review_sector",
+    spSolid: "review_solid_types", spPosition: "review_lines_planes_space", spNet: "review_nets_projections", spArea: "review_surface_area", spVolume: "review_volume",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"

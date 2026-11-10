@@ -77,7 +77,7 @@ test("学年を切りかえると選べる単元が変わり、もとに戻せ�
   assert.equal(E.setGrade("中学3年"), "中学2年");
   assert.deepEqual(E.SELECTABLE_UNITS, g2);
   assert.equal(E.setGrade("中学1年"), "中学1年");
-  assert.deepEqual(E.SELECTABLE_UNITS, ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形"]);
+  assert.deepEqual(E.SELECTABLE_UNITS, ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形"]);
   assert.ok(SC.testprep && E.ALL_UNITS.includes("一次方程式") && E.ALL_UNITS.includes("確率"));
   E.setGrade("中学2年");
   assert.deepEqual(E.SELECTABLE_UNITS, g2);
