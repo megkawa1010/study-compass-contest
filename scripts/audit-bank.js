@@ -25,6 +25,7 @@ const SCENARIOS = [
   ["合同と証明"], ["合同と証明", "parallelAngles"], ["合同と証明", "proofHypConc"],
   ["正負の数"], ["正負の数", "negAddSub"],
   ["文字と式"], ["文字と式", "litCalc"],
+  ["平面図形"], ["平面図形", "plSector"],
   ["比例と反比例"], ["比例と反比例", "prInverse"],
   ["一次方程式"], ["一次方程式", "transpose"],
   ["三角形と四角形"], ["三角形と四角形", "isoProps"], ["三角形と四角形", "congCond"],
