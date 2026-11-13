@@ -17,7 +17,9 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 
 const history = [];
 let n = 0;
-const knows = UNIT === "データの分布"
+const knows = UNIT === "多項式"
+  ? { polyAddSub: true, polyMixed: true, monoMulDiv: true, distrib: true, pxExpand: true, pxFormula: false, pxCommon: true, pxFactor: false, pxUse: false }
+  : UNIT === "データの分布"
   ? { dsFreq: true, dsRel: false, dsHist: true, dsRep: true, dsProb: false }
   : UNIT === "空間図形"
   ? { plLine: true, plCircle: true, plSector: false, spSolid: true, spPosition: true, spNet: false, spArea: false, spVolume: false }
@@ -56,7 +58,7 @@ function answer(qid, at, context) {
 }
 const CAUSE = process.argv[5] || null;
 if (CAUSE) { knows[CAUSE] = false; if (UNIT === "合同と証明" && CAUSE !== "congCorr") knows.congCorr = true; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
-const FIRST = UNIT === "データの分布" || UNIT === "空間図形" || UNIT === "平面図形" || UNIT === "比例と反比例" || UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
+const FIRST = UNIT === "多項式" || UNIT === "データの分布" || UNIT === "空間図形" || UNIT === "平面図形" || UNIT === "比例と反比例" || UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
   : UNIT === "合同と証明" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1"])
   : UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
   : UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
@@ -65,7 +67,9 @@ FIRST.forEach((id) => answer(id, T0, "compass_check"));
 // 想定（合同と証明）：合同条件でまちがえ、原因が「対応する辺・角」。原因に parallelAngles（図形①）を指定すると、図から使える事実（錯角）でつまずく子ども。
 //                      proofHypConc を指定すると、証明の組み立てで仮定と結論を取り違える子ども
 const PROOF_SYMPTOM = { congCorr: "congCond", parallelAngles: "proofFigureFacts", proofHypConc: "proofBuild" };
-const explorations = UNIT === "データの分布"
+const explorations = UNIT === "多項式"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "pxFactor", label: E.SKILLS.pxFactor.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "pxFormula" } }]
+  : UNIT === "データの分布"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "dsProb", label: E.SKILLS.dsProb.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "dsRel" } }]
   : UNIT === "空間図形"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "spArea", label: E.SKILLS.spArea.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "spNet" } }]

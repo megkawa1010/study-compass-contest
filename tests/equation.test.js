@@ -71,11 +71,13 @@ test("どのスキルも 基礎5・標準5・応用3・定着5 以上ある。�
   assert.equal(c.questions.length, 5);
 });
 
-test("学年を切りかえると選べる単元が変わり、もとに戻せる。準備中の学年には変わらない", () => {
+test("学年を切りかえると選べる単元が変わり、もとに戻せる。ない学年には変わらない", () => {
   const g2 = E.SELECTABLE_UNITS.slice();
   assert.equal(E.grade(), "中学2年");
-  assert.equal(E.setGrade("中学3年"), "中学2年");
+  assert.equal(E.setGrade("高校1年"), "中学2年");
   assert.deepEqual(E.SELECTABLE_UNITS, g2);
+  assert.equal(E.setGrade("中学3年"), "中学3年");
+  assert.deepEqual(E.SELECTABLE_UNITS, ["多項式"]);
   assert.equal(E.setGrade("中学1年"), "中学1年");
   assert.deepEqual(E.SELECTABLE_UNITS, ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"]);
   assert.ok(SC.testprep && E.ALL_UNITS.includes("一次方程式") && E.ALL_UNITS.includes("確率"));

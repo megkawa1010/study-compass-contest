@@ -6762,6 +6762,203 @@
   nm("dsProb-retention-5", "dsProb", "retention", "当たりの確率を 0.18 と考えると、3000本引いたとき、当たりはおよそ何本？", 540, "本数 × 確率。", "3000 × 0.18 ＝ 540本です。", RS);
 
   // =====================================================================
+  // 中3 多項式。答えは tests/polynomial3.test.js が式の値で確かめる
+  // =====================================================================
+  var PX_PH = "例：x^2 + 5x + 6（2乗は ^2）";
+  function pxP(id, skill, level, expr, answer, hint, explanation, extra) {
+    var q = { id: id, skill: skill, level: level, text: expr + " を計算しましょう。", answer: answer, hint: hint, explanation: explanation, format: "expression", type: "poly", placeholder: PX_PH };
+    for (var m in (extra || {})) q[m] = extra[m];
+    add(q);
+  }
+  function pxStep(id, skill, text, answer, hint, explanation) { return { id: id, skill: skill, text: text, type: "poly", answer: answer, placeholder: PX_PH, hint: hint, explanation: explanation }; }
+  function pxF(id, skill, level, expr, labels, hint, explanation, extra) { ch(id, skill, level, expr + " を因数分解すると？", labels, hint, explanation, extra); }
+
+  // --- 式の展開 ---
+  pxP("pxExpand-basic-1", "pxExpand", "basic", "2x(x + 3)", "2x^2+6x", "2x をかっこの中の両方にかける。", "2x² ＋ 6x です。", { usage: "diagnosis" });
+  pxP("pxExpand-basic-2", "pxExpand", "basic", "3a(2a − 5)", "6a^2-15a", "3a を両方にかける。", "6a² − 15a です。");
+  pxP("pxExpand-basic-3", "pxExpand", "basic", "−x(4x − 1)", "-4x^2+x", "−x をかけると符号が変わる。", "−4x² ＋ x です。");
+  pxP("pxExpand-basic-4", "pxExpand", "basic", "(6x² + 9x) ÷ 3x", "2x+3", "それぞれの項を 3x でわる。", "2x ＋ 3 です。");
+  pxP("pxExpand-basic-5", "pxExpand", "basic", "(x + 2)(y + 3)", "xy+3x+2y+6", "前の2つの項を、後ろの両方にかける。", "xy ＋ 3x ＋ 2y ＋ 6 です。");
+  pxP("pxExpand-basic-6", "pxExpand", "basic", "(a + 4)(b − 1)", "ab-a+4b-4", "4つの積をたす。", "ab − a ＋ 4b − 4 です。");
+  pxP("pxExpand-basic-7", "pxExpand", "basic", "(2x + 1)(x + 3)", "2x^2+7x+3", "展開してから同類項をまとめる。", "2x² ＋ 6x ＋ x ＋ 3 ＝ 2x² ＋ 7x ＋ 3 です。");
+  pxP("pxExpand-standard-1", "pxExpand", "standard", "(3x − 2)(x + 4)", "3x^2+10x-8", "展開してから同類項をまとめる。", "3x² ＋ 12x − 2x − 8 ＝ 3x² ＋ 10x − 8 です。");
+  pxP("pxExpand-standard-2", "pxExpand", "standard", "(x − y)(2x + 3y)", "2x^2+xy-3y^2", "xy の項をまとめる。", "2x² ＋ 3xy − 2xy − 3y² ＝ 2x² ＋ xy − 3y² です。");
+  pxP("pxExpand-standard-3", "pxExpand", "standard", "(8a²b − 4ab²) ÷ 4ab", "2a-b", "それぞれの項を 4ab でわる。", "2a − b です。");
+  pxP("pxExpand-standard-4", "pxExpand", "standard", "(2x + 1)(x² − x + 3)", "2x^3-x^2+5x+3", "2x と 1 を、それぞれ3つの項にかける。", "2x³ − 2x² ＋ 6x ＋ x² − x ＋ 3 ＝ 2x³ − x² ＋ 5x ＋ 3 です。");
+  pxP("pxExpand-standard-5", "pxExpand", "standard", "4x(x − 2) − x(3x − 5)", "x^2-3x", "ひくほうのかっこの符号に注意。", "4x² − 8x − 3x² ＋ 5x ＝ x² − 3x です。");
+  sp("pxExpand-application-1", "pxExpand", "縦 (x + 3) cm、横 (2x + 1) cm の長方形があります。", [
+    pxStep("s1", "pxExpand", "面積を展開した式は？（cm²）", "2x^2+7x+3", "(x + 3)(2x + 1) を展開する。", "2x² ＋ 7x ＋ 3 です。"),
+    sn("s2", "pxExpand", "x = 2 のとき、面積は何cm²？", 35, "5 × 7。", "35cm² です。"),
+    pxStep("s3", "pxExpand", "まわりの長さの式は？（cm）", "6x+8", "2{(x + 3) ＋ (2x + 1)}。", "6x ＋ 8 です。")
+  ], ["pxExpand"], "面積は縦 × 横を展開する。", "面積は (2x² ＋ 7x ＋ 3) cm² です。");
+  sp("pxExpand-application-2", "pxExpand", "A ＝ 2x + 3、B ＝ x − 4 です。", [
+    pxStep("s1", "pxExpand", "A × B を展開すると？", "2x^2-5x-12", "4つの積をたす。", "2x² − 8x ＋ 3x − 12 ＝ 2x² − 5x − 12 です。"),
+    sn("s2", "pxExpand", "x = 1 のとき、A × B の値は？", -15, "5 × (−3)。", "−15 です。"),
+    pxStep("s3", "pxExpand", "A × B − 2x² を計算すると？", "-5x-12", "2x² が消える。", "−5x − 12 です。")
+  ], ["pxExpand"], "かっこをつけて式をかく。", "A × B ＝ 2x² − 5x − 12 です。");
+  sp("pxExpand-application-3", "pxExpand", "(x + 2)(x + 5) を、縦 (x + 2)、横 (x + 5) の長方形の面積として、4つの長方形に分けて考えます。", [
+    pxStep("s1", "pxExpand", "x をふくむ2つの長方形（5x と 2x）の面積の和は？", "7x", "5x ＋ 2x。", "7x です。"),
+    sn("s2", "pxExpand", "数だけの長方形の面積はいくつ？", 10, "2 × 5。", "10 です。"),
+    pxStep("s3", "pxExpand", "(x + 2)(x + 5) を展開すると？", "x^2+7x+10", "4つの面積をたす。", "x² ＋ 7x ＋ 10 です。")
+  ], ["pxExpand", "pxFormula"], "展開は面積の分け方で考えられる。", "x² ＋ 7x ＋ 10 です。");
+  pxP("pxExpand-retention-1", "pxExpand", "retention", "5y(y + 6)", "5y^2+30y", "5y を両方にかける。", "5y² ＋ 30y です。", RB);
+  pxP("pxExpand-retention-2", "pxExpand", "retention", "(15a² − 10a) ÷ 5a", "3a-2", "それぞれの項を 5a でわる。", "3a − 2 です。", RB);
+  pxP("pxExpand-retention-3", "pxExpand", "retention", "(m + 8)(n − 6)", "mn-6m+8n-48", "4つの積をたす。", "mn − 6m ＋ 8n − 48 です。", RB);
+  pxP("pxExpand-retention-4", "pxExpand", "retention", "(6x − 7)(4x + 9)", "24x^2+26x-63", "展開してから同類項をまとめる。", "24x² ＋ 54x − 28x − 63 ＝ 24x² ＋ 26x − 63 です。", RS);
+  pxP("pxExpand-retention-5", "pxExpand", "retention", "8y(y − 5) − 3y(y − 11)", "5y^2-7y", "ひくほうのかっこの符号に注意。", "8y² − 40y − 3y² ＋ 33y ＝ 5y² − 7y です。", RS);
+
+  // --- 乗法公式 ---
+  pxP("pxFormula-basic-1", "pxFormula", "basic", "(x + 3)(x + 5)", "x^2+8x+15", "(x + a)(x + b) ＝ x² ＋ (a ＋ b)x ＋ ab。", "x² ＋ 8x ＋ 15 です。", { usage: "diagnosis" });
+  pxP("pxFormula-basic-2", "pxFormula", "basic", "(x + 4)²", "x^2+8x+16", "(x + a)² ＝ x² ＋ 2ax ＋ a²。", "x² ＋ 8x ＋ 16 です。");
+  pxP("pxFormula-basic-3", "pxFormula", "basic", "(x − 6)²", "x^2-12x+36", "(x − a)² ＝ x² − 2ax ＋ a²。", "x² − 12x ＋ 36 です。");
+  pxP("pxFormula-basic-4", "pxFormula", "basic", "(x + 7)(x − 7)", "x^2-49", "(x + a)(x − a) ＝ x² − a²。", "x² − 49 です。");
+  pxP("pxFormula-basic-5", "pxFormula", "basic", "(x − 2)(x + 9)", "x^2+7x-18", "和は 7、積は −18。", "x² ＋ 7x − 18 です。");
+  pxP("pxFormula-basic-6", "pxFormula", "basic", "(a − 5)(a − 3)", "a^2-8a+15", "和は −8、積は 15。", "a² − 8a ＋ 15 です。");
+  ch("pxFormula-basic-7", "pxFormula", "basic", "(x + a)² の展開として正しいものはどれ？", ["x² + 2ax + a²", "x² + a²", "x² + ax + a²", "x² + 2ax + 2a"], "まん中の項を忘れない。", "x² ＋ 2ax ＋ a² です。");
+  pxP("pxFormula-standard-1", "pxFormula", "standard", "(2x + 3)²", "4x^2+12x+9", "2x をひとまとまりと考える。", "4x² ＋ 12x ＋ 9 です。");
+  pxP("pxFormula-standard-2", "pxFormula", "standard", "(3x − y)²", "9x^2-6xy+y^2", "(a − b)² の公式。", "9x² − 6xy ＋ y² です。");
+  pxP("pxFormula-standard-3", "pxFormula", "standard", "(4a + 5b)(4a − 5b)", "16a^2-25b^2", "和と差の積。", "16a² − 25b² です。");
+  pxP("pxFormula-standard-4", "pxFormula", "standard", "(x + 3)² − (x + 1)(x − 1)", "6x+10", "それぞれ展開してからひく。", "x² ＋ 6x ＋ 9 − (x² − 1) ＝ 6x ＋ 10 です。");
+  pxP("pxFormula-standard-5", "pxFormula", "standard", "(x − 4)(x + 2) − (x − 3)²", "4x-17", "ひくほうはかっこごと符号を変える。", "x² − 2x − 8 − (x² − 6x ＋ 9) ＝ 4x − 17 です。");
+  sp("pxFormula-application-1", "pxFormula", "1辺 x cm の正方形の、縦を 3cm 長く、横を 3cm 短くした長方形をつくります。", [
+    pxStep("s1", "pxFormula", "長方形の面積の式は？（cm²）", "x^2-9", "(x + 3)(x − 3)。", "x² − 9 です。"),
+    sn("s2", "pxFormula", "もとの正方形より、面積は何cm² 小さい？", 9, "x² − (x² − 9)。", "9cm² です。"),
+    sn("s3", "pxFormula", "x = 10 のとき、長方形の面積は何cm²？", 91, "13 × 7。", "91cm² です。")
+  ], ["pxFormula"], "和と差の積の公式を使う。", "面積は (x² − 9) cm² です。");
+  sp("pxFormula-application-2", "pxFormula", "(x + 5)² を展開します。", [
+    sn("s1", "pxFormula", "x の係数はいくつ？", 10, "2 × 5。", "10 です。"),
+    sn("s2", "pxFormula", "数の項はいくつ？", 25, "5²。", "25 です。"),
+    pxStep("s3", "pxFormula", "展開した式は？", "x^2+10x+25", "公式にあてはめる。", "x² ＋ 10x ＋ 25 です。")
+  ], ["pxFormula"], "(x + a)² ＝ x² ＋ 2ax ＋ a²。", "x² ＋ 10x ＋ 25 です。");
+  sp("pxFormula-application-3", "pxFormula", "1辺 (a + 2) cm の正方形があります。", [
+    pxStep("s1", "pxFormula", "面積を展開した式は？（cm²）", "a^2+4a+4", "(a + 2)²。", "a² ＋ 4a ＋ 4 です。"),
+    sn("s2", "pxFormula", "a = 3 のとき、面積は何cm²？", 25, "5 × 5。", "25cm² です。"),
+    pxStep("s3", "pxFormula", "1辺 a cm の正方形より、面積は何cm² 大きい？（式で）", "4a+4", "a² をひく。", "4a ＋ 4 です。")
+  ], ["pxFormula"], "公式で展開してからくらべる。", "4a ＋ 4 だけ大きいです。");
+  pxP("pxFormula-retention-1", "pxFormula", "retention", "(y + 8)(y + 13)", "y^2+21y+104", "和は 21、積は 104。", "y² ＋ 21y ＋ 104 です。", RB);
+  pxP("pxFormula-retention-2", "pxFormula", "retention", "(m − 12)²", "m^2-24m+144", "(x − a)² の公式。", "m² − 24m ＋ 144 です。", RB);
+  pxP("pxFormula-retention-3", "pxFormula", "retention", "(p + 11)(p − 11)", "p^2-121", "和と差の積。", "p² − 121 です。", RB);
+  pxP("pxFormula-retention-4", "pxFormula", "retention", "(9x − 10)²", "81x^2-180x+100", "9x をひとまとまりと考える。", "81x² − 180x ＋ 100 です。", RS);
+  pxP("pxFormula-retention-5", "pxFormula", "retention", "(y + 15)² − (y + 9)(y − 9)", "30y+306", "それぞれ展開してからひく。", "y² ＋ 30y ＋ 225 − (y² − 81) ＝ 30y ＋ 306 です。", RS);
+
+  // --- 共通因数でくくる ---
+  pxF("pxCommon-basic-1", "pxCommon", "basic", "ax + ay", ["a(x + y)", "x(a + y)", "a + xy", "(a + x)(a + y)"], "どの項にもある文字をさがす。", "a(x ＋ y) です。", { usage: "diagnosis" });
+  pxF("pxCommon-basic-2", "pxCommon", "basic", "3x + 12", ["3(x + 4)", "3(x + 12)", "x(3 + 12)", "3x(1 + 4)"], "3 でくくる。", "3(x ＋ 4) です。");
+  pxF("pxCommon-basic-3", "pxCommon", "basic", "x² + 5x", ["x(x + 5)", "x(x + 5x)", "x²(1 + 5)", "5x(x + 1)"], "x でくくる。", "x(x ＋ 5) です。");
+  pxF("pxCommon-basic-4", "pxCommon", "basic", "6a² − 9a", ["3a(2a − 3)", "3(2a² − 9a)", "a(6a − 3)", "3a(2a − 9)"], "数と文字の両方でくくる。", "3a(2a − 3) です。");
+  ch("pxCommon-basic-5", "pxCommon", "basic", "因数分解とはどういうこと？", ["多項式を、いくつかの式の積の形に表すこと", "積の形の式を、和の形に直すこと", "式に数を代入すること", "同類項をまとめること"], "展開の逆。", "多項式を積の形に表すことです。");
+  pxF("pxCommon-basic-6", "pxCommon", "basic", "4xy − 8x", ["4x(y − 2)", "4(xy − 8x)", "x(4y − 2)", "4x(y − 8)"], "4x でくくる。", "4x(y − 2) です。");
+  pxF("pxCommon-basic-7", "pxCommon", "basic", "2x² + 6xy", ["2x(x + 3y)", "2(x² + 6xy)", "x(2x + 3y)", "2x(x + 6y)"], "2x でくくる。", "2x(x ＋ 3y) です。");
+  pxF("pxCommon-standard-1", "pxCommon", "standard", "5a²b + 10ab²", ["5ab(a + 2b)", "5ab(a + 10b)", "5(a²b + ab²)", "ab(5a + 2b)"], "5ab でくくる。", "5ab(a ＋ 2b) です。");
+  pxF("pxCommon-standard-2", "pxCommon", "standard", "12x²y − 18xy²", ["6xy(2x − 3y)", "6xy(2x − 18y)", "3xy(4x − 3y)", "6xy(3x − 2y)"], "12 と 18 の最大公約数と、共通の文字。", "6xy(2x − 3y) です。");
+  pxF("pxCommon-standard-3", "pxCommon", "standard", "ax − bx + cx", ["x(a − b + c)", "x(a + b + c)", "a(x − b + c)", "(a − b)(c + x)"], "3つの項に共通な文字。", "x(a − b ＋ c) です。");
+  pxF("pxCommon-standard-4", "pxCommon", "standard", "3x² − 6x + 9", ["3(x² − 2x + 3)", "3(x² − 6x + 9)", "3x(x − 2 + 3)", "(3x − 3)²"], "3 でくくる。", "3(x² − 2x ＋ 3) です。");
+  ch("pxCommon-standard-5", "pxCommon", "standard", "8x² + 12x の共通因数を、すべてくくり出した形はどれ？", ["4x(2x + 3)", "2x(4x + 6)", "4(2x² + 3x)", "x(8x + 12)"], "かっこの中に、まだくくれるものが残っていないか。", "4x(2x ＋ 3) です。ほかはかっこの中にまだ共通因数があります。");
+  sp("pxCommon-application-1", "pxCommon", "x² + 7x を因数分解して、値を求めやすくします。", [
+    sc("s1", "pxCommon", "因数分解した形はどれ？", ["x(x + 7)", "x(x + 7x)", "7x(x + 1)", "x²(1 + 7)"], "x でくくる。", "x(x ＋ 7) です。"),
+    sn("s2", "pxCommon", "x = 3 のときの値は？", 30, "3 × 10。", "30 です。"),
+    sn("s3", "pxCommon", "x = 93 のときの値は？", 9300, "93 × 100。", "9300 です。")
+  ], ["pxCommon"], "積の形にすると計算が楽になる。", "x(x ＋ 7) です。");
+  sp("pxCommon-application-2", "pxCommon", "長方形の面積が (3x² + 6x) cm²、縦が 3x cm です。", [
+    pxStep("s1", "pxCommon", "横の長さの式は？（cm）", "x+2", "3x でくくる。", "3x(x ＋ 2) なので x ＋ 2 です。"),
+    sn("s2", "pxCommon", "x = 4 のとき、横は何cm？", 6, "4 ＋ 2。", "6cm です。"),
+    sn("s3", "pxCommon", "x = 4 のとき、面積は何cm²？", 72, "12 × 6。", "72cm² です。")
+  ], ["pxCommon"], "面積 ＝ 縦 × 横 の形にくくる。", "横は (x ＋ 2) cm です。");
+  sp("pxCommon-application-3", "pxCommon", "整数 n について、n² + n を考えます。", [
+    sc("s1", "pxCommon", "因数分解した形はどれ？", ["n(n + 1)", "n²(1 + n)", "(n + 1)²", "n(n + n)"], "n でくくる。", "n(n ＋ 1) です。"),
+    sn("s2", "pxCommon", "n = 9 のときの値は？", 90, "9 × 10。", "90 です。"),
+    sc("s3", "pxCommon", "n(n + 1) について正しいのはどれ？", ["連続する2つの整数の積なので、いつも偶数", "いつも奇数", "いつも 3 の倍数", "いつも平方数"], "連続する2つの整数のどちらかは偶数。", "いつも偶数です。")
+  ], ["pxCommon"], "因数分解すると性質が見える。", "n(n ＋ 1) はいつも偶数です。");
+  pxF("pxCommon-retention-1", "pxCommon", "retention", "9y + 36", ["9(y + 4)", "9(y + 36)", "y(9 + 36)", "9y(1 + 4)"], "9 でくくる。", "9(y ＋ 4) です。", RB);
+  pxF("pxCommon-retention-2", "pxCommon", "retention", "m² − 11m", ["m(m − 11)", "m(m − 11m)", "11m(m − 1)", "m²(1 − 11)"], "m でくくる。", "m(m − 11) です。", RB);
+  pxF("pxCommon-retention-3", "pxCommon", "retention", "pq + pr", ["p(q + r)", "q(p + r)", "p + qr", "(p + q)(p + r)"], "どの項にもある文字。", "p(q ＋ r) です。", RB);
+  pxF("pxCommon-retention-4", "pxCommon", "retention", "15a²b − 25ab", ["5ab(3a − 5)", "5ab(3a − 25)", "5a(3ab − 25)", "ab(15a − 5)"], "5ab でくくる。", "5ab(3a − 5) です。", RS);
+  pxF("pxCommon-retention-5", "pxCommon", "retention", "6x² − 15x + 21", ["3(2x² − 5x + 7)", "3(2x² − 15x + 21)", "3x(2x − 5 + 7)", "6(x² − 15x + 21)"], "3 でくくる。", "3(2x² − 5x ＋ 7) です。", RS);
+
+  // --- 公式による因数分解 ---
+  pxF("pxFactor-basic-1", "pxFactor", "basic", "x² + 5x + 6", ["(x + 2)(x + 3)", "(x + 1)(x + 6)", "(x − 2)(x − 3)", "(x + 5)(x + 1)"], "かけて 6、たして 5 の2数。", "(x ＋ 2)(x ＋ 3) です。", { usage: "diagnosis" });
+  pxF("pxFactor-basic-2", "pxFactor", "basic", "x² + 6x + 9", ["(x + 3)²", "(x − 3)²", "(x + 9)(x + 1)", "(x + 3)(x − 3)"], "9 ＝ 3²、6 ＝ 2 × 3。", "(x ＋ 3)² です。");
+  pxF("pxFactor-basic-3", "pxFactor", "basic", "x² − 10x + 25", ["(x − 5)²", "(x + 5)²", "(x − 5)(x + 5)", "(x − 25)(x + 1)"], "25 ＝ 5²、−10 ＝ −2 × 5。", "(x − 5)² です。");
+  pxF("pxFactor-basic-4", "pxFactor", "basic", "x² − 16", ["(x + 4)(x − 4)", "(x − 4)²", "(x + 4)²", "(x − 8)(x + 2)"], "2乗 − 2乗。", "(x ＋ 4)(x − 4) です。");
+  pxF("pxFactor-basic-5", "pxFactor", "basic", "x² + 2x − 8", ["(x + 4)(x − 2)", "(x − 4)(x + 2)", "(x + 8)(x − 1)", "(x − 8)(x + 1)"], "かけて −8、たして 2 の2数。", "(x ＋ 4)(x − 2) です。");
+  pxF("pxFactor-basic-6", "pxFactor", "basic", "x² − 7x + 12", ["(x − 3)(x − 4)", "(x + 3)(x + 4)", "(x − 2)(x − 6)", "(x − 12)(x + 1)"], "かけて 12、たして −7 の2数。", "(x − 3)(x − 4) です。");
+  pxF("pxFactor-basic-7", "pxFactor", "basic", "a² − 81", ["(a + 9)(a − 9)", "(a − 9)²", "(a + 81)(a − 1)", "(a + 3)(a − 27)"], "2乗 − 2乗。", "(a ＋ 9)(a − 9) です。");
+  pxF("pxFactor-standard-1", "pxFactor", "standard", "x² − x − 20", ["(x − 5)(x + 4)", "(x + 5)(x − 4)", "(x − 10)(x + 2)", "(x − 20)(x + 1)"], "かけて −20、たして −1 の2数。", "(x − 5)(x ＋ 4) です。");
+  pxF("pxFactor-standard-2", "pxFactor", "standard", "4x² − 9y²", ["(2x + 3y)(2x − 3y)", "(2x − 3y)²", "(4x + 9y)(x − y)", "(2x + 3y)²"], "(2x)² − (3y)²。", "(2x ＋ 3y)(2x − 3y) です。");
+  pxF("pxFactor-standard-3", "pxFactor", "standard", "9a² + 12ab + 4b²", ["(3a + 2b)²", "(3a − 2b)²", "(9a + 4b)(a + b)", "(3a + 4b)(3a + b)"], "(3a)² と (2b)²。", "(3a ＋ 2b)² です。");
+  pxF("pxFactor-standard-4", "pxFactor", "standard", "2x² − 8x − 24", ["2(x − 6)(x + 2)", "2(x + 6)(x − 2)", "(2x − 6)(x + 4)", "2(x − 4)(x + 3)"], "まず 2 でくくる。", "2(x² − 4x − 12) ＝ 2(x − 6)(x ＋ 2) です。");
+  pxF("pxFactor-standard-5", "pxFactor", "standard", "x² − 12x + 36", ["(x − 6)²", "(x + 6)²", "(x − 6)(x + 6)", "(x − 4)(x − 9)"], "36 ＝ 6²、−12 ＝ −2 × 6。", "(x − 6)² です。");
+  sp("pxFactor-application-1", "pxFactor", "x² + 8x + 15 を因数分解します。", [
+    sn("s1", "pxFactor", "かけて 15、たして 8 になる2つの数のうち、小さいほうは？", 3, "3 × 5 ＝ 15。", "3 です。"),
+    sn("s2", "pxFactor", "大きいほうは？", 5, "3 ＋ 5 ＝ 8。", "5 です。"),
+    sc("s3", "pxFactor", "因数分解した形はどれ？", ["(x + 3)(x + 5)", "(x + 1)(x + 15)", "(x − 3)(x − 5)", "(x + 8)(x + 15)"], "2つの数を入れる。", "(x ＋ 3)(x ＋ 5) です。")
+  ], ["pxFactor"], "積と和から2つの数を見つける。", "(x ＋ 3)(x ＋ 5) です。");
+  sp("pxFactor-application-2", "pxFactor", "x² − 9 を因数分解して、計算を工夫します。", [
+    sc("s1", "pxFactor", "因数分解した形はどれ？", ["(x + 3)(x − 3)", "(x − 3)²", "(x + 9)(x − 1)", "(x + 3)²"], "2乗 − 2乗。", "(x ＋ 3)(x − 3) です。"),
+    sn("s2", "pxFactor", "x = 13 のときの値は？", 160, "16 × 10。", "160 です。"),
+    sn("s3", "pxFactor", "x = 103 のときの値は？", 10600, "106 × 100。", "10600 です。")
+  ], ["pxFactor", "pxUse"], "積の形にすると暗算しやすい。", "(x ＋ 3)(x − 3) です。");
+  sp("pxFactor-application-3", "pxFactor", "(x + 1)² − 4 を因数分解します。x + 1 を M とおくと M² − 4 です。", [
+    sc("s1", "pxFactor", "M² − 4 を因数分解した形はどれ？", ["(M + 2)(M − 2)", "(M − 2)²", "(M + 4)(M − 1)", "(M + 2)²"], "2乗 − 2乗。", "(M ＋ 2)(M − 2) です。"),
+    sc("s2", "pxFactor", "M を x + 1 にもどした形はどれ？", ["(x + 3)(x − 1)", "(x + 1)(x − 1)", "(x + 2)(x − 2)", "(x − 3)(x + 1)"], "M ＋ 2 ＝ x ＋ 3、M − 2 ＝ x − 1。", "(x ＋ 3)(x − 1) です。"),
+    sn("s3", "pxFactor", "x = 5 のときの値は？", 32, "8 × 4。", "32 です。")
+  ], ["pxFactor"], "同じかたまりを1つの文字におきかえる。", "(x ＋ 3)(x − 1) です。");
+  pxF("pxFactor-standard-6", "pxFactor", "standard", "x² + 4x − 21", ["(x + 7)(x − 3)", "(x − 7)(x + 3)", "(x + 21)(x − 1)", "(x + 3)(x + 7)"], "かけて −21、たして 4 の2数。", "(x ＋ 7)(x − 3) です。");
+  pxF("pxFactor-standard-7", "pxFactor", "standard", "3x² − 27", ["3(x + 3)(x − 3)", "3(x − 3)²", "3(x + 9)(x − 1)", "(x + 9)(x − 3)"], "まず 3 でくくってから、2乗 − 2乗。", "3(x² − 9) ＝ 3(x ＋ 3)(x − 3) です。");
+  sp("pxFactor-application-4", "pxFactor", "面積が (x² + 10x + 25) cm² の正方形があります。", [
+    sc("s1", "pxFactor", "面積の式を因数分解した形はどれ？", ["(x + 5)²", "(x − 5)²", "(x + 25)(x + 1)", "(x + 5)(x − 5)"], "25 ＝ 5²、10 ＝ 2 × 5。", "(x ＋ 5)² です。"),
+    pxStep("s2", "pxFactor", "1辺の長さの式は？（cm）", "x+5", "(1辺)² の形になっている。", "x ＋ 5 です。"),
+    sn("s3", "pxFactor", "x = 3 のとき、1辺は何cm？", 8, "3 ＋ 5。", "8cm です。")
+  ], ["pxFactor"], "正方形の面積を (1辺)² の形にする。", "1辺は (x ＋ 5) cm です。");
+  sp("pxFactor-application-5", "pxFactor", "長方形の面積が (x² + 7x + 12) cm²、縦が (x + 3) cm です。", [
+    sc("s1", "pxFactor", "面積の式を因数分解した形はどれ？", ["(x + 3)(x + 4)", "(x + 2)(x + 6)", "(x + 1)(x + 12)", "(x − 3)(x − 4)"], "かけて 12、たして 7 の2数。", "(x ＋ 3)(x ＋ 4) です。"),
+    pxStep("s2", "pxFactor", "横の長さの式は？（cm）", "x+4", "縦 (x ＋ 3) 以外のかっこ。", "x ＋ 4 です。"),
+    sn("s3", "pxFactor", "x = 6 のとき、横は何cm？", 10, "6 ＋ 4。", "10cm です。")
+  ], ["pxFactor"], "面積 ＝ 縦 × 横 の形に因数分解する。", "横は (x ＋ 4) cm です。");
+  pxF("pxFactor-retention-1", "pxFactor", "retention", "y² + 9y + 14", ["(y + 2)(y + 7)", "(y + 1)(y + 14)", "(y − 2)(y − 7)", "(y + 9)(y + 5)"], "かけて 14、たして 9 の2数。", "(y ＋ 2)(y ＋ 7) です。", RB);
+  pxF("pxFactor-retention-2", "pxFactor", "retention", "m² − 121", ["(m + 11)(m − 11)", "(m − 11)²", "(m + 11)²", "(m − 121)(m + 1)"], "2乗 − 2乗。", "(m ＋ 11)(m − 11) です。", RB);
+  pxF("pxFactor-retention-3", "pxFactor", "retention", "p² − 14p + 49", ["(p − 7)²", "(p + 7)²", "(p − 7)(p + 7)", "(p − 49)(p + 1)"], "49 ＝ 7²、−14 ＝ −2 × 7。", "(p − 7)² です。", RB);
+  pxF("pxFactor-retention-4", "pxFactor", "retention", "y² − 3y − 40", ["(y − 8)(y + 5)", "(y + 8)(y − 5)", "(y − 10)(y + 4)", "(y − 40)(y + 1)"], "かけて −40、たして −3 の2数。", "(y − 8)(y ＋ 5) です。", RS);
+  pxF("pxFactor-retention-5", "pxFactor", "retention", "25x² − 49", ["(5x + 7)(5x − 7)", "(5x − 7)²", "(25x + 7)(x − 7)", "(5x + 7)²"], "(5x)² − 7²。", "(5x ＋ 7)(5x − 7) です。", RS);
+
+  pxF("pxFactor-retention-6", "pxFactor", "retention", "y² + 11y + 30", ["(y + 5)(y + 6)", "(y + 3)(y + 10)", "(y − 5)(y − 6)", "(y + 1)(y + 30)"], "かけて 30、たして 11 の2数。", "(y ＋ 5)(y ＋ 6) です。", RB);
+  pxF("pxFactor-retention-7", "pxFactor", "retention", "2x² + 10x − 28", ["2(x + 7)(x − 2)", "2(x − 7)(x + 2)", "2(x + 14)(x − 1)", "(2x + 7)(x − 4)"], "まず 2 でくくる。", "2(x² ＋ 5x − 14) ＝ 2(x ＋ 7)(x − 2) です。", RS);
+
+  // --- 式の計算の利用 ---
+  nm("pxUse-basic-1", "pxUse", "basic", "99² を、(100 − 1)² と考えて計算すると、いくつ？", 9801, "10000 − 200 ＋ 1。", "9801 です。", { usage: "diagnosis" });
+  nm("pxUse-basic-2", "pxUse", "basic", "103 × 97 を、(100 + 3)(100 − 3) と考えて計算すると、いくつ？", 9991, "10000 − 9。", "9991 です。");
+  nm("pxUse-basic-3", "pxUse", "basic", "51² を、(50 + 1)² と考えて計算すると、いくつ？", 2601, "2500 ＋ 100 ＋ 1。", "2601 です。");
+  nm("pxUse-basic-4", "pxUse", "basic", "52² − 48² を、因数分解を使って計算すると、いくつ？", 400, "(52 ＋ 48)(52 − 48)。", "100 × 4 ＝ 400 です。");
+  nm("pxUse-basic-5", "pxUse", "basic", "x = 98 のとき、x² + 4x + 4 の値は？（因数分解してから数を入れる）", 10000, "(x ＋ 2)²。", "100² ＝ 10000 です。");
+  nm("pxUse-basic-6", "pxUse", "basic", "201 × 199 を、(200 + 1)(200 − 1) と考えて計算すると、いくつ？", 39999, "40000 − 1。", "39999 です。");
+  ch("pxUse-basic-7", "pxUse", "basic", "連続する2つの奇数を 2n − 1、2n + 1 と表すとき、その積を展開した式はどれ？", ["4n² − 1", "4n² + 1", "4n²", "2n² − 1"], "和と差の積。", "4n² − 1 です。");
+  nm("pxUse-standard-1", "pxUse", "standard", "x = 23、y = 17 のとき、x² − y² の値は？", 240, "(x ＋ y)(x − y)。", "40 × 6 ＝ 240 です。");
+  nm("pxUse-standard-2", "pxUse", "standard", "x = 7.5 のとき、x² − 5x の値は？（x(x − 5) と考える。小数で答えましょう）", 18.75, "7.5 × 2.5。", "18.75 です。");
+  ch("pxUse-standard-3", "pxUse", "standard", "連続する2つの整数 n、n + 1 の2乗の差 (n + 1)² − n² は、どんな数？", ["2n + 1 なので奇数", "2n なので偶数", "n² なので平方数", "いつも 1"], "展開してひく。", "2n ＋ 1 なので奇数です。");
+  nm("pxUse-standard-4", "pxUse", "standard", "a + b = 7、ab = 10 のとき、a² + b² の値は？", 29, "a² ＋ b² ＝ (a ＋ b)² − 2ab。", "49 − 20 ＝ 29 です。");
+  nm("pxUse-standard-5", "pxUse", "standard", "x − y = 3、xy = 4 のとき、x² + y² の値は？", 17, "x² ＋ y² ＝ (x − y)² ＋ 2xy。", "9 ＋ 8 ＝ 17 です。");
+  sp("pxUse-application-1", "pxUse", "連続する3つの整数を n − 1、n、n + 1 とします。", [
+    sn("s1", "pxUse", "まん中の数の2乗から、両はしの数の積をひくと、いくつ？", 1, "n² − (n² − 1)。", "1 です。"),
+    sn("s2", "pxUse", "n = 10 のとき、両はしの数の積は？", 99, "9 × 11。", "99 です。"),
+    sc("s3", "pxUse", "わかったことはどれ？", ["まん中の数の2乗は、両はしの積より いつも 1 大きい", "まん中の数の2乗は、両はしの積と等しい", "両はしの積は いつも偶数", "差は n によって変わる"], "s1 の結果。", "いつも 1 大きくなります。")
+  ], ["pxUse", "pxFormula"], "文字で表して展開すると、いつでも成り立つことがわかる。", "差はいつも 1 です。");
+  sp("pxUse-application-2", "pxUse", "1辺 a m の正方形の土地のまわりに、幅 1m の道があります。", [
+    pxStep("s1", "pxUse", "道の外側の正方形の1辺の式は？（m）", "a+2", "両側に 1m ずつ。", "a ＋ 2 です。"),
+    pxStep("s2", "pxUse", "道の面積の式は？（m²）", "4a+4", "(a + 2)² − a²。", "4a ＋ 4 です。"),
+    sn("s3", "pxUse", "a = 10 のとき、道の面積は何m²？", 44, "40 ＋ 4。", "44m² です。")
+  ], ["pxUse", "pxFormula"], "大きい正方形から小さい正方形をひく。", "道の面積は (4a ＋ 4) m² です。");
+  sp("pxUse-application-3", "pxUse", "x = 3.5、y = 1.5 のとき、x² + 2xy + y² の値を求めます。", [
+    sn("s1", "pxUse", "x + y の値は？", 5, "3.5 ＋ 1.5。", "5 です。"),
+    sc("s2", "pxUse", "x² + 2xy + y² を因数分解した形はどれ？", ["(x + y)²", "(x − y)²", "(x + y)(x − y)", "x(x + 2y)"], "公式の形。", "(x ＋ y)² です。"),
+    sn("s3", "pxUse", "式の値は？", 25, "5²。", "25 です。")
+  ], ["pxUse", "pxFactor"], "因数分解してから数を入れると楽になる。", "25 です。");
+  nm("pxUse-retention-1", "pxUse", "retention", "101² を、(100 + 1)² と考えて計算すると、いくつ？", 10201, "10000 ＋ 200 ＋ 1。", "10201 です。", RB);
+  nm("pxUse-retention-2", "pxUse", "retention", "61 × 59 を、(60 + 1)(60 − 1) と考えて計算すると、いくつ？", 3599, "3600 − 1。", "3599 です。", RB);
+  nm("pxUse-retention-3", "pxUse", "retention", "73² − 27² を、因数分解を使って計算すると、いくつ？", 4600, "(73 ＋ 27)(73 − 27)。", "100 × 46 ＝ 4600 です。", RB);
+  nm("pxUse-retention-4", "pxUse", "retention", "x = 46、y = 54 のとき、x² + 2xy + y² の値は？", 10000, "(x ＋ y)²。", "100² ＝ 10000 です。", RS);
+  nm("pxUse-retention-5", "pxUse", "retention", "a + b = 9、ab = 14 のとき、a² + b² の値は？", 53, "a² ＋ b² ＝ (a ＋ b)² − 2ab。", "81 − 28 ＝ 53 です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

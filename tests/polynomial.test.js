@@ -36,8 +36,9 @@ test("式の計算のスキル：単元と前提。直線ではなく、一次�
   assert.ok(E.SKILLS.simParen.prerequisites.includes("polyMixed"));
   assert.ok(E.SKILLS.eqTransform.prerequisites.includes("transpose"));
   assert.ok(Q["slopeIntercept-standard-2"].prerequisite_skills.includes("eqTransform"), "一次関数：2x + y = 5 → y = …");
-  // 単項式の乗除は、いまの地図では何の前提にもならない
-  assert.ok(!E.SKILL_ORDER.some((k) => E.SKILLS[k].prerequisites.includes("monoMulDiv")));
+  // 単項式の乗除は、中2の地図では何の前提にもならない（中3の「式の展開」が使う）
+  assert.ok(!E.SKILL_ORDER.some((k) => E.SKILLS[k].grade === "中2" && E.SKILLS[k].prerequisites.includes("monoMulDiv")));
+  assert.ok(E.SKILLS.pxExpand.prerequisites.includes("monoMulDiv"));
   // 前提が先に来る順
   E.ROOT_ORDER.forEach((k, i) => E.SKILLS[k].prerequisites.forEach((p) => assert.ok(E.ROOT_ORDER.indexOf(p) < i, k + " より前に " + p)));
 });
