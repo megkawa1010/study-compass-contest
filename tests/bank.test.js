@@ -136,7 +136,7 @@ test("グラフの点は直線の上にあり、答えは図と食いちがわ�
 });
 
 test("一次関数の表は、値がすべて一直線上にあり、? の答えも同じ直線上にある", () => {
-  for (const q of bank.filter((q) => q.figure && q.figure.type === "table" && q.unit !== "確率")) {
+  for (const q of bank.filter((q) => q.figure && q.figure.type === "table" && q.unit !== "確率" && q.unit !== "データの分布")) {
     const [xr, yr] = q.figure.rows;
     const pts = xr.values.map((x, i) => [x, yr.values[i]]).filter(([, y]) => y !== null);
     const [x0, y0] = pts[0], [x1, y1] = pts[1];
