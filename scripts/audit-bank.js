@@ -34,7 +34,8 @@ const SCENARIOS = [
   ["確率"], ["確率", "probCount"], ["確率", "probMeaning"],
   ["データの活用"], ["データの活用", "dataMedian"], ["データの活用", "dataBoxRead"],
   ["多項式"], ["多項式", "pxFormula"],
-  ["平方根"], ["平方根", "sqMulDiv"]
+  ["平方根"], ["平方根", "sqMulDiv"],
+  ["二次方程式"], ["二次方程式", "qeFactor"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;

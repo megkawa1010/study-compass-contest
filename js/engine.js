@@ -190,7 +190,13 @@
     sqCompare:      { label: "平方根の大小と近似値", unit: "平方根", grade: "中3", prerequisites: ["sqMeaning"] },
     sqMulDiv:       { label: "根号をふくむ式の乗除", unit: "平方根", grade: "中3", prerequisites: ["sqMeaning"] },
     sqAddSub:       { label: "根号をふくむ式の加減", unit: "平方根", grade: "中3", prerequisites: ["sqMulDiv", "pxFormula"] },
-    sqUse:          { label: "平方根の利用",   unit: "平方根", grade: "中3", prerequisites: ["sqMulDiv", "sqCompare"] }
+    sqUse:          { label: "平方根の利用",   unit: "平方根", grade: "中3", prerequisites: ["sqMulDiv", "sqCompare"] },
+    // --- 中3 二次方程式 ---
+    qeMeaning:      { label: "二次方程式とその解", unit: "二次方程式", grade: "中3", prerequisites: ["eqMeaning", "pxExpand"] },
+    qeSqrt:         { label: "平方根の考えで解く", unit: "二次方程式", grade: "中3", prerequisites: ["sqMeaning", "qeMeaning"] },
+    qeFactor:       { label: "因数分解で解く", unit: "二次方程式", grade: "中3", prerequisites: ["pxFactor", "qeMeaning"] },
+    qeFormula:      { label: "解の公式",       unit: "二次方程式", grade: "中3", prerequisites: ["qeSqrt", "sqAddSub"] },
+    qeWord:         { label: "二次方程式の利用", unit: "二次方程式", grade: "中3", prerequisites: ["qeFactor", "eqWord"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -216,7 +222,8 @@
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare",
     "pxExpand", "pxFormula", "pxCommon", "pxFactor", "pxUse",
-    "sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse"];
+    "sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse",
+    "qeMeaning", "qeSqrt", "qeFactor", "qeFormula", "qeWord"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -229,7 +236,8 @@
     "probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot",
     "dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare",
     "pxExpand", "pxFormula", "pxCommon", "pxFactor", "pxUse",
-    "sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse"];
+    "sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse",
+    "qeMeaning", "qeSqrt", "qeFactor", "qeFormula", "qeWord"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -250,13 +258,14 @@
     "確率": ["probMeaning", "probCount", "probBasic", "probTwo", "probDraw", "probNot"],
     "データの活用": ["dataMedian", "dataQuartile", "dataIqr", "dataBoxRead", "dataBoxMake", "dataCompare"],
     "多項式": ["pxExpand", "pxFormula", "pxCommon", "pxFactor", "pxUse"],
-    "平方根": ["sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse"]
+    "平方根": ["sqMeaning", "sqCompare", "sqMulDiv", "sqAddSub", "sqUse"],
+    "二次方程式": ["qeMeaning", "qeSqrt", "qeFactor", "qeFormula", "qeWord"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
   // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
-  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根"] };
+  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式"] };
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
   var currentGrade = "中学2年";
   function setGrade(g) {
@@ -598,6 +607,7 @@
     dsFreq: "review_frequency_table", dsRel: "review_relative_frequency", dsHist: "review_histogram", dsRep: "review_representative_values", dsProb: "review_empirical_probability",
     pxExpand: "review_polynomial_expand", pxFormula: "review_multiplication_formulas", pxCommon: "review_common_factor", pxFactor: "review_factoring_formulas", pxUse: "practice_polynomial_use",
     sqMeaning: "review_square_root_meaning", sqCompare: "review_square_root_compare", sqMulDiv: "review_radical_mul_div", sqAddSub: "review_radical_add_sub", sqUse: "practice_square_root_use",
+    qeMeaning: "review_quadratic_meaning", qeSqrt: "review_quadratic_square_root", qeFactor: "review_quadratic_factoring", qeFormula: "review_quadratic_formula", qeWord: "practice_quadratic_word",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"
