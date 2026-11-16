@@ -220,7 +220,13 @@
     ptConverse:     { label: "三平方の定理の逆", unit: "三平方の定理", grade: "中3", prerequisites: ["ptBasic"] },
     ptSpecial:      { label: "特別な直角三角形", unit: "三平方の定理", grade: "中3", prerequisites: ["ptBasic", "sqMulDiv"] },
     ptPlane:        { label: "平面図形への利用", unit: "三平方の定理", grade: "中3", prerequisites: ["ptSpecial", "coord"] },
-    ptSolid:        { label: "空間図形への利用", unit: "三平方の定理", grade: "中3", prerequisites: ["ptPlane", "spVolume"] }
+    ptSolid:        { label: "空間図形への利用", unit: "三平方の定理", grade: "中3", prerequisites: ["ptPlane", "spVolume"] },
+    // --- 中3 標本調査 ---
+    suMeaning:      { label: "全数調査と標本調査", unit: "標本調査", grade: "中3", prerequisites: ["dsFreq"] },
+    suRandom:       { label: "無作為に抽出する", unit: "標本調査", grade: "中3", prerequisites: ["suMeaning", "probMeaning"] },
+    suRatio:        { label: "標本の割合から推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRandom", "dsRel"] },
+    suCount:        { label: "印をつけて数を推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRatio", "eqWord"] },
+    suMean:         { label: "標本の平均で推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRatio", "dsRep"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -251,7 +257,8 @@
     "qfMeaning", "qfGraph", "qfRange", "qfRate", "qfUse",
     "smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol",
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
-    "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"];
+    "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
+    "suMeaning", "suRandom", "suRatio", "suCount", "suMean"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -269,7 +276,8 @@
     "qfMeaning", "qfGraph", "qfRange", "qfRate", "qfUse",
     "smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol",
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
-    "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"];
+    "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
+    "suMeaning", "suRandom", "suRatio", "suCount", "suMean"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -295,13 +303,14 @@
     "関数 y＝ax²": ["qfMeaning", "qfGraph", "qfRange", "qfRate", "qfUse"],
     "相似": ["smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol"],
     "円": ["ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar"],
-    "三平方の定理": ["ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"]
+    "三平方の定理": ["ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"],
+    "標本調査": ["suMeaning", "suRandom", "suRatio", "suCount", "suMean"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
   // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
-  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理"] };
+  var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
   var currentGrade = "中学2年";
   function setGrade(g) {
@@ -648,6 +657,7 @@
     smMeaning: "review_similar_figures", smCond: "review_similarity_conditions", smParallel: "review_parallel_ratio", smMidpoint: "review_midpoint_theorem", smAreaVol: "practice_area_volume_ratio",
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
+    suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"
