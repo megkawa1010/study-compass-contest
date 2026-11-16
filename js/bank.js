@@ -7539,6 +7539,224 @@
   nm("qfUse-retention-5", "qfUse", "retention", "y ＝ x² 上の2点 A(−2, 4)、B(5, 25) と原点 O でできる △OAB の面積は？", 35, "直線 AB は y ＝ 3x ＋ 10。", "10 × 7 ÷ 2 ＝ 35 です。", RS);
 
   // =====================================================================
+  // 中3 相似。答えは tests/similarity.test.js が比から計算して確かめる
+  // =====================================================================
+
+  // --- 相似な図形の性質 ---
+  nm("smMeaning-basic-1", "smMeaning", "basic", "△ABC ∽ △DEF で、相似比は 2 : 3 です。BC ＝ 8cm のとき、EF は何cm？", 12, "BC : EF ＝ 2 : 3。", "8 × 3 ÷ 2 ＝ 12cm です。", { usage: "diagnosis" });
+  ch("smMeaning-basic-2", "smMeaning", "basic", "△ABC ∽ △DEF のとき、∠B に対応する角はどれ？", ["∠E", "∠D", "∠F", "∠C"], "記号の順番どうしが対応する。", "2番目どうしなので ∠E です。");
+  nm("smMeaning-basic-3", "smMeaning", "basic", "△ABC ∽ △DEF で、∠A ＝ 50°、∠E ＝ 70° のとき、∠C は何度？", 60, "∠B ＝ ∠E。", "180 − 50 − 70 ＝ 60° です。");
+  nm("smMeaning-basic-4", "smMeaning", "basic", "△ABC ∽ △DEF で、AB ＝ 6cm、DE ＝ 9cm です。相似比 AB : DE を a : 3 と表すとき、a は？", 2, "6 : 9 を簡単にする。", "2 : 3 なので a ＝ 2 です。");
+  ch("smMeaning-basic-5", "smMeaning", "basic", "相似な図形について、正しいものはどれ？", ["対応する角の大きさはそれぞれ等しい", "対応する辺の長さはそれぞれ等しい", "面積はいつも等しい", "形も大きさも同じ"], "形は同じで、大きさがちがう。", "対応する角はそれぞれ等しいです。");
+  nm("smMeaning-basic-6", "smMeaning", "basic", "四角形 ABCD ∽ 四角形 EFGH で、相似比は 3 : 5 です。FG ＝ 20cm のとき、BC は何cm？", 12, "BC : FG ＝ 3 : 5。", "20 × 3 ÷ 5 ＝ 12cm です。");
+  nm("smMeaning-basic-7", "smMeaning", "basic", "比例式 x : 6 ＝ 4 : 3 を解くと、x は？", 8, "外側の積 ＝ 内側の積。", "3x ＝ 24 より 8 です。");
+  nm("smMeaning-standard-1", "smMeaning", "standard", "△ABC ∽ △DEF で、AB ＝ 4cm、BC ＝ 7cm、DE ＝ 10cm です。EF は何cm？（小数で答えましょう）", 17.5, "4 : 10 ＝ 7 : EF。", "17.5cm です。");
+  nm("smMeaning-standard-2", "smMeaning", "standard", "△ABC ∽ △DEF で、相似比は 5 : 2 です。△DEF の周の長さが 18cm のとき、△ABC の周の長さは何cm？", 45, "周の長さの比も相似比と同じ。", "18 × 5 ÷ 2 ＝ 45cm です。");
+  nm("smMeaning-standard-3", "smMeaning", "standard", "高さ 1.5m の棒の影が 2m のとき、同じ時刻に影が 12m の木の高さは何m？", 9, "棒と影、木と影の三角形は相似。", "1.5 × 12 ÷ 2 ＝ 9m です。");
+  nm("smMeaning-standard-4", "smMeaning", "standard", "縮尺 1/25000 の地図で 4cm の長さは、実際には何m？", 1000, "4 × 25000 cm。", "100000cm ＝ 1000m です。");
+  ch("smMeaning-standard-5", "smMeaning", "standard", "2つの図形が、いつでも相似になるものはどれ？", ["2つの円", "2つの長方形", "2つのひし形", "2つの二等辺三角形"], "形が1通りに決まるもの。", "2つの円はいつでも相似です。");
+  sp("smMeaning-application-1", "smMeaning", "△ABC ∽ △DEF で、AB ＝ 8cm、BC ＝ 10cm、CA ＝ 6cm、DE ＝ 12cm です。", [
+    sn("s1", "smMeaning", "相似比 AB : DE を 2 : a と表すとき、a は？", 3, "8 : 12 を簡単にする。", "2 : 3 なので 3 です。"),
+    sn("s2", "smMeaning", "EF は何cm？", 15, "10 × 3 ÷ 2。", "15cm です。"),
+    sn("s3", "smMeaning", "FD は何cm？", 9, "6 × 3 ÷ 2。", "9cm です。")
+  ], ["smMeaning"], "相似比を先に求めて、ほかの辺に使う。", "EF ＝ 15cm、FD ＝ 9cm です。");
+  sp("smMeaning-application-2", "smMeaning", "校舎の高さを測ります。長さ 1m の棒の影が 1.6m のとき、校舎の影は 20m でした。", [
+    sc("s1", "smMeaning", "使う考え方はどれ？", ["棒と影、校舎と影でできる三角形が相似", "2つの三角形が合同", "中点連結定理", "円周角の定理"], "太陽の光は平行。", "2つの三角形が相似です。"),
+    sn("s2", "smMeaning", "校舎の高さは何m？（小数で答えましょう）", 12.5, "20 ÷ 1.6。", "12.5m です。"),
+    sn("s3", "smMeaning", "同じ時刻に影が 8m の電柱の高さは何m？", 5, "8 ÷ 1.6。", "5m です。")
+  ], ["smMeaning"], "高さ : 影 の比はどれも同じ。", "校舎は 12.5m です。");
+  sp("smMeaning-application-3", "smMeaning", "縮尺 1/50000 の地図があります。", [
+    sn("s1", "smMeaning", "地図上の 3cm は、実際には何m？", 1500, "3 × 50000 cm。", "150000cm ＝ 1500m です。"),
+    sn("s2", "smMeaning", "実際の 2km は、地図上で何cm？", 4, "200000 ÷ 50000。", "4cm です。"),
+    sn("s3", "smMeaning", "地図上で 6cm の道を、分速 75m で歩くと何分かかる？", 40, "実際は 3000m。", "3000 ÷ 75 ＝ 40分です。")
+  ], ["smMeaning"], "地図と実際の土地は相似。", "1500m、4cm、40分です。");
+  nm("smMeaning-retention-1", "smMeaning", "retention", "△ABC ∽ △PQR で、相似比は 4 : 5 です。AC ＝ 16cm のとき、PR は何cm？", 20, "AC : PR ＝ 4 : 5。", "16 × 5 ÷ 4 ＝ 20cm です。", RB);
+  nm("smMeaning-retention-2", "smMeaning", "retention", "△ABC ∽ △PQR で、∠A ＝ 35°、∠Q ＝ 85° のとき、∠C は何度？", 60, "∠B ＝ ∠Q。", "180 − 35 − 85 ＝ 60° です。", RB);
+  nm("smMeaning-retention-3", "smMeaning", "retention", "比例式 x : 8 ＝ 15 : 12 を解くと、x は？", 10, "外側の積 ＝ 内側の積。", "12x ＝ 120 より 10 です。", RB);
+  nm("smMeaning-retention-4", "smMeaning", "retention", "高さ 2m の棒の影が 2.5m のとき、同じ時刻に影が 15m の塔の高さは何m？", 12, "2 : 2.5 ＝ 高さ : 15。", "12m です。", RS);
+  nm("smMeaning-retention-5", "smMeaning", "retention", "縮尺 1/20000 の地図で 7cm の長さは、実際には何m？", 1400, "7 × 20000 cm。", "140000cm ＝ 1400m です。", RS);
+
+  // --- 三角形の相似条件 ---
+  ch("smCond-basic-1", "smCond", "basic", "三角形の相似条件として、正しいものはどれ？", ["2組の角がそれぞれ等しい", "1組の角が等しい", "1組の辺の比が等しい", "面積が等しい"], "相似条件は3つある。", "2組の角がそれぞれ等しい、です。", { usage: "diagnosis" });
+  ch("smCond-basic-2", "smCond", "basic", "△ABC と △DEF で、∠A ＝ ∠D ＝ 50°、∠B ＝ ∠E ＝ 60° のとき、使える相似条件はどれ？", ["2組の角がそれぞれ等しい", "3組の辺の比がすべて等しい", "2組の辺の比とその間の角がそれぞれ等しい", "相似とはいえない"], "わかっているのは角だけ。", "2組の角がそれぞれ等しい、です。");
+  ch("smCond-basic-3", "smCond", "basic", "AB ＝ 4、BC ＝ 6、CA ＝ 8 の △ABC と、DE ＝ 6、EF ＝ 9、FD ＝ 12 の △DEF について、正しいものはどれ？", ["3組の辺の比がすべて等しいので相似", "2組の角がそれぞれ等しいので相似", "合同である", "相似ではない"], "4 : 6、6 : 9、8 : 12 をくらべる。", "どれも 2 : 3 なので相似です。");
+  ch("smCond-basic-4", "smCond", "basic", "AB ＝ 3、AC ＝ 5、∠A ＝ 70° の △ABC と、DE ＝ 6、DF ＝ 10、∠D ＝ 70° の △DEF について、正しいものはどれ？", ["2組の辺の比とその間の角がそれぞれ等しいので相似", "3組の辺の比がすべて等しいので相似", "合同である", "相似ではない"], "3 : 6 ＝ 5 : 10 で、間の角が等しい。", "2組の辺の比とその間の角が等しいので相似です。");
+  ch("smCond-basic-5", "smCond", "basic", "相似条件と合同条件のちがいとして、正しいものはどれ？", ["合同は辺の長さが等しい、相似は辺の比が等しい", "相似は角が等しくなくてよい", "合同条件は2つしかない", "相似条件は辺だけを使う"], "「長さ」と「比」。", "合同は長さ、相似は比です。");
+  ch("smCond-basic-6", "smCond", "basic", "∠A ＝ 40°、∠B ＝ 75° の △ABC と相似な三角形の、3つの角の組はどれ？", ["40°、65°、75°", "40°、75°、75°", "40°、50°、90°", "35°、75°、70°"], "∠C ＝ 180 − 40 − 75。", "∠C ＝ 65° なので 40°、65°、75° です。");
+  ch("smCond-basic-7", "smCond", "basic", "3辺が 2、3、4 の三角形と相似な三角形の3辺はどれ？", ["6、9、12", "4、5、6", "3、4、5", "2、6、8"], "どの辺も同じ倍率になっているもの。", "3倍なので 6、9、12 です。");
+  nm("smCond-standard-1", "smCond", "standard", "AB ＝ 8、AC ＝ 12、∠A ＝ 55° の △ABC と、DE ＝ 6、∠D ＝ 55° の △DEF が、「2組の辺の比とその間の角がそれぞれ等しい」で相似になるとき、DF は？", 9, "8 : 6 ＝ 12 : DF。", "DF ＝ 9 です。");
+  ch("smCond-standard-2", "smCond", "standard", "△ABC の辺 AB 上に点 D、辺 AC 上に点 E があり、DE ∥ BC です。△ABC ∽ △ADE といえる理由はどれ？", ["∠A が共通で、同位角が等しいので、2組の角がそれぞれ等しい", "3組の辺の比がすべて等しい", "DE ＝ BC だから", "AD ＝ AE だから"], "平行線の同位角。", "2組の角がそれぞれ等しいからです。");
+  ch("smCond-standard-3", "smCond", "standard", "∠BAC ＝ 90° の直角三角形 ABC で、A から BC に垂線 AH をひきます。△ABC ∽ △□ と、対応する頂点の順に書くとき、正しいものはどれ？", ["△HBA", "△HAB", "△BHA", "△AHB"], "直角どうし（∠A と ∠H）、共通の ∠B どうしが対応する。", "△ABC ∽ △HBA です。");
+  ch("smCond-standard-4", "smCond", "standard", "AB ＝ 6、BC ＝ 8、CA ＝ 10 の △ABC と、PQ ＝ 9、QR ＝ 12、RP ＝ 16 の △PQR について、正しいものはどれ？", ["相似ではない（比が 2 : 3 にならない辺がある）", "3組の辺の比がすべて等しいので相似", "2組の角がそれぞれ等しいので相似", "合同である"], "10 : 16 をくらべる。", "10 : 16 は 2 : 3 ではないので相似ではありません。");
+  nm("smCond-standard-5", "smCond", "standard", "△ABC ∽ △DEF で、AB ＝ 9、AC ＝ 6、DE ＝ 6 のとき、DF は？", 4, "9 : 6 ＝ 6 : DF。", "4 です。");
+  sp("smCond-application-1", "smCond", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 4cm、DB ＝ 2cm、DE ＝ 6cm です。", [
+    sc("s1", "smCond", "△ADE と相似な三角形はどれ？", ["△ABC", "△DBE", "△EBC", "△DEC"], "∠A が共通、同位角が等しい。", "△ABC です。"),
+    sn("s2", "smCond", "相似比 AD : AB を 2 : a と表すとき、a は？", 3, "AB ＝ 6cm。", "4 : 6 ＝ 2 : 3 です。"),
+    sn("s3", "smCond", "BC は何cm？", 9, "6 × 3 ÷ 2。", "9cm です。")
+  ], ["smCond", "smParallel"], "相似な三角形を見つけて、対応する辺の比を使う。", "BC ＝ 9cm です。");
+  sp("smCond-application-2", "smCond", "∠BAC ＝ 90° の △ABC で、A から BC に垂線 AH をひきます。AB ＝ 6cm、BC ＝ 10cm です。", [
+    sc("s1", "smCond", "△ABC と相似な三角形を、対応する頂点の順に書くとどれ？", ["△HBA", "△HAB", "△BHA", "△AHB"], "直角と共通の角。", "△HBA です。"),
+    sc("s2", "smCond", "成り立つ比例式はどれ？", ["AB : HB ＝ BC : BA", "AB : HB ＝ BA : BC", "AB : BC ＝ HB : AH", "AH : HB ＝ AB : AC"], "△ABC と △HBA の対応する辺。", "AB : HB ＝ BC : BA です。"),
+    sn("s3", "smCond", "HB は何cm？（小数で答えましょう）", 3.6, "6 : HB ＝ 10 : 6。", "3.6cm です。")
+  ], ["smCond", "smMeaning"], "相似な三角形を見つけて、比例式をつくる。", "HB ＝ 3.6cm です。");
+  sp("smCond-application-3", "smCond", "△ABC（AB ＝ 4、BC ＝ 5、CA ＝ 6）と、△DEF（DE ＝ 10、EF ＝ 12、FD ＝ 8）があります。", [
+    sn("s1", "smCond", "小さいほうから順に辺をくらべた相似比を 1 : a と表すとき、a は？", 2, "4 : 8、5 : 10、6 : 12。", "2 です。"),
+    sc("s2", "smCond", "対応する頂点の順に正しく書いたものはどれ？", ["△ABC ∽ △FDE", "△ABC ∽ △DEF", "△ABC ∽ △EFD", "△ABC ∽ △DFE"], "AB ↔ FD、BC ↔ DE、CA ↔ EF。", "△ABC ∽ △FDE です。"),
+    sc("s3", "smCond", "∠A と等しい角はどれ？", ["∠F", "∠D", "∠E", "どれとも等しくない"], "A は F に対応する。", "∠F です。")
+  ], ["smCond", "smMeaning"], "長さの順に並べて、対応する辺を見つける。", "△ABC ∽ △FDE です。");
+  ch("smCond-retention-1", "smCond", "retention", "次のうち、三角形の相似条件ではないものはどれ？", ["1組の辺の比と、間でない1つの角が等しい", "3組の辺の比がすべて等しい", "2組の辺の比とその間の角がそれぞれ等しい", "2組の角がそれぞれ等しい"], "辺の比を使うときは「間の角」。", "間でない角では相似とはいえません。", RB);
+  ch("smCond-retention-2", "smCond", "retention", "∠A ＝ 35°、∠B ＝ 100° の △ABC と相似な三角形の、3つの角の組はどれ？", ["35°、45°、100°", "35°、100°、55°", "35°、55°、90°", "45°、100°、45°"], "∠C ＝ 180 − 35 − 100。", "∠C ＝ 45° なので 35°、45°、100° です。", RB);
+  ch("smCond-retention-3", "smCond", "retention", "3辺が 5、7、11 の三角形と相似な三角形の3辺はどれ？", ["15、21、33", "10、12、16", "7、9、13", "25、49、121"], "どの辺も同じ倍率のもの。", "3倍なので 15、21、33 です。", RB);
+  nm("smCond-retention-4", "smCond", "retention", "△ABC ∽ △DEF で、AB ＝ 12、BC ＝ 15、DE ＝ 8 のとき、EF は？", 10, "12 : 8 ＝ 15 : EF。", "10 です。", RS);
+  ch("smCond-retention-5", "smCond", "retention", "AB ＝ 5、BC ＝ 7、CA ＝ 9 の △ABC と、PQ ＝ 15、QR ＝ 21、RP ＝ 28 の △PQR について、正しいものはどれ？", ["相似ではない（比が 1 : 3 にならない辺がある）", "3組の辺の比がすべて等しいので相似", "2組の角がそれぞれ等しいので相似", "合同である"], "9 : 28 をくらべる。", "9 : 28 は 1 : 3 ではないので相似ではありません。", RS);
+
+  // --- 平行線と線分の比 ---
+  nm("smParallel-basic-1", "smParallel", "basic", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 6、DB ＝ 3、AE ＝ 8 のとき、EC は？", 4, "AD : DB ＝ AE : EC。", "6 : 3 ＝ 8 : EC より 4 です。", { usage: "diagnosis" });
+  nm("smParallel-basic-2", "smParallel", "basic", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 4、AB ＝ 10、BC ＝ 15 のとき、DE は？", 6, "AD : AB ＝ DE : BC。", "4 : 10 ＝ DE : 15 より 6 です。");
+  ch("smParallel-basic-3", "smParallel", "basic", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。正しい比はどれ？", ["AD : DB ＝ AE : EC", "AD : DB ＝ DE : BC", "AD : AB ＝ AE : EC", "AD : DE ＝ DB : BC"], "AB 側の分け方と AC 側の分け方が同じ。", "AD : DB ＝ AE : EC です。");
+  nm("smParallel-basic-4", "smParallel", "basic", "平行な3本の直線 l、m、n に、2本の直線が交わっています。1本では l から m まで 6cm、m から n まで 9cm です。もう1本で l から m まで 4cm のとき、m から n までは何cm？", 6, "6 : 9 ＝ 4 : x。", "6cm です。");
+  nm("smParallel-basic-5", "smParallel", "basic", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 5、DB ＝ 10、DE ＝ 4 のとき、BC は？", 12, "AD : AB ＝ 5 : 15。", "DE : BC ＝ 1 : 3 なので 12 です。");
+  ch("smParallel-basic-6", "smParallel", "basic", "△ABC の辺 AB、AC 上の点 D、E で、AD : DB ＝ AE : EC が成り立つとき、いえることはどれ？", ["DE ∥ BC", "DE ＝ BC", "AD ＝ AE", "DE ⊥ BC"], "比が等しいなら平行。", "DE ∥ BC です。");
+  nm("smParallel-basic-7", "smParallel", "basic", "平行な3本の直線に2本の直線が交わり、1本は 4cm と 10cm に、もう1本は x cm と 15cm に分けられています。x は？", 6, "4 : 10 ＝ x : 15。", "6 です。");
+  nm("smParallel-standard-1", "smParallel", "standard", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 3、DB ＝ 6、BC ＝ 12 のとき、DE は？", 4, "AD : AB ＝ 3 : 9。", "12 × 3 ÷ 9 ＝ 4 です。");
+  nm("smParallel-standard-2", "smParallel", "standard", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AE ＝ 7、EC ＝ 14、AD ＝ 5 のとき、AB は？", 15, "AD : DB ＝ 7 : 14 なので DB ＝ 10。", "5 ＋ 10 ＝ 15 です。");
+  nm("smParallel-standard-3", "smParallel", "standard", "台形 ABCD（AD ∥ BC）で、AD ＝ 4、BC ＝ 10 です。対角線の交点を O とし、AO : OC を 2 : a と表すとき、a は？", 5, "△OAD ∽ △OCB。", "4 : 10 ＝ 2 : 5 です。");
+  nm("smParallel-standard-4", "smParallel", "standard", "AB ∥ CD で、線分 AD と BC が点 O で交わっています。AB ＝ 6、CD ＝ 9、OA ＝ 4 のとき、OD は？", 6, "△OAB ∽ △ODC。", "6 : 9 ＝ 4 : OD より 6 です。");
+  ch("smParallel-standard-5", "smParallel", "standard", "△ABC で、AD : DB ＝ 2 : 3、AE : EC ＝ 2 : 3 のとき、DE と BC の関係はどれ？", ["DE ∥ BC で、DE : BC ＝ 2 : 5", "DE ∥ BC で、DE : BC ＝ 2 : 3", "DE ＝ BC", "平行ではない"], "AD : AB ＝ 2 : 5。", "DE ∥ BC、DE : BC ＝ 2 : 5 です。");
+  sp("smParallel-application-1", "smParallel", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 6cm、DB ＝ 4cm、BC ＝ 15cm、AE ＝ 9cm です。", [
+    sn("s1", "smParallel", "DE は何cm？", 9, "6 : 10 ＝ DE : 15。", "9cm です。"),
+    sn("s2", "smParallel", "EC は何cm？", 6, "6 : 4 ＝ 9 : EC。", "6cm です。"),
+    sn("s3", "smParallel", "AC は何cm？", 15, "9 ＋ 6。", "15cm です。")
+  ], ["smParallel"], "DE を求めるときは AD : AB、EC を求めるときは AD : DB。", "DE ＝ 9cm、EC ＝ 6cm です。");
+  sp("smParallel-application-2", "smParallel", "台形 ABCD（AD ∥ BC）で、AD ＝ 6cm、BC ＝ 12cm です。対角線 AC と BD の交点を O とします。", [
+    sc("s1", "smParallel", "△OAD と相似な三角形はどれ？", ["△OCB", "△OAB", "△OCD", "△ABC"], "錯角が等しい。", "△OCB です。"),
+    sn("s2", "smParallel", "AO : OC を 1 : a と表すとき、a は？", 2, "AD : CB ＝ 6 : 12。", "2 です。"),
+    sn("s3", "smParallel", "AC ＝ 18cm のとき、AO は何cm？", 6, "18 × 1/3。", "6cm です。")
+  ], ["smParallel", "smCond"], "台形の対角線は、上底 : 下底 の比に分けられる。", "AO ＝ 6cm です。");
+  sp("smParallel-application-3", "smParallel", "平行な3本の道 l、m、n を、2本の道が横切っています。道ア では l〜m が 120m、m〜n が 80m です。道イ では l〜n が 300m です。", [
+    sn("s1", "smParallel", "道イ の l〜m は何m？", 180, "300 を 120 : 80 に分ける。", "180m です。"),
+    sn("s2", "smParallel", "道イ の m〜n は何m？", 120, "300 − 180。", "120m です。"),
+    sc("s3", "smParallel", "使った性質はどれ？", ["平行線と線分の比", "中点連結定理", "三角形の合同", "円周角の定理"], "平行線が2本の直線を同じ比に分ける。", "平行線と線分の比です。")
+  ], ["smParallel"], "平行線は、交わる直線を同じ比に分ける。", "180m と 120m です。");
+  nm("smParallel-retention-1", "smParallel", "retention", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 8、DB ＝ 2、AE ＝ 12 のとき、EC は？", 3, "AD : DB ＝ AE : EC。", "8 : 2 ＝ 12 : EC より 3 です。", RB);
+  nm("smParallel-retention-2", "smParallel", "retention", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 7、AB ＝ 21、BC ＝ 27 のとき、DE は？", 9, "AD : AB ＝ DE : BC。", "7 : 21 ＝ DE : 27 より 9 です。", RB);
+  nm("smParallel-retention-3", "smParallel", "retention", "平行な直線 l、m、n に直線 p、q が交わり、p は 5cm と 15cm に、q は x cm と 21cm に分けられています。x は？", 7, "5 : 15 ＝ x : 21。", "7 です。", RB);
+  nm("smParallel-retention-4", "smParallel", "retention", "AB ∥ CD で、線分 AD と BC が点 O で交わっています。AB ＝ 12、CD ＝ 20、OB ＝ 9 のとき、OC は？", 15, "△OAB ∽ △ODC。", "12 : 20 ＝ 9 : OC より 15 です。", RS);
+  ch("smParallel-retention-5", "smParallel", "retention", "△ABC で、AD : DB ＝ 3 : 4、AE : EC ＝ 3 : 4 のとき、DE と BC の関係はどれ？", ["DE ∥ BC で、DE : BC ＝ 3 : 7", "DE ∥ BC で、DE : BC ＝ 3 : 4", "DE ＝ BC", "平行ではない"], "AD : AB ＝ 3 : 7。", "DE ∥ BC、DE : BC ＝ 3 : 7 です。", RS);
+
+  // --- 中点連結定理 ---
+  nm("smMidpoint-basic-1", "smMidpoint", "basic", "△ABC の辺 AB、AC の中点を M、N とします。BC ＝ 14cm のとき、MN は何cm？", 7, "MN ＝ BC の半分。", "7cm です。", { usage: "diagnosis" });
+  ch("smMidpoint-basic-2", "smMidpoint", "basic", "△ABC の辺 AB、AC の中点を M、N とします。中点連結定理の内容として正しいものはどれ？", ["MN ∥ BC、MN ＝ BC/2", "MN ⊥ BC、MN ＝ BC/2", "MN ∥ BC、MN ＝ BC", "MN ＝ AM"], "平行で、長さは半分。", "MN ∥ BC、MN ＝ BC/2 です。");
+  nm("smMidpoint-basic-3", "smMidpoint", "basic", "△ABC の辺 AB、AC の中点を M、N とします。MN ＝ 9cm のとき、BC は何cm？", 18, "BC は MN の2倍。", "18cm です。");
+  nm("smMidpoint-basic-4", "smMidpoint", "basic", "△ABC の周の長さが 30cm のとき、3辺の中点を結んでできる三角形の周の長さは何cm？", 15, "どの辺も、もとの辺の半分。", "15cm です。");
+  nm("smMidpoint-basic-5", "smMidpoint", "basic", "四角形 ABCD の4辺の中点を順に結ぶと平行四辺形ができます。対角線 AC ＝ 12cm のとき、この平行四辺形の、AC に平行な辺の長さは何cm？", 6, "AC の半分。", "6cm です。");
+  ch("smMidpoint-basic-6", "smMidpoint", "basic", "△ABC で、AB の中点 M を通り BC に平行な直線は、AC とどこで交わる？", ["AC の中点", "点 C", "AC を 1 : 2 に分ける点", "点 A"], "AM : MB ＝ 1 : 1。", "AC の中点です。");
+  nm("smMidpoint-basic-7", "smMidpoint", "basic", "△ABC の辺 AB、AC の中点を M、N とします。∠ABC ＝ 65° のとき、∠AMN は何度？", 65, "MN ∥ BC なので同位角。", "65° です。");
+  nm("smMidpoint-standard-1", "smMidpoint", "standard", "四角形 ABCD の辺 AB、BC、CD、DA の中点を P、Q、R、S とします。AC ＝ 10cm、BD ＝ 14cm のとき、四角形 PQRS の周の長さは何cm？", 24, "2辺は AC の半分、2辺は BD の半分。", "5 ＋ 7 ＋ 5 ＋ 7 ＝ 24cm です。");
+  nm("smMidpoint-standard-2", "smMidpoint", "standard", "台形 ABCD（AD ∥ BC）で、AB、DC の中点を M、N とします。AD ＝ 6cm、BC ＝ 10cm のとき、MN は何cm？", 8, "MN ＝ (AD ＋ BC) ÷ 2。", "8cm です。");
+  ch("smMidpoint-standard-3", "smMidpoint", "standard", "四角形 ABCD の各辺の中点を結んだ四角形がひし形になるのは、ABCD の2本の対角線がどんなとき？", ["長さが等しいとき", "垂直に交わるとき", "平行なとき", "片方が他方の2倍のとき"], "中点を結んだ四角形の辺は、対角線の半分。", "対角線の長さが等しいときです。");
+  nm("smMidpoint-standard-4", "smMidpoint", "standard", "△ABC の3辺の中点を結んでできる三角形の面積は、△ABC の面積の何分の1？（分母の数を答えましょう）", 4, "△ABC が合同な4つの三角形に分かれる。", "1/4 なので 4 です。");
+  nm("smMidpoint-standard-5", "smMidpoint", "standard", "△ABC の辺 AB、AC の中点を M、N とします。MN ＝ 5cm、AB ＝ 8cm、AC ＝ 12cm のとき、△ABC の周の長さは何cm？", 30, "BC ＝ 2 × MN。", "8 ＋ 12 ＋ 10 ＝ 30cm です。");
+  sp("smMidpoint-application-1", "smMidpoint", "△ABC の辺 AB、AC の中点を M、N とします。BC ＝ 16cm、∠C ＝ 50° です。", [
+    sn("s1", "smMidpoint", "MN は何cm？", 8, "BC の半分。", "8cm です。"),
+    sn("s2", "smMidpoint", "∠ANM は何度？", 50, "MN ∥ BC の同位角。", "50° です。"),
+    sc("s3", "smMidpoint", "MN と BC の関係はどれ？", ["平行", "垂直", "一致する", "交わる"], "中点連結定理。", "平行です。")
+  ], ["smMidpoint"], "中点連結定理で、平行と長さの両方がわかる。", "MN ＝ 8cm、∠ANM ＝ 50° です。");
+  sp("smMidpoint-application-2", "smMidpoint", "四角形 ABCD の辺 AB、BC、CD、DA の中点を P、Q、R、S とします。AC ＝ 8cm、BD ＝ 8cm です。", [
+    sn("s1", "smMidpoint", "PQ は何cm？", 4, "△ABC で中点連結定理。", "4cm です。"),
+    sn("s2", "smMidpoint", "QR は何cm？", 4, "△BCD で中点連結定理。", "4cm です。"),
+    sc("s3", "smMidpoint", "四角形 PQRS はどんな四角形？", ["ひし形", "長方形", "台形", "たこ形"], "4辺の長さがすべて等しい平行四辺形。", "ひし形です。")
+  ], ["smMidpoint"], "中点を結ぶと平行四辺形。辺の長さは対角線の半分。", "ひし形です。");
+  sp("smMidpoint-application-3", "smMidpoint", "台形 ABCD（AD ∥ BC）で、AD ＝ 8cm、BC ＝ 14cm です。AB の中点 M から BC に平行な直線をひき、BD、CD との交点を P、N とします。", [
+    sn("s1", "smMidpoint", "MP は何cm？", 4, "△ABD で中点連結定理。", "4cm です。"),
+    sn("s2", "smMidpoint", "PN は何cm？", 7, "△DBC で中点連結定理。", "7cm です。"),
+    sn("s3", "smMidpoint", "MN は何cm？", 11, "4 ＋ 7。", "11cm です。")
+  ], ["smMidpoint", "smParallel"], "対角線で2つの三角形に分けて考える。", "MN ＝ 11cm です。");
+  nm("smMidpoint-retention-1", "smMidpoint", "retention", "△ABC の辺 AB、AC の中点を M、N とします。BC ＝ 22cm のとき、MN は何cm？", 11, "MN ＝ BC の半分。", "11cm です。", RB);
+  nm("smMidpoint-retention-2", "smMidpoint", "retention", "△ABC の辺 AB、AC の中点を M、N とします。MN ＝ 19cm のとき、BC は何cm？", 38, "BC は MN の2倍。", "38cm です。", RB);
+  nm("smMidpoint-retention-3", "smMidpoint", "retention", "△ABC の周の長さが 46cm のとき、各辺の中点を結んでできる三角形の周の長さは何cm？", 23, "どの辺も、もとの辺の半分。", "23cm です。", RB);
+  nm("smMidpoint-retention-4", "smMidpoint", "retention", "台形 ABCD（AD ∥ BC）で、AB、DC の中点を M、N とします。AD ＝ 7cm、BC ＝ 17cm のとき、MN は何cm？", 12, "MN ＝ (AD ＋ BC) ÷ 2。", "12cm です。", RS);
+  nm("smMidpoint-retention-5", "smMidpoint", "retention", "四角形 ABCD の各辺の中点を順に結んだ四角形の周の長さは、AC ＝ 11cm、BD ＝ 17cm のとき何cm？", 28, "対角線の長さの和と同じ。", "11 ＋ 17 ＝ 28cm です。", RS);
+
+  // --- 相似な図形の面積比・体積比 ---
+  nm("smAreaVol-basic-1", "smAreaVol", "basic", "相似比が 2 : 3 の2つの三角形で、小さいほうの面積が 20cm² のとき、大きいほうの面積は何cm²？", 45, "面積比は 4 : 9。", "20 × 9 ÷ 4 ＝ 45cm² です。", { usage: "diagnosis" });
+  ch("smAreaVol-basic-2", "smAreaVol", "basic", "相似比が a : b の2つの図形の面積比はどれ？", ["a² : b²", "a : b", "a³ : b³", "2a : 2b"], "面積は長さ × 長さ。", "a² : b² です。");
+  ch("smAreaVol-basic-3", "smAreaVol", "basic", "相似比が a : b の2つの立体の体積比はどれ？", ["a³ : b³", "a² : b²", "a : b", "3a : 3b"], "体積は長さ × 長さ × 長さ。", "a³ : b³ です。");
+  nm("smAreaVol-basic-4", "smAreaVol", "basic", "相似比 1 : 3 の2つの立体で、小さいほうの体積が 10cm³ のとき、大きいほうの体積は何cm³？", 270, "体積比は 1 : 27。", "270cm³ です。");
+  nm("smAreaVol-basic-5", "smAreaVol", "basic", "半径 4cm と 6cm の2つの円の面積比を 4 : a と表すとき、a は？", 9, "相似比 2 : 3 の2乗。", "4 : 9 なので 9 です。");
+  nm("smAreaVol-basic-6", "smAreaVol", "basic", "相似比 3 : 5 の2つの立体の表面積比を 9 : a と表すとき、a は？", 25, "表面積も2乗の比。", "25 です。");
+  nm("smAreaVol-basic-7", "smAreaVol", "basic", "面積比が 16 : 25 の相似な2つの図形の相似比を 4 : a と表すとき、a は？", 5, "2乗して 16、25。", "5 です。");
+  nm("smAreaVol-standard-1", "smAreaVol", "standard", "体積比が 8 : 27 の相似な2つの立体で、小さいほうの表面積が 36cm² のとき、大きいほうの表面積は何cm²？", 81, "相似比 2 : 3、表面積比 4 : 9。", "36 × 9 ÷ 4 ＝ 81cm² です。");
+  nm("smAreaVol-standard-2", "smAreaVol", "standard", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC、AD : DB ＝ 1 : 2 です。△ADE の面積が 5cm² のとき、△ABC の面積は何cm²？", 45, "相似比 1 : 3、面積比 1 : 9。", "45cm² です。");
+  nm("smAreaVol-standard-3", "smAreaVol", "standard", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC、AD : DB ＝ 2 : 1 です。△ABC の面積が 36cm² のとき、四角形 DBCE の面積は何cm²？", 20, "△ADE : △ABC ＝ 4 : 9。", "△ADE ＝ 16 なので 36 − 16 ＝ 20cm² です。");
+  nm("smAreaVol-standard-4", "smAreaVol", "standard", "円すいを、底面に平行な平面で、高さの半分のところで切ります。もとの円すいの体積が 80cm³ のとき、上の小さい円すいの体積は何cm³？", 10, "相似比 1 : 2、体積比 1 : 8。", "10cm³ です。");
+  nm("smAreaVol-standard-5", "smAreaVol", "standard", "円すいを、底面に平行な平面で、高さの半分のところで切ります。もとの円すいの体積が 64cm³ のとき、下の部分の体積は何cm³？", 56, "上の円すいは 64 ÷ 8。", "64 − 8 ＝ 56cm³ です。");
+  sp("smAreaVol-application-1", "smAreaVol", "M サイズのピザ（直径 20cm）と L サイズのピザ（直径 30cm）は相似です。", [
+    sn("s1", "smAreaVol", "面積比 M : L を 4 : a と表すとき、a は？", 9, "相似比 2 : 3。", "9 です。"),
+    sn("s2", "smAreaVol", "M が 1000円のとき、面積あたりの値段が同じなら L は何円？", 2250, "1000 × 9 ÷ 4。", "2250円です。"),
+    sc("s3", "smAreaVol", "L が 2000円なら、面積あたりでお得なのはどちら？", ["L", "M", "同じ", "比べられない"], "2250円分の広さが 2000円。", "L です。")
+  ], ["smAreaVol"], "面積は相似比の2乗で増える。", "L のほうがお得です。");
+  sp("smAreaVol-application-2", "smAreaVol", "相似な2つの円柱の容器 A、B があり、高さは 8cm と 12cm です。", [
+    sn("s1", "smAreaVol", "体積比 A : B を 8 : a と表すとき、a は？", 27, "相似比 2 : 3 の3乗。", "27 です。"),
+    sn("s2", "smAreaVol", "A に 160cm³ 入るとき、B には何cm³ 入る？", 540, "160 × 27 ÷ 8。", "540cm³ です。"),
+    sn("s3", "smAreaVol", "表面積比 A : B を 4 : a と表すとき、a は？", 9, "2乗の比。", "9 です。")
+  ], ["smAreaVol"], "長さ → 2乗で面積、3乗で体積。", "B には 540cm³ 入ります。");
+  sp("smAreaVol-application-3", "smAreaVol", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC、AD : DB ＝ 3 : 2 です。△ABC の面積は 50cm² です。", [
+    sn("s1", "smAreaVol", "相似比 △ADE : △ABC を 3 : a と表すとき、a は？", 5, "AD : AB ＝ 3 : 5。", "5 です。"),
+    sn("s2", "smAreaVol", "△ADE の面積は何cm²？", 18, "50 × 9 ÷ 25。", "18cm² です。"),
+    sn("s3", "smAreaVol", "四角形 DBCE の面積は何cm²？", 32, "50 − 18。", "32cm² です。")
+  ], ["smAreaVol", "smParallel"], "相似比 → 面積比 → 残りの部分。", "四角形 DBCE は 32cm² です。");
+  nm("smAreaVol-retention-1", "smAreaVol", "retention", "相似比が 5 : 6 の図形 P、Q で、P の面積が 50cm² のとき、Q の面積は何cm²？", 72, "面積比は 25 : 36。", "50 × 36 ÷ 25 ＝ 72cm² です。", RB);
+  nm("smAreaVol-retention-2", "smAreaVol", "retention", "相似比 4 : 5 の立体 P、Q で、P の体積が 128cm³ のとき、Q の体積は何cm³？", 250, "体積比は 64 : 125。", "128 × 125 ÷ 64 ＝ 250cm³ です。", RB);
+  nm("smAreaVol-retention-3", "smAreaVol", "retention", "面積比が 49 : 81 の相似な2つの図形の相似比を 7 : a と表すとき、a は？", 9, "2乗して 49、81。", "9 です。", RB);
+  nm("smAreaVol-retention-4", "smAreaVol", "retention", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC、AD : DB ＝ 1 : 3 です。△ADE の面積が 7cm² のとき、△ABC の面積は何cm²？", 112, "相似比 1 : 4、面積比 1 : 16。", "112cm² です。", RS);
+  nm("smAreaVol-retention-5", "smAreaVol", "retention", "円すいを、底面に平行な平面で、頂点から高さの 1/3 のところで切ります。もとの円すいの体積が 270cm³ のとき、上の小さい円すいの体積は何cm³？", 10, "相似比 1 : 3、体積比 1 : 27。", "10cm³ です。", RS);
+
+  // --- 相似：チェック用に足した応用・標準 ---
+  sp("smCond-application-4", "smCond", "△ABC で、AB ＝ 10cm、AC ＝ 6cm、BC ＝ 14cm です。辺 AB 上に AD ＝ 3cm となる点 D、辺 AC 上に AE ＝ 5cm となる点 E をとります。", [
+    sc("s1", "smCond", "△ABC と相似な三角形を、対応する頂点の順に書くとどれ？", ["△AED", "△ADE", "△DBE", "△EDC"], "AE : AB と AD : AC をくらべる。", "AE : AB ＝ AD : AC ＝ 1 : 2 なので △AED です。"),
+    sc("s2", "smCond", "使った相似条件はどれ？", ["2組の辺の比とその間の角がそれぞれ等しい", "2組の角がそれぞれ等しい", "3組の辺の比がすべて等しい", "1組の辺とその両端の角がそれぞれ等しい"], "∠A が共通。", "2組の辺の比とその間の角です。"),
+    sn("s3", "smCond", "ED は何cm？", 7, "ED は BC に対応する。", "14 ÷ 2 ＝ 7cm です。")
+  ], ["smCond"], "共通の角をはさむ2辺の比をくらべる。", "△ABC ∽ △AED、ED ＝ 7cm です。");
+  sp("smCond-application-5", "smCond", "△ABC の辺 BC 上に点 D があり、∠BAD ＝ ∠BCA です。AB ＝ 6cm、BC ＝ 9cm です。", [
+    sc("s1", "smCond", "△ABD と相似な三角形を、対応する頂点の順に書くとどれ？", ["△CBA", "△ABC", "△CAB", "△BCA"], "∠B が共通、∠BAD ＝ ∠BCA。", "A ↔ C、B ↔ B、D ↔ A なので △CBA です。"),
+    sc("s2", "smCond", "使った相似条件はどれ？", ["2組の角がそれぞれ等しい", "3組の辺の比がすべて等しい", "2組の辺の比とその間の角がそれぞれ等しい", "1組の辺とその両端の角がそれぞれ等しい"], "わかっているのは角。", "2組の角がそれぞれ等しい、です。"),
+    sn("s3", "smCond", "BD は何cm？", 4, "AB : CB ＝ BD : BA。", "6 : 9 ＝ BD : 6 より 4cm です。")
+  ], ["smCond", "smMeaning"], "共通の角と、等しいと書かれた角を使う。", "BD ＝ 4cm です。");
+  sp("smParallel-application-4", "smParallel", "△ABC の辺 AB、AC 上に点 D、E があり、DE ∥ BC です。AD ＝ 9cm、DB ＝ 3cm、AE ＝ 6cm、DE ＝ 12cm です。", [
+    sn("s1", "smParallel", "EC は何cm？", 2, "AD : DB ＝ AE : EC。", "9 : 3 ＝ 6 : EC より 2cm です。"),
+    sn("s2", "smParallel", "BC は何cm？", 16, "AD : AB ＝ DE : BC。", "9 : 12 ＝ 12 : BC より 16cm です。"),
+    sn("s3", "smParallel", "AC は何cm？", 8, "AE ＋ EC。", "8cm です。")
+  ], ["smParallel"], "求める線分によって、使う比を選ぶ。", "EC ＝ 2cm、BC ＝ 16cm です。");
+  sp("smParallel-application-5", "smParallel", "AB ∥ CD で、線分 AD と BC が点 O で交わっています。AB ＝ 4cm、CD ＝ 10cm、AD ＝ 21cm です。", [
+    sn("s1", "smParallel", "AO : OD を 2 : a と表すとき、a は？", 5, "△OAB ∽ △ODC。AB : DC。", "4 : 10 ＝ 2 : 5 です。"),
+    sn("s2", "smParallel", "AO は何cm？", 6, "21 を 2 : 5 に分ける。", "21 × 2/7 ＝ 6cm です。"),
+    sn("s3", "smParallel", "OD は何cm？", 15, "21 − 6。", "15cm です。")
+  ], ["smParallel", "smCond"], "平行線でできる相似な三角形から、比を出す。", "AO ＝ 6cm、OD ＝ 15cm です。");
+  nm("smMidpoint-standard-6", "smMidpoint", "standard", "△ABC の辺 AB、AC の中点を M、N とします。∠AMN ＝ 72°、∠A ＝ 48° のとき、∠C は何度？", 60, "MN ∥ BC なので ∠B ＝ ∠AMN。", "180 − 48 − 72 ＝ 60° です。");
+  nm("smMidpoint-standard-7", "smMidpoint", "standard", "平行四辺形 ABCD の対角線の交点を O、辺 BC の中点を M とします。AB ＝ 18cm のとき、OM は何cm？", 9, "O は AC の中点。△ABC で考える。", "OM ＝ AB の半分で 9cm です。");
+  sp("smMidpoint-application-4", "smMidpoint", "△ABC の辺 AB、BC、CA の中点を D、E、F とします。AB ＝ 10cm、BC ＝ 12cm、CA ＝ 14cm です。", [
+    sn("s1", "smMidpoint", "DE は何cm？", 7, "DE は CA の半分。", "7cm です。"),
+    sn("s2", "smMidpoint", "EF は何cm？", 5, "EF は AB の半分。", "5cm です。"),
+    sn("s3", "smMidpoint", "△DEF の周の長さは何cm？", 18, "FD は BC の半分。", "7 ＋ 5 ＋ 6 ＝ 18cm です。")
+  ], ["smMidpoint"], "どの辺が、どの辺の半分になるかを確かめる。", "△DEF の周は 18cm です。");
+  sp("smMidpoint-application-5", "smMidpoint", "四角形 ABCD の辺 AB、BC、CD、DA の中点を P、Q、R、S とします。AC ＝ 16cm、BD ＝ 10cm で、AC と BD は垂直に交わります。", [
+    sn("s1", "smMidpoint", "PQ は何cm？", 8, "△ABC で中点連結定理。", "8cm です。"),
+    sn("s2", "smMidpoint", "QR は何cm？", 5, "△BCD で中点連結定理。", "5cm です。"),
+    sc("s3", "smMidpoint", "四角形 PQRS はどんな四角形？", ["長方形", "ひし形", "正方形", "台形"], "PQ ∥ AC、QR ∥ BD で、AC ⊥ BD。", "となりの辺が垂直で長さがちがうので長方形です。")
+  ], ["smMidpoint"], "辺は対角線に平行で、長さは半分。", "長方形です。");
+  sp("smMidpoint-application-6", "smMidpoint", "台形 ABCD（AD ∥ BC）で、AB、DC の中点を M、N とします。AD ＝ 5cm、BC ＝ 13cm です。MN と対角線 AC の交点を P とします。", [
+    sn("s1", "smMidpoint", "MP は何cm？（小数で答えましょう）", 6.5, "△ABC で中点連結定理。", "6.5cm です。"),
+    sn("s2", "smMidpoint", "PN は何cm？（小数で答えましょう）", 2.5, "△CDA で中点連結定理。", "2.5cm です。"),
+    sn("s3", "smMidpoint", "MN は何cm？", 9, "6.5 ＋ 2.5。", "9cm です。")
+  ], ["smMidpoint", "smParallel"], "対角線で2つの三角形に分ける。", "MN ＝ 9cm です。");
+  sp("smAreaVol-application-4", "smAreaVol", "相似な2つの三角すい A、B があり、A の底面の1辺は 6cm、B の対応する辺は 9cm です。", [
+    sn("s1", "smAreaVol", "表面積比 A : B を 4 : a と表すとき、a は？", 9, "相似比 2 : 3 の2乗。", "9 です。"),
+    sn("s2", "smAreaVol", "A の体積が 40cm³ のとき、B の体積は何cm³？", 135, "体積比 8 : 27。", "40 × 27 ÷ 8 ＝ 135cm³ です。"),
+    sn("s3", "smAreaVol", "B の表面積が 180cm² のとき、A の表面積は何cm²？", 80, "表面積比 4 : 9。", "180 × 4 ÷ 9 ＝ 80cm² です。")
+  ], ["smAreaVol"], "相似比 → 2乗で表面積、3乗で体積。", "B は 135cm³、A の表面積は 80cm² です。");
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

@@ -36,7 +36,8 @@ const SCENARIOS = [
   ["多項式"], ["多項式", "pxFormula"],
   ["平方根"], ["平方根", "sqMulDiv"],
   ["二次方程式"], ["二次方程式", "qeFactor"],
-  ["関数 y＝ax²"], ["関数 y＝ax²", "qfGraph"]
+  ["関数 y＝ax²"], ["関数 y＝ax²", "qfGraph"],
+  ["相似"], ["相似", "smParallel"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;
