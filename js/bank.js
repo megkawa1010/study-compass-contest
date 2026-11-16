@@ -7757,6 +7757,236 @@
   ], ["smAreaVol"], "相似比 → 2乗で表面積、3乗で体積。", "B は 135cm³、A の表面積は 80cm² です。");
 
   // =====================================================================
+  // 中3 円。答えは tests/circle.test.js が角の関係から計算して確かめる
+  // =====================================================================
+
+  // --- 円周角と中心角 ---
+  nm("ciCentral-basic-1", "ciCentral", "basic", "円 O で、弧 AB に対する中心角 ∠AOB ＝ 100° のとき、弧 AB に対する円周角 ∠APB は何度？", 50, "円周角は中心角の半分。", "100 ÷ 2 ＝ 50° です。", { usage: "diagnosis" });
+  ch("ciCentral-basic-2", "ciCentral", "basic", "円周角と中心角の関係として、正しいものはどれ？", ["円周角は、同じ弧に対する中心角の半分", "円周角は、中心角と等しい", "円周角は、中心角の2倍", "円周角と中心角の和は 180°"], "同じ弧で考える。", "円周角は中心角の半分です。");
+  nm("ciCentral-basic-3", "ciCentral", "basic", "円 O で、弧 AB に対する円周角 ∠ACB ＝ 35° のとき、中心角 ∠AOB は何度？", 70, "中心角は円周角の2倍。", "35 × 2 ＝ 70° です。");
+  nm("ciCentral-basic-4", "ciCentral", "basic", "円 O で、∠AOB ＝ 130° のとき、弧 AB に対する円周角は何度？", 65, "130 の半分。", "65° です。");
+  nm("ciCentral-basic-5", "ciCentral", "basic", "円 O で、点 P をふくまない弧 AB に対する中心角が 240° のとき、∠APB は何度？", 120, "180° より大きい中心角でも、円周角はその半分。", "240 ÷ 2 ＝ 120° です。");
+  nm("ciCentral-basic-6", "ciCentral", "basic", "円 O で、弧 AB に対する円周角 ∠APB ＝ 28° のとき、∠AOB は何度？", 56, "2倍する。", "56° です。");
+  ch("ciCentral-basic-7", "ciCentral", "basic", "円 O で、弧 AB に対する円周角が x° のとき、中心角 ∠AOB を表す式はどれ？", ["2x°", "x°", "x/2°", "(180 − x)°"], "中心角は円周角の2倍。", "2x° です。");
+  nm("ciCentral-standard-1", "ciCentral", "standard", "円 O の周上に A、B、C があり、∠OAB ＝ 25° です。C が弧 AB の大きいほうの上にあるとき、∠ACB は何度？", 65, "OA ＝ OB なので ∠OBA も 25°。", "∠AOB ＝ 130° なので ∠ACB ＝ 65° です。");
+  nm("ciCentral-standard-2", "ciCentral", "standard", "円 O の周上に A、B、C があり、∠ACB ＝ 52° です（O は △ABC の内部）。∠OAB は何度？", 38, "∠AOB ＝ 104°、△OAB は二等辺三角形。", "(180 − 104) ÷ 2 ＝ 38° です。");
+  nm("ciCentral-standard-3", "ciCentral", "standard", "円 O で ∠AOB ＝ 110° です。点 C が弧 AB の小さいほうの上にあるとき、∠ACB は何度？", 125, "C から見ると、中心角は 360 − 110。", "250 ÷ 2 ＝ 125° です。");
+  nm("ciCentral-standard-4", "ciCentral", "standard", "円 O の周上に A、B、C があり、∠BAC ＝ 40° です。∠BOC は何度？", 80, "∠BAC は弧 BC の円周角。", "40 × 2 ＝ 80° です。");
+  nm("ciCentral-standard-5", "ciCentral", "standard", "円 O の周上に A、B、C があり、∠AOB ＝ 90°、∠BOC ＝ 120° で、O は △ABC の内部にあります。∠ACB は何度？", 45, "∠ACB は弧 AB の円周角。", "90 ÷ 2 ＝ 45° です。");
+  ch("ciCentral-standard-6", "ciCentral", "standard", "円 O の周上の点 A、B、C で、OB ＝ OC がいえる理由はどれ？", ["どちらも円の半径だから", "どちらも弦だから", "円周角が等しいから", "中点連結定理から"], "O は円の中心。", "どちらも半径です。");
+  sp("ciCentral-application-1", "ciCentral", "円 O の周上に3点 A、B、C があり、∠BOC ＝ 140° です（A は弧 BC の大きいほうの上）。", [
+    sn("s1", "ciCentral", "∠BAC は何度？", 70, "中心角の半分。", "70° です。"),
+    sn("s2", "ciCentral", "∠OBC は何度？", 20, "△OBC は二等辺三角形。", "(180 − 140) ÷ 2 ＝ 20° です。"),
+    sc("s3", "ciCentral", "△OBC が二等辺三角形になる理由はどれ？", ["OB と OC がどちらも半径", "BC が直径", "∠BOC が鈍角", "A が円周上にある"], "中心から円周までの長さ。", "半径どうしで等しいからです。")
+  ], ["ciCentral"], "中心角と、半径でできる二等辺三角形を使う。", "∠BAC ＝ 70°、∠OBC ＝ 20° です。");
+  sp("ciCentral-application-2", "ciCentral", "時計の文字盤を円と見て、中心を O、12 時・4 時・8 時の位置を A、B、C とします。", [
+    sn("s1", "ciCentral", "∠AOB は何度？", 120, "360 を 3 つに分ける。", "120° です。"),
+    sn("s2", "ciCentral", "∠ACB は何度？", 60, "弧 AB の円周角。", "60° です。"),
+    sc("s3", "ciCentral", "△ABC はどんな三角形？", ["正三角形", "直角三角形", "二等辺三角形だが正三角形ではない", "鈍角三角形"], "3つの角を調べる。", "どの角も 60° なので正三角形です。")
+  ], ["ciCentral"], "中心角 → 円周角の順に求める。", "正三角形です。");
+  sp("ciCentral-application-3", "ciCentral", "円 O の周上に A、B、C があり、∠OAB ＝ 32° です。C は弧 AB の大きいほうの上にあります。", [
+    sn("s1", "ciCentral", "∠OBA は何度？", 32, "OA ＝ OB。", "32° です。"),
+    sn("s2", "ciCentral", "∠AOB は何度？", 116, "180 − 32 × 2。", "116° です。"),
+    sn("s3", "ciCentral", "∠ACB は何度？", 58, "中心角の半分。", "58° です。")
+  ], ["ciCentral"], "二等辺三角形 → 中心角 → 円周角。", "∠ACB ＝ 58° です。");
+  sp("ciCentral-application-4", "ciCentral", "円周を 9 等分する点があります。", [
+    sn("s1", "ciCentral", "となり合う2点を結ぶ弧1つ分の中心角は何度？", 40, "360 ÷ 9。", "40° です。"),
+    sn("s2", "ciCentral", "弧 2 つ分に対する円周角は何度？", 40, "中心角 80° の半分。", "40° です。"),
+    sn("s3", "ciCentral", "弧 5 つ分に対する円周角は何度？", 100, "中心角 200° の半分。", "100° です。")
+  ], ["ciCentral"], "弧1つ分の中心角を先に出す。", "40°、100° です。");
+  sp("ciCentral-application-5", "ciCentral", "円 O の周上に A、B、C があり、O は △ABC の内部にあります。∠ABO ＝ 15°、∠ACO ＝ 25° です。", [
+    sn("s1", "ciCentral", "∠BAO は何度？", 15, "OA ＝ OB。", "15° です。"),
+    sn("s2", "ciCentral", "∠BAC は何度？", 40, "∠BAO ＋ ∠CAO。", "15 ＋ 25 ＝ 40° です。"),
+    sn("s3", "ciCentral", "∠BOC は何度？", 80, "∠BAC の2倍。", "80° です。")
+  ], ["ciCentral"], "中心と頂点を結ぶと、二等辺三角形が3つできる。", "∠BOC ＝ 80° です。");
+  nm("ciCentral-retention-1", "ciCentral", "retention", "円 O で、∠AOB ＝ 156° のとき、弧 AB に対する円周角は何度？", 78, "中心角の半分。", "78° です。", RB);
+  nm("ciCentral-retention-2", "ciCentral", "retention", "円 O で、弧 AB に対する円周角 ∠AQB ＝ 47° のとき、∠AOB は何度？", 94, "円周角の2倍。", "94° です。", RB);
+  nm("ciCentral-retention-3", "ciCentral", "retention", "円 O で、点 Q をふくまない弧 AB に対する中心角が 210° のとき、∠AQB は何度？", 105, "中心角の半分。", "105° です。", RB);
+  nm("ciCentral-retention-4", "ciCentral", "retention", "円 O の周上に A、B、C があり、∠OAB ＝ 19° です。C が弧 AB の大きいほうの上にあるとき、∠ACB は何度？", 71, "∠AOB ＝ 180 − 38。", "142 ÷ 2 ＝ 71° です。", RS);
+  nm("ciCentral-retention-5", "ciCentral", "retention", "円 O の周上に A、B、C があり、∠ABC ＝ 75° です。B をふくまない弧 AC に対する中心角 ∠AOC は何度？", 150, "∠ABC は弧 AC の円周角。", "75 × 2 ＝ 150° です。", RS);
+
+  // --- 同じ弧に対する円周角 ---
+  nm("ciSameArc-basic-1", "ciSameArc", "basic", "円周上に A、B、C、D があり、C、D は直線 AB の同じ側にあります。∠ACB ＝ 38° のとき、∠ADB は何度？", 38, "同じ弧 AB に対する円周角。", "等しいので 38° です。", { usage: "diagnosis" });
+  ch("ciSameArc-basic-2", "ciSameArc", "basic", "1つの弧に対する円周角について、正しいものはどれ？", ["どれも等しい", "点の位置によって変わる", "中心角と等しい", "いつも 90°"], "円周角の定理。", "1つの弧に対する円周角はすべて等しいです。");
+  nm("ciSameArc-basic-3", "ciSameArc", "basic", "1つの円で、弧 AB に対する円周角が 20°、弧 CD に対する円周角が 60° です。弧 CD の長さは弧 AB の何倍？", 3, "弧の長さは円周角に比例する。", "60 ÷ 20 ＝ 3倍です。");
+  nm("ciSameArc-basic-4", "ciSameArc", "basic", "1つの円で、弧 AB ＝ 弧 CD です。弧 AB に対する円周角が 33° のとき、弧 CD に対する円周角は何度？", 33, "等しい弧には等しい円周角。", "33° です。");
+  ch("ciSameArc-basic-5", "ciSameArc", "basic", "1つの円で、等しい円周角に対する弧について正しいものはどれ？", ["弧の長さも等しい", "弧の長さは2倍になる", "弧の長さは半分になる", "弧の長さとは関係がない"], "弧と円周角は比例する。", "弧の長さも等しくなります。");
+  nm("ciSameArc-basic-6", "ciSameArc", "basic", "1つの円で、円周角 15° に対する弧の長さが 4cm です。円周角 45° に対する弧の長さは何cm？", 12, "3倍の角には3倍の弧。", "12cm です。");
+  nm("ciSameArc-basic-7", "ciSameArc", "basic", "円周上に A、B、C、D がこの順にあります。∠BAC ＝ 40° のとき、∠BDC は何度？", 40, "どちらも弧 BC に対する円周角。", "40° です。");
+  nm("ciSameArc-standard-1", "ciSameArc", "standard", "円周上に A、B、C、D がこの順にあり、AC と BD の交点を E とします。∠ABD ＝ 35°、∠BDC ＝ 45° のとき、∠AEB は何度？", 100, "∠BAC ＝ ∠BDC。△ABE で考える。", "180 − 35 − 45 ＝ 100° です。");
+  nm("ciSameArc-standard-2", "ciSameArc", "standard", "円周上に A、B、C、D がこの順にあり、AC と BD の交点を E とします。∠ADB ＝ 28°、∠DBC ＝ 42° のとき、∠AEB は何度？", 70, "∠ACB ＝ ∠ADB。∠AEB は △EBC の外角。", "28 ＋ 42 ＝ 70° です。");
+  nm("ciSameArc-standard-3", "ciSameArc", "standard", "円周を 12 等分する点のうち、となり合う2点を両はしとする弧（ほかの分点をふくまない）に対する円周角は何度？", 15, "中心角は 360 ÷ 12。", "30 ÷ 2 ＝ 15° です。");
+  nm("ciSameArc-standard-4", "ciSameArc", "standard", "円周上に A、B、C があり、弧 AB : 弧 BC ＝ 2 : 3 です（どちらも残りの1点をふくまない弧）。∠ACB ＝ 24° のとき、∠BAC は何度？", 36, "円周角は弧の長さに比例。", "24 × 3 ÷ 2 ＝ 36° です。");
+  nm("ciSameArc-standard-5", "ciSameArc", "standard", "円周上の3点で円周を3つの弧に分けると、長さの比が 3 : 4 : 5 になりました。この3点を結ぶ三角形の最も大きい角は何度？", 75, "3つの円周角の和は 180°。", "180 × 5/12 ＝ 75° です。");
+  ch("ciSameArc-standard-6", "ciSameArc", "standard", "円周上に A、B、C、D があり、C、D は直線 AB の同じ側にあります。∠ACB ＝ ∠ADB といえる理由はどれ？", ["弧 AB に対する円周角だから", "対頂角だから", "平行線の錯角だから", "二等辺三角形の底角だから"], "どちらも A と B を見込む角。", "弧 AB に対する円周角だからです。");
+  sp("ciSameArc-application-1", "ciSameArc", "円周上に A、B、C、D がこの順にあり、AC と BD の交点を E とします。∠BAC ＝ 32°、∠ACD ＝ 48° です。", [
+    sn("s1", "ciSameArc", "∠BDC は何度？", 32, "弧 BC の円周角。", "32° です。"),
+    sn("s2", "ciSameArc", "∠ABD は何度？", 48, "弧 AD の円周角。", "48° です。"),
+    sn("s3", "ciSameArc", "∠AEB は何度？", 100, "△ABE の内角。", "180 − 32 − 48 ＝ 100° です。")
+  ], ["ciSameArc"], "同じ弧に対する円周角を見つけて、三角形に集める。", "∠AEB ＝ 100° です。");
+  sp("ciSameArc-application-2", "ciSameArc", "円周を 8 等分する点を、順に A、B、C、D、E、F、G、H とします。", [
+    sn("s1", "ciSameArc", "弧 AB に対する中心角は何度？", 45, "360 ÷ 8。", "45° です。"),
+    sn("s2", "ciSameArc", "∠ACB は何度？（小数で答えましょう）", 22.5, "弧 AB の円周角。", "22.5° です。"),
+    sn("s3", "ciSameArc", "∠BFE は何度？（小数で答えましょう）", 67.5, "弧 BE は弧3つ分。", "22.5 × 3 ＝ 67.5° です。")
+  ], ["ciSameArc", "ciCentral"], "弧1つ分の円周角を先に出し、何個分かを数える。", "22.5°、67.5° です。");
+  sp("ciSameArc-application-3", "ciSameArc", "1つの円で、弧 AB は 6cm、弧 CD は 9cm です。弧 AB に対する円周角は 24° です。", [
+    sn("s1", "ciSameArc", "弧 CD に対する円周角は何度？", 36, "弧の長さに比例。", "24 × 9 ÷ 6 ＝ 36° です。"),
+    sn("s2", "ciSameArc", "弧 CD に対する中心角は何度？", 72, "円周角の2倍。", "72° です。"),
+    sn("s3", "ciSameArc", "この円の円周は何cm？", 45, "中心角 72° で 9cm。", "9 × 360 ÷ 72 ＝ 45cm です。")
+  ], ["ciSameArc", "ciCentral"], "弧の長さ・円周角・中心角はすべて比例する。", "円周は 45cm です。");
+  sp("ciSameArc-application-4", "ciSameArc", "円周上に A、B、C があり、弧 AB : 弧 BC : 弧 CA ＝ 2 : 3 : 4 です（どの弧も残りの1点をふくまない）。", [
+    sn("s1", "ciSameArc", "∠ACB は何度？", 40, "180 を 2 : 3 : 4 に分ける。", "180 × 2/9 ＝ 40° です。"),
+    sn("s2", "ciSameArc", "∠BAC は何度？", 60, "弧 BC の円周角。", "60° です。"),
+    sn("s3", "ciSameArc", "∠ABC は何度？", 80, "弧 CA の円周角。", "80° です。")
+  ], ["ciSameArc"], "三角形の3つの角は、向かい合う弧の長さに比例する。", "40°、60°、80° です。");
+  sp("ciSameArc-application-5", "ciSameArc", "円周上に A、B、C、D がこの順にあり、弧 AB ＝ 弧 AD です。∠ACB ＝ 26° です。", [
+    sn("s1", "ciSameArc", "∠ACD は何度？", 26, "等しい弧に対する円周角。", "26° です。"),
+    sn("s2", "ciSameArc", "∠BCD は何度？", 52, "26 ＋ 26。", "52° です。"),
+    sc("s3", "ciSameArc", "AC は ∠BCD の何になっている？", ["二等分線", "垂線", "中線", "接線"], "∠ACB ＝ ∠ACD。", "∠BCD の二等分線です。")
+  ], ["ciSameArc"], "等しい弧 → 等しい円周角。", "AC は ∠BCD の二等分線です。");
+  nm("ciSameArc-retention-1", "ciSameArc", "retention", "円周上に A、B、P、Q があり、P、Q は直線 AB の同じ側にあります。∠APB ＝ 53° のとき、∠AQB は何度？", 53, "同じ弧に対する円周角。", "53° です。", RB);
+  nm("ciSameArc-retention-2", "ciSameArc", "retention", "1つの円で、弧 AB に対する円周角が 18°、弧 CD に対する円周角が 72° です。弧 CD の長さは弧 AB の何倍？", 4, "円周角の比 ＝ 弧の比。", "72 ÷ 18 ＝ 4倍です。", RB);
+  nm("ciSameArc-retention-3", "ciSameArc", "retention", "1つの円で、円周角 14° に対する弧の長さが 5cm です。円周角 42° に対する弧の長さは何cm？", 15, "角が何倍かを見る。", "3倍なので 15cm です。", RB);
+  nm("ciSameArc-retention-4", "ciSameArc", "retention", "円周上に A、B、C、D がこの順にあり、AC と BD の交点を E とします。∠ADB ＝ 31°、∠DBC ＝ 46° のとき、∠AEB は何度？", 77, "∠ACB ＝ ∠ADB。△EBC の外角。", "31 ＋ 46 ＝ 77° です。", RS);
+  nm("ciSameArc-retention-5", "ciSameArc", "retention", "円周上の3点で円周を3つの弧に分けると、長さの比が 5 : 6 : 7 になりました。この3点を結ぶ三角形の最も大きい角は何度？", 70, "3つの円周角の和は 180°。", "180 × 7/18 ＝ 70° です。", RS);
+
+  // --- 直径と円周角 ---
+  nm("ciSemicircle-basic-1", "ciSemicircle", "basic", "AB は円 O の直径で、C は円周上の点です。∠ACB は何度？", 90, "半円の弧に対する円周角。", "90° です。", { usage: "diagnosis" });
+  nm("ciSemicircle-basic-2", "ciSemicircle", "basic", "AB は円 O の直径で、C は円周上の点です。∠CAB ＝ 34° のとき、∠ABC は何度？", 56, "∠ACB ＝ 90°。", "180 − 90 − 34 ＝ 56° です。");
+  ch("ciSemicircle-basic-3", "ciSemicircle", "basic", "直径に対する円周角について、正しいものはどれ？", ["いつも直角", "いつも 45°", "点の位置によって変わる", "いつも 180°"], "中心角は 180°。", "いつも直角です。");
+  nm("ciSemicircle-basic-4", "ciSemicircle", "basic", "AB は円 O の直径で、C は円周上の点です。∠ABC ＝ 62° のとき、∠BAC は何度？", 28, "∠ACB ＝ 90°。", "28° です。");
+  ch("ciSemicircle-basic-5", "ciSemicircle", "basic", "線分 AB に対して ∠APB ＝ 90° となる点 P（A、B 以外）は、どんな図形の上にある？", ["AB を直径とする円", "AB の垂直二等分線", "AB に平行な直線", "A を中心とする円"], "直径に対する円周角の逆。", "AB を直径とする円の上です。");
+  nm("ciSemicircle-basic-6", "ciSemicircle", "basic", "AB は円 O の直径で、C は円周上の点です。∠BAC ＝ ∠ABC のとき、∠BAC は何度？", 45, "2つの角の和は 90°。", "45° です。");
+  nm("ciSemicircle-basic-7", "ciSemicircle", "basic", "AB は円 O の直径で、C は円周上の点です。∠CAB が ∠ABC の2倍のとき、∠ABC は何度？", 30, "x ＋ 2x ＝ 90。", "30° です。");
+  nm("ciSemicircle-standard-1", "ciSemicircle", "standard", "AB は円 O の直径で、C、D は円周上の点です。∠ABC ＝ 58° で、D は弧 BC をふくまない側にあります。∠BDC は何度？", 32, "∠BDC ＝ ∠BAC。", "∠BAC ＝ 90 − 58 ＝ 32° です。");
+  nm("ciSemicircle-standard-2", "ciSemicircle", "standard", "AB は円 O の直径で、C、D は円周上の点です。∠ADC ＝ 25° で、D と B は弧 AC について同じ側にあります。∠BAC は何度？", 65, "∠ABC ＝ ∠ADC。", "90 − 25 ＝ 65° です。");
+  ch("ciSemicircle-standard-3", "ciSemicircle", "standard", "∠C ＝ 90° の直角三角形 ABC の3つの頂点を通る円の中心はどこ？", ["斜辺 AB の中点", "頂点 C", "辺 AC の中点", "辺 BC の中点"], "AB が直径になる。", "斜辺の中点です。");
+  nm("ciSemicircle-standard-4", "ciSemicircle", "standard", "∠C ＝ 90° の直角三角形 ABC で、AB ＝ 14cm です。3つの頂点を通る円の半径は何cm？", 7, "斜辺が直径。", "7cm です。");
+  nm("ciSemicircle-standard-5", "ciSemicircle", "standard", "∠C ＝ 90° の直角三角形 ABC で、AB の中点を M とします。∠A ＝ 36° のとき、∠MCB は何度？", 54, "MA ＝ MB ＝ MC。", "∠MCB ＝ ∠B ＝ 54° です。");
+  nm("ciSemicircle-standard-6", "ciSemicircle", "standard", "AB は円 O の直径で、C は円周上の点です。∠AOC ＝ 70° のとき、∠BAC は何度？", 55, "∠ABC ＝ 35°。", "90 − 35 ＝ 55° です。");
+  sp("ciSemicircle-application-1", "ciSemicircle", "AB は円 O の直径で、C は円周上の点です。∠BAC ＝ 28° です。", [
+    sn("s1", "ciSemicircle", "∠ACB は何度？", 90, "直径に対する円周角。", "90° です。"),
+    sn("s2", "ciSemicircle", "∠ABC は何度？", 62, "180 − 90 − 28。", "62° です。"),
+    sn("s3", "ciSemicircle", "∠BOC は何度？", 56, "弧 BC の円周角 ∠BAC の2倍。", "56° です。")
+  ], ["ciSemicircle", "ciCentral"], "まず直角を見つける。", "∠ABC ＝ 62°、∠BOC ＝ 56° です。");
+  sp("ciSemicircle-application-2", "ciSemicircle", "直径 12cm の丸いテーブルの縁の上に、点 A、B、C があります。AB はテーブルの直径です。", [
+    sn("s1", "ciSemicircle", "∠ACB は何度？", 90, "直径に対する円周角。", "90° です。"),
+    sc("s2", "ciSemicircle", "C を縁にそって動かすと、∠ACB はどうなる？", ["90° のまま変わらない", "大きくなる", "小さくなる", "C の位置で大きくなったり小さくなったりする"], "どこでも直径に対する円周角。", "90° のままです。"),
+    sn("s3", "ciSemicircle", "AB の中点から C までの長さは何cm？", 6, "中点は円の中心。", "半径なので 6cm です。")
+  ], ["ciSemicircle"], "直径を見つけたら、直角と半径を使う。", "∠ACB はいつも 90° です。");
+  sp("ciSemicircle-application-3", "ciSemicircle", "∠C ＝ 90° の直角三角形 ABC で、AB の中点を M とします。AB ＝ 18cm、∠B ＝ 24° です。", [
+    sn("s1", "ciSemicircle", "MC は何cm？", 9, "M は3頂点を通る円の中心。", "9cm です。"),
+    sn("s2", "ciSemicircle", "∠MCB は何度？", 24, "MB ＝ MC。", "24° です。"),
+    sn("s3", "ciSemicircle", "∠AMC は何度？", 48, "△MBC の外角。", "24 ＋ 24 ＝ 48° です。")
+  ], ["ciSemicircle", "ciCentral"], "斜辺の中点は、3つの頂点から等しい距離にある。", "MC ＝ 9cm、∠AMC ＝ 48° です。");
+  sp("ciSemicircle-application-4", "ciSemicircle", "AB は円 O の直径で、C、D は円周上の点です。C と D は直線 AB について反対側にあります。∠CAB ＝ 38°、∠DBA ＝ 27° です。", [
+    sn("s1", "ciSemicircle", "∠ABC は何度？", 52, "∠ACB ＝ 90°。", "52° です。"),
+    sn("s2", "ciSemicircle", "∠DAB は何度？", 63, "∠ADB ＝ 90°。", "63° です。"),
+    sn("s3", "ciSemicircle", "∠ADC は何度？", 52, "弧 AC に対する円周角。", "∠ABC と等しく 52° です。")
+  ], ["ciSemicircle", "ciSameArc"], "直径 → 直角、同じ弧 → 等しい円周角。", "∠ADC ＝ 52° です。");
+  sp("ciSemicircle-application-5", "ciSemicircle", "円周上に点 A、B、C、D があり、AC と BD はどちらも円の直径です。∠ABD ＝ 35° です。", [
+    sn("s1", "ciSemicircle", "∠ABC は何度？", 90, "AC は直径。", "90° です。"),
+    sn("s2", "ciSemicircle", "∠DBC は何度？", 55, "90 − 35。", "55° です。"),
+    sc("s3", "ciSemicircle", "四角形 ABCD はどんな四角形？", ["長方形", "正方形", "ひし形", "台形"], "4つの角がすべて直角。となりの角 35° と 55° に注目。", "長方形です（正方形ではありません）。")
+  ], ["ciSemicircle"], "直径に対する円周角はすべて 90°。", "長方形です。");
+  nm("ciSemicircle-retention-1", "ciSemicircle", "retention", "AB は円 O の直径で、P は円周上の点です。∠PAB ＝ 47° のとき、∠ABP は何度？", 43, "∠APB ＝ 90°。", "43° です。", RB);
+  nm("ciSemicircle-retention-2", "ciSemicircle", "retention", "AB は円 O の直径で、P は円周上の点です。∠ABP が ∠BAP の 4 倍のとき、∠BAP は何度？", 18, "x ＋ 4x ＝ 90。", "18° です。", RB);
+  nm("ciSemicircle-retention-3", "ciSemicircle", "retention", "直角三角形 ABC の斜辺 AB の長さは 26cm です。A、B、C を通る円の半径は何cm？", 13, "斜辺が直径。", "13cm です。", RB);
+  nm("ciSemicircle-retention-4", "ciSemicircle", "retention", "AB は円 O の直径で、P、Q は円周上の点です。∠AQP ＝ 33° で、Q と B は弧 AP について同じ側にあります。∠BAP は何度？", 57, "∠ABP ＝ ∠AQP。", "90 − 33 ＝ 57° です。", RS);
+  nm("ciSemicircle-retention-5", "ciSemicircle", "retention", "AB は円 O の直径で、P は円周上の点です。∠AOP ＝ 76° のとき、∠BAP は何度？", 52, "∠ABP ＝ 38°。", "90 − 38 ＝ 52° です。", RS);
+
+  // --- 円周角の定理の逆 ---
+  ch("ciConverse-basic-1", "ciConverse", "basic", "2点 P、Q が直線 AB の同じ側にあり、∠APB ＝ ∠AQB のとき、いえることはどれ？", ["4点 A、B、P、Q は1つの円周上にある", "AP ＝ AQ", "PQ ∥ AB", "△APB ≡ △AQB"], "円周角の定理の逆。", "4点は1つの円周上にあります。", { usage: "diagnosis" });
+  ch("ciConverse-basic-2", "ciConverse", "basic", "C、D は直線 AB の同じ側にあり、∠ACB ＝ 50°、∠ADB ＝ 50° です。正しいものはどれ？", ["4点 A、B、C、D は1つの円周上にある", "4点 A、B、C、D は1つの円周上にない", "AC ＝ BD", "CD ⊥ AB"], "AB を見込む角が等しい。", "1つの円周上にあります。");
+  ch("ciConverse-basic-3", "ciConverse", "basic", "C、D は直線 AB の同じ側にあり、∠ACB ＝ 50°、∠ADB ＝ 55° です。正しいものはどれ？", ["4点 A、B、C、D は1つの円周上にない", "4点 A、B、C、D は1つの円周上にある", "AC ＝ BD", "CD ∥ AB"], "AB を見込む角が等しくない。", "1つの円周上にはありません。");
+  ch("ciConverse-basic-4", "ciConverse", "basic", "円周角の定理の逆を使って示せることはどれ？", ["4つの点が1つの円周上にあること", "2つの三角形が合同であること", "2本の直線が平行であること", "2本の線分の長さが等しいこと"], "「角が等しい → 円周上」。", "4点が1つの円周上にあることです。");
+  nm("ciConverse-basic-5", "ciConverse", "basic", "C、D は直線 AB の同じ側にあり、∠ACB ＝ 64° です。A、B、C、D が1つの円周上にあるには、∠ADB は何度ならよい？", 64, "AB を見込む角が等しければよい。", "64° です。");
+  ch("ciConverse-basic-6", "ciConverse", "basic", "C、D は直線 AB の同じ側にあり、∠ACB ＝ ∠ADB ＝ 90° です。4点を通る円の直径はどれ？", ["AB", "CD", "AC", "BD"], "90° の円周角に対する弦は直径。", "AB です。");
+  nm("ciConverse-basic-7", "ciConverse", "basic", "C、D は直線 AB の同じ側にあり、∠ACB ＝ ∠ADB ＝ 90°、AB ＝ 16cm です。4点を通る円の半径は何cm？", 8, "AB が直径。", "8cm です。");
+  nm("ciConverse-standard-1", "ciConverse", "standard", "四角形 ABCD の対角線の交点を E とします。∠BAC ＝ ∠BDC ＝ 40°、∠ACD ＝ 30° のとき、∠ABD は何度？", 30, "4点は1つの円周上にある。∠ABD と ∠ACD は弧 AD の円周角。", "30° です。");
+  nm("ciConverse-standard-2", "ciConverse", "standard", "四角形 ABCD で、∠ABD ＝ ∠ACD ＝ 35° です。∠BAC ＝ 50° のとき、∠BDC は何度？", 50, "4点は1つの円周上。弧 BC の円周角。", "50° です。");
+  nm("ciConverse-standard-3", "ciConverse", "standard", "四角形 ABCD の対角線の交点を E とします。∠BAC ＝ 42°、∠BDC ＝ 42°、∠ABD ＝ 63° のとき、∠ACD は何度？", 63, "4点は1つの円周上。弧 AD の円周角。", "63° です。");
+  ch("ciConverse-standard-4", "ciConverse", "standard", "四角形 ABCD で、∠ABD ＝ 40°、∠ACD ＝ 45° です。正しいものはどれ？", ["4点 A、B、C、D は1つの円周上にない", "4点 A、B、C、D は1つの円周上にある", "AB ∥ CD", "AC ＝ BD"], "AD を見込む角をくらべる。", "等しくないので、1つの円周上にはありません。");
+  ch("ciConverse-standard-5", "ciConverse", "standard", "△ABC で、A から BC に垂線 AD、B から AC に垂線 BE をひきます。4点 A、B、D、E を通る円の直径はどれ？", ["AB", "DE", "AD", "BE"], "∠ADB ＝ ∠AEB ＝ 90°。", "AB です。");
+  nm("ciConverse-standard-6", "ciConverse", "standard", "△ABC で、A から BC に垂線 AD、B から AC に垂線 BE をひきます。AB ＝ 20cm のとき、4点 A、B、D、E を通る円の半径は何cm？", 10, "AB が直径。", "10cm です。");
+  sp("ciConverse-application-1", "ciConverse", "四角形 ABCD の対角線の交点を E とします。∠BAC ＝ 36°、∠BDC ＝ 36°、∠ABD ＝ 44° です。", [
+    sc("s1", "ciConverse", "4点 A、B、C、D について、正しいものはどれ？", ["1つの円周上にある", "1つの円周上にない", "一直線上にある", "どちらともいえない"], "BC を見込む角が等しい。", "1つの円周上にあります。"),
+    sn("s2", "ciConverse", "∠ACD は何度？", 44, "弧 AD の円周角。", "44° です。"),
+    sn("s3", "ciConverse", "∠AEB は何度？", 100, "△ABE の内角。", "180 − 36 − 44 ＝ 100° です。")
+  ], ["ciConverse", "ciSameArc"], "まず円周上にあることを示し、そのあと円周角の定理を使う。", "∠AEB ＝ 100° です。");
+  sp("ciConverse-application-2", "ciConverse", "△ABC で、A から BC に垂線 AD、B から AC に垂線 BE をひきます。∠BAD ＝ 28° です。", [
+    sc("s1", "ciConverse", "4点 A、B、D、E を通る円の直径はどれ？", ["AB", "DE", "AD", "BE"], "∠ADB ＝ ∠AEB ＝ 90°。", "AB です。"),
+    sn("s2", "ciConverse", "∠BED は何度？", 28, "弧 BD の円周角。", "∠BAD と等しく 28° です。"),
+    sn("s3", "ciConverse", "∠ABC は何度？", 62, "△ABD は直角三角形。", "90 − 28 ＝ 62° です。")
+  ], ["ciConverse", "ciSemicircle"], "直角が2つ → 1つの円周上 → 円周角。", "∠BED ＝ 28° です。");
+  sp("ciConverse-application-3", "ciConverse", "池のほとりに2本の木 A、B があります。地点 P、Q からは、どちらも木 A と B を 54° の角度で見込めます（P、Q は直線 AB の同じ側）。", [
+    sc("s1", "ciConverse", "4点 A、B、P、Q について、正しいものはどれ？", ["1つの円周上にある", "1つの円周上にない", "一直線上にある", "正方形の頂点になる"], "円周角の定理の逆。", "1つの円周上にあります。"),
+    sn("s2", "ciConverse", "同じ円周上で、P と同じ側にある地点 R から見込む角 ∠ARB は何度？", 54, "同じ弧に対する円周角。", "54° です。"),
+    sc("s3", "ciConverse", "∠ARB ＝ 54° となる地点 R は、直線 AB の同じ側にいくつある？", ["無数にある", "1つだけ", "2つだけ", "1つもない"], "円周上の点はどれも同じ角。", "円周上に無数にあります。")
+  ], ["ciConverse"], "同じ角で見込める点は、1つの円周上に並ぶ。", "無数にあります。");
+  sp("ciConverse-application-4", "ciConverse", "四角形 ABCD で、∠ADB ＝ ∠ACB ＝ 90° です。AB ＝ 24cm です。", [
+    sc("s1", "ciConverse", "4点 A、B、C、D を通る円の直径はどれ？", ["AB", "CD", "AC", "BD"], "90° の円周角に対する弦。", "AB です。"),
+    sn("s2", "ciConverse", "その円の半径は何cm？", 12, "AB の半分。", "12cm です。"),
+    sn("s3", "ciConverse", "∠CAB ＝ 22° のとき、∠CDB は何度？", 22, "弧 CB の円周角。", "22° です。")
+  ], ["ciConverse", "ciSemicircle"], "直角2つで円が見える。", "半径 12cm、∠CDB ＝ 22° です。");
+  sp("ciConverse-application-5", "ciConverse", "四角形 ABCD で、∠ABD ＝ ∠ACD ＝ 52° です。", [
+    sc("s1", "ciConverse", "4点 A、B、C、D について、正しいものはどれ？", ["1つの円周上にある", "1つの円周上にない", "一直線上にある", "どちらともいえない"], "AD を見込む角が等しい。", "1つの円周上にあります。"),
+    sn("s2", "ciConverse", "∠DBC ＝ 23° のとき、∠DAC は何度？", 23, "弧 DC の円周角。", "23° です。"),
+    sn("s3", "ciConverse", "∠BAC ＝ 61° のとき、∠BDC は何度？", 61, "弧 BC の円周角。", "61° です。")
+  ], ["ciConverse", "ciSameArc"], "円周上にあるとわかれば、ほかの角も等しくなる。", "23°、61° です。");
+  ch("ciConverse-retention-1", "ciConverse", "retention", "点 C、D が直線 AB の同じ側にあり、∠ACB ＝ ∠ADB です。このとき正しいものはどれ？", ["A、B、C、D は1つの円周上にある", "AC ＝ AD", "CD ∥ AB", "△ACB ≡ △ADB"], "円周角の定理の逆。", "1つの円周上にあります。", RB);
+  ch("ciConverse-retention-2", "ciConverse", "retention", "点 P、Q が直線 AB の同じ側にあり、∠APB ＝ 71°、∠AQB ＝ 71° です。正しいものはどれ？", ["A、B、P、Q は1つの円周上にある", "A、B、P、Q は1つの円周上にない", "AP ＝ BQ", "PQ ⊥ AB"], "AB を見込む角が等しい。", "1つの円周上にあります。", RB);
+  nm("ciConverse-retention-3", "ciConverse", "retention", "点 P、Q が直線 AB の同じ側にあり、∠APB ＝ 82° です。A、B、P、Q が1つの円周上にあるには、∠AQB は何度ならよい？", 82, "AB を見込む角が等しければよい。", "82° です。", RB);
+  nm("ciConverse-retention-4", "ciConverse", "retention", "四角形 ABCD で、∠BAC ＝ ∠BDC ＝ 27°、∠ACD ＝ 58° のとき、∠ABD は何度？", 58, "4点は1つの円周上。弧 AD の円周角。", "58° です。", RS);
+  ch("ciConverse-retention-5", "ciConverse", "retention", "四角形 ABCD で、∠ABD ＝ 37°、∠ACD ＝ 39° です。正しいものはどれ？", ["4点 A、B、C、D は1つの円周上にない", "4点 A、B、C、D は1つの円周上にある", "AB ∥ CD", "BC ＝ AD"], "AD を見込む角をくらべる。", "等しくないので、1つの円周上にはありません。", RS);
+  nm("ciConverse-retention-6", "ciConverse", "retention", "四角形 ABCD で、∠ADB と ∠ACB はどちらも直角、AB ＝ 34cm です。A、B、C、D を通る円の半径は何cm？", 17, "AB が直径。", "17cm です。", RB);
+
+  // --- 円と相似 ---
+  nm("ciSimilar-basic-1", "ciSimilar", "basic", "円周上に A、B、C、D があり、弦 AC と BD が点 P で交わっています。PA ＝ 4、PC ＝ 6、PB ＝ 3 のとき、PD は？", 8, "△PAB ∽ △PDC から PA : PD ＝ PB : PC。", "4 × 6 ÷ 3 ＝ 8 です。", { usage: "diagnosis" });
+  ch("ciSimilar-basic-2", "ciSimilar", "basic", "円周上の A、B、C、D で、弦 AC と BD が点 P で交わっています。△PAB と相似な三角形を、対応する頂点の順に書くとどれ？", ["△PDC", "△PCD", "△PBA", "△PAD"], "∠PAB ＝ ∠PDC（弧 BC の円周角）。", "△PDC です。");
+  ch("ciSimilar-basic-3", "ciSimilar", "basic", "弦 AC と BD が点 P で交わるとき、△PAB ∽ △PDC を示すのに使う相似条件はどれ？", ["2組の角がそれぞれ等しい", "3組の辺の比がすべて等しい", "2組の辺の比とその間の角がそれぞれ等しい", "1組の辺とその両端の角がそれぞれ等しい"], "円周角と対頂角。", "2組の角がそれぞれ等しい、です。");
+  nm("ciSimilar-basic-4", "ciSimilar", "basic", "円の弦 AC と BD が点 P で交わり、PA ＝ 2、PC ＝ 9、PB ＝ 3 です。PD は？", 6, "PA × PC ＝ PB × PD。", "18 ÷ 3 ＝ 6 です。");
+  nm("ciSimilar-basic-5", "ciSimilar", "basic", "円の弦 AC と BD が点 P で交わり、PA ＝ 5、PC ＝ 4、PD ＝ 10 です。PB は？", 2, "PA × PC ＝ PB × PD。", "20 ÷ 10 ＝ 2 です。");
+  ch("ciSimilar-basic-6", "ciSimilar", "basic", "円周上の A、B、C、D で、弦 AC と BD が点 P で交わっています。∠PAB と等しい角はどれ？", ["∠PDC", "∠PCD", "∠PBA", "∠APB"], "どちらも弧 BC に対する円周角。", "∠PDC です。");
+  nm("ciSimilar-basic-7", "ciSimilar", "basic", "円の弦 AC と BD が点 P で交わり、PB ＝ 6、PD ＝ 4、PA ＝ 3 です。PC は？", 8, "PA × PC ＝ PB × PD。", "24 ÷ 3 ＝ 8 です。");
+  nm("ciSimilar-standard-1", "ciSimilar", "standard", "円の弦 AC と BD が点 P で交わり、PA ＝ 6、PC ＝ 4、BD ＝ 11 です。PB が PD より長いとき、PB は？", 8, "PB × PD ＝ 24、PB ＋ PD ＝ 11。", "8 × 3 ＝ 24 なので PB ＝ 8 です。");
+  nm("ciSimilar-standard-2", "ciSimilar", "standard", "円の弦 AC と BD が点 P で交わり、△PAB ∽ △PDC です。AB ＝ 9、DC ＝ 6、PA ＝ 12 のとき、PD は？", 8, "相似比 AB : DC ＝ 3 : 2。", "12 × 2 ÷ 3 ＝ 8 です。");
+  nm("ciSimilar-standard-3", "ciSimilar", "standard", "円の外の点 P から2本の直線をひきます。1本は円と A、B（P に近い順）で、もう1本は C、D で交わります。PA ＝ 4、PB ＝ 9、PC ＝ 3 のとき、PD は？", 12, "△PAD ∽ △PCB から PA × PB ＝ PC × PD。", "36 ÷ 3 ＝ 12 です。");
+  ch("ciSimilar-standard-4", "ciSimilar", "standard", "円の外の点 P から2本の直線をひき、1本は円と A、B（P に近い順）、もう1本は C、D（P に近い順）で交わります。△PAD と相似な三角形を、対応する頂点の順に書くとどれ？", ["△PCB", "△PBC", "△PDB", "△PAC"], "∠P が共通、∠PDA ＝ ∠PBC（弧 AC の円周角）。", "△PCB です。");
+  nm("ciSimilar-standard-5", "ciSimilar", "standard", "円の外の点 P から2本の直線をひきます。1本は円と A、B（P に近い順）で、もう1本は C、D で交わります。PA ＝ 5、PB ＝ 12、PC ＝ 6 のとき、PD は？", 10, "PA × PB ＝ PC × PD。", "60 ÷ 6 ＝ 10 です。");
+  nm("ciSimilar-standard-6", "ciSimilar", "standard", "円の弦 AC と BD が点 P で交わり、PA ＝ PB ＝ 7、PC ＝ 5 です。PD は？", 5, "PA × PC ＝ PB × PD。", "35 ÷ 7 ＝ 5 です。");
+  sp("ciSimilar-application-1", "ciSimilar", "円周上に A、B、C、D があり、弦 AC と BD が点 P で交わっています。PA ＝ 6、PB ＝ 4、PC ＝ 10 です。", [
+    sc("s1", "ciSimilar", "△PAB と相似な三角形を、対応する頂点の順に書くとどれ？", ["△PDC", "△PCD", "△PBA", "△PAD"], "弧 BC の円周角と、対頂角。", "△PDC です。"),
+    sn("s2", "ciSimilar", "PD は？", 15, "PA : PD ＝ PB : PC。", "6 × 10 ÷ 4 ＝ 15 です。"),
+    sn("s3", "ciSimilar", "BD は？", 19, "PB ＋ PD。", "19 です。")
+  ], ["ciSimilar", "smCond"], "円周角で相似を見つけ、比例式をつくる。", "PD ＝ 15、BD ＝ 19 です。");
+  sp("ciSimilar-application-2", "ciSimilar", "円周上に A、B、C、D があり、弦 AC と BD が点 P で交わっています。AB ＝ 8、CD ＝ 12、PA ＝ 6 です。", [
+    sn("s1", "ciSimilar", "△PAB と △PDC の相似比を 2 : a と表すとき、a は？", 3, "AB : DC ＝ 8 : 12。", "3 です。"),
+    sn("s2", "ciSimilar", "PD は？", 9, "PA : PD ＝ 2 : 3。", "9 です。"),
+    sn("s3", "ciSimilar", "PC ＝ 7.5 のとき、PB は？", 5, "PB : PC ＝ 2 : 3。", "5 です。")
+  ], ["ciSimilar", "smMeaning"], "相似比を出してから、対応する辺に使う。", "PD ＝ 9、PB ＝ 5 です。");
+  sp("ciSimilar-application-3", "ciSimilar", "円の外の点 P から2本の直線をひきます。1本は円と A、B（P に近い順）、もう1本は C、D（P に近い順）で交わります。PA ＝ 3、AB ＝ 9、PC ＝ 4 です。", [
+    sn("s1", "ciSimilar", "PB は？", 12, "PA ＋ AB。", "12 です。"),
+    sc("s2", "ciSimilar", "△PAD と相似な三角形を、対応する頂点の順に書くとどれ？", ["△PCB", "△PBC", "△PDB", "△PAC"], "∠P が共通、弧 AC の円周角。", "△PCB です。"),
+    sn("s3", "ciSimilar", "PD は？", 9, "PA × PB ＝ PC × PD。", "36 ÷ 4 ＝ 9 です。")
+  ], ["ciSimilar"], "共通の角と円周角で相似。", "PD ＝ 9 です。");
+  sp("ciSimilar-application-4", "ciSimilar", "円周上に A、B、C、D があり、弦 AC と BD が点 P で交わっています。∠BAC ＝ 30°、∠ABD ＝ 70°、PA ＝ 5、PB ＝ 4、PD ＝ 15 です。", [
+    sn("s1", "ciSimilar", "∠BDC は何度？", 30, "弧 BC の円周角。", "30° です。"),
+    sn("s2", "ciSimilar", "∠APB は何度？", 80, "△PAB の内角。", "180 − 30 − 70 ＝ 80° です。"),
+    sn("s3", "ciSimilar", "PC は？", 12, "PA × PC ＝ PB × PD。", "60 ÷ 5 ＝ 12 です。")
+  ], ["ciSimilar", "ciSameArc"], "角は円周角、長さは相似で求める。", "∠APB ＝ 80°、PC ＝ 12 です。");
+  sp("ciSimilar-application-5", "ciSimilar", "円の弦 AC と BD が点 P で交わり、PA ＝ 2、PC ＝ 12、BD ＝ 10 で、PB は PD より短いです。", [
+    sn("s1", "ciSimilar", "PB × PD はいくつ？", 24, "PA × PC と等しい。", "24 です。"),
+    sn("s2", "ciSimilar", "PB は？", 4, "かけて 24、たして 10。", "4 です。"),
+    sn("s3", "ciSimilar", "PD は？", 6, "10 − 4。", "6 です。")
+  ], ["ciSimilar"], "積と和から2つの長さを決める。", "PB ＝ 4、PD ＝ 6 です。");
+  nm("ciSimilar-retention-1", "ciSimilar", "retention", "円の弦 AC と BD が点 P で交わり、PA ＝ 8、PC ＝ 3、PB ＝ 12 です。PD は？", 2, "PA × PC ＝ PB × PD。", "24 ÷ 12 ＝ 2 です。", RB);
+  nm("ciSimilar-retention-2", "ciSimilar", "retention", "円の弦 AC と BD が点 P で交わり、PA ＝ 14、PC ＝ 3、PD ＝ 7 です。PB は？", 6, "PA × PC ＝ PB × PD。", "42 ÷ 7 ＝ 6 です。", RB);
+  ch("ciSimilar-retention-3", "ciSimilar", "retention", "円の弦 AC、BD が点 P で交わっています。対応する頂点の順に書くとき、△PAB ∽ △□ にあてはまるものはどれ？", ["△PDC", "△PCD", "△PBA", "△PAD"], "A ↔ D、B ↔ C。", "△PDC です。", RB);
+  nm("ciSimilar-retention-4", "ciSimilar", "retention", "円の外の点 P から2本の直線をひき、1本は円と A、B（P に近い順）、もう1本は C、D で交わります。PA ＝ 2、PB ＝ 15、PC ＝ 5 のとき、PD は？", 6, "PA × PB ＝ PC × PD。", "30 ÷ 5 ＝ 6 です。", RS);
+  nm("ciSimilar-retention-5", "ciSimilar", "retention", "円の弦 AC と BD が点 P で交わり、PA ＝ 2、PC ＝ 14、BD ＝ 11 です。PB が PD より長いとき、PB は？", 7, "PB × PD ＝ 28、PB ＋ PD ＝ 11。", "7 × 4 ＝ 28 なので PB ＝ 7 です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
