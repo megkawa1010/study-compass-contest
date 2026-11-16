@@ -8446,6 +8446,235 @@
   nm("suMean-retention-5", "suMean", "retention", "豆を無作為に 50 粒取り出すと 30g でした。豆 1.2kg はおよそ何粒？", 2000, "1粒 0.6g。", "1200 ÷ 0.6 ＝ 2000 粒です。", RS);
 
   // =====================================================================
+  // 中1 英語「be動詞」。選ぶ問題だけ。正解は labels の1番目（tests/english-be.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- 主語と代名詞 ---
+  ch("beSubject-basic-1", "beSubject", "basic", "「私は」を英語で表すと？", ["I", "my", "me", "you"], "文のはじめに来る「私は」。", "I です。いつも大文字で書きます。", { usage: "diagnosis" });
+  ch("beSubject-basic-2", "beSubject", "basic", "「あなたは」を英語で表すと？", ["you", "your", "I", "he"], "話している相手。", "you です。");
+  ch("beSubject-basic-3", "beSubject", "basic", "「彼は」を英語で表すと？", ["he", "she", "his", "it"], "男の人1人。", "he です。");
+  ch("beSubject-basic-4", "beSubject", "basic", "「彼女は」を英語で表すと？", ["she", "he", "her", "they"], "女の人1人。", "she です。");
+  ch("beSubject-basic-5", "beSubject", "basic", "近くのものを指して「これは」と言うときの英語は？", ["this", "that", "it", "these"], "近く → this、遠く → that。", "this です。");
+  ch("beSubject-basic-6", "beSubject", "basic", "遠くのものを指して「あれは」と言うときの英語は？", ["that", "this", "those", "there"], "遠く → that。", "that です。");
+  ch("beSubject-basic-7", "beSubject", "basic", "男の子の Ken を、2回目に話すときに使う語は？", ["he", "she", "it", "they"], "男の人1人。", "he です。");
+  ch("beSubject-standard-1", "beSubject", "standard", "Ms. Brown（女の先生）を、2回目に話すときに使う語は？", ["she", "he", "it", "you"], "Ms. は女の人につける。", "she です。");
+  ch("beSubject-standard-2", "beSubject", "standard", "my dog（わたしの犬）を、2回目に話すときに使う語は？", ["it", "he", "I", "they"], "動物やもの1つ。", "it です。");
+  ch("beSubject-standard-3", "beSubject", "standard", "Ken and I（ケンとわたし）を1語にまとめると？", ["we", "they", "you", "he"], "「わたし」が入っている。", "we（わたしたちは）です。");
+  ch("beSubject-standard-4", "beSubject", "standard", "Yuki and Mai（ユキとマイ）を1語にまとめると？", ["they", "we", "she", "you"], "自分も相手も入らない2人。", "they（彼らは・彼女らは）です。");
+  ch("beSubject-standard-5", "beSubject", "standard", "Tom is my friend. の文で、主語（〜は）はどれ？", ["Tom", "is", "my", "friend"], "文のはじめの「〜は」。", "Tom です。");
+  ch("beSubject-standard-6", "beSubject", "standard", "文の主語（〜は）になる形はどれ？", ["I", "me", "my", "mine"], "「私は」の形。", "I です。my は「私の」、me は「私を」です。");
+  sp("beSubject-application-1", "beSubject", "アヤが自己紹介をしています。「Hi. （ア） am Aya. This is my brother. （イ） is Sota.」", [
+    sc("s1", "beSubject", "（ア）に入る語は？", ["I", "You", "He", "She"], "自分のことを言っている。", "I です。"),
+    sc("s2", "beSubject", "（イ）に入る語は？", ["He", "She", "It", "I"], "brother は男の人。", "He です。"),
+    sc("s3", "beSubject", "「ソウタとわたし」を1語にまとめると？", ["We", "They", "You", "He"], "わたしが入っている。", "We です。")
+  ], ["beSubject"], "人を2回目に話すときは、男 he・女 she・自分を含む we。", "I、He、We です。");
+  sp("beSubject-application-2", "beSubject", "友だちを紹介します。「This is Emma. （ア） is from Canada. Emma has a cat. （イ） is white.」", [
+    sc("s1", "beSubject", "（ア）に入る語は？", ["She", "He", "It", "They"], "Emma は女の子。", "She です。"),
+    sc("s2", "beSubject", "（イ）に入る語は？", ["It", "She", "He", "They"], "a cat を指す。", "It です。"),
+    sc("s3", "beSubject", "「エマと彼女の弟」を1語にまとめると？", ["They", "We", "She", "It"], "自分は入っていない2人。", "They です。")
+  ], ["beSubject"], "人は he・she、動物やものは it。", "She、It、They です。");
+  sp("beSubject-application-3", "beSubject", "学校を案内しながら、写真を見せています。", [
+    sc("s1", "beSubject", "手に持っている写真の校舎を指して「（ ） is my school.」。入る語は？", ["This", "That", "He", "We"], "近くのもの。", "This です。"),
+    sc("s2", "beSubject", "遠くに見える体育館を指して「（ ） is our gym.」。入る語は？", ["That", "This", "She", "I"], "遠くのもの。", "That です。"),
+    sc("s3", "beSubject", "「それは大きい」の「それは」は？", ["It", "He", "This", "You"], "前に出たものを指す。", "It です。")
+  ], ["beSubject"], "近く this・遠く that・前に出たもの it。", "This、That、It です。");
+  sp("beSubject-application-4", "beSubject", "先生たちを紹介します。「Mr. Sato is our teacher. （ア） is kind. Ms. Ito is our school nurse. （イ） is nice.」", [
+    sc("s1", "beSubject", "（ア）に入る語は？", ["He", "She", "It", "We"], "Mr. は男の人につける。", "He です。"),
+    sc("s2", "beSubject", "（イ）に入る語は？", ["She", "He", "It", "They"], "Ms. は女の人につける。", "She です。"),
+    sc("s3", "beSubject", "「佐藤先生と伊藤先生」を1語にまとめると？", ["They", "We", "He", "You"], "自分は入っていない2人。", "They です。")
+  ], ["beSubject"], "Mr. → he、Ms. → she。", "He、She、They です。");
+  sp("beSubject-application-5", "beSubject", "家族について話します。「My mother is a nurse. （ア） is busy. My father and I are soccer fans.」", [
+    sc("s1", "beSubject", "（ア）に入る語は？", ["She", "He", "It", "I"], "mother は女の人。", "She です。"),
+    sc("s2", "beSubject", "My father and I を1語にまとめると？", ["We", "They", "He", "You"], "わたしが入っている。", "We です。"),
+    sc("s3", "beSubject", "話し相手に「あなたとケン」と言うとき、1語にまとめると？", ["you", "we", "they", "he"], "相手が入っている。", "you（あなたたちは）です。")
+  ], ["beSubject"], "自分が入れば we、相手が入れば you。", "She、We、you です。");
+  ch("beSubject-retention-1", "beSubject", "retention", "「私たちは」を英語で表すと？", ["we", "they", "you", "us"], "自分を含む2人以上。", "we です。", RB);
+  ch("beSubject-retention-2", "beSubject", "retention", "前に話したもの1つを指す「それは」の英語は？", ["it", "this", "that", "its"], "もの1つ。", "it です。", RB);
+  ch("beSubject-retention-3", "beSubject", "retention", "おじいさん（grandfather）を、2回目に話すときに使う語は？", ["he", "she", "it", "we"], "男の人1人。", "he です。", RB);
+  ch("beSubject-retention-4", "beSubject", "retention", "Lucy and Ben（ルーシーとベン）を1語にまとめると？", ["they", "we", "he", "you"], "自分も相手も入らない2人。", "they です。", RS);
+  ch("beSubject-retention-5", "beSubject", "retention", "My sister is a student. の文で、主語（〜は）はどれ？", ["My sister", "is", "a student", "student"], "「〜は」にあたるまとまり。", "My sister です。", RS);
+
+  // --- am・are・is ---
+  ch("beForm-basic-1", "beForm", "basic", "I （ ） a student. の（ ）に入る語は？", ["am", "is", "are", "be"], "I のときは決まった形。", "I am です。", { usage: "diagnosis" });
+  ch("beForm-basic-2", "beForm", "basic", "You （ ） my friend. の（ ）に入る語は？", ["are", "am", "is", "be"], "you のとき。", "You are です。");
+  ch("beForm-basic-3", "beForm", "basic", "He （ ） a teacher. の（ ）に入る語は？", ["is", "am", "are", "be"], "he・she・it は同じ形。", "He is です。");
+  ch("beForm-basic-4", "beForm", "basic", "This （ ） my bag. の（ ）に入る語は？", ["is", "am", "are", "be"], "this はもの1つ。", "This is です。");
+  ch("beForm-basic-5", "beForm", "basic", "We （ ） classmates. の（ ）に入る語は？", ["are", "is", "am", "be"], "we は2人以上。", "We are です。");
+  ch("beForm-basic-6", "beForm", "basic", "She （ ） from Osaka. の（ ）に入る語は？", ["is", "are", "am", "be"], "she のとき。", "She is です。");
+  ch("beForm-basic-7", "beForm", "basic", "I am を短くした形（短縮形）は？", ["I'm", "Im", "I'am", "Iam"], "a を ' にかえる。", "I'm です。");
+  ch("beForm-standard-1", "beForm", "standard", "Ken and Mai （ ） in the gym. の（ ）に入る語は？", ["are", "is", "am", "be"], "主語は2人。", "2人なので are です。");
+  ch("beForm-standard-2", "beForm", "standard", "My cat （ ） under the table. の（ ）に入る語は？", ["is", "are", "am", "be"], "ねこ1ぴき。", "1ぴきなので is です。");
+  ch("beForm-standard-3", "beForm", "standard", "That is の短縮形は？", ["That's", "Thats", "That'is", "Tha's"], "i を ' にかえる。", "That's です。");
+  ch("beForm-standard-4", "beForm", "standard", "「あなたたちは中学生です。」を英語にすると？", ["You are junior high school students.", "You is junior high school students.", "You am junior high school students.", "You be junior high school students."], "you は1人でも2人以上でも are。", "You are です。");
+  ch("beForm-standard-5", "beForm", "standard", "It is の短縮形は？", ["It's", "Its", "It'is", "Is't"], "i を ' にかえる。Its は「それの」。", "It's です。");
+  ch("beForm-standard-6", "beForm", "standard", "Tom and I （ ） on the same team. の（ ）に入る語は？", ["are", "am", "is", "be"], "Tom and I は we と同じ。", "are です。最後が I でも am にはなりません。");
+  sp("beForm-application-1", "beForm", "リナの自己紹介カード：名前 Rina／出身 名古屋／吹奏楽部。カードを見て英語で言います。", [
+    sc("s1", "beForm", "I （ ） Rina. の（ ）は？", ["am", "is", "are", "be"], "主語は I。", "am です。"),
+    sc("s2", "beForm", "My hometown （ ） Nagoya. の（ ）は？", ["is", "am", "are", "be"], "主語は My hometown（1つ）。", "is です。"),
+    sc("s3", "beForm", "My friends and I （ ） in the brass band. の（ ）は？", ["are", "am", "is", "be"], "主語は2人以上。", "are です。")
+  ], ["beForm"], "主語を見てから am・is・are を選ぶ。", "am、is、are です。");
+  sp("beForm-application-2", "beForm", "新しい ALT の先生について話します。", [
+    sc("s1", "beForm", "Mr. Green （ ） our new ALT. の（ ）は？", ["is", "are", "am", "be"], "男の人1人。", "is です。"),
+    sc("s2", "beForm", "Mr. Green and Ms. Mori （ ） in the teachers' room. の（ ）は？", ["are", "is", "am", "be"], "主語は2人。", "are です。"),
+    sc("s3", "beForm", "「彼はおもしろい。」を英語にすると？", ["He is funny.", "He are funny.", "He am funny.", "He be funny."], "he のとき。", "He is funny. です。")
+  ], ["beForm"], "1人なら is、2人以上なら are。", "is、are、He is です。");
+  sp("beForm-application-3", "beForm", "飼っているペットを紹介します。", [
+    sc("s1", "beForm", "This （ ） my dog, Pochi. の（ ）は？", ["is", "are", "am", "be"], "this のとき。", "is です。"),
+    sc("s2", "beForm", "Pochi and Tama （ ） good friends. の（ ）は？", ["are", "is", "am", "be"], "2ひき。", "are です。"),
+    sc("s3", "beForm", "「わたしはうれしい。」を英語にすると？", ["I'm happy.", "I'is happy.", "I are happy.", "I happy."], "I am の短縮形。", "I'm happy. です。")
+  ], ["beForm"], "動物でも1ぴきなら is、2ひき以上なら are。", "is、are、I'm です。");
+  sp("beForm-application-4", "beForm", "町の案内をします。", [
+    sc("s1", "beForm", "The station （ ） near my house. の（ ）は？", ["is", "are", "am", "be"], "駅は1つ。", "is です。"),
+    sc("s2", "beForm", "The two parks （ ） big. の（ ）は？", ["are", "is", "am", "be"], "公園は2つ。", "are です。"),
+    sc("s3", "beForm", "主語が2つ以上（複数）のときに使う be動詞は？", ["are", "is", "am", "be"], "we・they と同じ。", "are です。")
+  ], ["beForm"], "主語が1つか、2つ以上かで is と are を分ける。", "is、are です。");
+  sp("beForm-application-5", "beForm", "お店で服を選んでいます。", [
+    sc("s1", "beForm", "This cap （ ） nice. の（ ）は？", ["is", "are", "am", "be"], "ぼうし1つ。", "is です。"),
+    sc("s2", "beForm", "These shoes （ ） cool. の（ ）は？", ["are", "is", "am", "be"], "these は「これらは」（2つ以上）。", "are です。"),
+    sc("s3", "beForm", "店員さんに「あなたは背が高いですね」と言うときの文は？", ["You are tall.", "You is tall.", "You am tall.", "Are you tall."], "you のとき。", "You are tall. です。")
+  ], ["beForm"], "this は is、these は are。", "is、are、You are です。");
+  ch("beForm-retention-1", "beForm", "retention", "Mika （ ） my sister. の（ ）に入る語は？", ["is", "am", "are", "be"], "女の人1人。", "is です。", RB);
+  ch("beForm-retention-2", "beForm", "retention", "I （ ） hungry now. の（ ）に入る語は？", ["am", "is", "are", "be"], "主語は I。", "am です。", RB);
+  ch("beForm-retention-3", "beForm", "retention", "The boys （ ） in the park. の（ ）に入る語は？", ["are", "is", "am", "be"], "boys は2人以上。", "are です。", RB);
+  ch("beForm-retention-4", "beForm", "retention", "「彼女たちは歌手です。」を英語にすると？", ["They are singers.", "They is singers.", "She are singers.", "They am singers."], "彼女たち → they。", "They are singers. です。", RS);
+  ch("beForm-retention-5", "beForm", "retention", "He is の短縮形は？", ["He's", "His", "He'is", "Hes"], "i を ' にかえる。His は「彼の」。", "He's です。", RS);
+
+  // --- be動詞の否定文 ---
+  ch("beNeg-basic-1", "beNeg", "basic", "I am a student. を「〜ではない」の文にすると？", ["I am not a student.", "I not am a student.", "I don't am a student.", "Not I am a student."], "not は be動詞のあと。", "I am not a student. です。", { usage: "diagnosis" });
+  ch("beNeg-basic-2", "beNeg", "basic", "「彼は医者ではありません。」He （ ） a doctor. の（ ）は？", ["is not", "not is", "does not", "don't"], "be動詞のあとに not。", "is not です。");
+  ch("beNeg-basic-3", "beNeg", "basic", "is not の短縮形は？", ["isn't", "is'nt", "isnot", "ins't"], "o を ' にかえる。", "isn't です。");
+  ch("beNeg-basic-4", "beNeg", "basic", "are not の短縮形は？", ["aren't", "are'nt", "arenot", "arn't"], "o を ' にかえる。", "aren't です。");
+  ch("beNeg-basic-5", "beNeg", "basic", "be動詞の文を「〜ではない」にするとき、not を置く場所は？", ["be動詞のすぐあと", "be動詞の前", "文のいちばん最後", "主語の前"], "am not・is not・are not。", "be動詞のすぐあとです。");
+  ch("beNeg-basic-6", "beNeg", "basic", "「あなたは遅れていません。」You （ ） late. の（ ）は？", ["are not", "not are", "is not", "am not"], "you は are。", "are not です。");
+  ch("beNeg-basic-7", "beNeg", "basic", "「これは私のペンではありません。」This （ ） my pen. の（ ）は？", ["is not", "are not", "am not", "not is"], "this は is。", "is not です。");
+  ch("beNeg-standard-1", "beNeg", "standard", "「彼女は忙しくありません。」を英語にすると？", ["She isn't busy.", "She not busy.", "She aren't busy.", "She doesn't busy."], "she は is。", "She isn't busy. です。");
+  ch("beNeg-standard-2", "beNeg", "standard", "「わたしたちは同じクラスではありません。」We （ ） in the same class. の（ ）は？", ["aren't", "isn't", "amn't", "don't"], "we は are。", "aren't です。");
+  ch("beNeg-standard-3", "beNeg", "standard", "I'm not と同じ意味の形は？", ["I am not", "I is not", "I are not", "I not am"], "I'm ＝ I am。", "I am not です。");
+  ch("beNeg-standard-4", "beNeg", "standard", "That （ ） a cat. It's a dog. の（ ）に入る語は？", ["isn't", "aren't", "don't", "not"], "あとの文で「犬だ」と言っている。", "isn't です。");
+  ch("beNeg-standard-5", "beNeg", "standard", "I am not を短くした形として、ふつう使うものは？", ["I'm not", "I amn't", "I'mn't", "I not"], "am not はふつう短くしない。", "I'm not です。");
+  ch("beNeg-standard-6", "beNeg", "standard", "「ケンとユミはきょうだいではありません。」を英語にすると？", ["Ken and Yumi aren't brother and sister.", "Ken and Yumi isn't brother and sister.", "Ken and Yumi don't brother and sister.", "Ken and Yumi not are brother and sister."], "主語は2人。", "aren't を使います。");
+  sp("beNeg-application-1", "beNeg", "アヤが、まちがって伝わったことを直しています。「わたしは14歳ではなく13歳です。」", [
+    sc("s1", "beNeg", "I （ ） fourteen. の（ ）は？", ["am not", "not am", "is not", "don't"], "主語は I。", "am not です。"),
+    sc("s2", "beNeg", "「ケンとわたしは同じクラスではありません。」を英語にすると？", ["Ken and I aren't in the same class.", "Ken and I isn't in the same class.", "Ken and I am not in the same class.", "Ken and I not in the same class."], "Ken and I は we と同じ。", "aren't を使います。"),
+    sc("s3", "beNeg", "正しい文はどれ？", ["He isn't tall.", "He not tall.", "He aren't tall.", "He don't tall."], "he は is。", "He isn't tall. です。")
+  ], ["beNeg"], "主語に合う be動詞のあとに not。", "am not、aren't、isn't です。");
+  sp("beNeg-application-2", "beNeg", "動物園で写真を見ています。「This is not a cat. It is a fox.」", [
+    sc("s1", "beNeg", "写真の動物は何？", ["きつね", "ねこ", "犬", "わからない"], "It is a fox.", "きつねです。"),
+    sc("s2", "beNeg", "「それは犬ではありません。」を英語にすると？", ["It isn't a dog.", "It aren't a dog.", "It not a dog.", "It don't a dog."], "it は is。", "It isn't a dog. です。"),
+    sc("s3", "beNeg", "Those flowers （ ） roses.（バラではない）の（ ）は？", ["are not", "is not", "am not", "not are"], "花は2つ以上。", "are not です。")
+  ], ["beNeg"], "否定の文は「be動詞 ＋ not」。", "きつね、isn't、are not です。");
+  sp("beNeg-application-3", "beNeg", "雨の日の朝の会話です。", [
+    sc("s1", "beNeg", "It （ ） sunny today. It's rainy. の（ ）は？", ["is not", "are not", "am not", "not is"], "it は is。", "is not です。"),
+    sc("s2", "beNeg", "My shoes （ ） dry. の（ ）は？（くつがぬれている）", ["are not", "is not", "am not", "not"], "くつは2つ以上。", "are not です。"),
+    sc("s3", "beNeg", "「わたしは寒くありません。」を英語にすると？", ["I'm not cold.", "I amn't cold.", "I not cold.", "I'm cold not."], "I am not の短縮形。", "I'm not cold. です。")
+  ], ["beNeg"], "主語が1つか2つ以上かで is not と are not を分ける。", "is not、are not、I'm not です。");
+  sp("beNeg-application-4", "beNeg", "部活動について話しています。「Mai is on the volleyball team.」", [
+    sc("s1", "beNeg", "Mai （ ） on the tennis team. の（ ）は？", ["isn't", "aren't", "don't", "not"], "マイは1人。", "isn't です。"),
+    sc("s2", "beNeg", "Mai and Rin （ ） on the same team. の（ ）は？（ちがうチーム）", ["aren't", "isn't", "don't", "not"], "主語は2人。", "aren't です。"),
+    sc("s3", "beNeg", "否定の文で、not はどこに置いた？", ["is・are のすぐあと", "Mai の前", "文の最後", "team の前"], "be動詞 ＋ not。", "be動詞のすぐあとです。")
+  ], ["beNeg"], "be動詞のすぐあとに not。", "isn't、aren't です。");
+  sp("beNeg-application-5", "beNeg", "家族がどこにいるか話しています。", [
+    sc("s1", "beNeg", "My father （ ） at home now. の（ ）は？（家にいない）", ["isn't", "aren't", "don't", "not"], "father は1人。", "isn't です。"),
+    sc("s2", "beNeg", "My brothers （ ） at home. の（ ）は？（家にいない）", ["aren't", "isn't", "don't", "not"], "brothers は2人以上。", "aren't です。"),
+    sc("s3", "beNeg", "「〜ではない」を表すために使った語は？", ["not", "no", "don't", "never"], "be動詞のあとに置く語。", "not です。")
+  ], ["beNeg"], "is not → isn't、are not → aren't。", "isn't、aren't です。");
+  ch("beNeg-retention-1", "beNeg", "retention", "「彼女はわたしのおばではありません。」She （ ） my aunt. の（ ）は？", ["is not", "are not", "am not", "not is"], "she は is。", "is not です。", RB);
+  ch("beNeg-retention-2", "beNeg", "retention", "「彼らは疲れていません。」を英語にすると？", ["They aren't tired.", "They isn't tired.", "They not tired.", "They don't tired."], "they は are。", "They aren't tired. です。", RB);
+  ch("beNeg-retention-3", "beNeg", "retention", "That isn't を短くしない形は？", ["That is not", "That are not", "That not is", "That does not"], "isn't ＝ is not。", "That is not です。", RB);
+  ch("beNeg-retention-4", "beNeg", "retention", "「それはわたしのかさではありません。」It （ ） my umbrella. の（ ）は？", ["isn't", "aren't", "am not", "don't"], "it は is。", "isn't です。", RS);
+  ch("beNeg-retention-5", "beNeg", "retention", "「わたしたちは今日ひまではありません。」We （ ） free today. の（ ）は？", ["aren't", "isn't", "not", "don't"], "we は are。", "aren't です。", RS);
+
+  // --- be動詞の疑問文と答え方 ---
+  ch("beQues-basic-1", "beQues", "basic", "You are a student. をたずねる文（疑問文）にすると？", ["Are you a student?", "You are a student?", "Do you are a student?", "Is you a student?"], "be動詞を主語の前に。", "Are you a student? です。", { usage: "diagnosis" });
+  ch("beQues-basic-2", "beQues", "basic", "（ ） he a teacher? の（ ）に入る語は？", ["Is", "Are", "Am", "Does"], "he のとき。", "Is です。");
+  ch("beQues-basic-3", "beQues", "basic", "Are you from Tokyo? — Yes, （ ）. の（ ）は？", ["I am", "I'm", "you are", "I do"], "答えの文の最後は短縮しない。", "I am です。");
+  ch("beQues-basic-4", "beQues", "basic", "Is this your bag? — No, （ ）. の（ ）は？", ["it isn't", "this isn't", "it doesn't", "I'm not"], "答えでは this を it にする。", "it isn't です。");
+  ch("beQues-basic-5", "beQues", "basic", "be動詞の疑問文の作り方は？", ["be動詞を主語の前に出す", "文の最後に not をつける", "主語を文の最後に出す", "文の前に do をつける"], "Are you 〜? の形。", "be動詞を主語の前に出します。");
+  ch("beQues-basic-6", "beQues", "basic", "（ ） they your friends? の（ ）に入る語は？", ["Are", "Is", "Am", "Do"], "they は are。", "Are です。");
+  ch("beQues-basic-7", "beQues", "basic", "Is Ken in the gym? — Yes, （ ）. の（ ）は？", ["he is", "she is", "he does", "it is"], "Ken は男の子。", "he is です。");
+  ch("beQues-standard-1", "beQues", "standard", "Is your mother busy? — No, （ ）. の（ ）は？", ["she isn't", "he isn't", "she doesn't", "it isn't"], "mother は女の人。", "she isn't です。");
+  ch("beQues-standard-2", "beQues", "standard", "Are you and Mai sisters? — Yes, （ ）. の（ ）は？", ["we are", "you are", "they are", "I am"], "答える人とマイ → わたしたち。", "we are です。");
+  ch("beQues-standard-3", "beQues", "standard", "「あれはあなたの自転車ですか。」を英語にすると？", ["Is that your bike?", "That is your bike?", "Are that your bike?", "Does that your bike?"], "that は is。", "Is that your bike? です。");
+  ch("beQues-standard-4", "beQues", "standard", "Are these your shoes? — Yes, （ ）. の（ ）は？", ["they are", "these are", "it is", "we are"], "these は答えで they にする。", "they are です。");
+  ch("beQues-standard-5", "beQues", "standard", "Is it cold today? — Yes, （ ）. の（ ）は？", ["it is", "it's", "this is", "is it"], "Yes の答えの最後は短縮しない。", "it is です。");
+  ch("beQues-standard-6", "beQues", "standard", "Are Tom and Ben on the team? — No, （ ）. の（ ）は？", ["they aren't", "he isn't", "we aren't", "they don't"], "トムとベン → they。", "they aren't です。");
+  sp("beQues-application-1", "beQues", "留学生と初めて会いました。", [
+    sc("s1", "beQues", "（ ） you Emma? — Yes, I am. の（ ）は？", ["Are", "Is", "Am", "Do"], "you は are。", "Are です。"),
+    sc("s2", "beQues", "Are you from Canada? — No, （ ）. I'm from New Zealand. の（ ）は？", ["I'm not", "I am", "you aren't", "I don't"], "あとでちがう国を言っている。", "I'm not です。"),
+    sc("s3", "beQues", "「あなたは12歳ですか。」を英語にすると？", ["Are you twelve?", "You twelve?", "Is you twelve?", "Do you twelve?"], "be動詞を前に。", "Are you twelve? です。")
+  ], ["beQues"], "たずねるときは be動詞が先。答えは主語を代名詞にする。", "Are、I'm not、Are you です。");
+  sp("beQues-application-2", "beQues", "落とし物の筆箱を見つけました。", [
+    sc("s1", "beQues", "（ ） this your pencil case? の（ ）は？", ["Is", "Are", "Am", "Do"], "this は is。", "Is です。"),
+    sc("s2", "beQues", "No, （ ）. My pencil case is blue. の（ ）は？", ["it isn't", "this isn't", "it is", "I'm not"], "答えでは this を it に。", "it isn't です。"),
+    sc("s3", "beQues", "Is it Ken's? — Yes, it is. この筆箱はだれのもの？", ["ケンのもの", "答えた人のもの", "先生のもの", "わからない"], "Yes と答えている。", "ケンのものです。")
+  ], ["beQues"], "this・that でたずねられたら it で答える。", "Is、it isn't、ケンのものです。");
+  sp("beQues-application-3", "beQues", "友だちの家族についてたずねます。", [
+    sc("s1", "beQues", "Is your brother a student? — Yes, （ ）. の（ ）は？", ["he is", "she is", "it is", "I am"], "brother は男の人。", "he is です。"),
+    sc("s2", "beQues", "（ ） he on the soccer team? の（ ）は？", ["Is", "Are", "Am", "Does"], "he は is。", "Is です。"),
+    sc("s3", "beQues", "Are your parents teachers? — No, （ ）. の（ ）は？", ["they aren't", "he isn't", "we aren't", "she isn't"], "parents は2人。", "they aren't です。")
+  ], ["beQues"], "答えの主語は he・she・they にかえる。", "he is、Is、they aren't です。");
+  sp("beQues-application-4", "beQues", "体育のあとの会話です。", [
+    sc("s1", "beQues", "（ ） you OK? の（ ）は？", ["Are", "Is", "Am", "Do"], "you は are。", "Are です。"),
+    sc("s2", "beQues", "Is it hot in Okinawa now? — Yes, （ ）. の（ ）は？", ["it is", "it's", "they are", "I am"], "Yes の答えの最後は短縮しない。", "it is です。"),
+    sc("s3", "beQues", "「あなたたちはおなかがすいていますか。」を英語にすると？", ["Are you hungry?", "Is you hungry?", "You are hungry?", "Do you hungry?"], "be動詞を前に。", "Are you hungry? です。")
+  ], ["beQues"], "be動詞の疑問文は be動詞から始める。", "Are、it is、Are you です。");
+  sp("beQues-application-5", "beQues", "お店で店員さんにたずねます。", [
+    sc("s1", "beQues", "Is this T-shirt 2,000 yen? — No, （ ）. It's 1,500 yen. の（ ）は？", ["it isn't", "this isn't", "it is", "they aren't"], "値段がちがう。", "it isn't です。"),
+    sc("s2", "beQues", "（ ） these cups new? の（ ）は？", ["Are", "Is", "Am", "Do"], "these は2つ以上。", "Are です。"),
+    sc("s3", "beQues", "Is your shop open on Sundays? — Yes, （ ）. の（ ）は？", ["it is", "she is", "we is", "it does"], "shop は it でうける。", "it is です。")
+  ], ["beQues"], "もの1つは it、2つ以上は they で答える。", "it isn't、Are、it is です。");
+  ch("beQues-retention-1", "beQues", "retention", "（ ） she your sister? の（ ）に入る語は？", ["Is", "Are", "Am", "Does"], "she は is。", "Is です。", RB);
+  ch("beQues-retention-2", "beQues", "retention", "Are you a tennis fan? — Yes, （ ）. の（ ）は？", ["I am", "I'm", "you are", "I do"], "Yes の答えの最後は短縮しない。", "I am です。", RB);
+  ch("beQues-retention-3", "beQues", "retention", "「彼らは同じクラスですか。」を英語にすると？", ["Are they in the same class?", "Is they in the same class?", "They are in the same class?", "Do they in the same class?"], "they は are。", "Are they 〜? です。", RB);
+  ch("beQues-retention-4", "beQues", "retention", "Is that a bird? — No, （ ）. の（ ）は？", ["it isn't", "that isn't", "it doesn't", "they aren't"], "that は答えで it にする。", "it isn't です。", RS);
+  ch("beQues-retention-5", "beQues", "retention", "Are you and Yuta brothers? — No, （ ）. の（ ）は？", ["we aren't", "you aren't", "they aren't", "I'm not"], "答える人とユウタ → わたしたち。", "we aren't です。", RS);
+
+  // --- What・Who でたずねる ---
+  ch("beWh-basic-1", "beWh", "basic", "「これは何ですか。」を英語にすると？", ["What is this?", "What this is?", "Who is this?", "Is what this?"], "What のあとは疑問文の形。", "What is this? です。", { usage: "diagnosis" });
+  ch("beWh-basic-2", "beWh", "basic", "（ ） is that man? — He is Mr. Kato. の（ ）は？", ["Who", "What", "Where", "How"], "人をたずねている。", "Who です。");
+  ch("beWh-basic-3", "beWh", "basic", "What is this? — （ ） a pen. の（ ）は？", ["It's", "This's", "It", "That"], "this は答えで it にする。", "It's です。");
+  ch("beWh-basic-4", "beWh", "basic", "Who is she? — （ ） my sister. の（ ）は？", ["She's", "He's", "It's", "Who's"], "she で答える。", "She's です。");
+  ch("beWh-basic-5", "beWh", "basic", "What is の短縮形は？", ["What's", "Whats", "What'is", "Wha's"], "i を ' にかえる。", "What's です。");
+  ch("beWh-basic-6", "beWh", "basic", "What's that? — （ ） a library. の（ ）は？", ["It's", "That's", "This's", "It"], "that は答えで it にする。", "It's です。");
+  ch("beWh-basic-7", "beWh", "basic", "「だれ」をたずねるときに使う語は？", ["who", "what", "when", "which"], "人をたずねる語。", "who です。");
+  ch("beWh-standard-1", "beWh", "standard", "（ ） are they? — They are my cousins. の（ ）は？", ["Who", "What", "How", "Where"], "いとこ（人）を答えている。", "Who です。");
+  ch("beWh-standard-2", "beWh", "standard", "What is your name? — （ ） Haruto. の（ ）は？", ["My name is", "It's name", "I is", "Name is my"], "「わたしの名前は」。", "My name is です。");
+  ch("beWh-standard-3", "beWh", "standard", "「あの女の人はだれですか。」を英語にすると？", ["Who is that woman?", "What is that woman?", "Who that woman is?", "That woman is who?"], "人は Who。そのあとは疑問文の形。", "Who is that woman? です。");
+  ch("beWh-standard-4", "beWh", "standard", "What are these? — （ ） eggs. の（ ）は？", ["They're", "It's", "These're", "They"], "these は答えで they にする。", "They're です。");
+  ch("beWh-standard-5", "beWh", "standard", "Who's that boy? — （ ） Sho. の（ ）は？", ["He's", "She's", "It's", "They're"], "boy は男の子。", "He's です。");
+  ch("beWh-standard-6", "beWh", "standard", "「あなたの好きな色は何ですか。」を英語にすると？", ["What is your favorite color?", "Who is your favorite color?", "What your favorite color is?", "Is what your favorite color?"], "もの・ことは What。", "What is your favorite color? です。");
+  sp("beWh-application-1", "beWh", "友だちと家族の写真を見ています。", [
+    sc("s1", "beWh", "（ ） is this boy? — He's my brother. の（ ）は？", ["Who", "What", "Where", "How"], "人をたずねている。", "Who です。"),
+    sc("s2", "beWh", "（ ） is that in his hand? の（ ）は？", ["What", "Who", "Where", "How"], "手に持っているもの。", "What です。"),
+    sc("s3", "beWh", "（ ） a ball. の（ ）は？", ["It's", "He's", "This's", "They're"], "もの1つ。", "It's です。")
+  ], ["beWh"], "人は Who、もの・ことは What。", "Who、What、It's です。");
+  sp("beWh-application-2", "beWh", "博物館で、ガイドさんに質問しています。", [
+    sc("s1", "beWh", "What's this? — （ ） an old map. の（ ）は？", ["It's", "This's", "He's", "They're"], "もの1つ。", "It's です。"),
+    sc("s2", "beWh", "Who is this man? — （ ） a famous artist. の（ ）は？", ["He's", "She's", "It's", "This's"], "man は男の人。", "He's です。"),
+    sc("s3", "beWh", "「これらは何ですか。」を英語にすると？", ["What are these?", "What is these?", "Who are these?", "What these are?"], "these は are。", "What are these? です。")
+  ], ["beWh"], "答えでは this・that を it、人を he・she にする。", "It's、He's、What are です。");
+  sp("beWh-application-3", "beWh", "新しく来た先生について話しています。", [
+    sc("s1", "beWh", "Who is that woman? — （ ） Ms. White. の（ ）は？", ["She's", "He's", "It's", "Who's"], "woman は女の人。", "She's です。"),
+    sc("s2", "beWh", "What is her subject? — （ ） English. の（ ）は？", ["It's", "She's", "Her", "What's"], "教科（もの・こと）を答える。", "It's です。"),
+    sc("s3", "beWh", "Ms. White について分かることは？", ["英語の先生", "数学の先生", "新しい生徒", "何も分からない"], "her subject は English。", "英語の先生です。")
+  ], ["beWh"], "Who の答えは he・she、What の答えは it。", "She's、It's、英語の先生です。");
+  sp("beWh-application-4", "beWh", "給食の時間の会話です。「What's this? — It's curry.」", [
+    sc("s1", "beWh", "最初の人がたずねたことは？", ["それが何か", "それがだれか", "それがいつか", "それがどこか"], "What でたずねている。", "それが何かです。"),
+    sc("s2", "beWh", "（ ） are those? — They're rice balls. の（ ）は？", ["What", "Who", "How", "Where"], "おにぎり（もの）を答えている。", "What です。"),
+    sc("s3", "beWh", "「あなたの好きな食べ物は何ですか。」を英語にすると？", ["What is your favorite food?", "Who is your favorite food?", "What your favorite food is?", "Is your favorite food what?"], "もの・ことは What。", "What is your favorite food? です。")
+  ], ["beWh"], "What のあとは is・are を先に。", "それが何か、What、What is です。");
+  sp("beWh-application-5", "beWh", "美術部を見学しています。", [
+    sc("s1", "beWh", "Who are those students? — （ ） members of the art club. の（ ）は？", ["They're", "He's", "We're", "It's"], "生徒たち → they。", "They're です。"),
+    sc("s2", "beWh", "What is that? — （ ） a picture of Mt. Fuji. の（ ）は？", ["It's", "That's", "They're", "He's"], "もの1つ。", "It's です。"),
+    sc("s3", "beWh", "What と Who の使い分けとして正しいものは？", ["ものは What、人は Who", "人は What、ものは Who", "どちらも同じ", "近くは What、遠くは Who"], "Who は「だれ」。", "ものは What、人は Who です。")
+  ], ["beWh"], "人が2人以上なら They're で答える。", "They're、It's です。");
+  ch("beWh-retention-1", "beWh", "retention", "「あの建物は何ですか。」を英語にすると？", ["What is that building?", "Who is that building?", "What that building is?", "That building is what?"], "もの・ことは What。", "What is that building? です。", RB);
+  ch("beWh-retention-2", "beWh", "retention", "（ ） is your homeroom teacher? — Ms. Ito is. の（ ）は？", ["Who", "What", "Where", "How"], "人を答えている。", "Who です。", RB);
+  ch("beWh-retention-3", "beWh", "retention", "What's that animal? — （ ） a koala. の（ ）は？", ["It's", "He's", "That", "They're"], "動物1ぴき → it。", "It's です。", RB);
+  ch("beWh-retention-4", "beWh", "retention", "Who are the girls? — （ ） my classmates. の（ ）は？", ["They're", "She's", "We're", "It's"], "女の子たち → they。", "They're です。", RS);
+  ch("beWh-retention-5", "beWh", "retention", "「この写真の男の子たちはだれですか。」を英語にすると？", ["Who are the boys in this picture?", "What are the boys in this picture?", "Who is the boys in this picture?", "Who the boys are in this picture?"], "人が2人以上なら Who are。", "Who are the boys in this picture? です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
@@ -8455,7 +8684,7 @@
   items.forEach(function (q) {
     var sk = E.SKILLS[q.skill];
     q.grade = "中学2年";
-    q.subject = "数学";
+    q.subject = sk.subject || "数学";
     // 記録に残す単元。前の学年の土台（既習）は、いま学んでいる一次関数の中で使うものとして扱う
     q.unit = sk.unit === "既習" ? "一次関数" : sk.unit;
     q.origin = "bank";

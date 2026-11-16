@@ -226,7 +226,14 @@
     suRandom:       { label: "無作為に抽出する", unit: "標本調査", grade: "中3", prerequisites: ["suMeaning", "probMeaning"] },
     suRatio:        { label: "標本の割合から推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRandom", "dsRel"] },
     suCount:        { label: "印をつけて数を推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRatio", "eqWord"] },
-    suMean:         { label: "標本の平均で推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRatio", "dsRep"] }
+    suMean:         { label: "標本の平均で推定する", unit: "標本調査", grade: "中3", prerequisites: ["suRatio", "dsRep"] },
+    // ===== 英語 =====
+    // --- 中1 英語 be動詞 ---（subject: "英語"。数学のスキルとは前提でつながらない）
+    beSubject:      { label: "主語と代名詞",   unit: "be動詞", grade: "中1", subject: "英語", prerequisites: [] },
+    beForm:         { label: "am・are・is の使い分け", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beSubject"] },
+    beNeg:          { label: "be動詞の否定文", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beForm"] },
+    beQues:         { label: "be動詞の疑問文と答え方", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beForm"] },
+    beWh:           { label: "What・Who でたずねる", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beQues"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -258,7 +265,8 @@
     "smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol",
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
     "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
-    "suMeaning", "suRandom", "suRatio", "suCount", "suMean"];
+    "suMeaning", "suRandom", "suRatio", "suCount", "suMean",
+    "beSubject", "beForm", "beNeg", "beQues", "beWh"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -277,7 +285,8 @@
     "smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol",
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
     "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
-    "suMeaning", "suRandom", "suRatio", "suCount", "suMean"];
+    "suMeaning", "suRandom", "suRatio", "suCount", "suMean",
+    "beSubject", "beForm", "beNeg", "beQues", "beWh"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -304,22 +313,41 @@
     "相似": ["smMeaning", "smCond", "smParallel", "smMidpoint", "smAreaVol"],
     "円": ["ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar"],
     "三平方の定理": ["ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"],
-    "標本調査": ["suMeaning", "suRandom", "suRatio", "suCount", "suMean"]
+    "標本調査": ["suMeaning", "suRandom", "suRatio", "suCount", "suMean"],
+    "be動詞": ["beSubject", "beForm", "beNeg", "beQues", "beWh"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
   // 学年ごとの単元。SELECTABLE_UNITS は「いま選んでいる学年」の単元で、setGrade で中身を入れかえる
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
   var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
-  var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"]);
-  var currentGrade = "中学2年";
+  // 数学以外の教科。学年ごとの単元（まだない学年は空）。GRADE_UNITS は数学のまま
+  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞"], "中学2年": [], "中学3年": [] } };
+  var SUBJECTS = ["数学", "英語"];
+  var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"], SUBJECT_UNITS["英語"]["中学1年"], SUBJECT_UNITS["英語"]["中学2年"], SUBJECT_UNITS["英語"]["中学3年"]);
+  var currentGrade = "中学2年", currentSubject = "数学";
+  function unitsOf(subject, g) { return subject === "数学" ? GRADE_UNITS[g] : (SUBJECT_UNITS[subject] || {})[g]; }
+  function applyUnits(list) { SELECTABLE_UNITS.length = 0; list.forEach(function (u) { SELECTABLE_UNITS.push(u); }); }
   function setGrade(g) {
-    if (!GRADE_UNITS[g] || !GRADE_UNITS[g].length) return currentGrade;
-    SELECTABLE_UNITS.length = 0;
-    GRADE_UNITS[g].forEach(function (u) { SELECTABLE_UNITS.push(u); });
+    var list = unitsOf(currentSubject, g);
+    if (!list || !list.length) return currentGrade;
+    applyUnits(list);
     currentGrade = g;
     return g;
   }
+  // 教科を切りかえる。いまの学年に単元がなければ、単元のある最初の学年にする
+  function setSubject(s) {
+    if (SUBJECTS.indexOf(s) === -1) return currentSubject;
+    var g = (unitsOf(s, currentGrade) || []).length ? currentGrade : ["中学1年", "中学2年", "中学3年"].filter(function (x) { return (unitsOf(s, x) || []).length; })[0];
+    if (!g) return currentSubject;
+    currentSubject = s;
+    applyUnits(unitsOf(s, g));
+    currentGrade = g;
+    return s;
+  }
+  // 単元の教科（単元の最初のスキルで決める）
+  function subjectOf(unit) { var k = UNITS[unit] && UNITS[unit][0]; return (k && SKILLS[k].subject) || "数学"; }
+  function gradeHasUnits(subject, g) { return !!(unitsOf(subject, g) || []).length; }
 
   // ---------- 学校のようす（どこまで習ったか） ----------
   // school = { current_unit, units: { 単元: { status: "learned"|"learning"|"not_learned", current_skill, skills: { スキル: "learned"|"current"|"not_learned" } } },
@@ -658,6 +686,7 @@
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
     suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
+    beSubject: "review_subject_pronouns", beForm: "review_be_forms", beNeg: "practice_be_negative", beQues: "practice_be_question", beWh: "practice_what_who",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",
     dataMedian: "review_median", dataQuartile: "review_quartiles", dataIqr: "review_interquartile_range", dataBoxRead: "review_box_plot_reading", dataBoxMake: "practice_box_plot_making", dataCompare: "practice_box_plot_comparison"
@@ -810,6 +839,7 @@
   SC.engine = {
     SKILLS: SKILLS, SKILL_ORDER: SKILL_ORDER, ROOT_ORDER: ROOT_ORDER, UNITS: UNITS, SELECTABLE_UNITS: SELECTABLE_UNITS, LEVELS: LEVELS,
     GRADE_UNITS: GRADE_UNITS, ALL_UNITS: ALL_UNITS, setGrade: setGrade, grade: function () { return currentGrade; },
+    SUBJECTS: SUBJECTS, SUBJECT_UNITS: SUBJECT_UNITS, setSubject: setSubject, subject: function () { return currentSubject; }, subjectOf: subjectOf, gradeHasUnits: gradeHasUnits,
     expandUnit: expandUnit, schoolOptions: schoolOptions, schoolOptionLabel: schoolOptionLabel, prereqSide: prereqSide, schoolSkillStatus: schoolSkillStatus, nextPreviewSkill: nextPreviewSkill, CONFIG: CONFIG, STATUS_VIEW: STATUS_VIEW, STATUS_RANK: STATUS_RANK, DAY: DAY,
     makeId: makeId, makeAnswerRecord: makeAnswerRecord, computeSkillStates: computeSkillStates, snapshot: snapshot,
     aspectState: aspectState, overallOf: overallOf, geometryRoute: geometryRoute

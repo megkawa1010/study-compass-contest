@@ -40,7 +40,8 @@ const SCENARIOS = [
   ["相似"], ["相似", "smParallel"],
   ["円"], ["円", "ciSameArc"],
   ["三平方の定理"], ["三平方の定理", "ptSpecial"],
-  ["標本調査"], ["標本調査", "suRatio"]
+  ["標本調査"], ["標本調査", "suRatio"],
+  ["be動詞"], ["be動詞", "beForm"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;

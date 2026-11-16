@@ -12,6 +12,7 @@
   var SC = window.SC;
   var L = SC.logic;
   var E = SC.engine;
+  if (SC.store.get().profile.subject) E.setSubject(SC.store.get().profile.subject);
   if (SC.store.get().profile.grade) E.setGrade(SC.store.get().profile.grade);
   var ST = SC.store;
   var C = SC.compass;
@@ -57,7 +58,7 @@
   function freshState() {
     return {
       screen: "home",
-      setup: { grade: E.grade(), subject: "数学", unit: E.SELECTABLE_UNITS.indexOf("一次関数") !== -1 ? "一次関数" : E.SELECTABLE_UNITS[0], status: "learning" },
+      setup: { grade: E.grade(), subject: E.subject(), unit: E.SELECTABLE_UNITS.indexOf("一次関数") !== -1 ? "一次関数" : E.SELECTABLE_UNITS[0], status: "learning" },
       queue: SC.BASIC_ORDER.slice(),
       basicCount: SC.BASIC_ORDER.length,
       followUps: [],
@@ -358,7 +359,7 @@
       '<details class="card about">' +
         "<summary>このアプリについて</summary>" +
         "<ul>" +
-          "<li>いまは試用版です。中学1年 数学「正負の数」「文字と式」「一次方程式」「比例と反比例」「平面図形」「空間図形」「データの分布」、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「三角形と四角形」「確率」「データの活用」、中学3年 数学「多項式」「平方根」「二次方程式」「関数 y＝ax²」「相似」「円」「三平方の定理」「標本調査」を収録しています。</li>" +
+          "<li>いまは試用版です。中学1年 数学「正負の数」「文字と式」「一次方程式」「比例と反比例」「平面図形」「空間図形」「データの分布」、中学2年 数学「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「三角形と四角形」「確率」「データの活用」、中学3年 数学「多項式」「平方根」「二次方程式」「関数 y＝ax²」「相似」「円」「三平方の定理」「標本調査」、中学1年 英語「be動詞」を収録しています。</li>" +
           "<li>点数を出すのではなく、問題ごとに「どのスキル・どの前提知識を見たか」から、つまずきの場所を推定します。</li>" +
           "<li>診断はルール（スキルと前提知識の対応表）で行っています。外部AIへの接続は使っていません。</li>" +
           "<li>名前・学校名などの入力はありません。記録はこの端末のブラウザの中にだけ保存されます。</li>" +
@@ -488,10 +489,10 @@
       '<section class="card narrow">' +
         '<p class="eyebrow">STEP 1 / はじめに</p>' +
         '<h1 class="h-md">今の学習のようすを教えてね</h1>' +
-        '<p class="muted small">いまは「中学1年・数学」の「正負の数」「文字と式」「一次方程式」「比例と反比例」「平面図形」「空間図形」「データの分布」と、「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「三角形と四角形」「確率」「データの活用」、「中学3年・数学」の「多項式」「平方根」「二次方程式」「関数 y＝ax²」「相似」「円」「三平方の定理」「標本調査」が選べます。</p>' +
+        '<p class="muted small">いまは「中学1年・数学」の「正負の数」「文字と式」「一次方程式」「比例と反比例」「平面図形」「空間図形」「データの分布」と、「中学2年・数学」の「式の計算」「連立方程式」「一次関数」「図形の角」「合同と証明」「三角形と四角形」「確率」「データの活用」、「中学3年・数学」の「多項式」「平方根」「二次方程式」「関数 y＝ax²」「相似」「円」「三平方の定理」「標本調査」、「中学1年・英語」の「be動詞」が選べます。</p>' +
         '<div class="form-grid">' +
-          sel("grade", "学年", [{ text: "中学1年", selected: E.grade() === "中学1年" }, { text: "中学2年", selected: E.grade() === "中学2年" }, { text: "中学3年", selected: E.grade() === "中学3年" }]) +
-          sel("subject", "教科", [{ text: "数学", selected: true }, { text: "英語（準備中）", disabled: true }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
+          sel("subject", "教科", [{ text: "数学", selected: E.subject() === "数学" }, { text: "英語", selected: E.subject() === "英語" }, { text: "国語・理科・社会（準備中）", disabled: true }]) +
+          sel("grade", "学年", ["中学1年", "中学2年", "中学3年"].map(function (g) { return E.gradeHasUnits(E.subject(), g) ? { text: g, selected: E.grade() === g } : { text: g + "（準備中）", disabled: true }; })) +
           sel("unit", "今勉強している単元", E.SELECTABLE_UNITS.map(function (u) { return { text: u, selected: u === s.unit }; })) +
         "</div>" +
         '<fieldset class="status-group"><legend>' + esc(s.unit) + "は…</legend>" +
@@ -2571,6 +2572,15 @@
     if (e.target.name === "school-test-unit") {
       state.schoolDraft.testUnits = [].slice.call(document.querySelectorAll('input[name="school-test-unit"]:checked')).map(function (i) { return i.value; });
     }
+    if (e.target.id === "subject") {
+      ST.setSubject(e.target.value);
+      state.setup.subject = E.subject();
+      state.setup.grade = E.grade();
+      state.setup.unit = E.SELECTABLE_UNITS[0];
+      state.setup.status = "learning";
+      state.setup.skill = "";
+      render();
+    }
     if (e.target.id === "grade") {
       ST.setGrade(e.target.value);
       state.setup.grade = E.grade();
@@ -2592,7 +2602,7 @@
   // 単元のはじめてのチェック。一次関数は B1〜B5（原因確認 C1〜C5 つき）、ほかの単元は問題バンクの診断用の問題
   function startUnitCheck(unit, status, skill) {
     state = freshState();
-    state.setup = { grade: E.grade(), subject: "数学", unit: unit, status: status, skill: skill || "" };
+    state.setup = { grade: E.grade(), subject: E.subjectOf(unit), unit: unit, status: status, skill: skill || "" };
     ST.setCurrentUnit(unit);
     ST.setSchoolProgress(unit, status);
     // 「どこまで進んだ？」で選んだスキルまでを学習済みに（その先は未学習：チェックに出さない・苦手にしない）
@@ -2604,7 +2614,7 @@
       return;
     }
     startPeriodic(C.unitCheck(unit, ST.school()), "unit_check"); // state を作り直すので、選んだ単元を入れなおす
-    state.setup = { grade: E.grade(), subject: "数学", unit: unit, status: status, skill: skill || "" };
+    state.setup = { grade: E.grade(), subject: E.subjectOf(unit), unit: unit, status: status, skill: skill || "" };
     render();
   }
 

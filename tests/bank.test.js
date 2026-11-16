@@ -193,6 +193,13 @@ function numbersOf(q) {
   return new Set((text.match(/-?\d+(\.\d+)?/g) || []).filter((n) => !["0", "1", "-1"].includes(n)));
 }
 
+// 英語の問題文に出てくる英単語（選択肢は除く。主語・be動詞・冠詞のようにどの問題にも出る語も除く）
+const EN_STOP = new Set(["a", "an", "the", "is", "are", "am", "i", "you", "he", "she", "it", "we", "they", "this", "that", "yes", "no", "my", "your"]);
+function wordsOf(q) {
+  const text = [q.text, (q.steps || []).map((s) => s.text).join(" ")].join(" ");
+  return new Set((text.toLowerCase().match(/[a-z][a-z'.]*/g) || []).map((w) => w.replace(/\.$/, "")).filter((w) => !EN_STOP.has(w)));
+}
+
 test("定着用の問題は、同じスキルの他の問題と見た目・数値が重なりすぎない", () => {
   for (const r of bank.filter((q) => q.level === "retention")) {
     const rn = numbersOf(r);
@@ -202,6 +209,13 @@ test("定着用の問題は、同じスキルの他の問題と見た目・数�
       // 確率は 2個・3枚 のような小さい数が、箱ひげ図は目もりの数がどの問題にも出るので、数の重なりでは比べない
       // （同じ場面の重複は tests/probability.test.js・tests/data-unit.test.js）
       if (r.unit === "確率" || r.unit === "データの活用" || r.unit === "三角形と四角形") continue;
+      // 英語は数ではなく、問題文の英単語（選択肢・よく出る語は除く）でくらべる
+      if (r.subject === "英語") {
+        const rw = wordsOf(r), ow = wordsOf(o);
+        const wi = [...rw].filter((w) => ow.has(w)).length, wu = new Set([...rw, ...ow]).size || 1;
+        assert.ok(!rw.size || wi / wu < 0.5, `${r.id} と ${o.id} の英文が重なりすぎ（${[...rw]} / ${[...ow]}）`);
+        continue;
+      }
       const on = numbersOf(o);
       const inter = [...rn].filter((n) => on.has(n)).length;
       const union = new Set([...rn, ...on]).size || 1;
