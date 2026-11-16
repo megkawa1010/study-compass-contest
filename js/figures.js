@@ -65,7 +65,7 @@
 
   // ---------- グラフ ----------
   // { type: "graph", x: [min, max, 目盛り], y: [min, max, 目盛り],
-  //   lines: [{ a, b, from?, to? }], points: [{ x, y, label?, coords? }], xLabel?, yLabel? }
+  //   lines: [{ a, b, from?, to? }], parabolas: [{ a }]（y ＝ ax²）, points: [{ x, y, label?, coords? }], xLabel?, yLabel? }
   function graph(fig) {
     var W = 280, H = 280, pad = 30;
     var xs = fig.x, ys = fig.y;
@@ -111,6 +111,17 @@
       }
       if (x2 <= x1) return;
       out.push('<line class="fig-line" x1="' + px(x1) + '" y1="' + py(l.a * x1 + l.b) + '" x2="' + px(x2) + '" y2="' + py(l.a * x2 + l.b) + '"/>');
+    });
+    // 放物線 y ＝ ax²（表示範囲の外は切る）
+    (fig.parabolas || []).forEach(function (pb) {
+      var seg = [], n = 160;
+      var flush = function () { if (seg.length > 1) out.push('<polyline class="fig-line fig-curve" fill="none" points="' + seg.join(" ") + '"/>'); seg = []; };
+      for (var k = 0; k <= n; k++) {
+        var xx = xs[0] + (xs[1] - xs[0]) * k / n, yy = pb.a * xx * xx;
+        if (yy >= ys[0] - 1e-9 && yy <= ys[1] + 1e-9) seg.push(px(xx).toFixed(1) + "," + py(yy).toFixed(1));
+        else flush();
+      }
+      flush();
     });
     // 点
     (fig.points || []).forEach(function (p) {

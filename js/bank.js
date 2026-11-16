@@ -7327,6 +7327,218 @@
   nm("qeWord-retention-5", "qeWord", "retention", "ボールを投げ上げると、t 秒後の高さは (30t − 5t²) m です。高さが 40m になる最初の時刻は何秒後？", 2, "t² − 6t ＋ 8 ＝ 0。", "t ＝ 2、4。最初は 2秒後です。", RS);
 
   // =====================================================================
+  // 中3 関数 y＝ax²。答えは tests/parabola.test.js が式から計算して確かめる
+  //   図の放物線は figure.parabolas: [{ a }]（js/figures.js）
+  // =====================================================================
+  var QF = "関数 y＝ax²";
+  function qfFig(id, skill, level, text, fig, type, answer, hint, explanation, extra) {
+    var q = { id: id, skill: skill, level: level, format: "graph", text: text, figure: fig, type: type, answer: answer, hint: hint, explanation: explanation };
+    if (type === "fraction") q.placeholder = "例：1/3";
+    for (var k in (extra || {})) q[k] = extra[k];
+    add(q);
+  }
+  function qfSteps(id, skill, text, fig, steps, used, hint, explanation) {
+    add({ id: id, skill: skill, level: "application", format: "graph", text: text, figure: fig, type: "steps", steps: steps, skills_used: used, hint: hint, explanation: explanation });
+  }
+
+  // --- y＝ax² の式 ---
+  nm("qfMeaning-basic-1", "qfMeaning", "basic", "y は x の2乗に比例し、x ＝ 2 のとき y ＝ 12 です。比例定数 a は？", 3, "y ＝ ax² に x ＝ 2、y ＝ 12 を入れる。", "12 ＝ 4a より a ＝ 3 です。", { usage: "diagnosis" });
+  nm("qfMeaning-basic-2", "qfMeaning", "basic", "y ＝ 3x² で、x ＝ −4 のときの y の値は？", 48, "(−4)² ＝ 16。", "3 × 16 ＝ 48 です。");
+  ch("qfMeaning-basic-3", "qfMeaning", "basic", "y が x の2乗に比例するものはどれ？", ["1辺 x cm の正方形の面積 y cm²", "1辺 x cm の正方形のまわりの長さ y cm", "時速 x km で 2時間進む道のり y km", "面積 12cm² の長方形の縦 x cm と横 y cm"], "y ＝ ax² の形になるもの。", "正方形の面積は y ＝ x² です。");
+  nm("qfMeaning-basic-4", "qfMeaning", "basic", "y ＝ −2x² で、x ＝ 3 のときの y の値は？", -18, "3² ＝ 9 に −2 をかける。", "−18 です。");
+  ch("qfMeaning-basic-5", "qfMeaning", "basic", "y ＝ ax² で、x の値が 2倍になると、y の値は何倍になる？", ["4倍", "2倍", "8倍", "1/2倍"], "2² ＝ 4。", "4倍です。");
+  nm("qfMeaning-basic-6", "qfMeaning", "basic", "y は x の2乗に比例し、x ＝ −3 のとき y ＝ 18 です。x ＝ 4 のときの y は？", 32, "まず a を求める。", "18 ＝ 9a より a ＝ 2。2 × 16 ＝ 32 です。");
+  fr("qfMeaning-basic-7", "qfMeaning", "basic", "y は x の2乗に比例し、x ＝ 4 のとき y ＝ 8 です。比例定数 a を分数で答えましょう。", "1/2", "8 ＝ 16a。", "a ＝ 8/16 ＝ 1/2 です。");
+  nm("qfMeaning-standard-1", "qfMeaning", "standard", "y ＝ 2x² で、y ＝ 50 になる正の x の値は？", 5, "x² ＝ 25。", "5 です。");
+  nm("qfMeaning-standard-2", "qfMeaning", "standard", "y は x の2乗に比例し、x ＝ 2 のとき y ＝ −20 です。x ＝ −1 のときの y は？", -5, "−20 ＝ 4a。", "a ＝ −5 なので y ＝ −5 です。");
+  ch("qfMeaning-standard-3", "qfMeaning", "standard", "y ＝ ax² で、x の値が 3倍になると、y の値は何倍になる？", ["9倍", "3倍", "6倍", "27倍"], "3² ＝ 9。", "9倍です。");
+  nm("qfMeaning-standard-4", "qfMeaning", "standard", "半径 r cm の円の面積を S cm² とすると、S ＝ πr² です。半径を 3倍にすると、面積は何倍？", 9, "S は r の2乗に比例する。", "9倍です。");
+  fr("qfMeaning-standard-5", "qfMeaning", "standard", "y は x の2乗に比例し、x ＝ 3 のとき y ＝ 3 です。比例定数 a を分数で答えましょう。", "1/3", "3 ＝ 9a。", "a ＝ 1/3 です。");
+  sp("qfMeaning-application-1", "qfMeaning", "物を落とすとき、落ち始めてから x 秒間に落ちる距離を y m とすると、y ＝ 5x² です。", [
+    sn("s1", "qfMeaning", "3秒間に何m 落ちる？", 45, "5 × 3²。", "45m です。"),
+    sn("s2", "qfMeaning", "80m 落ちるのは何秒後？", 4, "5x² ＝ 80。", "x² ＝ 16 なので 4秒後です。"),
+    sn("s3", "qfMeaning", "2秒後から 4秒後までに、何m 落ちる？", 60, "80 − 20。", "60m です。")
+  ], ["qfMeaning", "qfRate"], "y ＝ 5x² に数を入れる。", "45m、4秒後、60m です。");
+  sp("qfMeaning-application-2", "qfMeaning", "x と y の関係を調べると、x が 1、2、3 のとき、y は 4、16、36 でした。", [
+    sc("s1", "qfMeaning", "y を x の式で表すとどれ？", ["y ＝ 4x²", "y ＝ 4x", "y ＝ 2x²", "y ＝ x² + 3"], "x が2倍で y が4倍。", "y ＝ 4x² です。"),
+    sn("s2", "qfMeaning", "x ＝ 5 のときの y は？", 100, "4 × 25。", "100 です。"),
+    sn("s3", "qfMeaning", "y ＝ 64 になる正の x は？", 4, "x² ＝ 16。", "4 です。")
+  ], ["qfMeaning"], "y ÷ x² がいつも同じなら、y は x の2乗に比例する。", "y ＝ 4x² です。");
+  sp("qfMeaning-application-3", "qfMeaning", "ブレーキをかけてから止まるまでの距離 y m が、速さ x km/h の2乗に比例するとします。時速 40km のとき 8m でした。", [
+    sf("s1", "qfMeaning", "比例定数 a を分数で答えましょう。", "1/200", "8 ＝ a × 1600。", "a ＝ 1/200 です。"),
+    sn("s2", "qfMeaning", "時速 60km のときの距離は何m？", 18, "3600 ÷ 200。", "18m です。"),
+    sn("s3", "qfMeaning", "速さが 2倍になると、距離は何倍？", 4, "2² ＝ 4。", "4倍です。")
+  ], ["qfMeaning"], "y ＝ ax² の a を先に求める。", "a ＝ 1/200 です。");
+  nm("qfMeaning-retention-1", "qfMeaning", "retention", "y は x の2乗に比例し、x ＝ 5 のとき y ＝ 75 です。比例定数 a は？", 3, "75 ＝ 25a。", "a ＝ 3 です。", RB);
+  nm("qfMeaning-retention-2", "qfMeaning", "retention", "y ＝ 6x² で、x ＝ −5 のときの y の値は？", 150, "(−5)² ＝ 25。", "6 × 25 ＝ 150 です。", RB);
+  ch("qfMeaning-retention-3", "qfMeaning", "retention", "次のうち、y が x の2乗に比例するものはどれ？", ["半径 x cm の円の面積 y cm²", "半径 x cm の円の周の長さ y cm", "1本 x 円の鉛筆 6本の代金 y 円", "100km を時速 x km で進むときの時間 y 時間"], "y ＝ ax² の形になるもの。", "円の面積は y ＝ πx² です。", RB);
+  nm("qfMeaning-retention-4", "qfMeaning", "retention", "y は x の2乗に比例し、x ＝ −2 のとき y ＝ −12 です。x ＝ 5 のときの y は？", -75, "−12 ＝ 4a。", "a ＝ −3。−3 × 25 ＝ −75 です。", RS);
+  nm("qfMeaning-retention-5", "qfMeaning", "retention", "y ＝ 4x² で、y ＝ 196 になる正の x の値は？", 7, "x² ＝ 49。", "7 です。", RS);
+
+  // --- グラフ（放物線） ---
+  ch("qfGraph-basic-1", "qfGraph", "basic", "y ＝ 2x² のグラフについて、正しいものはどれ？", ["原点を通り、上に開いた放物線", "原点を通り、下に開いた放物線", "原点を通る直線", "y 軸と交わらない曲線"], "a ＞ 0 なら上に開く。", "原点を通り、上に開いた放物線です。", { usage: "diagnosis" });
+  qfFig("qfGraph-basic-2", "qfGraph", "basic", "図の放物線は y ＝ ax² のグラフで、点 A(2, 2) を通ります。a の値を分数で答えましょう。", { type: "graph", x: [-3, 3, 1], y: [-1, 5, 1], parabolas: [{ a: 1 / 2 }], points: [{ x: 2, y: 2, label: "A" }] }, "fraction", "1/2", "2 ＝ a × 2²。", "a ＝ 2/4 ＝ 1/2 です。");
+  ch("qfGraph-basic-3", "qfGraph", "basic", "y ＝ −3x² のグラフについて、正しいものはどれ？", ["下に開き、y 軸について対称", "上に開き、y 軸について対称", "下に開き、x 軸について対称", "右上がりの直線"], "a ＜ 0 なら下に開く。", "下に開き、y 軸について対称です。");
+  ch("qfGraph-basic-4", "qfGraph", "basic", "y ＝ x² と y ＝ 3x² のグラフをくらべると？", ["y ＝ 3x² のほうが開き方が小さい（細い）", "y ＝ 3x² のほうが開き方が大きい（太い）", "同じ形", "y ＝ 3x² は下に開く"], "a の絶対値が大きいほど細い。", "y ＝ 3x² のほうが細いです。");
+  ch("qfGraph-basic-5", "qfGraph", "basic", "y ＝ 2x² のグラフと x 軸について対称なグラフの式はどれ？", ["y ＝ −2x²", "y ＝ 2x²", "y ＝ (1/2)x²", "y ＝ −(1/2)x²"], "y の符号が逆になる。", "y ＝ −2x² です。");
+  qfFig("qfGraph-basic-6", "qfGraph", "basic", "図は y ＝ ax² のグラフで、点 B(−2, −4) を通ります。a の値は？", { type: "graph", x: [-3, 3, 1], y: [-5, 1, 1], parabolas: [{ a: -1 }], points: [{ x: -2, y: -4, label: "B" }] }, "number", -1, "−4 ＝ a × (−2)²。", "a ＝ −1 です。");
+  ch("qfGraph-basic-7", "qfGraph", "basic", "y ＝ ax² のグラフが点 (3, 18) を通るとき、同じグラフが必ず通る点はどれ？", ["(−3, 18)", "(3, −18)", "(−3, −18)", "(18, 3)"], "グラフは y 軸について対称。", "(−3, 18) です。");
+  ch("qfGraph-standard-1", "qfGraph", "standard", "y ＝ ax² のグラフが下に開くのは、a がどんなとき？", ["a ＜ 0", "a ＞ 0", "a ＝ 0", "a ＞ 1"], "a の符号で開く向きが決まる。", "a ＜ 0 のときです。");
+  ch("qfGraph-standard-2", "qfGraph", "standard", "次の式のグラフで、開き方がいちばん大きい（太い）ものはどれ？", ["y ＝ (1/4)x²", "y ＝ x²", "y ＝ −2x²", "y ＝ 3x²"], "a の絶対値が小さいほど太い。", "y ＝ (1/4)x² です。");
+  qfFig("qfGraph-standard-3", "qfGraph", "standard", "図の放物線 y ＝ ax² は点 A(3, 3) を通ります。x ＝ 6 のときの y の値は？", { type: "graph", x: [-7, 7, 1], y: [-1, 13, 1], parabolas: [{ a: 1 / 3 }], points: [{ x: 3, y: 3, label: "A" }] }, "number", 12, "a ＝ 3/9 ＝ 1/3。", "(1/3) × 36 ＝ 12 です。");
+  ch("qfGraph-standard-4", "qfGraph", "standard", "y ＝ x² のグラフ上にある点はどれ？", ["(−4, 16)", "(4, 8)", "(−4, −16)", "(16, 4)"], "x を2乗すると y になる点。", "(−4, 16) です。");
+  nm("qfGraph-standard-5", "qfGraph", "standard", "y ＝ ax² のグラフが点 (−2, 12) を通るとき、x ＝ 1 のときの y は？", 3, "12 ＝ 4a。", "a ＝ 3 なので 3 です。");
+  qfSteps("qfGraph-application-1", "qfGraph", "図の放物線 y ＝ x² 上に、点 A、B があります。", { type: "graph", x: [-4, 4, 1], y: [-1, 10, 1], parabolas: [{ a: 1 }], points: [{ x: -2, y: 4, label: "A" }, { x: 3, y: 9, label: "B" }] }, [
+    sn("s1", "qfGraph", "点 A の x 座標は −2 です。y 座標は？", 4, "(−2)²。", "4 です。"),
+    sn("s2", "qfGraph", "点 B の y 座標は 9 で、x 座標は正です。x 座標は？", 3, "x² ＝ 9。", "3 です。"),
+    sn("s3", "qfGraph", "点 A と y 軸について対称な点の x 座標は？", 2, "x 座標の符号が逆になる。", "2 です。")
+  ], ["qfGraph", "qfMeaning"], "放物線は y 軸について対称。", "A(−2, 4)、B(3, 9) です。");
+  sp("qfGraph-application-2", "qfGraph", "y ＝ ax² と y ＝ bx² のグラフがあり、a ＞ b ＞ 0 です。", [
+    sc("s1", "qfGraph", "x ＝ 2 のときの y の値が大きいのはどちら？", ["y ＝ ax²", "y ＝ bx²", "同じ", "x によって変わる"], "4a と 4b をくらべる。", "y ＝ ax² です。"),
+    sc("s2", "qfGraph", "開き方が小さい（細い）のはどちら？", ["y ＝ ax²", "y ＝ bx²", "同じ", "比べられない"], "a のほうが大きい。", "y ＝ ax² です。"),
+    sc("s3", "qfGraph", "y ＝ −ax² のグラフは、y ＝ ax² のグラフとどんな関係？", ["x 軸について対称", "y 軸について対称", "原点について対称", "同じグラフ"], "y の符号だけが逆。", "x 軸について対称です。")
+  ], ["qfGraph"], "a の大きさで開き方、符号で向きが決まる。", "y ＝ ax² のほうが細いです。");
+  qfSteps("qfGraph-application-3", "qfGraph", "図は y ＝ 2x² のグラフで、点 P、Q はグラフ上の点です。", { type: "graph", x: [-3, 3, 1], y: [-1, 10, 1], parabolas: [{ a: 2 }], points: [{ x: 1, y: 2, label: "P" }, { x: 2, y: 8, label: "Q" }] }, [
+    sn("s1", "qfGraph", "P の x 座標は 1 です。y 座標は？", 2, "2 × 1²。", "2 です。"),
+    sn("s2", "qfGraph", "Q の x 座標は 2 です。y 座標は？", 8, "2 × 2²。", "8 です。"),
+    sn("s3", "qfGraph", "x 座標が 2倍になると、y 座標は何倍？", 4, "8 ÷ 2。", "4倍です。")
+  ], ["qfGraph", "qfMeaning"], "グラフ上の点は、式に x を入れると y が出る。", "4倍です。");
+  ch("qfGraph-retention-1", "qfGraph", "retention", "y ＝ −x² のグラフについて、正しいものはどれ？", ["原点を通り、下に開いた放物線", "原点を通り、上に開いた放物線", "原点を通る直線", "x 軸について対称な曲線"], "a ＜ 0 なら下に開く。", "原点を通り、下に開いた放物線です。", RB);
+  nm("qfGraph-retention-2", "qfGraph", "retention", "y ＝ ax² のグラフが点 (4, −32) を通るとき、a の値は？", -2, "−32 ＝ 16a。", "a ＝ −2 です。", RB);
+  ch("qfGraph-retention-3", "qfGraph", "retention", "y ＝ 5x² のグラフと x 軸について対称なグラフの式はどれ？", ["y ＝ −5x²", "y ＝ 5x²", "y ＝ (1/5)x²", "y ＝ −(1/5)x²"], "y の符号が逆になる。", "y ＝ −5x² です。", RB);
+  ch("qfGraph-retention-4", "qfGraph", "retention", "次の式のグラフで、開き方がいちばん小さい（細い）ものはどれ？", ["y ＝ −4x²", "y ＝ 3x²", "y ＝ (1/2)x²", "y ＝ x²"], "a の絶対値が大きいほど細い。", "y ＝ −4x² です。", RS);
+  nm("qfGraph-retention-5", "qfGraph", "retention", "y ＝ ax² のグラフが点 (−3, 45) を通るとき、x ＝ 2 のときの y は？", 20, "45 ＝ 9a。", "a ＝ 5 なので 20 です。", RS);
+
+  // --- 変域 ---
+  ch("qfRange-basic-1", "qfRange", "basic", "y ＝ x² で、x の変域が −2 ≦ x ≦ 3 のとき、y の変域はどれ？", ["0 ≦ y ≦ 9", "4 ≦ y ≦ 9", "−4 ≦ y ≦ 9", "0 ≦ y ≦ 4"], "x ＝ 0 をふくむので、最小値は 0。", "0 ≦ y ≦ 9 です。", { usage: "diagnosis" });
+  nm("qfRange-basic-2", "qfRange", "basic", "y ＝ 2x² で、x の変域が 1 ≦ x ≦ 3 のとき、y の最大値は？", 18, "x ＝ 3 のとき。", "18 です。");
+  nm("qfRange-basic-3", "qfRange", "basic", "y ＝ 2x² で、x の変域が 1 ≦ x ≦ 3 のとき、y の最小値は？", 2, "x ＝ 1 のとき。", "2 です。");
+  nm("qfRange-basic-4", "qfRange", "basic", "y ＝ 3x² で、x の変域が −1 ≦ x ≦ 2 のとき、y の最小値は？", 0, "x ＝ 0 が変域に入っている。", "0 です。");
+  ch("qfRange-basic-5", "qfRange", "basic", "y ＝ −x² で、x の変域が −3 ≦ x ≦ 1 のとき、y の変域はどれ？", ["−9 ≦ y ≦ 0", "−9 ≦ y ≦ −1", "−1 ≦ y ≦ 9", "0 ≦ y ≦ 9"], "下に開くので、x ＝ 0 で最大。", "−9 ≦ y ≦ 0 です。");
+  nm("qfRange-basic-6", "qfRange", "basic", "y ＝ x² で、x の変域が −4 ≦ x ≦ −1 のとき、y の最大値は？", 16, "原点から遠いのは x ＝ −4。", "16 です。");
+  ch("qfRange-basic-7", "qfRange", "basic", "y ＝ ax²（a ＞ 0）で、x の変域が 0 をふくむとき、y の最小値はどうなる？", ["0", "x の変域の左はしのときの y", "x の変域の右はしのときの y", "決まらない"], "グラフのいちばん下は原点。", "0 です。");
+  ch("qfRange-standard-1", "qfRange", "standard", "y ＝ (1/2)x² で、x の変域が −4 ≦ x ≦ 2 のとき、y の変域はどれ？", ["0 ≦ y ≦ 8", "2 ≦ y ≦ 8", "0 ≦ y ≦ 2", "−8 ≦ y ≦ 8"], "x ＝ −4 のほうが原点から遠い。", "0 ≦ y ≦ 8 です。");
+  nm("qfRange-standard-2", "qfRange", "standard", "y ＝ ax² で、x の変域が −1 ≦ x ≦ 2 のとき、y の変域が 0 ≦ y ≦ 12 です。a は？", 3, "最大は x ＝ 2 のとき。", "4a ＝ 12 より a ＝ 3 です。");
+  nm("qfRange-standard-3", "qfRange", "standard", "y ＝ ax² で、x の変域が −3 ≦ x ≦ 2 のとき、y の変域が −18 ≦ y ≦ 0 です。a は？", -2, "最小は x ＝ −3 のとき。", "9a ＝ −18 より a ＝ −2 です。");
+  ch("qfRange-standard-4", "qfRange", "standard", "y ＝ −2x² で、x の変域が 1 ≦ x ≦ 3 のとき、y の変域はどれ？", ["−18 ≦ y ≦ −2", "−18 ≦ y ≦ 0", "2 ≦ y ≦ 18", "−2 ≦ y ≦ 18"], "x ＝ 0 は変域に入らない。", "−18 ≦ y ≦ −2 です。");
+  nm("qfRange-standard-5", "qfRange", "standard", "y ＝ x² で、x の変域が −2 ≦ x ≦ b のとき、y の変域が 0 ≦ y ≦ 9 です。b は？", 3, "x ＝ −2 では y ＝ 4。9 になるのは x ＝ b。", "b² ＝ 9、b ＞ 0 なので 3 です。");
+  sp("qfRange-application-1", "qfRange", "y ＝ x² で、x の変域が −3 ≦ x ≦ 2 です。", [
+    sn("s1", "qfRange", "y の最小値は？", 0, "x ＝ 0 が変域に入る。", "0 です。"),
+    sn("s2", "qfRange", "y の最大値は？", 9, "x ＝ −3 のとき。", "9 です。"),
+    sc("s3", "qfRange", "最大値が x ＝ 2 のときの y にならないのはなぜ？", ["x ＝ −3 のほうが原点から遠く、y が大きいから", "x ＝ 2 は変域に入らないから", "y は x に比例するから", "最大値はいつも左はしだから"], "4 と 9 をくらべる。", "x ＝ −3 のほうが y が大きいからです。")
+  ], ["qfRange", "qfGraph"], "グラフをかいて、いちばん高い所と低い所を見る。", "0 ≦ y ≦ 9 です。");
+  sp("qfRange-application-2", "qfRange", "y ＝ ax² で、x の変域が −2 ≦ x ≦ 4 のとき、y の変域は −8 ≦ y ≦ 0 です。", [
+    sc("s1", "qfRange", "a の符号はどれ？", ["負", "正", "0", "決まらない"], "y が 0 以下。", "負です。"),
+    sn("s2", "qfRange", "y ＝ −8 になるのは x ＝ いくつのとき？", 4, "原点から遠いほうのはし。", "4 です。"),
+    sf("s3", "qfRange", "a の値を分数で答えましょう。", "-1/2", "16a ＝ −8。", "a ＝ −1/2 です。")
+  ], ["qfRange"], "変域のはしと原点のどちらで最大・最小になるか考える。", "a ＝ −1/2 です。");
+  sp("qfRange-application-3", "qfRange", "1辺 x cm の正方形の面積を y cm² とします。x の変域は 2 ≦ x ≦ 5 です。", [
+    sn("s1", "qfRange", "y の最小値は？", 4, "2²。", "4 です。"),
+    sn("s2", "qfRange", "y の最大値は？", 25, "5²。", "25 です。"),
+    sn("s3", "qfRange", "y の最大値と最小値の差は？", 21, "25 − 4。", "21 です。")
+  ], ["qfRange", "qfMeaning"], "x ＞ 0 の範囲では、x が大きいほど y も大きい。", "4 ≦ y ≦ 25 です。");
+  nm("qfRange-standard-6", "qfRange", "standard", "y ＝ ax² で、x の変域が 2 ≦ x ≦ 5 のとき、y の変域が 8 ≦ y ≦ 50 です。a は？", 2, "最小は x ＝ 2、最大は x ＝ 5 のとき。", "4a ＝ 8 より a ＝ 2 です。");
+  ch("qfRange-standard-7", "qfRange", "standard", "y ＝ (1/3)x² で、x の変域が −6 ≦ x ≦ 3 のとき、y の変域はどれ？", ["0 ≦ y ≦ 12", "3 ≦ y ≦ 12", "0 ≦ y ≦ 3", "−12 ≦ y ≦ 12"], "x ＝ −6 のほうが原点から遠い。", "0 ≦ y ≦ 12 です。");
+  sp("qfRange-application-4", "qfRange", "y ＝ 2x² で、x の変域が −1 ≦ x ≦ 3 です。", [
+    sn("s1", "qfRange", "y の最小値は？", 0, "x ＝ 0 が変域に入る。", "0 です。"),
+    sn("s2", "qfRange", "y の最大値は？", 18, "x ＝ 3 のとき。", "18 です。"),
+    sn("s3", "qfRange", "x の変域を −1 ≦ x ≦ 1 にかえると、y の最大値は？", 2, "x ＝ ±1 のとき。", "2 です。")
+  ], ["qfRange"], "原点からいちばん遠い x で最大になる（a ＞ 0）。", "0 ≦ y ≦ 18 です。");
+  sp("qfRange-application-5", "qfRange", "y ＝ x² と y ＝ 2x + 3 で、x の変域はどちらも 1 ≦ x ≦ 3 です。", [
+    sn("s1", "qfRange", "y ＝ x² の y の最大値は？", 9, "3²。", "9 です。"),
+    sn("s2", "qfRange", "y ＝ 2x + 3 の y の最小値は？", 5, "x ＝ 1 のとき。", "5 です。"),
+    sn("s3", "qfRange", "y ＝ 2x + 3 の y の最大値は？", 9, "x ＝ 3 のとき。", "9 です。")
+  ], ["qfRange", "slopeIntercept"], "x ＞ 0 の範囲では、どちらも x が大きいほど y が大きい。", "最大値はどちらも 9 です。");
+  sp("qfRange-application-6", "qfRange", "y ＝ −x² で、x の変域が a ≦ x ≦ 2 のとき、y の変域は −16 ≦ y ≦ 0 です。", [
+    sn("s1", "qfRange", "x ＝ 2 のときの y は？", -4, "−2²。", "−4 です。"),
+    sn("s2", "qfRange", "y ＝ −16 になる負の x は？", -4, "x² ＝ 16。", "−4 です。"),
+    sc("s3", "qfRange", "a の値はどれ？", ["−4", "4", "−2", "0"], "x ＝ 2 では −16 にならない。", "a ＝ −4 です。")
+  ], ["qfRange"], "最小値 −16 は、変域のどちらのはしで出るか考える。", "a ＝ −4 です。");
+  ch("qfRange-retention-1", "qfRange", "retention", "y ＝ x² で、x の変域が −5 ≦ x ≦ 1 のとき、y の変域はどれ？", ["0 ≦ y ≦ 25", "1 ≦ y ≦ 25", "−25 ≦ y ≦ 1", "0 ≦ y ≦ 1"], "x ＝ 0 をふくむ。", "0 ≦ y ≦ 25 です。", RB);
+  nm("qfRange-retention-2", "qfRange", "retention", "y ＝ 5x² で、x の変域が −6 ≦ x ≦ −2 のとき、y の最小値は？", 20, "原点に近いのは x ＝ −2。", "20 です。", RB);
+  nm("qfRange-retention-3", "qfRange", "retention", "y ＝ 6x² で、x の変域が −5 ≦ x ≦ 4 のとき、y の最小値は？", 0, "x ＝ 0 が変域に入っている。", "0 です。", RB);
+  nm("qfRange-retention-4", "qfRange", "retention", "y ＝ ax² で、x の変域が −2 ≦ x ≦ 3 のとき、y の変域が 0 ≦ y ≦ 36 です。a は？", 4, "最大は x ＝ 3 のとき。", "9a ＝ 36 より a ＝ 4 です。", RS);
+  ch("qfRange-retention-5", "qfRange", "retention", "y ＝ −3x² で、x の変域が −1 ≦ x ≦ 4 のとき、y の変域はどれ？", ["−48 ≦ y ≦ 0", "−48 ≦ y ≦ −3", "−3 ≦ y ≦ 0", "0 ≦ y ≦ 48"], "下に開き、x ＝ 0 をふくむ。", "−48 ≦ y ≦ 0 です。", RS);
+
+  // --- 変化の割合 ---
+  nm("qfRate-basic-1", "qfRate", "basic", "y ＝ x² で、x が 1 から 3 まで増加するときの変化の割合は？", 4, "(9 − 1) ÷ (3 − 1)。", "4 です。", { usage: "diagnosis" });
+  nm("qfRate-basic-2", "qfRate", "basic", "y ＝ 2x² で、x が 2 から 4 まで増加するときの変化の割合は？", 12, "(32 − 8) ÷ 2。", "12 です。");
+  nm("qfRate-basic-3", "qfRate", "basic", "y ＝ x² で、x が −3 から −1 まで増加するときの変化の割合は？", -4, "(1 − 9) ÷ 2。", "−4 です。");
+  ch("qfRate-basic-4", "qfRate", "basic", "y ＝ ax² の変化の割合について、正しいものはどれ？", ["x の範囲によって変わる", "いつも a に等しい", "いつも 0", "いつも 2a"], "一次関数とちがって一定ではない。", "x の範囲によって変わります。");
+  nm("qfRate-basic-5", "qfRate", "basic", "y ＝ 3x² で、x が 1 から 2 まで増加するとき、y の増加量は？", 9, "12 − 3。", "9 です。");
+  nm("qfRate-basic-6", "qfRate", "basic", "y ＝ −x² で、x が 1 から 4 まで増加するときの変化の割合は？", -5, "(−16 − (−1)) ÷ 3。", "−5 です。");
+  ch("qfRate-basic-7", "qfRate", "basic", "y ＝ ax²（a ＞ 0）で、x が 0 から 2 までと、2 から 4 までの変化の割合をくらべると？", ["2 から 4 までのほうが大きい", "0 から 2 までのほうが大きい", "同じ", "比べられない"], "2a と 6a。", "2 から 4 までのほうが大きいです。");
+  nm("qfRate-standard-1", "qfRate", "standard", "y ＝ ax² で、x が 1 から 4 まで増加するときの変化の割合が 10 です。a は？", 2, "変化の割合は a × (1 ＋ 4)。", "5a ＝ 10 より a ＝ 2 です。");
+  nm("qfRate-standard-2", "qfRate", "standard", "y ＝ (1/2)x² で、x が 2 から 6 まで増加するときの変化の割合は？", 4, "(18 − 2) ÷ 4。", "4 です。");
+  nm("qfRate-standard-3", "qfRate", "standard", "y ＝ −2x² で、x が −4 から −1 まで増加するときの変化の割合は？", 10, "(−2 − (−32)) ÷ 3。", "10 です。");
+  nm("qfRate-standard-4", "qfRate", "standard", "y ＝ x² と y ＝ ax + 1 で、x が 2 から 5 まで増加するときの変化の割合が等しくなります。a は？", 7, "y ＝ x² の変化の割合は (25 − 4) ÷ 3。", "7 です。");
+  nm("qfRate-standard-5", "qfRate", "standard", "斜面をころがる球は、x 秒間に y ＝ 2x² m 進みます。2秒後から 5秒後までの平均の速さは秒速何m？", 14, "(50 − 8) ÷ 3。", "秒速 14m です。");
+  sp("qfRate-application-1", "qfRate", "y ＝ x² で、x が a から a + 2 まで増加するときの変化の割合を考えます。", [
+    sn("s1", "qfRate", "a ＝ 1 のとき、変化の割合は？", 4, "(9 − 1) ÷ 2。", "4 です。"),
+    sn("s2", "qfRate", "a ＝ 3 のとき、変化の割合は？", 8, "(25 − 9) ÷ 2。", "8 です。"),
+    sc("s3", "qfRate", "変化の割合を a で表すとどれ？", ["2a + 2", "2a", "a + 2", "4"], "{(a ＋ 2)² − a²} ÷ 2。", "2a ＋ 2 です。")
+  ], ["qfRate", "pxFormula"], "変化の割合 ＝ y の増加量 ÷ x の増加量。", "2a ＋ 2 です。");
+  sp("qfRate-application-2", "qfRate", "物を落とすと、x 秒間に y ＝ 5x² m 落ちます。", [
+    sn("s1", "qfRate", "1秒後から 3秒後までの平均の速さは秒速何m？", 20, "(45 − 5) ÷ 2。", "秒速 20m です。"),
+    sn("s2", "qfRate", "3秒後から 5秒後までの平均の速さは秒速何m？", 40, "(125 − 45) ÷ 2。", "秒速 40m です。"),
+    sc("s3", "qfRate", "時間がたつにつれて、平均の速さはどうなる？", ["速くなる", "おそくなる", "変わらない", "0 になる"], "s1 と s2 をくらべる。", "速くなります。")
+  ], ["qfRate"], "平均の速さは変化の割合と同じ。", "秒速 20m、40m です。");
+  sp("qfRate-application-3", "qfRate", "y ＝ ax² で、x が 2 から 6 まで増加するときの変化の割合が −16 です。", [
+    sn("s1", "qfRate", "変化の割合は a × (2 ＋ 6) と表せます。a は？", -2, "8a ＝ −16。", "−2 です。"),
+    sn("s2", "qfRate", "x ＝ 2 のときの y は？", -8, "−2 × 4。", "−8 です。"),
+    sn("s3", "qfRate", "x ＝ 6 のときの y は？", -72, "−2 × 36。", "−72 です。")
+  ], ["qfRate", "qfMeaning"], "y ＝ ax² で x が p から q まで増加するときの変化の割合は a(p ＋ q)。", "a ＝ −2 です。");
+  nm("qfRate-retention-1", "qfRate", "retention", "y ＝ x² で、x が 5 から 8 まで増加するときの変化の割合は？", 13, "(64 − 25) ÷ 3。", "13 です。", RB);
+  nm("qfRate-retention-2", "qfRate", "retention", "y ＝ 3x² で、x が −5 から −2 まで増加するときの変化の割合は？", -21, "(12 − 75) ÷ 3。", "−21 です。", RB);
+  nm("qfRate-retention-3", "qfRate", "retention", "y ＝ −x² で、x が 5 から 9 まで増加するときの変化の割合は？", -14, "(−81 − (−25)) ÷ 4。", "−14 です。", RB);
+  nm("qfRate-retention-4", "qfRate", "retention", "y ＝ ax² で、x が 3 から 7 まで増加するときの変化の割合が −20 です。a は？", -2, "変化の割合は a × (3 ＋ 7)。", "10a ＝ −20 より a ＝ −2 です。", RS);
+  nm("qfRate-retention-5", "qfRate", "retention", "斜面をころがる球は、x 秒間に y ＝ 3x² m 進みます。4秒後から 9秒後までの平均の速さは秒速何m？", 39, "(243 − 48) ÷ 5。", "秒速 39m です。", RS);
+
+  // --- 放物線と直線・利用 ---
+  nm("qfUse-basic-1", "qfUse", "basic", "y ＝ x² のグラフと直線 y ＝ 4 の交点のうち、x 座標が正のほうの x 座標は？", 2, "x² ＝ 4。", "2 です。", { usage: "diagnosis" });
+  qfFig("qfUse-basic-2", "qfUse", "basic", "図のように、y ＝ x² のグラフ上の点 A(−1, 1)、B(2, 4) を通る直線があります。直線 AB の傾きは？", { type: "graph", x: [-3, 3, 1], y: [-1, 6, 1], parabolas: [{ a: 1 }], lines: [line(1, 2)], points: [{ x: -1, y: 1, label: "A" }, { x: 2, y: 4, label: "B" }] }, "number", 1, "(4 − 1) ÷ (2 − (−1))。", "1 です。");
+  nm("qfUse-basic-3", "qfUse", "basic", "y ＝ x² のグラフ上の点 A(−1, 1)、B(2, 4) を通る直線の切片は？", 2, "傾き 1 の直線が A を通る。", "1 ＝ −1 ＋ b より 2 です。");
+  ch("qfUse-basic-4", "qfUse", "basic", "y ＝ x² と y ＝ x + 2 の交点の x 座標を求める方程式はどれ？", ["x² ＝ x + 2", "x² ＝ 2", "x + 2 ＝ 0", "x² + x + 2 ＝ 0"], "2つの式の y が等しい。", "x² ＝ x ＋ 2 です。");
+  nm("qfUse-basic-5", "qfUse", "basic", "y ＝ 2x² のグラフ上で、x 座標が 3 の点の y 座標は？", 18, "2 × 3²。", "18 です。");
+  nm("qfUse-basic-6", "qfUse", "basic", "y ＝ x² と y ＝ x + 6 の交点のうち、x 座標が負のほうの x 座標は？", -2, "x² − x − 6 ＝ 0。", "(x ＋ 2)(x − 3) ＝ 0 より −2 です。");
+  nm("qfUse-basic-7", "qfUse", "basic", "y ＝ x² と y ＝ x + 6 の交点のうち、x 座標が正のほうの点の y 座標は？", 9, "x ＝ 3 のとき。", "9 です。");
+  nm("qfUse-standard-1", "qfUse", "standard", "y ＝ x² 上の2点 A(−2, 4)、B(3, 9) を通る直線の傾きは？", 1, "(9 − 4) ÷ (3 − (−2))。", "1 です。");
+  nm("qfUse-standard-2", "qfUse", "standard", "y ＝ x² 上の2点 A(−2, 4)、B(3, 9) を通る直線と、y 軸との交点の y 座標は？", 6, "y ＝ x ＋ b が A を通る。", "4 ＝ −2 ＋ b より 6 です。");
+  nm("qfUse-standard-3", "qfUse", "standard", "y ＝ x² 上の2点 A(−2, 4)、B(3, 9) と原点 O でできる △OAB の面積は？", 15, "直線 AB と y 軸の交点で2つの三角形に分ける。", "6 × 5 ÷ 2 ＝ 15 です。");
+  nm("qfUse-standard-4", "qfUse", "standard", "y ＝ (1/2)x² と y ＝ x + 4 の交点のうち、x 座標が正のほうの x 座標は？", 4, "x² ＝ 2x ＋ 8。", "(x − 4)(x ＋ 2) ＝ 0 より 4 です。");
+  nm("qfUse-standard-5", "qfUse", "standard", "y ＝ ax² のグラフと直線 y ＝ 2x + 3 が、x 座標が 3 の点で交わります。a は？", 1, "交点の y 座標は 2 × 3 ＋ 3。", "9a ＝ 9 より 1 です。");
+  qfSteps("qfUse-application-1", "qfUse", "図のように、y ＝ x² のグラフと直線 y ＝ x + 2 が、点 A、B で交わっています（A は左側）。O は原点です。", { type: "graph", x: [-3, 3, 1], y: [-1, 6, 1], parabolas: [{ a: 1 }], lines: [line(1, 2)], points: [{ x: -1, y: 1, label: "A" }, { x: 2, y: 4, label: "B" }] }, [
+    sn("s1", "qfUse", "A の x 座標は？", -1, "x² ＝ x ＋ 2。", "−1 です。"),
+    sn("s2", "qfUse", "B の y 座標は？", 4, "x ＝ 2 のとき。", "4 です。"),
+    sn("s3", "qfUse", "△OAB の面積は？", 3, "y 軸で分けると、2 × 1 ÷ 2 ＋ 2 × 2 ÷ 2。", "3 です。")
+  ], ["qfUse", "qeFactor"], "交点は、2つの式を連立して求める。", "△OAB ＝ 3 です。");
+  sp("qfUse-application-2", "qfUse", "1辺 x cm の正方形の面積と、縦 2cm、横 (x + 4) cm の長方形の面積が等しくなるときを考えます。", [
+    sc("s1", "qfUse", "x の方程式はどれ？", ["x² ＝ 2(x + 4)", "x² ＝ 2x + 4", "x² ＝ x + 4", "4x ＝ 2(x + 4)"], "正方形 x²、長方形 2(x ＋ 4)。", "x² ＝ 2(x ＋ 4) です。"),
+    sn("s2", "qfUse", "x の値は？（x ＞ 0）", 4, "(x − 4)(x ＋ 2) ＝ 0。", "4 です。"),
+    sn("s3", "qfUse", "そのときの面積は何cm²？", 16, "4²。", "16cm² です。")
+  ], ["qfUse", "qeFactor"], "y ＝ x² と y ＝ 2x ＋ 8 の交点を考えるのと同じ。", "x ＝ 4 です。");
+  sp("qfUse-application-3", "qfUse", "y ＝ x² のグラフ上に、点 A(−3, 9)、B(1, 1) があります。O は原点です。", [
+    sn("s1", "qfUse", "直線 AB の傾きは？", -2, "(1 − 9) ÷ (1 − (−3))。", "−2 です。"),
+    sn("s2", "qfUse", "直線 AB の切片は？", 3, "1 ＝ −2 ＋ b。", "3 です。"),
+    sn("s3", "qfUse", "△OAB の面積は？", 6, "3 × (3 ＋ 1) ÷ 2。", "6 です。")
+  ], ["qfUse", "slopeIntercept"], "切片を底辺にして、y 軸の左右の三角形に分ける。", "△OAB ＝ 6 です。");
+  sp("qfUse-application-4", "qfUse", "y ＝ (1/2)x² のグラフと直線 y ＝ x + 4 が、点 A、B で交わります（A は左側）。O は原点です。", [
+    sn("s1", "qfUse", "A の x 座標は？", -2, "(1/2)x² ＝ x ＋ 4 → x² − 2x − 8 ＝ 0。", "−2 です。"),
+    sn("s2", "qfUse", "B の y 座標は？", 8, "x ＝ 4 のとき。", "8 です。"),
+    sn("s3", "qfUse", "△OAB の面積は？", 12, "切片 4 を底辺に、4 × (2 ＋ 4) ÷ 2。", "12 です。")
+  ], ["qfUse", "qeFactor"], "交点を出してから、y 軸で三角形を分ける。", "△OAB ＝ 12 です。");
+  sp("qfUse-application-5", "qfUse", "y ＝ ax² のグラフ上に点 A(2, 8) があります。O は原点です。", [
+    sn("s1", "qfUse", "a の値は？", 2, "8 ＝ 4a。", "2 です。"),
+    sn("s2", "qfUse", "A と y 軸について対称な点 B の x 座標は？", -2, "放物線は y 軸について対称。", "−2 です。"),
+    sn("s3", "qfUse", "△OAB の面積は？", 16, "底辺 AB ＝ 4、高さ 8。", "16 です。")
+  ], ["qfUse", "qfGraph"], "y 軸について対称な点は、同じ放物線の上にある。", "△OAB ＝ 16 です。");
+  nm("qfUse-retention-1", "qfUse", "retention", "y ＝ x² のグラフと直線 y ＝ 25 の交点のうち、x 座標が負のほうの x 座標は？", -5, "x² ＝ 25。", "−5 です。", RB);
+  nm("qfUse-retention-2", "qfUse", "retention", "y ＝ 3x² のグラフ上で、x 座標が −2 の点の y 座標は？", 12, "3 × (−2)²。", "12 です。", RB);
+  nm("qfUse-retention-3", "qfUse", "retention", "y ＝ x² と y ＝ 3x + 10 の交点のうち、x 座標が正のほうの x 座標は？", 5, "x² − 3x − 10 ＝ 0。", "(x − 5)(x ＋ 2) ＝ 0 より 5 です。", RB);
+  nm("qfUse-retention-4", "qfUse", "retention", "y ＝ x² 上の2点 A(−1, 1)、B(7, 49) を通る直線の切片は？", 7, "傾きは (49 − 1) ÷ 8 ＝ 6。", "1 ＝ −6 ＋ b より 7 です。", RS);
+  nm("qfUse-retention-5", "qfUse", "retention", "y ＝ x² 上の2点 A(−2, 4)、B(5, 25) と原点 O でできる △OAB の面積は？", 35, "直線 AB は y ＝ 3x ＋ 10。", "10 × 7 ÷ 2 ＝ 35 です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
