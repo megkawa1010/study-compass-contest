@@ -7987,6 +7987,235 @@
   nm("ciSimilar-retention-5", "ciSimilar", "retention", "円の弦 AC と BD が点 P で交わり、PA ＝ 2、PC ＝ 14、BD ＝ 11 です。PB が PD より長いとき、PB は？", 7, "PB × PD ＝ 28、PB ＋ PD ＝ 11。", "7 × 4 ＝ 28 なので PB ＝ 7 です。", RS);
 
   // =====================================================================
+  // 中3 三平方の定理。答えは tests/pythagoras.test.js が2乗の和から計算して確かめる
+  // =====================================================================
+
+  // --- 三平方の定理 ---
+  nm("ptBasic-basic-1", "ptBasic", "basic", "直角をはさむ2辺が 3cm、4cm の直角三角形で、斜辺は何cm？", 5, "3² ＋ 4² ＝ 斜辺²。", "9 ＋ 16 ＝ 25 なので 5cm です。", { usage: "diagnosis" });
+  ch("ptBasic-basic-2", "ptBasic", "basic", "直角三角形の斜辺を c、ほかの2辺を a、b とするとき、三平方の定理はどれ？", ["a² ＋ b² ＝ c²", "a ＋ b ＝ c", "a² − b² ＝ c²", "a² ＋ c² ＝ b²"], "斜辺は c。", "a² ＋ b² ＝ c² です。");
+  nm("ptBasic-basic-3", "ptBasic", "basic", "斜辺が 13cm、1つの辺が 5cm の直角三角形で、残りの辺は何cm？", 12, "13² − 5²。", "169 − 25 ＝ 144 なので 12cm です。");
+  nm("ptBasic-basic-4", "ptBasic", "basic", "直角をはさむ2辺が 6cm、8cm の直角三角形で、斜辺は何cm？", 10, "36 ＋ 64。", "100 なので 10cm です。");
+  nm("ptBasic-basic-5", "ptBasic", "basic", "直角をはさむ2辺が 1cm、2cm の直角三角形で、斜辺を √a cm と表すとき、a は？", 5, "1 ＋ 4。", "√5 なので 5 です。");
+  nm("ptBasic-basic-6", "ptBasic", "basic", "斜辺が 17cm、1つの辺が 8cm の直角三角形で、残りの辺は何cm？", 15, "289 − 64。", "225 なので 15cm です。");
+  ch("ptBasic-basic-7", "ptBasic", "basic", "∠C ＝ 90° の直角三角形 ABC で、斜辺はどれ？", ["AB", "BC", "CA", "どれでもない"], "直角に向かい合う辺。", "AB です。");
+  nm("ptBasic-standard-1", "ptBasic", "standard", "直角をはさむ2辺が 2cm、3cm の直角三角形で、斜辺を √a cm と表すとき、a は？", 13, "4 ＋ 9。", "13 です。");
+  nm("ptBasic-standard-2", "ptBasic", "standard", "斜辺が 6cm、1つの辺が 4cm の直角三角形で、残りの辺を a√5 cm と表すとき、a は？", 2, "36 − 16 ＝ 20。", "√20 ＝ 2√5 なので 2 です。");
+  nm("ptBasic-standard-3", "ptBasic", "standard", "斜辺が 25cm、1つの辺が 7cm の直角三角形で、残りの辺は何cm？", 24, "625 − 49。", "576 なので 24cm です。");
+  nm("ptBasic-standard-4", "ptBasic", "standard", "直角をはさむ2辺が 3cm、√7 cm の直角三角形で、斜辺は何cm？", 4, "9 ＋ 7。", "16 なので 4cm です。");
+  nm("ptBasic-standard-5", "ptBasic", "standard", "直角をはさむ2辺が 9cm、12cm の直角三角形で、斜辺は何cm？", 15, "81 ＋ 144。", "225 なので 15cm です。");
+  ch("ptBasic-standard-6", "ptBasic", "standard", "直角三角形の3辺のうち、いちばん長い辺はどれ？", ["斜辺", "直角をはさむ辺のどちらか", "3辺とも同じ長さ", "三角形によって決まらない"], "c² ＝ a² ＋ b²。", "斜辺です。");
+  sp("ptBasic-application-1", "ptBasic", "長さ 5m のはしごを壁に立てかけます。はしごの下のはしは、壁から 3m はなれています。", [
+    sn("s1", "ptBasic", "はしごの上のはしは、地面から何mの高さ？", 4, "25 − 9。", "4m です。"),
+    sn("s2", "ptBasic", "下のはしを壁から 4m まで離すと、上のはしの高さは何m？", 3, "25 − 16。", "3m です。"),
+    sc("s3", "ptBasic", "下のはしを壁から離すと、上のはしの高さはどうなる？", ["低くなる", "高くなる", "変わらない", "はしごが長くなる"], "斜辺は 5m のまま。", "低くなります。")
+  ], ["ptBasic"], "はしご・壁・地面で直角三角形ができる。", "4m、3m です。");
+  sp("ptBasic-application-2", "ptBasic", "縦 6cm、横 8cm の長方形 ABCD があります。", [
+    sn("s1", "ptBasic", "対角線 AC は何cm？", 10, "36 ＋ 64。", "10cm です。"),
+    sn("s2", "ptBasic", "対角線の交点を O とすると、AO は何cm？", 5, "対角線の半分。", "5cm です。"),
+    sc("s3", "ptBasic", "2本の対角線 AC と BD の長さはどうなっている？", ["等しい", "AC のほうが長い", "BD のほうが長い", "決まらない"], "長方形の対角線。", "等しいです。")
+  ], ["ptBasic"], "長方形の対角線は、直角三角形の斜辺。", "AC ＝ 10cm です。");
+  sp("ptBasic-application-3", "ptBasic", "∠C ＝ 90° の直角三角形 ABC で、AC ＝ 15cm、BC ＝ 20cm です。", [
+    sn("s1", "ptBasic", "AB は何cm？", 25, "225 ＋ 400。", "25cm です。"),
+    sn("s2", "ptBasic", "△ABC の面積は何cm²？", 150, "15 × 20 ÷ 2。", "150cm² です。"),
+    sn("s3", "ptBasic", "C から AB にひいた垂線 CH は何cm？", 12, "AB × CH ÷ 2 ＝ 150。", "300 ÷ 25 ＝ 12cm です。")
+  ], ["ptBasic"], "面積を2通りに表すと、高さが求められる。", "CH ＝ 12cm です。");
+  sp("ptBasic-application-4", "ptBasic", "直角三角形で、直角をはさむ2辺の長さの和が 17cm、斜辺が 13cm です。", [
+    sn("s1", "ptBasic", "短いほうの辺は何cm？", 5, "x² ＋ (17 − x)² ＝ 169。", "x ＝ 5、12 なので 5cm です。"),
+    sn("s2", "ptBasic", "長いほうの辺は何cm？", 12, "17 − 5。", "12cm です。"),
+    sn("s3", "ptBasic", "面積は何cm²？", 30, "5 × 12 ÷ 2。", "30cm² です。")
+  ], ["ptBasic", "qeWord"], "1辺を x として二次方程式をつくる。", "5cm と 12cm です。");
+  sp("ptBasic-application-5", "ptBasic", "縦 20m、横 21m の長方形の広場を、角から向かいの角までななめに横切ります。", [
+    sn("s1", "ptBasic", "ななめに歩く道のりは何m？", 29, "400 ＋ 441。", "29m です。"),
+    sn("s2", "ptBasic", "広場のふちにそって縦と横を歩くと何m？", 41, "20 ＋ 21。", "41m です。"),
+    sn("s3", "ptBasic", "ななめに行くと何m短い？", 12, "41 − 29。", "12m です。")
+  ], ["ptBasic"], "長方形の対角線を三平方の定理で求める。", "12m 短くなります。");
+  nm("ptBasic-retention-1", "ptBasic", "retention", "直角をはさむ辺が 7cm と 24cm の直角三角形で、斜辺は何cm？", 25, "49 ＋ 576。", "625 なので 25cm です。", RB);
+  nm("ptBasic-retention-2", "ptBasic", "retention", "斜辺が 41cm、1つの辺が 9cm の直角三角形で、残りの辺は何cm？", 40, "1681 − 81。", "1600 なので 40cm です。", RB);
+  nm("ptBasic-retention-3", "ptBasic", "retention", "直角をはさむ辺が 5cm と 9cm の直角三角形で、斜辺を √a cm と表すとき、a は？", 106, "25 ＋ 81。", "106 です。", RB);
+  nm("ptBasic-retention-4", "ptBasic", "retention", "斜辺が 15cm、1つの辺が 3cm の直角三角形で、残りの辺を a√6 cm と表すとき、a は？", 6, "225 − 9 ＝ 216。", "√216 ＝ 6√6 なので 6 です。", RS);
+  nm("ptBasic-retention-5", "ptBasic", "retention", "直角をはさむ辺が 12cm と 35cm の直角三角形で、斜辺は何cm？", 37, "144 ＋ 1225。", "1369 なので 37cm です。", RS);
+
+  // --- 三平方の定理の逆 ---
+  ch("ptConverse-basic-1", "ptConverse", "basic", "3辺が 3cm、4cm、5cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "3² ＋ 4² と 5² をくらべる。", "等しいので直角三角形です。", { usage: "diagnosis" });
+  ch("ptConverse-basic-2", "ptConverse", "basic", "三平方の定理の逆として、正しいものはどれ？", ["3辺 a、b、c で a² ＋ b² ＝ c² なら、c を斜辺とする直角三角形", "直角三角形なら、a ＋ b ＝ c", "a² ＋ b² ＝ c² なら、正三角形", "3辺が等しければ直角三角形"], "「式が成り立つ → 直角」。", "a² ＋ b² ＝ c² なら直角三角形です。");
+  ch("ptConverse-basic-3", "ptConverse", "basic", "次の3辺の長さのうち、直角三角形になるものはどれ？", ["6cm、8cm、10cm", "4cm、5cm、6cm", "2cm、3cm、4cm", "5cm、6cm、7cm"], "短い2辺の2乗の和と、長い辺の2乗。", "36 ＋ 64 ＝ 100 なので 6、8、10 です。");
+  ch("ptConverse-basic-4", "ptConverse", "basic", "3辺が 8cm、15cm、17cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "64 ＋ 225 と 289。", "等しいので直角三角形です。");
+  nm("ptConverse-basic-5", "ptConverse", "basic", "3辺が 9cm、12cm、15cm の直角三角形で、直角に向かい合う辺は何cm？", 15, "いちばん長い辺。", "15cm です。");
+  ch("ptConverse-basic-6", "ptConverse", "basic", "3辺が 7cm、8cm、9cm の三角形はどれ？", ["直角三角形ではない", "直角三角形", "正三角形", "二等辺三角形"], "49 ＋ 64 と 81。", "等しくないので直角三角形ではありません。");
+  ch("ptConverse-basic-7", "ptConverse", "basic", "3辺が 1cm、√3 cm、2cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "1 ＋ 3 と 4。", "等しいので直角三角形です。");
+  nm("ptConverse-standard-1", "ptConverse", "standard", "3辺が 12cm、13cm、x cm の三角形が、13cm の辺を斜辺とする直角三角形になるとき、x は？", 5, "169 − 144。", "5 です。");
+  nm("ptConverse-standard-2", "ptConverse", "standard", "3辺が 2cm、3cm、x cm で、x がいちばん長い辺です。直角三角形になる x を √a と表すとき、a は？", 13, "4 ＋ 9。", "13 です。");
+  ch("ptConverse-standard-3", "ptConverse", "standard", "次の3辺の長さのうち、直角三角形にならないものはどれ？", ["4、5、6", "5、12、13", "8、15、17", "20、21、29"], "それぞれ2乗してくらべる。", "16 ＋ 25 ≠ 36 なので 4、5、6 です。");
+  ch("ptConverse-standard-4", "ptConverse", "standard", "3辺が √2 cm、√3 cm、√5 cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "2 ＋ 3 と 5。", "等しいので直角三角形です。");
+  nm("ptConverse-standard-5", "ptConverse", "standard", "3辺が 6cm、x cm、10cm の三角形が、10cm の辺を斜辺とする直角三角形になるとき、x は？", 8, "100 − 36。", "8 です。");
+  ch("ptConverse-standard-6", "ptConverse", "standard", "3辺 a、b、c（c がいちばん長い）で、a² ＋ b² ＝ c² が成り立たないとき、正しいものはどれ？", ["直角三角形ではない", "直角三角形である", "正三角形である", "三角形が作れない"], "逆の考え。", "直角三角形ではありません。");
+  sp("ptConverse-application-1", "ptConverse", "3辺が 9cm、40cm、41cm の三角形があります。", [
+    sc("s1", "ptConverse", "この三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "81 ＋ 1600 と 1681。", "直角三角形です。"),
+    sn("s2", "ptConverse", "直角に向かい合う辺は何cm？", 41, "いちばん長い辺。", "41cm です。"),
+    sn("s3", "ptConverse", "面積は何cm²？", 180, "9 × 40 ÷ 2。", "180cm² です。")
+  ], ["ptConverse"], "直角がどこにあるかを決めてから面積を出す。", "面積は 180cm² です。");
+  sp("ptConverse-application-2", "ptConverse", "ロープに同じ間かくで目印をつけ、辺の比が 3 : 4 : 5 の三角形をつくると、直角ができます。1目盛りを 30cm とします。", [
+    sn("s1", "ptConverse", "いちばん長い辺は何cm？", 150, "5 目盛り。", "150cm です。"),
+    sn("s2", "ptConverse", "直角をはさむ2辺の長さの和は何cm？", 210, "90 ＋ 120。", "210cm です。"),
+    sc("s3", "ptConverse", "直角ができる理由はどれ？", ["三平方の定理の逆", "円周角の定理", "中点連結定理", "三角形の合同条件"], "3² ＋ 4² ＝ 5²。", "三平方の定理の逆です。")
+  ], ["ptConverse"], "辺の比から直角を作れる。", "150cm、210cm です。");
+  sp("ptConverse-application-3", "ptConverse", "座標平面上に A(1, 1)、B(4, 1)、C(4, 5) があります。", [
+    sn("s1", "ptConverse", "AB の長さは？", 3, "x 座標の差。", "3 です。"),
+    sn("s2", "ptConverse", "BC の長さは？", 4, "y 座標の差。", "4 です。"),
+    sn("s3", "ptConverse", "AC の長さは？", 5, "9 ＋ 16。", "5 です。")
+  ], ["ptConverse", "ptPlane"], "座標の差で直角三角形をつくる。", "AC ＝ 5 です。");
+  sp("ptConverse-application-4", "ptConverse", "3辺が 5cm、12cm、x cm の三角形が直角三角形になるようにします。", [
+    sn("s1", "ptConverse", "x cm の辺が斜辺のとき、x は？", 13, "25 ＋ 144。", "13 です。"),
+    sn("s2", "ptConverse", "12cm の辺が斜辺のとき、x を √a と表すと a は？", 119, "144 − 25。", "119 です。"),
+    sc("s3", "ptConverse", "直角三角形になる x は何通り？", ["2通り", "1通り", "3通り", "ない"], "どの辺が斜辺になれるか。", "2通りです。")
+  ], ["ptConverse"], "どの辺を斜辺にするかで答えが変わる。", "13 と √119 の2通りです。");
+  sp("ptConverse-application-5", "ptConverse", "3辺が 10cm、24cm、26cm の三角形があります。", [
+    sc("s1", "ptConverse", "この三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "100 ＋ 576 と 676。", "直角三角形です。"),
+    sn("s2", "ptConverse", "面積は何cm²？", 120, "10 × 24 ÷ 2。", "120cm² です。"),
+    sn("s3", "ptConverse", "周の長さは何cm？", 60, "3辺の和。", "60cm です。")
+  ], ["ptConverse"], "直角三角形とわかれば、面積が出せる。", "面積は 120cm² です。");
+  ch("ptConverse-retention-1", "ptConverse", "retention", "3辺が 20cm、21cm、29cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "400 ＋ 441 と 841。", "等しいので直角三角形です。", RB);
+  ch("ptConverse-retention-2", "ptConverse", "retention", "直角三角形になる3辺の長さはどれ？", ["11、60、61", "9、10、11", "12、13、14", "4、6、9"], "短い2辺の2乗の和。", "121 ＋ 3600 ＝ 3721 なので 11、60、61 です。", RB);
+  nm("ptConverse-retention-3", "ptConverse", "retention", "3辺が 16cm、x cm、20cm の三角形が、20cm の辺を斜辺とする直角三角形になるとき、x は？", 12, "400 − 256。", "12 です。", RB);
+  ch("ptConverse-retention-4", "ptConverse", "retention", "辺の長さが √6 cm、√7 cm、√13 cm の三角形はどれ？", ["直角三角形", "直角三角形ではない", "正三角形", "二等辺三角形"], "6 ＋ 7 と 13。", "等しいので直角三角形です。", RS);
+  nm("ptConverse-retention-5", "ptConverse", "retention", "辺の長さが 7cm、x cm、25cm の三角形が、25cm の辺を斜辺とする直角三角形になるとき、x は？", 24, "625 − 49。", "24 です。", RS);
+
+  // --- 特別な直角三角形 ---
+  nm("ptSpecial-basic-1", "ptSpecial", "basic", "直角二等辺三角形で、直角をはさむ辺が 4cm のとき、斜辺を a√2 cm と表すと a は？", 4, "1 : 1 : √2。", "4√2 なので 4 です。", { usage: "diagnosis" });
+  ch("ptSpecial-basic-2", "ptSpecial", "basic", "角が 30°、60°、90° の直角三角形の辺の比（短い辺 : もう1つの辺 : 斜辺）はどれ？", ["1 : √3 : 2", "1 : 1 : √2", "1 : 2 : 3", "1 : √2 : √3"], "正三角形を半分にした形。", "1 : √3 : 2 です。");
+  ch("ptSpecial-basic-3", "ptSpecial", "basic", "直角二等辺三角形の辺の比（直角をはさむ辺 : 直角をはさむ辺 : 斜辺）はどれ？", ["1 : 1 : √2", "1 : √3 : 2", "1 : 2 : √2", "1 : 1 : 2"], "正方形を対角線で半分にした形。", "1 : 1 : √2 です。");
+  nm("ptSpecial-basic-4", "ptSpecial", "basic", "角が 30°、60°、90° の直角三角形で、斜辺が 10cm のとき、最も短い辺は何cm？", 5, "斜辺の半分。", "5cm です。");
+  nm("ptSpecial-basic-5", "ptSpecial", "basic", "角が 30°、60°、90° の直角三角形で、最も短い辺が 3cm のとき、斜辺は何cm？", 6, "短い辺の2倍。", "6cm です。");
+  nm("ptSpecial-basic-6", "ptSpecial", "basic", "直角二等辺三角形で、斜辺が 6√2 cm のとき、直角をはさむ辺は何cm？", 6, "1 : 1 : √2。", "6cm です。");
+  nm("ptSpecial-basic-7", "ptSpecial", "basic", "角が 30°、60°、90° の直角三角形で、最も短い辺が 4cm のとき、もう1つの直角をはさむ辺を a√3 cm と表すと a は？", 4, "1 : √3。", "4√3 なので 4 です。");
+  nm("ptSpecial-standard-1", "ptSpecial", "standard", "1辺 6cm の正三角形の高さを a√3 cm と表すとき、a は？", 3, "半分に切ると 3 : 3√3 : 6。", "3√3 なので 3 です。");
+  nm("ptSpecial-standard-2", "ptSpecial", "standard", "1辺 8cm の正方形の対角線を a√2 cm と表すとき、a は？", 8, "1 : 1 : √2。", "8√2 なので 8 です。");
+  nm("ptSpecial-standard-3", "ptSpecial", "standard", "角が 30°、60°、90° の直角三角形で、60° の角に向かい合う辺が 6√3 cm のとき、斜辺は何cm？", 12, "√3 : 2。", "12cm です。");
+  nm("ptSpecial-standard-4", "ptSpecial", "standard", "直角二等辺三角形で、斜辺が 10cm のとき、直角をはさむ辺を a√2 cm と表すと a は？", 5, "10 ÷ √2。", "5√2 なので 5 です。");
+  nm("ptSpecial-standard-5", "ptSpecial", "standard", "1辺 4cm の正三角形の面積を a√3 cm² と表すとき、a は？", 4, "高さは 2√3。", "4 × 2√3 ÷ 2 ＝ 4√3 なので 4 です。");
+  nm("ptSpecial-standard-6", "ptSpecial", "standard", "角が 30°、60°、90° の直角三角形で、斜辺が 14cm のとき、60° の角に向かい合う辺を a√3 cm と表すと a は？", 7, "2 : √3。", "7√3 なので 7 です。");
+  sp("ptSpecial-application-1", "ptSpecial", "1辺 10cm の正三角形 ABC で、A から BC に垂線 AH をひきます。", [
+    sn("s1", "ptSpecial", "BH は何cm？", 5, "BC の半分。", "5cm です。"),
+    sn("s2", "ptSpecial", "AH を a√3 cm と表すとき、a は？", 5, "1 : √3。", "5√3 なので 5 です。"),
+    sn("s3", "ptSpecial", "△ABC の面積を a√3 cm² と表すとき、a は？", 25, "10 × 5√3 ÷ 2。", "25√3 なので 25 です。")
+  ], ["ptSpecial"], "正三角形は、半分にすると 30°・60°・90° の三角形。", "面積は 25√3 cm² です。");
+  sp("ptSpecial-application-2", "ptSpecial", "2枚の三角定規があります。1枚は直角二等辺三角形、もう1枚は角が 30°、60°、90° の三角形です。", [
+    sn("s1", "ptSpecial", "直角二等辺三角形の定規の斜辺が 12cm のとき、直角をはさむ辺を a√2 cm と表すと a は？", 6, "12 ÷ √2。", "6√2 なので 6 です。"),
+    sn("s2", "ptSpecial", "もう1枚の定規で、60° の角に向かい合う辺が 12cm のとき、斜辺を a√3 cm と表すと a は？", 8, "√3 : 2 ＝ 12 : 斜辺。", "8√3 なので 8 です。"),
+    sn("s3", "ptSpecial", "その定規の最も短い辺を a√3 cm と表すとき、a は？", 4, "斜辺の半分。", "4√3 なので 4 です。")
+  ], ["ptSpecial"], "どちらの定規も、辺の比が決まっている。", "6、8、4 です。");
+  sp("ptSpecial-application-3", "ptSpecial", "1辺 6cm の正六角形があります。", [
+    sn("s1", "ptSpecial", "中心から頂点までの長さは何cm？", 6, "正六角形は6つの正三角形に分かれる。", "6cm です。"),
+    sn("s2", "ptSpecial", "中心ととなり合う2頂点でできる正三角形の高さを a√3 cm と表すとき、a は？", 3, "1辺 6cm の正三角形。", "3√3 なので 3 です。"),
+    sn("s3", "ptSpecial", "正六角形の面積を a√3 cm² と表すとき、a は？", 54, "正三角形 6 つ分。", "9√3 × 6 ＝ 54√3 なので 54 です。")
+  ], ["ptSpecial"], "正六角形は正三角形に分けて考える。", "54√3 cm² です。");
+  sp("ptSpecial-application-4", "ptSpecial", "1辺 3cm の正方形 ABCD があります。対角線 AC を1辺とする正方形をつくります。", [
+    sn("s1", "ptSpecial", "AC を a√2 cm と表すとき、a は？", 3, "1 : 1 : √2。", "3√2 なので 3 です。"),
+    sn("s2", "ptSpecial", "新しい正方形の面積は何cm²？", 18, "(3√2)²。", "18cm² です。"),
+    sc("s3", "ptSpecial", "新しい正方形の面積は、もとの正方形の何倍？", ["2倍", "4倍", "√2倍", "8倍"], "18 ÷ 9。", "2倍です。")
+  ], ["ptSpecial"], "対角線の長さを2乗すると、面積がわかる。", "面積は 2倍です。");
+  sp("ptSpecial-application-5", "ptSpecial", "∠B ＝ 45°、∠C ＝ 60° の △ABC で、A から BC に垂線 AH をひくと、AH ＝ 6cm です。", [
+    sn("s1", "ptSpecial", "BH は何cm？", 6, "△ABH は直角二等辺三角形。", "6cm です。"),
+    sn("s2", "ptSpecial", "HC を a√3 cm と表すとき、a は？", 2, "HC : AH ＝ 1 : √3。", "6 ÷ √3 ＝ 2√3 なので 2 です。"),
+    sn("s3", "ptSpecial", "AC を a√3 cm と表すとき、a は？", 4, "HC の2倍。", "4√3 なので 4 です。")
+  ], ["ptSpecial"], "垂線で2つの特別な直角三角形に分ける。", "BH ＝ 6cm、AC ＝ 4√3 cm です。");
+  nm("ptSpecial-retention-1", "ptSpecial", "retention", "直角二等辺三角形で、直角をはさむ辺が 9cm のとき、斜辺を a√2 cm と表すと a は？", 9, "1 : 1 : √2。", "9√2 なので 9 です。", RB);
+  nm("ptSpecial-retention-2", "ptSpecial", "retention", "正三角形を、頂点から向かいの辺への垂線で半分にした直角三角形があります。斜辺が 18cm のとき、最も短い辺は何cm？", 9, "斜辺の半分。", "9cm です。", RB);
+  nm("ptSpecial-retention-3", "ptSpecial", "retention", "1辺 14cm の正三角形の高さを a√3 cm と表すとき、a は？", 7, "半分に切ると 7 : 7√3 : 14。", "7√3 なので 7 です。", RB);
+  nm("ptSpecial-retention-4", "ptSpecial", "retention", "1辺 11cm の正方形の対角線を a√2 cm と表すとき、a は？", 11, "1 : 1 : √2。", "11√2 なので 11 です。", RS);
+  nm("ptSpecial-retention-5", "ptSpecial", "retention", "正三角形を、頂点から向かいの辺への垂線で半分にした直角三角形があります。最も短い辺が 5cm のとき、もう1つの直角をはさむ辺を a√3 cm と表すと a は？", 5, "1 : √3。", "5√3 なので 5 です。", RS);
+
+  // --- 平面図形への利用 ---
+  nm("ptPlane-basic-1", "ptPlane", "basic", "座標平面上の2点 A(1, 2)、B(4, 6) の距離は？", 5, "x の差 3、y の差 4。", "9 ＋ 16 ＝ 25 なので 5 です。", { usage: "diagnosis" });
+  nm("ptPlane-basic-2", "ptPlane", "basic", "縦 5cm、横 12cm の長方形の対角線は何cm？", 13, "25 ＋ 144。", "13cm です。");
+  nm("ptPlane-basic-3", "ptPlane", "basic", "等しい2辺が 10cm、底辺が 12cm の二等辺三角形の高さは何cm？", 8, "底辺の半分 6 で直角三角形。", "100 − 36 ＝ 64 なので 8cm です。");
+  nm("ptPlane-basic-4", "ptPlane", "basic", "半径 5cm の円で、中心から 3cm の距離にある弦の長さは何cm？", 8, "弦の半分は 4cm。", "8cm です。");
+  nm("ptPlane-basic-5", "ptPlane", "basic", "座標平面上で、原点と点 (6, 8) の距離は？", 10, "36 ＋ 64。", "10 です。");
+  ch("ptPlane-basic-6", "ptPlane", "basic", "座標平面上の2点の距離の求め方として、正しいものはどれ？", ["x 座標の差と y 座標の差を直角をはさむ辺とする直角三角形の斜辺", "x 座標の差と y 座標の差の和", "x 座標の差と y 座標の差の積", "x 座標の和と y 座標の和"], "直角三角形をつくる。", "座標の差でできる直角三角形の斜辺です。");
+  nm("ptPlane-basic-7", "ptPlane", "basic", "半径 13cm の円に、長さ 24cm の弦があります。中心とこの弦の距離は何cm？", 5, "弦の半分は 12cm。", "169 − 144 ＝ 25 なので 5cm です。");
+  nm("ptPlane-standard-1", "ptPlane", "standard", "座標平面上の2点 A(−2, 1)、B(3, 13) の距離は？", 13, "x の差 5、y の差 12。", "13 です。");
+  nm("ptPlane-standard-2", "ptPlane", "standard", "等しい2辺が 13cm、底辺が 10cm の二等辺三角形の面積は何cm²？", 60, "高さは 12cm。", "10 × 12 ÷ 2 ＝ 60cm² です。");
+  nm("ptPlane-standard-3", "ptPlane", "standard", "円 O の外の点 P から円に接線をひき、接点を A とします。OP ＝ 10cm、半径が 6cm のとき、PA は何cm？", 8, "∠OAP ＝ 90°。", "100 − 36 ＝ 64 なので 8cm です。");
+  nm("ptPlane-standard-4", "ptPlane", "standard", "対角線が 10cm、24cm のひし形の1辺は何cm？", 13, "対角線の半分 5 と 12。", "13cm です。");
+  nm("ptPlane-standard-5", "ptPlane", "standard", "上底 4cm、下底 10cm、平行でない2辺がどちらも 5cm の台形の高さは何cm？", 4, "下の両はしに 3cm ずつはみ出す。", "25 − 9 ＝ 16 なので 4cm です。");
+  nm("ptPlane-standard-6", "ptPlane", "standard", "座標平面上の2点 A(1, 1)、B(3, 5) の距離を a√5 と表すとき、a は？", 2, "4 ＋ 16 ＝ 20。", "2√5 なので 2 です。");
+  sp("ptPlane-application-1", "ptPlane", "座標平面上に A(−1, 2)、B(5, 2)、C(2, 6) があります。", [
+    sn("s1", "ptPlane", "AB の長さは？", 6, "x 座標の差。", "6 です。"),
+    sn("s2", "ptPlane", "AC の長さは？", 5, "x の差 3、y の差 4。", "5 です。"),
+    sc("s3", "ptPlane", "△ABC はどんな三角形？", ["二等辺三角形", "正三角形", "直角三角形", "直角二等辺三角形"], "BC も計算する。", "AC ＝ BC ＝ 5 なので二等辺三角形です。")
+  ], ["ptPlane"], "座標の差で直角三角形をつくる。", "AC ＝ BC ＝ 5 の二等辺三角形です。");
+  sp("ptPlane-application-2", "ptPlane", "半径 10cm の円 O に弦 AB があり、中心 O と AB の距離は 6cm です。", [
+    sn("s1", "ptPlane", "AB の半分の長さは何cm？", 8, "100 − 36。", "8cm です。"),
+    sn("s2", "ptPlane", "AB は何cm？", 16, "8 × 2。", "16cm です。"),
+    sc("s3", "ptPlane", "中心 O から弦 AB にひいた垂線は、AB をどう分ける？", ["二等分する", "1 : 2 に分ける", "AB と交わらない", "2 : 3 に分ける"], "OA ＝ OB の二等辺三角形。", "二等分します。")
+  ], ["ptPlane"], "中心から弦への垂線で直角三角形をつくる。", "AB ＝ 16cm です。");
+  sp("ptPlane-application-3", "ptPlane", "長方形 ABCD（AB ＝ 8cm、AD ＝ 10cm）の紙を、頂点 D が辺 BC 上の点 E に重なるように、A を通る線 AF で折ります（F は辺 CD 上）。", [
+    sn("s1", "ptPlane", "BE は何cm？", 6, "AE ＝ AD ＝ 10。", "100 − 64 ＝ 36 なので 6cm です。"),
+    sn("s2", "ptPlane", "EC は何cm？", 4, "10 − 6。", "4cm です。"),
+    sn("s3", "ptPlane", "CF は何cm？", 3, "CF ＝ x とすると EF ＝ 8 − x。", "x² ＋ 16 ＝ (8 − x)² より 3cm です。")
+  ], ["ptPlane", "eqWord"], "折った辺は、もとの辺と同じ長さ。", "CF ＝ 3cm です。");
+  sp("ptPlane-application-4", "ptPlane", "台形 ABCD（AD ∥ BC）で、AD ＝ 6cm、BC ＝ 16cm、AB ＝ DC ＝ 13cm です。A から BC に垂線 AH をひきます。", [
+    sn("s1", "ptPlane", "BH は何cm？", 5, "(16 − 6) ÷ 2。", "5cm です。"),
+    sn("s2", "ptPlane", "AH は何cm？", 12, "169 − 25。", "12cm です。"),
+    sn("s3", "ptPlane", "台形の面積は何cm²？", 132, "(6 ＋ 16) × 12 ÷ 2。", "132cm² です。")
+  ], ["ptPlane"], "垂線をひいて直角三角形をつくる。", "面積は 132cm² です。");
+  sp("ptPlane-application-5", "ptPlane", "地図で、家から東へ 9km、そこから北へ 12km のところに駅があります。", [
+    sn("s1", "ptPlane", "家から駅までの直線距離は何km？", 15, "81 ＋ 144。", "15km です。"),
+    sn("s2", "ptPlane", "道なり（東と北）と直線では、何km ちがう？", 6, "21 − 15。", "6km です。"),
+    sn("s3", "ptPlane", "直線で時速 30km で進むと、何分かかる？", 30, "15 ÷ 30 時間。", "30分です。")
+  ], ["ptPlane"], "東西と南北の移動で直角三角形ができる。", "直線距離は 15km です。");
+  nm("ptPlane-retention-1", "ptPlane", "retention", "座標平面上の2点 A(2, 3)、B(10, 18) の距離は？", 17, "x の差 8、y の差 15。", "17 です。", RB);
+  nm("ptPlane-retention-2", "ptPlane", "retention", "等しい2辺が 17cm、底辺が 16cm の二等辺三角形の高さは何cm？", 15, "底辺の半分 8 で直角三角形。", "289 − 64 ＝ 225 なので 15cm です。", RB);
+  nm("ptPlane-retention-3", "ptPlane", "retention", "半径 25cm の円で、中心から 7cm の距離にある弦の長さは何cm？", 48, "弦の半分は 24cm。", "48cm です。", RB);
+  nm("ptPlane-retention-4", "ptPlane", "retention", "縦 20cm、横 21cm の長方形の対角線は何cm？", 29, "400 ＋ 441。", "29cm です。", RS);
+  nm("ptPlane-retention-5", "ptPlane", "retention", "円 O の外の点 P から接線をひき、接点を A とします。OP ＝ 26cm、半径 10cm のとき、PA は何cm？", 24, "∠OAP ＝ 90°。", "676 − 100 ＝ 576 なので 24cm です。", RS);
+
+  // --- 空間図形への利用 ---
+  nm("ptSolid-basic-1", "ptSolid", "basic", "縦 3cm、横 4cm、高さ 12cm の直方体の対角線は何cm？", 13, "9 ＋ 16 ＋ 144。", "169 なので 13cm です。", { usage: "diagnosis" });
+  nm("ptSolid-basic-2", "ptSolid", "basic", "1辺 5cm の立方体の対角線を a√3 cm と表すとき、a は？", 5, "25 × 3。", "5√3 なので 5 です。");
+  nm("ptSolid-basic-3", "ptSolid", "basic", "母線が 10cm、底面の半径が 6cm の円すいの高さは何cm？", 8, "100 − 36。", "8cm です。");
+  nm("ptSolid-basic-4", "ptSolid", "basic", "底面が1辺 6cm の正方形の正四角すいで、側面の三角形の高さが 5cm です。正四角すいの高さは何cm？", 4, "底面の中心から辺までは 3cm。", "25 − 9 ＝ 16 なので 4cm です。");
+  ch("ptSolid-basic-5", "ptSolid", "basic", "縦 a、横 b、高さ c の直方体の対角線の長さはどれ？", ["√(a² ＋ b² ＋ c²)", "a ＋ b ＋ c", "√(a ＋ b ＋ c)", "a² ＋ b² ＋ c²"], "三平方の定理を2回使う。", "√(a² ＋ b² ＋ c²) です。");
+  nm("ptSolid-basic-6", "ptSolid", "basic", "高さが 12cm、底面の半径が 5cm の円すいの母線は何cm？", 13, "144 ＋ 25。", "13cm です。");
+  nm("ptSolid-basic-7", "ptSolid", "basic", "球を、中心から 6cm はなれた平面で切ると、切り口は半径 8cm の円になりました。球の半径は何cm？", 10, "36 ＋ 64。", "10cm です。");
+  nm("ptSolid-standard-1", "ptSolid", "standard", "縦 2cm、横 3cm、高さ 6cm の直方体の対角線は何cm？", 7, "4 ＋ 9 ＋ 36。", "49 なので 7cm です。");
+  nm("ptSolid-standard-2", "ptSolid", "standard", "母線が 5cm、底面の半径が 3cm の円すいの体積を aπ cm³ と表すとき、a は？", 12, "高さは 4cm。", "9π × 4 ÷ 3 ＝ 12π なので 12 です。");
+  nm("ptSolid-standard-3", "ptSolid", "standard", "底面が1辺 6cm の正方形で、高さが 4cm の正四角すいがあります。側面の三角形の高さは何cm？", 5, "9 ＋ 16。", "5cm です。");
+  nm("ptSolid-standard-4", "ptSolid", "standard", "縦 4cm、横 4cm の直方体の対角線が 9cm のとき、高さは何cm？", 7, "81 − 16 − 16。", "49 なので 7cm です。");
+  nm("ptSolid-standard-5", "ptSolid", "standard", "半径 13cm の球を、中心から 5cm はなれた平面で切ると、切り口の円の半径は何cm？", 12, "169 − 25。", "12cm です。");
+  nm("ptSolid-standard-6", "ptSolid", "standard", "対角線が 6√3 cm の立方体の1辺は何cm？", 6, "1辺 a なら対角線は a√3。", "6cm です。");
+  sp("ptSolid-application-1", "ptSolid", "縦 6cm、横 8cm、高さ 24cm の直方体があります。", [
+    sn("s1", "ptSolid", "底面の対角線は何cm？", 10, "36 ＋ 64。", "10cm です。"),
+    sn("s2", "ptSolid", "直方体の対角線は何cm？", 26, "100 ＋ 576。", "26cm です。"),
+    sc("s3", "ptSolid", "s2 でつくった直角三角形の、直角をはさむ2辺はどれ？", ["底面の対角線と高さ", "縦と横", "縦と高さ", "横と対角線"], "底面の対角線を使った。", "底面の対角線と高さです。")
+  ], ["ptSolid"], "底面の対角線 → 立体の対角線の順。", "対角線は 26cm です。");
+  sp("ptSolid-application-2", "ptSolid", "母線が 13cm、底面の半径が 5cm の円すいがあります。", [
+    sn("s1", "ptSolid", "高さは何cm？", 12, "169 − 25。", "12cm です。"),
+    sn("s2", "ptSolid", "体積を aπ cm³ と表すとき、a は？", 100, "25π × 12 ÷ 3。", "100π なので 100 です。"),
+    sn("s3", "ptSolid", "底面の円周を aπ cm と表すとき、a は？", 10, "2 × 5 × π。", "10π なので 10 です。")
+  ], ["ptSolid", "spVolume"], "母線・高さ・半径で直角三角形。", "体積は 100π cm³ です。");
+  sp("ptSolid-application-3", "ptSolid", "正四角すい OABCD で、底面は1辺 8cm の正方形、側面の辺 OA は 9cm です。底面の対角線の交点を H とします。", [
+    sn("s1", "ptSolid", "底面の対角線 AC を a√2 cm と表すとき、a は？", 8, "1 : 1 : √2。", "8√2 なので 8 です。"),
+    sn("s2", "ptSolid", "AH を a√2 cm と表すとき、a は？", 4, "AC の半分。", "4√2 なので 4 です。"),
+    sn("s3", "ptSolid", "高さ OH は何cm？", 7, "81 − 32。", "49 なので 7cm です。")
+  ], ["ptSolid", "ptSpecial"], "底面の対角線の半分と、側面の辺で直角三角形。", "OH ＝ 7cm です。");
+  sp("ptSolid-application-4", "ptSolid", "縦 12cm、横 9cm、高さ 8cm の直方体の箱に、まっすぐな棒を入れます。", [
+    sn("s1", "ptSolid", "底面の対角線は何cm？", 15, "144 ＋ 81。", "15cm です。"),
+    sn("s2", "ptSolid", "箱に入る棒の最も長い長さは何cm？", 17, "225 ＋ 64。", "17cm です。"),
+    sc("s3", "ptSolid", "長さ 20cm の棒は箱に入る？", ["入らない", "入る", "ななめにすれば入る", "分からない"], "いちばん長く入るのは対角線。", "17cm より長いので入りません。")
+  ], ["ptSolid"], "いちばん長く入るのは立体の対角線。", "17cm までです。");
+  sp("ptSolid-application-5", "ptSolid", "縦 3cm、横 4cm、高さ 5cm の直方体の表面に、ある頂点から向かいの頂点まで、縦と横の面を通るように糸を張ります。", [
+    sc("s1", "ptSolid", "糸のいちばん短い張り方を考えるときに使う図はどれ？", ["展開図", "投影図", "見取図のまま", "断面図"], "面を平らに広げる。", "展開図です。"),
+    sn("s2", "ptSolid", "展開図で、縦と横を合わせた辺は何cm？", 7, "3 ＋ 4。", "7cm です。"),
+    sn("s3", "ptSolid", "糸の長さを √a cm と表すとき、a は？", 74, "49 ＋ 25。", "74 です。")
+  ], ["ptSolid", "spNet"], "展開図にすると、糸はまっすぐな線になる。", "√74 cm です。");
+  nm("ptSolid-retention-1", "ptSolid", "retention", "縦 6cm、横 6cm、高さ 7cm の直方体の対角線は何cm？", 11, "36 ＋ 36 ＋ 49。", "121 なので 11cm です。", RB);
+  nm("ptSolid-retention-2", "ptSolid", "retention", "母線が 17cm、底面の半径が 8cm の円すいの高さは何cm？", 15, "289 − 64。", "15cm です。", RB);
+  nm("ptSolid-retention-3", "ptSolid", "retention", "1辺 7cm の立方体の対角線を a√3 cm と表すとき、a は？", 7, "49 × 3。", "7√3 なので 7 です。", RB);
+  nm("ptSolid-retention-4", "ptSolid", "retention", "半径 25cm の球を、中心から 24cm はなれた平面で切ると、切り口の円の半径は何cm？", 7, "625 − 576。", "7cm です。", RS);
+  nm("ptSolid-retention-5", "ptSolid", "retention", "底面が1辺 10cm の正方形の正四角すいで、側面の三角形の高さが 13cm です。正四角すいの高さは何cm？", 12, "底面の中心から辺までは 5cm。", "169 − 25 ＝ 144 なので 12cm です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
