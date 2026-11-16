@@ -233,7 +233,13 @@
     beForm:         { label: "am・are・is の使い分け", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beSubject"] },
     beNeg:          { label: "be動詞の否定文", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beForm"] },
     beQues:         { label: "be動詞の疑問文と答え方", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beForm"] },
-    beWh:           { label: "What・Who でたずねる", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beQues"] }
+    beWh:           { label: "What・Who でたずねる", unit: "be動詞", grade: "中1", subject: "英語", prerequisites: ["beQues"] },
+    // --- 中1 英語 一般動詞 ---（主語は I・you・we・they。3人称単数は次の単元）
+    gvKind:         { label: "be動詞と一般動詞", unit: "一般動詞", grade: "中1", subject: "英語", prerequisites: ["beForm"] },
+    gvSent:         { label: "一般動詞の文の語順", unit: "一般動詞", grade: "中1", subject: "英語", prerequisites: ["gvKind"] },
+    gvNeg:          { label: "一般動詞の否定文", unit: "一般動詞", grade: "中1", subject: "英語", prerequisites: ["gvSent", "beNeg"] },
+    gvQues:         { label: "Do you 〜? と答え方", unit: "一般動詞", grade: "中1", subject: "英語", prerequisites: ["gvSent", "beQues"] },
+    gvWhat:         { label: "What do you 〜?", unit: "一般動詞", grade: "中1", subject: "英語", prerequisites: ["gvQues", "beWh"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -266,7 +272,8 @@
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
     "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
     "suMeaning", "suRandom", "suRatio", "suCount", "suMean",
-    "beSubject", "beForm", "beNeg", "beQues", "beWh"];
+    "beSubject", "beForm", "beNeg", "beQues", "beWh",
+    "gvKind", "gvSent", "gvNeg", "gvQues", "gvWhat"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -286,7 +293,8 @@
     "ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar",
     "ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid",
     "suMeaning", "suRandom", "suRatio", "suCount", "suMean",
-    "beSubject", "beForm", "beNeg", "beQues", "beWh"];
+    "beSubject", "beForm", "beNeg", "beQues", "beWh",
+    "gvKind", "gvSent", "gvNeg", "gvQues", "gvWhat"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -314,7 +322,8 @@
     "円": ["ciCentral", "ciSameArc", "ciSemicircle", "ciConverse", "ciSimilar"],
     "三平方の定理": ["ptBasic", "ptConverse", "ptSpecial", "ptPlane", "ptSolid"],
     "標本調査": ["suMeaning", "suRandom", "suRatio", "suCount", "suMean"],
-    "be動詞": ["beSubject", "beForm", "beNeg", "beQues", "beWh"]
+    "be動詞": ["beSubject", "beForm", "beNeg", "beQues", "beWh"],
+    "一般動詞": ["gvKind", "gvSent", "gvNeg", "gvQues", "gvWhat"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
@@ -322,7 +331,7 @@
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
   var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
   // 数学以外の教科。学年ごとの単元（まだない学年は空）。GRADE_UNITS は数学のまま
-  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞"], "中学2年": [], "中学3年": [] } };
+  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞"], "中学2年": [], "中学3年": [] } };
   var SUBJECTS = ["数学", "英語"];
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"], SUBJECT_UNITS["英語"]["中学1年"], SUBJECT_UNITS["英語"]["中学2年"], SUBJECT_UNITS["英語"]["中学3年"]);
   var currentGrade = "中学2年", currentSubject = "数学";
@@ -686,6 +695,7 @@
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
     suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
+    gvKind: "review_be_or_verb", gvSent: "review_verb_word_order", gvNeg: "practice_dont", gvQues: "practice_do_you", gvWhat: "practice_what_do_you",
     beSubject: "review_subject_pronouns", beForm: "review_be_forms", beNeg: "practice_be_negative", beQues: "practice_be_question", beWh: "practice_what_who",
     negMeaning: "review_signed_meaning", negAddSub: "review_signed_add_sub", negMulDiv: "review_signed_mul_div", negPower: "review_signed_power", negUse: "review_signed_use",
     probMeaning: "review_probability_meaning", probCount: "review_counting", probBasic: "review_probability_basic", probTwo: "practice_probability_two", probDraw: "practice_probability_draw", probNot: "review_probability_complement",

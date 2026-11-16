@@ -8675,6 +8675,236 @@
   ch("beWh-retention-5", "beWh", "retention", "「この写真の男の子たちはだれですか。」を英語にすると？", ["Who are the boys in this picture?", "What are the boys in this picture?", "Who is the boys in this picture?", "Who the boys are in this picture?"], "人が2人以上なら Who are。", "Who are the boys in this picture? です。", RS);
 
   // =====================================================================
+  // 中1 英語「一般動詞」（主語は I・you・we・they と2人以上。3人称単数は次の単元）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-verb.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- be動詞と一般動詞 ---
+  ch("gvKind-basic-1", "gvKind", "basic", "「わたしはテニスをします。」を英語にすると？", ["I play tennis.", "I am play tennis.", "I tennis am.", "I tennis play."], "「〜をする」は動きを表す語（一般動詞）。", "I play tennis. です。be動詞はいりません。", { usage: "diagnosis" });
+  ch("gvKind-basic-2", "gvKind", "basic", "一般動詞はどれ？", ["like", "am", "is", "are"], "動きや気持ちを表す語。", "like（好きだ）です。am・is・are は be動詞です。");
+  ch("gvKind-basic-3", "gvKind", "basic", "「わたしはサッカーが好きです。」I （ ） soccer. の（ ）は？", ["like", "am", "is", "are"], "「好きだ」を表す語。", "like です。");
+  ch("gvKind-basic-4", "gvKind", "basic", "「わたしは生徒です。」I （ ） a student. の（ ）は？", ["am", "like", "play", "have"], "「〜です」は be動詞。", "am です。");
+  ch("gvKind-basic-5", "gvKind", "basic", "「わたしはねこを飼っています。」を英語にすると？", ["I have a cat.", "I am have a cat.", "I have am a cat.", "I cat have."], "「飼っている」は have。", "I have a cat. です。");
+  ch("gvKind-basic-6", "gvKind", "basic", "一般動詞ではないものはどれ？", ["are", "play", "have", "study"], "be動詞をさがす。", "are は be動詞です。");
+  ch("gvKind-basic-7", "gvKind", "basic", "「わたしたちは毎日英語を勉強します。」We （ ） English every day. の（ ）は？", ["study", "are", "am", "is"], "「勉強する」。", "study です。");
+  ch("gvKind-standard-1", "gvKind", "standard", "「あなたは忙しい。」You （ ） busy. の（ ）は？", ["are", "play", "like", "have"], "「〜だ」は be動詞。", "are です。");
+  ch("gvKind-standard-2", "gvKind", "standard", "「あなたはピアノを上手にひきます。」You （ ） the piano well. の（ ）は？", ["play", "are", "am", "is"], "「ひく」は動き。", "play です。");
+  ch("gvKind-standard-3", "gvKind", "standard", "「わたしたちは日曜日に公園へ行きます。」を英語にすると？", ["We go to the park on Sundays.", "We are go to the park on Sundays.", "We go the park to on Sundays.", "Go we to the park on Sundays."], "一般動詞の文に be動詞はいらない。", "We go to the park on Sundays. です。");
+  ch("gvKind-standard-4", "gvKind", "standard", "正しい文はどれ？", ["I like music.", "I am like music.", "I'm like music.", "I music like."], "be動詞と一般動詞をいっしょに使わない。", "I like music. です。");
+  ch("gvKind-standard-5", "gvKind", "standard", "「彼らは親切です。」They （ ） kind. の（ ）は？", ["are", "play", "have", "like"], "「〜だ」は be動詞。", "are です。");
+  ch("gvKind-standard-6", "gvKind", "standard", "「わたしは毎朝牛乳を飲みます。」を英語にすると？", ["I drink milk every morning.", "I am drink milk every morning.", "I drink every morning milk.", "I milk drink every morning."], "動詞のすぐあとに「〜を」。", "I drink milk every morning. です。");
+  sp("gvKind-application-1", "gvKind", "ハルカの自己紹介です。「I （ア） Haruka. I （イ） basketball. I （ウ） a dog.」（バスケットボールをする・犬を飼っている）", [
+    sc("s1", "gvKind", "（ア）に入る語は？", ["am", "like", "have", "play"], "「わたしはハルカです」。", "am です。"),
+    sc("s2", "gvKind", "（イ）に入る語は？", ["play", "am", "is", "are"], "「バスケットボールをする」。", "play です。"),
+    sc("s3", "gvKind", "（ウ）に入る語は？", ["have", "am", "is", "are"], "「飼っている」。", "have です。")
+  ], ["gvKind"], "「〜です」は be動詞、動きは一般動詞。", "am、play、have です。");
+  sp("gvKind-application-2", "gvKind", "友だちとの共通点を話します。「We （ア） in the same class. We （イ） music.」（同じクラス・音楽が好き）", [
+    sc("s1", "gvKind", "（ア）に入る語は？", ["are", "like", "play", "have"], "「同じクラスにいる」は be動詞。", "are です。"),
+    sc("s2", "gvKind", "（イ）に入る語は？", ["like", "are", "am", "is"], "「好きだ」。", "like です。"),
+    sc("s3", "gvKind", "「わたしたちは毎日歌を歌います。」を英語にすると？", ["We sing songs every day.", "We are sing songs every day.", "We sing every day songs.", "We songs sing every day."], "動詞のすぐあとに「〜を」。", "We sing songs every day. です。")
+  ], ["gvKind"], "1つの文に be動詞と一般動詞を並べない。", "are、like です。");
+  sp("gvKind-application-3", "gvKind", "日曜日のことを書きます。「On Sundays, I （ア） my room. I （イ） tired after that.」（部屋をそうじする・そのあとつかれている）", [
+    sc("s1", "gvKind", "（ア）に入る語は？", ["clean", "am", "is", "are"], "「そうじする」。", "clean です。"),
+    sc("s2", "gvKind", "（イ）に入る語は？", ["am", "clean", "have", "like"], "「つかれている」は様子。", "am です。"),
+    sc("s3", "gvKind", "be動詞と一般動詞を、1つの文でいっしょに使う？", ["使わない（どちらか1つ）", "いつも両方使う", "be動詞を先に使う", "一般動詞を2つ使う"], "I am clean my room. はまちがい。", "どちらか1つです。")
+  ], ["gvKind"], "様子は be動詞、動きは一般動詞。", "clean、am です。");
+  sp("gvKind-application-4", "gvKind", "留学生のエマに話しかけます。「You （ア） from Australia. You （イ） Japanese food.」（オーストラリア出身・和食が好き）", [
+    sc("s1", "gvKind", "（ア）に入る語は？", ["are", "like", "have", "play"], "「〜出身だ」は be動詞。", "are です。"),
+    sc("s2", "gvKind", "（イ）に入る語は？", ["like", "are", "am", "is"], "「好きだ」。", "like です。"),
+    sc("s3", "gvKind", "「あなたは日本語を上手に話します。」を英語にすると？", ["You speak Japanese well.", "You are speak Japanese well.", "You Japanese speak well.", "You speak well Japanese."], "動詞 → 「〜を」 → well の順。", "You speak Japanese well. です。")
+  ], ["gvKind"], "出身は be動詞、好き・話すは一般動詞。", "are、like です。");
+  sp("gvKind-application-5", "gvKind", "家族のことを話します。「My parents （ア） teachers. They （イ） in Kyoto.」（先生をしている・京都に住んでいる）", [
+    sc("s1", "gvKind", "（ア）に入る語は？", ["are", "live", "have", "like"], "「先生です」。", "are です。"),
+    sc("s2", "gvKind", "（イ）に入る語は？", ["live", "are", "am", "is"], "「住んでいる」。", "live です。"),
+    sc("s3", "gvKind", "一般動詞はどれ？", ["live", "are", "am", "is"], "動きや状態を表す語。", "live です。")
+  ], ["gvKind"], "「〜です」と「住んでいる」で使う語がちがう。", "are、live です。");
+  ch("gvKind-retention-1", "gvKind", "retention", "「わたしは自転車を持っています。」I （ ） a bike. の（ ）は？", ["have", "am", "is", "are"], "「持っている」。", "have です。", RB);
+  ch("gvKind-retention-2", "gvKind", "retention", "「わたしは毎晩テレビを見ます。」を英語にすると？", ["I watch TV every night.", "I am watch TV every night.", "I watch every night TV.", "I TV watch every night."], "be動詞はいらない。", "I watch TV every night. です。", RB);
+  ch("gvKind-retention-3", "gvKind", "retention", "次の4つのうち、be動詞ではなく一般動詞なのはどれ？", ["eat", "am", "are", "is"], "「食べる」。", "eat です。", RB);
+  ch("gvKind-retention-4", "gvKind", "retention", "「わたしたちはおなかがすいています。」We （ ） hungry. の（ ）は？", ["are", "eat", "have", "like"], "様子は be動詞。", "are です。", RS);
+  ch("gvKind-retention-5", "gvKind", "retention", "「彼らは歩いて学校へ行きます。」を英語にすると？", ["They walk to school.", "They are walk to school.", "They're walk to school.", "They to school walk."], "一般動詞の文に be動詞はいらない。", "They walk to school. です。", RS);
+
+  // --- 一般動詞の文の語順 ---
+  ch("gvSent-basic-1", "gvSent", "basic", "「わたしは英語が好きです。」を英語にすると？", ["I like English.", "I English like.", "Like I English.", "English I like."], "主語 → 動詞 → 「〜を」。", "I like English. です。", { usage: "diagnosis" });
+  ch("gvSent-basic-2", "gvSent", "basic", "「あなたは毎日走ります。」を英語にすると？", ["You run every day.", "You every day run.", "Run you every day.", "You run day every."], "every day は文の終わり。", "You run every day. です。");
+  ch("gvSent-basic-3", "gvSent", "basic", "一般動詞の文の語順として正しいものは？", ["主語 → 動詞 → 「〜を」", "主語 → 「〜を」 → 動詞", "動詞 → 主語 → 「〜を」", "「〜を」 → 主語 → 動詞"], "日本語と順番がちがう。", "主語 → 動詞 → 「〜を」です。");
+  ch("gvSent-basic-4", "gvSent", "basic", "「わたしは夕食のあとに宿題をします。」I （ ） my homework after dinner. の（ ）は？", ["do", "make", "play", "am"], "「宿題をする」は do my homework。", "do です。");
+  ch("gvSent-basic-5", "gvSent", "basic", "「わたしたちは昼食を食べます。」を英語にすると？", ["We eat lunch.", "We lunch eat.", "Eat we lunch.", "We lunch are."], "主語 → 動詞 → 「〜を」。", "We eat lunch. です。");
+  ch("gvSent-basic-6", "gvSent", "basic", "「わたしは毎週土曜日にテニスをします。」I play （ ） every Saturday. の（ ）は？", ["tennis", "the tennis", "a tennis", "tennises"], "スポーツには a や the をつけない。", "tennis です。");
+  ch("gvSent-basic-7", "gvSent", "basic", "「わたしはバスで学校に行きます。」I （ ） to school by bus. の（ ）は？", ["go", "am", "play", "like"], "「行く」。", "go です。");
+  ch("gvSent-standard-1", "gvSent", "standard", "「わたしはピアノをひきます。」を英語にすると？", ["I play the piano.", "I play piano the.", "I the piano play.", "I am play the piano."], "楽器には the をつける。", "I play the piano. です。");
+  ch("gvSent-standard-2", "gvSent", "standard", "「彼らはサッカーが大好きです。」を英語にすると？", ["They like soccer very much.", "They very much like soccer.", "They like very much soccer.", "They are like soccer very much."], "very much は文の終わり。", "They like soccer very much. です。");
+  ch("gvSent-standard-3", "gvSent", "standard", "「わたしは毎日数学を勉強します。」I study math （ ）. の（ ）は？", ["every day", "day every", "every days", "days every"], "「毎日」。", "every day です。");
+  ch("gvSent-standard-4", "gvSent", "standard", "「あなたはギターを上手にひきます。」を英語にすると？", ["You play the guitar well.", "You well play the guitar.", "You play well the guitar.", "You are play the guitar well."], "well は「〜を」のあと。", "You play the guitar well. です。");
+  ch("gvSent-standard-5", "gvSent", "standard", "「わたしたちはたくさんの本を読みます。」We （ ） a lot of books. の（ ）は？", ["read", "are", "is", "am"], "「読む」。", "read です。");
+  ch("gvSent-standard-6", "gvSent", "standard", "「わたしは7時に起きます。」を英語にすると？", ["I get up at seven.", "I get at seven up.", "I up get at seven.", "I am get up at seven."], "get up で「起きる」。", "I get up at seven. です。");
+  sp("gvSent-application-1", "gvSent", "1日の流れを英語で書きます。「I get up at six. I （ア） breakfast at seven. I （イ） to school at eight.」", [
+    sc("s1", "gvSent", "（ア）に入る語は？", ["eat", "go", "am", "play"], "「朝ごはんを食べる」。", "eat です。"),
+    sc("s2", "gvSent", "（イ）に入る語は？", ["go", "eat", "am", "study"], "「学校へ行く」。", "go です。"),
+    sc("s3", "gvSent", "「わたしは夜に宿題をします。」を英語にすると？", ["I do my homework at night.", "I my homework do at night.", "I do at night my homework.", "I am do my homework at night."], "動詞 → 「〜を」 → 時。", "I do my homework at night. です。")
+  ], ["gvSent"], "主語 → 動詞 → 「〜を」 → 場所・時。", "eat、go です。");
+  sp("gvSent-application-2", "gvSent", "好きな教科を紹介します。", [
+    sc("s1", "gvSent", "「わたしは理科が好きです。」を英語にすると？", ["I like science.", "I science like.", "Like I science.", "I am like science."], "主語 → 動詞 → 「〜を」。", "I like science. です。"),
+    sc("s2", "gvSent", "I study science （ ）.（毎日）の（ ）は？", ["every day", "every days", "day every", "days every"], "「毎日」。", "every day です。"),
+    sc("s3", "gvSent", "We （ ） experiments in the science room.（実験をする）の（ ）は？", ["do", "are", "go", "is"], "「実験をする」は do experiments。", "do です。")
+  ], ["gvSent"], "時を表す語は文の終わりに。", "I like science.、every day、do です。");
+  sp("gvSent-application-3", "gvSent", "バレーボール部の紹介です。", [
+    sc("s1", "gvSent", "「わたしたちは毎日バレーボールを練習します。」を英語にすると？", ["We practice volleyball every day.", "We practice every day volleyball.", "We volleyball practice every day.", "We are practice volleyball every day."], "動詞 → 「〜を」 → 時。", "We practice volleyball every day. です。"),
+    sc("s2", "gvSent", "We （ ） hard.（一生けんめい練習する）の（ ）は？", ["practice", "is", "am", "be"], "「練習する」。", "practice です。"),
+    sc("s3", "gvSent", "They play basketball. の文で、「〜を」にあたる語は？", ["basketball", "They", "play", "ない"], "動詞のすぐあと。", "basketball です。")
+  ], ["gvSent"], "「〜を」は動詞のすぐあと。", "practice、basketball です。");
+  sp("gvSent-application-4", "gvSent", "家族で買い物に行きます。", [
+    sc("s1", "gvSent", "「わたしはスーパーで野菜を買います。」を英語にすると？", ["I buy vegetables at the supermarket.", "I vegetables buy at the supermarket.", "I buy at the supermarket vegetables.", "I am buy vegetables at the supermarket."], "動詞 → 「〜を」 → 場所。", "I buy vegetables at the supermarket. です。"),
+    sc("s2", "gvSent", "We （ ） a lot of apples.（たくさんのりんごを食べる）の（ ）は？", ["eat", "are", "is", "am"], "「食べる」。", "eat です。"),
+    sc("s3", "gvSent", "一般動詞のすぐあとに来るものは？", ["「〜を」にあたる語", "主語", "be動詞", "not"], "I buy vegetables.", "「〜を」にあたる語です。")
+  ], ["gvSent"], "場所は「〜を」のあと。", "I buy vegetables 〜、eat です。");
+  sp("gvSent-application-5", "gvSent", "おばあちゃんに手紙を書きます。", [
+    sc("s1", "gvSent", "「わたしはあなたの新しいバッグが好きです。」I （ ） your new bag. の（ ）は？", ["like", "am", "is", "are"], "「好きだ」。", "like です。"),
+    sc("s2", "gvSent", "「わたしは週末に祖母を訪ねます。」を英語にすると？", ["I visit my grandmother on weekends.", "I my grandmother visit on weekends.", "I visit on weekends my grandmother.", "I am visit my grandmother on weekends."], "動詞 → 「〜を」 → 時。", "I visit my grandmother on weekends. です。"),
+    sc("s3", "gvSent", "We （ ） English songs together.（いっしょに歌う）の（ ）は？", ["sing", "are", "is", "am"], "「歌う」。", "sing です。")
+  ], ["gvSent"], "時（on weekends）は文の終わり。", "like、I visit 〜、sing です。");
+  ch("gvSent-retention-1", "gvSent", "retention", "「わたしはりんごが好きです。」を英語にすると？", ["I like apples.", "I apples like.", "Like I apples.", "I am like apples."], "主語 → 動詞 → 「〜を」。", "I like apples. です。", RB);
+  ch("gvSent-retention-2", "gvSent", "retention", "「わたしは日曜日に野球をします。」I （ ） baseball on Sundays. の（ ）は？", ["play", "am", "is", "are"], "「〜をする」。", "play です。", RB);
+  ch("gvSent-retention-3", "gvSent", "retention", "「あなたは毎朝コーヒーを飲みます。」を英語にすると？", ["You drink coffee every morning.", "You every morning drink coffee.", "You drink every morning coffee.", "Drink you coffee every morning."], "動詞 → 「〜を」 → 時。", "You drink coffee every morning. です。", RB);
+  ch("gvSent-retention-4", "gvSent", "retention", "「彼らは放課後に英語を勉強します。」を英語にすると？", ["They study English after school.", "They English study after school.", "They study after school English.", "They are study English after school."], "動詞 → 「〜を」 → 時。", "They study English after school. です。", RS);
+  ch("gvSent-retention-5", "gvSent", "retention", "「わたしたちは7時に夕食を食べます。」We （ ） dinner at seven. の（ ）は？", ["eat", "are", "is", "am"], "「食べる」。", "eat です。", RS);
+
+  // --- 一般動詞の否定文 ---
+  ch("gvNeg-basic-1", "gvNeg", "basic", "I like dogs. を「〜ない」の文にすると？", ["I don't like dogs.", "I not like dogs.", "I am not like dogs.", "I don't dogs like."], "動詞の前に don't。", "I don't like dogs. です。", { usage: "diagnosis" });
+  ch("gvNeg-basic-2", "gvNeg", "basic", "do not の短縮形は？", ["don't", "dont", "do'nt", "d'not"], "o を ' にかえる。", "don't です。");
+  ch("gvNeg-basic-3", "gvNeg", "basic", "一般動詞の否定文で、動詞の前に置くものは？", ["do not", "am not", "is not", "are not"], "be動詞は使わない。", "do not（don't）です。");
+  ch("gvNeg-basic-4", "gvNeg", "basic", "「わたしはギターをひきません。」I （ ） play the guitar. の（ ）は？", ["don't", "am not", "isn't", "not"], "一般動詞の否定。", "don't です。");
+  ch("gvNeg-basic-5", "gvNeg", "basic", "「わたしたちは朝ごはんを食べません。」We （ ） eat breakfast. の（ ）は？", ["don't", "aren't", "not", "isn't"], "一般動詞の否定。", "don't です。");
+  ch("gvNeg-basic-6", "gvNeg", "basic", "一般動詞の否定文で、not の位置は？", ["don't の形で、動詞の前", "動詞のあと", "文の最後", "主語の前"], "I don't like 〜.", "動詞の前に don't です。");
+  ch("gvNeg-basic-7", "gvNeg", "basic", "「わたしは肉を食べません。」を英語にすると？", ["I don't eat meat.", "I eat not meat.", "I not eat meat.", "I am not eat meat."], "動詞の前に don't。", "I don't eat meat. です。");
+  ch("gvNeg-standard-1", "gvNeg", "standard", "「あなたはわたしの姉を知りません。」You （ ） know my sister. の（ ）は？", ["don't", "aren't", "not", "isn't"], "know は一般動詞。", "don't です。");
+  ch("gvNeg-standard-2", "gvNeg", "standard", "「わたしたちは日曜日に学校へ行きません。」を英語にすると？", ["We don't go to school on Sundays.", "We aren't go to school on Sundays.", "We go not to school on Sundays.", "We don't going to school on Sundays."], "don't のあとは動詞のもとの形。", "We don't go to school on Sundays. です。");
+  ch("gvNeg-standard-3", "gvNeg", "standard", "否定の文のつくり方の組み合わせとして正しいものは？", ["be動詞の文は not、一般動詞の文は don't", "どちらも don't", "どちらも not だけ", "be動詞の文は don't、一般動詞の文は not"], "I'm not 〜／I don't 〜。", "be動詞は not、一般動詞は don't です。");
+  ch("gvNeg-standard-4", "gvNeg", "standard", "「彼らは東京に住んでいません。」They （ ） live in Tokyo. の（ ）は？", ["don't", "aren't", "isn't", "not"], "live は一般動詞。", "don't です。");
+  ch("gvNeg-standard-5", "gvNeg", "standard", "「わたしはおなかがすいていません。」を英語にすると？", ["I'm not hungry.", "I don't hungry.", "I not am hungry.", "I don't am hungry."], "hungry は様子 → be動詞の文。", "I'm not hungry. です。");
+  ch("gvNeg-standard-6", "gvNeg", "standard", "「あなたはテレビを見ません。」を英語にすると？", ["You don't watch TV.", "You aren't watch TV.", "You watch not TV.", "You don't TV watch."], "動詞の前に don't。", "You don't watch TV. です。");
+  sp("gvNeg-application-1", "gvNeg", "好きな野菜・きらいな野菜を話します。", [
+    sc("s1", "gvNeg", "「わたしはにんじんが好きではありません。」を英語にすると？", ["I don't like carrots.", "I'm not like carrots.", "I like not carrots.", "I don't carrots like."], "like は一般動詞。", "I don't like carrots. です。"),
+    sc("s2", "gvNeg", "But I （ ） tomatoes.（トマトは好き）の（ ）は？", ["like", "don't like", "am", "not like"], "好きなほう。", "like です。"),
+    sc("s3", "gvNeg", "「わたしたちは魚を食べません。」We （ ） eat fish. の（ ）は？", ["don't", "aren't", "not", "isn't"], "一般動詞の否定。", "don't です。")
+  ], ["gvNeg"], "一般動詞の否定は don't ＋ 動詞。", "I don't like 〜、like、don't です。");
+  sp("gvNeg-application-2", "gvNeg", "雨の日の体育の時間です。", [
+    sc("s1", "gvNeg", "「今日はサッカーをしません。」We （ ） play soccer today. の（ ）は？", ["don't", "aren't", "not", "isn't"], "play は一般動詞。", "don't です。"),
+    sc("s2", "gvNeg", "「わたしたちは体育館にいます。」We （ ） in the gym. の（ ）は？", ["are", "do", "don't", "play"], "「いる」は be動詞。", "are です。"),
+    sc("s3", "gvNeg", "「わたしたちはかさを持っていません。」を英語にすると？", ["We don't have umbrellas.", "We aren't have umbrellas.", "We have not umbrellas.", "We don't umbrellas have."], "have は一般動詞。", "We don't have umbrellas. です。")
+  ], ["gvNeg"], "be動詞の文か一般動詞の文かを先に見る。", "don't、are です。");
+  sp("gvNeg-application-3", "gvNeg", "留学生に日本の家のことを教えます。", [
+    sc("s1", "gvNeg", "「わたしたちは家でくつをはきません。」を英語にすると？", ["We don't wear shoes at home.", "We aren't wear shoes at home.", "We wear not shoes at home.", "We don't shoes wear at home."], "wear は一般動詞。", "We don't wear shoes at home. です。"),
+    sc("s2", "gvNeg", "「彼らは日本の出身ではありません。」They （ ） from Japan. の（ ）は？", ["aren't", "don't", "not", "isn't"], "「出身だ」は be動詞。", "aren't です。"),
+    sc("s3", "gvNeg", "not の前に do を置くのは、どちらの文？", ["一般動詞の文", "be動詞の文", "どちらも", "どちらでもない"], "I don't wear 〜／They aren't 〜。", "一般動詞の文です。")
+  ], ["gvNeg"], "一般動詞は don't、be動詞は be動詞 ＋ not。", "don't、aren't です。");
+  sp("gvNeg-application-4", "gvNeg", "朝ごはんについての会話です。", [
+    sc("s1", "gvNeg", "「わたしは朝、時間がありません。」I （ ） have time in the morning. の（ ）は？", ["don't", "am not", "not", "isn't"], "have は一般動詞。", "don't です。"),
+    sc("s2", "gvNeg", "「お昼にはおなかがすいています。」I （ ） hungry at lunch. の（ ）は？", ["am", "don't", "do", "have"], "様子は be動詞。", "am です。"),
+    sc("s3", "gvNeg", "「わたしは朝ごはんを食べません。」を英語にすると？", ["I don't eat breakfast.", "I am not eat breakfast.", "I not eat breakfast.", "I eat don't breakfast."], "動詞の前に don't。", "I don't eat breakfast. です。")
+  ], ["gvNeg"], "動きの否定は don't、様子は be動詞。", "don't、am です。");
+  sp("gvNeg-application-5", "gvNeg", "スマホのルールについて話します。", [
+    sc("s1", "gvNeg", "「わたしたちは学校でスマホを使いません。」We （ ） use smartphones at school. の（ ）は？", ["don't", "aren't", "not", "isn't"], "use は一般動詞。", "don't です。"),
+    sc("s2", "gvNeg", "「わたしはスマホを持っていません。」を英語にすると？", ["I don't have a smartphone.", "I'm not have a smartphone.", "I have not a smartphone.", "I don't a smartphone have."], "have は一般動詞。", "I don't have a smartphone. です。"),
+    sc("s3", "gvNeg", "「両親は日曜日は忙しくありません。」My parents （ ） busy on Sundays. の（ ）は？", ["aren't", "don't", "not", "isn't"], "busy は様子。", "aren't です。")
+  ], ["gvNeg"], "busy・hungry は be動詞の文。", "don't、aren't です。");
+  ch("gvNeg-retention-1", "gvNeg", "retention", "「あなたはペンがいりません。」You （ ） need a pen. の（ ）は？", ["don't", "aren't", "not", "isn't"], "need は一般動詞。", "don't です。", RB);
+  ch("gvNeg-retention-2", "gvNeg", "retention", "「わたしはコーヒーを飲みません。」を英語にすると？", ["I don't drink coffee.", "I'm not drink coffee.", "I drink not coffee.", "I not drink coffee."], "動詞の前に don't。", "I don't drink coffee. です。", RB);
+  ch("gvNeg-retention-3", "gvNeg", "retention", "don't を短くしない形にすると？", ["do not", "does not", "did not", "am not"], "don't ＝ do ＋ not。", "do not です。", RB);
+  ch("gvNeg-retention-4", "gvNeg", "retention", "「わたしたちはこの歌を知りません。」を英語にすると？", ["We don't know this song.", "We aren't know this song.", "We know not this song.", "We don't this song know."], "know は一般動詞。", "We don't know this song. です。", RS);
+  ch("gvNeg-retention-5", "gvNeg", "retention", "「彼らは忙しくありません。」を英語にすると？", ["They aren't busy.", "They don't busy.", "They not busy.", "They don't are busy."], "busy は様子 → be動詞。", "They aren't busy. です。", RS);
+
+  // --- Do you 〜? と答え方 ---
+  ch("gvQues-basic-1", "gvQues", "basic", "You play tennis. をたずねる文にすると？", ["Do you play tennis?", "Are you play tennis?", "You play tennis?", "Play you tennis?"], "文のはじめに Do。", "Do you play tennis? です。", { usage: "diagnosis" });
+  ch("gvQues-basic-2", "gvQues", "basic", "Do you like cats? — Yes, （ ）. の（ ）は？", ["I do", "I am", "I like", "you do"], "Do でたずねられたら do で答える。", "I do です。");
+  ch("gvQues-basic-3", "gvQues", "basic", "Do you live in Osaka? — No, （ ）. の（ ）は？", ["I don't", "I'm not", "I do", "you don't"], "No なら don't。", "I don't です。");
+  ch("gvQues-basic-4", "gvQues", "basic", "一般動詞の疑問文は、どの語で始める？", ["Do", "Are", "Is", "Am"], "Do you 〜?", "Do です。");
+  ch("gvQues-basic-5", "gvQues", "basic", "（ ） you have a pet? の（ ）は？", ["Do", "Are", "Is", "Am"], "have は一般動詞。", "Do です。");
+  ch("gvQues-basic-6", "gvQues", "basic", "（ ） you a student? の（ ）は？", ["Are", "Do", "Is", "Am"], "student の前に動詞がない → be動詞の文。", "Are です。");
+  ch("gvQues-basic-7", "gvQues", "basic", "Do they study English? — Yes, （ ）. の（ ）は？", ["they do", "they are", "we do", "I do"], "they でたずねられたら they。", "they do です。");
+  ch("gvQues-standard-1", "gvQues", "standard", "「あなたは毎日走りますか。」を英語にすると？", ["Do you run every day?", "Are you run every day?", "You do run every day?", "Do you running every day?"], "Do ＋ 主語 ＋ 動詞のもとの形。", "Do you run every day? です。");
+  ch("gvQues-standard-2", "gvQues", "standard", "Do you and Ken play soccer? — Yes, （ ）. の（ ）は？", ["we do", "they do", "you do", "we are"], "答える人とケン → わたしたち。", "we do です。");
+  ch("gvQues-standard-3", "gvQues", "standard", "Are you busy? — No, （ ）. の（ ）は？", ["I'm not", "I don't", "I do", "I am"], "Are でたずねられたら be動詞で答える。", "I'm not です。");
+  ch("gvQues-standard-4", "gvQues", "standard", "Do your parents cook? — No, （ ）. の（ ）は？", ["they don't", "they aren't", "we don't", "he doesn't"], "両親 → they。", "they don't です。");
+  ch("gvQues-standard-5", "gvQues", "standard", "「あなたたちは毎朝歩いて学校に行きますか。」を英語にすると？", ["Do you walk to school every morning?", "Are you walk to school every morning?", "Do you walking to school every morning?", "You walk to school every morning?"], "Do ＋ 主語 ＋ 動詞。", "Do you walk to school every morning? です。");
+  ch("gvQues-standard-6", "gvQues", "standard", "Do you know Ms. Kato? — Yes, I （ ）. の（ ）は？", ["do", "am", "know", "like"], "Do でたずねられたら do。", "do です。");
+  sp("gvQues-application-1", "gvQues", "新しいクラスの友だちに話しかけます。", [
+    sc("s1", "gvQues", "（ ） you play any sports? の（ ）は？", ["Do", "Are", "Is", "Am"], "play は一般動詞。", "Do です。"),
+    sc("s2", "gvQues", "— Yes, （ ）. I play tennis. の（ ）は？", ["I do", "I am", "I play", "you do"], "Do には do で答える。", "I do です。"),
+    sc("s3", "gvQues", "「あなたは音楽が好きですか。」を英語にすると？", ["Do you like music?", "Are you like music?", "Do you music like?", "You like music?"], "Do ＋ 主語 ＋ 動詞 ＋ 「〜を」。", "Do you like music? です。")
+  ], ["gvQues"], "一般動詞の疑問文は Do で始め、do で答える。", "Do、I do です。");
+  sp("gvQues-application-2", "gvQues", "ペットショップで友だちと話します。", [
+    sc("s1", "gvQues", "Do you have a dog? — No, （ ）. の（ ）は？", ["I don't", "I'm not", "I do", "you don't"], "No なら don't。", "I don't です。"),
+    sc("s2", "gvQues", "（ ） you want a cat? の（ ）は？", ["Do", "Are", "Is", "Am"], "want は一般動詞。", "Do です。"),
+    sc("s3", "gvQues", "Are you happy? — Yes, （ ）. の（ ）は？", ["I am", "I do", "I'm", "you are"], "Are には am で答える。最後は短縮しない。", "I am です。")
+  ], ["gvQues"], "Do には do、Are には am・are で答える。", "I don't、Do、I am です。");
+  sp("gvQues-application-3", "gvQues", "給食の時間の会話です。", [
+    sc("s1", "gvQues", "Do you eat natto? — Yes, （ ）. の（ ）は？", ["I do", "I am", "I eat", "you do"], "Do には do。", "I do です。"),
+    sc("s2", "gvQues", "「あなたたちは魚が好きですか。」を英語にすると？", ["Do you like fish?", "Are you like fish?", "Do you fish like?", "You like fish?"], "Do ＋ 主語 ＋ 動詞。", "Do you like fish? です。"),
+    sc("s3", "gvQues", "Do they drink milk every day? — No, （ ）. の（ ）は？", ["they don't", "they aren't", "we don't", "I don't"], "they でたずねられたら they。", "they don't です。")
+  ], ["gvQues"], "答えの主語は、たずねられた人に合わせる。", "I do、Do you like fish?、they don't です。");
+  sp("gvQues-application-4", "gvQues", "図書館で読書について話します。", [
+    sc("s1", "gvQues", "（ ） you read books every day? の（ ）は？", ["Do", "Are", "Is", "Am"], "read は一般動詞。", "Do です。"),
+    sc("s2", "gvQues", "Are you in the reading club? — Yes, （ ）. の（ ）は？", ["I am", "I do", "I'm", "I read"], "Are には am。", "I am です。"),
+    sc("s3", "gvQues", "答え方のきまりとして正しいものは？", ["Do でたずねられたら do、Are でたずねられたら am・are で答える", "いつも do で答える", "いつも am で答える", "Yes か No だけ言えばよい"], "たずねた文の最初の語で答える。", "Do には do、Are には am・are です。")
+  ], ["gvQues"], "たずねた文の最初の語に合わせて答える。", "Do、I am です。");
+  sp("gvQues-application-5", "gvQues", "夏休みのキャンプについて話します。", [
+    sc("s1", "gvQues", "Do you and your family go camping? — Yes, （ ）. の（ ）は？", ["we do", "they do", "you do", "we are"], "答える人と家族 → わたしたち。", "we do です。"),
+    sc("s2", "gvQues", "「あなたたちは山に登りますか。」を英語にすると？", ["Do you climb mountains?", "Are you climb mountains?", "Do you climbing mountains?", "You climb mountains?"], "Do ＋ 主語 ＋ 動詞。", "Do you climb mountains? です。"),
+    sc("s3", "gvQues", "Do your brothers like camping? — No, （ ）. の（ ）は？", ["they don't", "they aren't", "he doesn't", "we don't"], "兄弟（2人以上） → they。", "they don't です。")
+  ], ["gvQues"], "you and 〜 には we、2人以上には they で答える。", "we do、they don't です。");
+  ch("gvQues-retention-1", "gvQues", "retention", "（ ） you speak English? の（ ）は？", ["Do", "Are", "Is", "Am"], "speak は一般動詞。", "Do です。", RB);
+  ch("gvQues-retention-2", "gvQues", "retention", "Do you use a computer? — Yes, （ ）. の（ ）は？", ["I do", "I am", "I use", "you do"], "Do には do。", "I do です。", RB);
+  ch("gvQues-retention-3", "gvQues", "retention", "Do you walk your dog? — No, （ ）. の（ ）は？", ["I don't", "I'm not", "I do", "you don't"], "No なら don't。", "I don't です。", RB);
+  ch("gvQues-retention-4", "gvQues", "retention", "「あなたはこの本がほしいですか。」を英語にすると？", ["Do you want this book?", "Are you want this book?", "Do you this book want?", "You want this book?"], "Do ＋ 主語 ＋ 動詞 ＋ 「〜を」。", "Do you want this book? です。", RS);
+  ch("gvQues-retention-5", "gvQues", "retention", "Do Mika and Rin practice the piano? — Yes, （ ）. の（ ）は？", ["they do", "they are", "she does", "we do"], "2人 → they。", "they do です。", RS);
+
+  // --- What do you 〜? ---
+  ch("gvWhat-basic-1", "gvWhat", "basic", "「あなたは何がほしいですか。」を英語にすると？", ["What do you want?", "What you want?", "Do you what want?", "What are you want?"], "What ＋ do ＋ 主語 ＋ 動詞。", "What do you want? です。", { usage: "diagnosis" });
+  ch("gvWhat-basic-2", "gvWhat", "basic", "What do you have in your hand? — （ ） a ball. の（ ）は？", ["I have", "I am", "Yes, I do.", "You have"], "What には具体的に答える。", "I have です。");
+  ch("gvWhat-basic-3", "gvWhat", "basic", "What （ ） you like? の（ ）は？", ["do", "are", "is", "am"], "like は一般動詞。", "do です。");
+  ch("gvWhat-basic-4", "gvWhat", "basic", "What do you study on Mondays? の答えとして正しいものは？", ["I study math.", "Yes, I do.", "No, I don't.", "I math study."], "What には Yes・No で答えない。", "I study math. です。");
+  ch("gvWhat-basic-5", "gvWhat", "basic", "What でたずねる一般動詞の疑問文の語順は？", ["What ＋ do ＋ 主語 ＋ 動詞", "What ＋ 主語 ＋ 動詞", "What ＋ 動詞 ＋ 主語", "Do ＋ What ＋ 主語 ＋ 動詞"], "What do you 〜?", "What ＋ do ＋ 主語 ＋ 動詞です。");
+  ch("gvWhat-basic-6", "gvWhat", "basic", "What do you eat for breakfast? — I （ ） rice. の（ ）は？", ["eat", "do", "am", "are"], "たずねられた動詞で答える。", "eat です。");
+  ch("gvWhat-basic-7", "gvWhat", "basic", "What do they play? — （ ） play baseball. の（ ）は？", ["They", "We", "I", "You"], "they でたずねられた。", "They です。");
+  ch("gvWhat-standard-1", "gvWhat", "standard", "「あなたは放課後に何をしますか。」を英語にすると？", ["What do you do after school?", "What are you do after school?", "What you do after school?", "Do you what do after school?"], "「する」も do。What do you do 〜?", "What do you do after school? です。");
+  ch("gvWhat-standard-2", "gvWhat", "standard", "What sport do you like? の答えとして正しいものは？", ["I like volleyball.", "Yes, I do.", "I volleyball like.", "No, I don't."], "好きなスポーツを答える。", "I like volleyball. です。");
+  ch("gvWhat-standard-3", "gvWhat", "standard", "What do you and Sota play? — （ ） play shogi. の（ ）は？", ["We", "They", "You", "I"], "答える人とソウタ → わたしたち。", "We です。");
+  ch("gvWhat-standard-4", "gvWhat", "standard", "「あなたは何色が好きですか。」を英語にすると？", ["What color do you like?", "What do you like color?", "What color you like?", "What color are you like?"], "What color で1つのまとまり。", "What color do you like? です。");
+  ch("gvWhat-standard-5", "gvWhat", "standard", "What is this? と What do you have? のちがいは？", ["be動詞の文と一般動詞の文", "どちらも一般動詞の文", "どちらも be動詞の文", "同じ意味の文"], "is と have。", "be動詞の文と一般動詞の文です。");
+  ch("gvWhat-standard-6", "gvWhat", "standard", "What （ ） your favorite food? の（ ）は？", ["is", "do", "are", "does"], "動詞がない → be動詞の文。", "is です。");
+  sp("gvWhat-application-1", "gvWhat", "吹奏楽部の見学で、部員に質問します。", [
+    sc("s1", "gvWhat", "「あなたたちは何の楽器を演奏しますか。」を英語にすると？", ["What instrument do you play?", "What do you play instrument?", "What instrument you play?", "What instrument are you play?"], "What instrument で1つのまとまり。", "What instrument do you play? です。"),
+    sc("s2", "gvWhat", "— （ ） play the flute. の（ ）は？（部員たちが答える）", ["We", "They", "You", "It"], "答える部員たち → わたしたち。", "We です。"),
+    sc("s3", "gvWhat", "What do you practice on Fridays? の答えとして正しいものは？", ["We practice a new song.", "Yes, we do.", "No, we don't.", "We a new song practice."], "具体的に答える。", "We practice a new song. です。")
+  ], ["gvWhat"], "What ＋ 名詞 で「何の〜」。", "What instrument 〜、We です。");
+  sp("gvWhat-application-2", "gvWhat", "誕生日について話します。", [
+    sc("s1", "gvWhat", "What do you want for your birthday? — I （ ） a new bag. の（ ）は？", ["want", "am", "do", "is"], "たずねられた動詞で答える。", "want です。"),
+    sc("s2", "gvWhat", "「あなたは誕生日に何を食べますか。」を英語にすると？", ["What do you eat on your birthday?", "What are you eat on your birthday?", "What you eat on your birthday?", "Do you what eat on your birthday?"], "What ＋ do ＋ 主語 ＋ 動詞。", "What do you eat on your birthday? です。"),
+    sc("s3", "gvWhat", "Do you have a party? と What do you have? の答え方のちがいは？", ["Do には Yes・No、What には具体的に答える", "どちらも Yes・No で答える", "どちらも具体的に答える", "Do には具体的に、What には Yes・No"], "What は「何」。", "Do には Yes・No、What には具体的にです。")
+  ], ["gvWhat"], "What の疑問文には Yes・No で答えない。", "want、What do you eat 〜 です。");
+  sp("gvWhat-application-3", "gvWhat", "週末の過ごし方を話します。", [
+    sc("s1", "gvWhat", "What do you do on Sundays? — I （ ） my grandmother. の（ ）は？（祖母を訪ねる）", ["visit", "am", "is", "are"], "「訪ねる」。", "visit です。"),
+    sc("s2", "gvWhat", "What do they do on Saturdays? — （ ） go shopping. の（ ）は？", ["They", "We", "He", "You"], "they でたずねられた。", "They です。"),
+    sc("s3", "gvWhat", "「あなたは日曜日に何をしますか。」を英語にすると？", ["What do you do on Sundays?", "What are you do on Sundays?", "What you do on Sundays?", "What do on Sundays you?"], "What do you do 〜?", "What do you do on Sundays? です。")
+  ], ["gvWhat"], "「何をする？」は What do you do?", "visit、They です。");
+  sp("gvWhat-application-4", "gvWhat", "留学生と食べ物の話をします。", [
+    sc("s1", "gvWhat", "What Japanese food do you like? — I like （ ）. の（ ）は？", ["sushi", "yes", "am", "do"], "食べ物の名前を答える。", "sushi です。"),
+    sc("s2", "gvWhat", "（ ） do you eat in Australia? の（ ）は？", ["What", "Do", "Are", "Who"], "「何を食べる？」。", "What です。"),
+    sc("s3", "gvWhat", "What is your favorite place? — （ ） Kyoto. の（ ）は？", ["It's", "I do", "Yes, it is", "I'm"], "be動詞の文 → It's で答える。", "It's です。")
+  ], ["gvWhat"], "What のあとが do か is かを見る。", "sushi、What、It's です。");
+  sp("gvWhat-application-5", "gvWhat", "家庭科で料理をします。", [
+    sc("s1", "gvWhat", "「あなたたちは何を作りますか。」を英語にすると？", ["What do you make?", "What are you make?", "What you make?", "Do you make what?"], "What ＋ do ＋ 主語 ＋ 動詞。", "What do you make? です。"),
+    sc("s2", "gvWhat", "— We （ ） curry. の（ ）は？", ["make", "are", "do", "is"], "たずねられた動詞で答える。", "make です。"),
+    sc("s3", "gvWhat", "What do you need? — We need （ ）. の（ ）は？", ["onions", "yes", "are", "need"], "必要なものを答える。", "onions です。")
+  ], ["gvWhat"], "答えでは、たずねられた動詞をそのまま使う。", "What do you make?、make です。");
+  ch("gvWhat-retention-1", "gvWhat", "retention", "「あなたは何を読みますか。」を英語にすると？", ["What do you read?", "What you read?", "What are you read?", "Do you what read?"], "What ＋ do ＋ 主語 ＋ 動詞。", "What do you read? です。", RB);
+  ch("gvWhat-retention-2", "gvWhat", "retention", "What （ ） you drink in the morning? の（ ）は？", ["do", "are", "is", "am"], "drink は一般動詞。", "do です。", RB);
+  ch("gvWhat-retention-3", "gvWhat", "retention", "What do you watch on TV? の答えとして正しいものは？", ["I watch anime.", "Yes, I do.", "No, I don't.", "I anime watch."], "What には具体的に答える。", "I watch anime. です。", RB);
+  ch("gvWhat-retention-4", "gvWhat", "retention", "「あなたたちは何の教科を勉強しますか。」を英語にすると？", ["What subjects do you study?", "What do you study subjects?", "What subjects you study?", "What subjects are you study?"], "What subjects で1つのまとまり。", "What subjects do you study? です。", RS);
+  ch("gvWhat-retention-5", "gvWhat", "retention", "What do your sisters have? — （ ） have a rabbit. の（ ）は？", ["They", "She", "We", "You"], "姉妹（2人以上） → they。", "They です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

@@ -33,7 +33,8 @@
       "円": "円周角と中心角の関係（円周角の定理）を使って角度を求め、その逆や相似と組み合わせて考える単元です。",
       "三平方の定理": "直角三角形の3辺の関係（a² ＋ b² ＝ c²）を使って、いろいろな図形の長さや距離を求める単元です。平方根の計算をたくさん使います。",
       "標本調査": "全体の一部（標本）を、かたよりなく選んで調べ、その割合や平均から全体（母集団）の様子を見積もる単元です。",
-      "be動詞": "「〜は…です」を英語で言う単元です。主語（I・you・he など）に合わせて am・are・is を選び、否定文（not）や疑問文（Are you 〜?）もつくります。"
+      "be動詞": "「〜は…です」を英語で言う単元です。主語（I・you・he など）に合わせて am・are・is を選び、否定文（not）や疑問文（Are you 〜?）もつくります。",
+      "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。"
     },
     skills: {
       // --- 正負の数 ---
@@ -185,6 +186,12 @@
       beNeg: { point: "「〜ではない」は be動詞のすぐあとに not を置きます。is not → isn't、are not → aren't。", example: "He is not a teacher.", trap: "do・don't は使いません。am not は短くしません（I'm not）。" },
       beQues: { point: "たずねるときは be動詞を主語の前に出し、Yes／No と be動詞で答えます。", example: "Are you 〜? — Yes, I am.／Is this 〜? — No, it isn't.", trap: "答えでは this・that を it にかえます。Yes の答えの最後は短くしません。" },
       beWh: { point: "もの・ことは What、人は Who。そのあとは疑問文の形（is・are を先）にします。", example: "What is this? — It's a pen.／Who is she? — She's my sister.", trap: "What this is? の順はまちがいです。" },
+      // --- 一般動詞（英語） ---
+      gvKind: { point: "「〜です・〜にいる」は be動詞、「〜する・〜が好き・〜を持っている」は一般動詞。1つの文にどちらか1つです。", example: "I am a student.／I play tennis.", trap: "I am play tennis. のように並べるのはまちがいです。" },
+      gvSent: { point: "主語 → 動詞 → 「〜を」 → 場所・時 の順に並べます。", example: "I study English after school.", trap: "日本語の順（わたしは英語を勉強する）のまま並べないようにします。" },
+      gvNeg: { point: "一般動詞の否定文は、動詞の前に do not（don't）を置きます。", example: "I don't like carrots.", trap: "I'm not like 〜. はまちがい。busy・hungry のような様子は be動詞の文なので I'm not です。" },
+      gvQues: { point: "一般動詞の疑問文は Do で始め、Yes, I do.／No, I don't. と答えます。", example: "Do you like music? — Yes, I do.", trap: "Are you play 〜? はまちがい。Are でたずねられたら am・are で答えます。" },
+      gvWhat: { point: "「何を〜する？」は What ＋ do ＋ 主語 ＋ 動詞。答えは Yes・No ではなく具体的に言います。", example: "What do you want? — I want a new bag.", trap: "What you want? のように do をぬかさないようにします。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

@@ -115,11 +115,11 @@ test("What・Who の答え：もの → It's、人 → He's・She's、2つ以上
   assert.ok(n >= 12, "What・Who の答え " + n);
 });
 
-test("教科の切りかえ：英語は中学1年の be動詞だけ。数学にもどすと元の単元", () => {
+test("教科の切りかえ：英語は中学1年だけ。数学にもどすと元の単元", () => {
   const g = E.grade(), list = E.SELECTABLE_UNITS.slice();
   assert.equal(E.setSubject("英語"), "英語");
   assert.equal(E.grade(), "中学1年");
-  assert.deepEqual(E.SELECTABLE_UNITS, [U]);
+  assert.deepEqual(E.SELECTABLE_UNITS, [U, "一般動詞"]);
   assert.equal(E.setGrade("中学2年"), "中学1年");
   assert.ok(!E.gradeHasUnits("英語", "中学2年") && E.gradeHasUnits("英語", "中学1年"));
   assert.equal(E.setSubject("国語"), "英語");
@@ -128,7 +128,7 @@ test("教科の切りかえ：英語は中学1年の be動詞だけ。数学に�
   assert.equal(E.subjectOf(U), "英語");
   assert.equal(E.subjectOf("一次関数"), "数学");
   assert.ok(all.every((q) => q.subject === "英語"));
-  assert.ok(Object.values(Q).filter((q) => q.unit !== U).every((q) => q.subject === "数学"));
+  assert.ok(Object.values(Q).every((q) => q.subject === E.subjectOf(q.unit)));
 });
 
 test("中1 英語 be動詞：前提は先に来る・数学にはつながらない・問題数・はじめのチェック", () => {
