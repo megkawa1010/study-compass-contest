@@ -9365,6 +9365,236 @@
   ch("nnMany-retention-5", "nnMany", "retention", "「サキはねこを何びき飼っていますか。」を英語にすると？", ["How many cats does Saki have?", "How many cats do Saki have?", "How many cats does Saki has?", "How much cats does Saki have?"], "主語はサキ1人 → does。", "How many cats does Saki have? です。", RS);
 
   // =====================================================================
+  // 中1 英語「命令文」（動詞で始める・Be 〜.・Don't 〜.・Let's 〜.・please と呼びかけ）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-imperative.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- 命令文の形 ---
+  ch("imForm-basic-1", "imForm", "basic", "「窓を開けなさい。」を英語にすると？", ["Open the window.", "Opens the window.", "Opening the window.", "To open the window."], "命令文は動詞のもとの形で始める。", "Open the window. です。", { usage: "diagnosis" });
+  ch("imForm-basic-2", "imForm", "basic", "命令文はふつう何で始める？", ["動詞のもとの形", "主語の you", "be動詞の are", "動詞に s をつけた形"], "主語は言わない。", "動詞のもとの形です。");
+  ch("imForm-basic-3", "imForm", "basic", "「手を洗いなさい。」（ ） your hands. の（ ）は？", ["Wash", "Washes", "Washing", "To wash"], "動詞のもとの形で始める。", "Wash です。");
+  ch("imForm-basic-4", "imForm", "basic", "「ここに座りなさい。」を英語にすると？", ["Sit here.", "Sits here.", "Sitting here.", "You sits here."], "主語を言わず、動詞から。", "Sit here. です。");
+  ch("imForm-basic-5", "imForm", "basic", "「黒板を見なさい。」（ ） at the blackboard. の（ ）は？", ["Look", "Looks", "Looking", "To look"], "動詞のもとの形で始める。", "Look です。");
+  ch("imForm-basic-6", "imForm", "basic", "次のうち、命令文はどれ？", ["Clean your room.", "You clean your room every day.", "Do you clean your room?", "I clean my room."], "動詞で始まる文。", "Clean your room. です。");
+  ch("imForm-basic-7", "imForm", "basic", "「8時に起きなさい。」を英語にすると？", ["Get up at eight.", "Gets up at eight.", "Getting up at eight.", "To get up at eight."], "get up のもとの形で始める。", "Get up at eight. です。");
+  ch("imForm-standard-1", "imForm", "standard", "「英語で話しなさい。」を英語にすると？", ["Speak in English.", "Speaks in English.", "Speaking in English.", "To speak in English."], "動詞のもとの形で始める。", "Speak in English. です。");
+  ch("imForm-standard-2", "imForm", "standard", "「宿題をしなさい。」（ ） your homework. の（ ）は？", ["Do", "Does", "Doing", "Are"], "「する」の do のもとの形。", "Do です。");
+  ch("imForm-standard-3", "imForm", "standard", "「この本を読みなさい。」を英語にすると？", ["Read this book.", "Reads this book.", "Reading this book.", "This book read."], "動詞が文の最初。", "Read this book. です。");
+  ch("imForm-standard-4", "imForm", "standard", "「静かに歩きなさい。」を英語にすると？", ["Walk quietly.", "Walks quietly.", "Walking quietly.", "Quietly walks."], "動詞のもとの形で始める。", "Walk quietly. です。");
+  ch("imForm-standard-5", "imForm", "standard", "命令文で主語の you を言わないのはなぜ？", ["目の前の相手に言うのが分かっているから", "you が使えない決まりだから", "過去の話だから", "ていねいにするため"], "だれに言っているかは分かる。", "相手が分かっているからです。");
+  ch("imForm-standard-6", "imForm", "standard", "「家に帰りなさい。」（ ） home. の（ ）は？", ["Go", "Goes", "Going", "Went"], "動詞のもとの形で始める。", "Go です。");
+  sp("imForm-application-1", "imForm", "お母さんが朝、ケンに言います。", [
+    sc("s1", "imForm", "（ ） up, Ken. の（ ）は？", ["Get", "Gets", "Getting", "To get"], "動詞のもとの形で始める。", "Get です。"),
+    sc("s2", "imForm", "（ ） breakfast. の（ ）は？", ["Eat", "Eats", "Eating", "To eat"], "動詞のもとの形で始める。", "Eat です。"),
+    sc("s3", "imForm", "「歯をみがきなさい。」を英語にすると？", ["Brush your teeth.", "Brushes your teeth.", "Brushing your teeth.", "You brushes your teeth."], "主語を言わず、動詞から。", "Brush your teeth. です。")
+  ], ["imForm"], "名前を呼ぶときは文の最初か最後にコンマでつける。", "Get、Eat、Brush your teeth. です。");
+  sp("imForm-application-2", "imForm", "体育の先生が言います。", [
+    sc("s1", "imForm", "（ ） fast. の（ ）は？", ["Run", "Runs", "Running", "To run"], "動詞のもとの形で始める。", "Run です。"),
+    sc("s2", "imForm", "「手をあげなさい。」を英語にすると？", ["Raise your hand.", "Raises your hand.", "Raising your hand.", "To raise your hand."], "動詞のもとの形で始める。", "Raise your hand. です。"),
+    sc("s3", "imForm", "（ ） the ball to Riku. の（ ）は？", ["Throw", "Throws", "Throwing", "To throw"], "動詞のもとの形で始める。", "Throw です。")
+  ], ["imForm"], "命令文は動詞のもとの形から。", "Run、Raise your hand.、Throw です。");
+  sp("imForm-application-3", "imForm", "料理の作り方を読みます。", [
+    sc("s1", "imForm", "（ ） the onions. の（ ）は？（玉ねぎを切る）", ["Cut", "Cuts", "Cutting", "To cut"], "作り方の文も命令文。", "Cut です。"),
+    sc("s2", "imForm", "「水を入れなさい。」を英語にすると？", ["Add some water.", "Adds some water.", "Adding some water.", "To add some water."], "動詞のもとの形で始める。", "Add some water. です。"),
+    sc("s3", "imForm", "（ ） it for five minutes. の（ ）は？（5分煮る）", ["Cook", "Cooks", "Cooking", "To cook"], "動詞のもとの形で始める。", "Cook です。")
+  ], ["imForm"], "料理の手順やゲームのルールも命令文で書く。", "Cut、Add some water.、Cook です。");
+  sp("imForm-application-4", "imForm", "道をたずねられて案内します。", [
+    sc("s1", "imForm", "（ ） down this street. の（ ）は？（この道を行く）", ["Go", "Goes", "Going", "To go"], "動詞のもとの形で始める。", "Go です。"),
+    sc("s2", "imForm", "「左に曲がりなさい。」を英語にすると？", ["Turn left.", "Turns left.", "Turning left.", "Left turn."], "動詞が文の最初。", "Turn left. です。"),
+    sc("s3", "imForm", "命令文の最初に来るのは？", ["動詞のもとの形", "主語", "not", "be動詞の is"], "主語は言わない。", "動詞のもとの形です。")
+  ], ["imForm"], "道案内も命令文。", "Go、Turn left.、動詞のもとの形 です。");
+  sp("imForm-application-5", "imForm", "英語の授業のはじめに、先生が言います。", [
+    sc("s1", "imForm", "（ ） your textbooks. の（ ）は？（教科書を開く）", ["Open", "Opens", "Opening", "To open"], "動詞のもとの形で始める。", "Open です。"),
+    sc("s2", "imForm", "「35ページを見なさい。」を英語にすると？", ["Look at page 35.", "Looks at page 35.", "Looking at page 35.", "At page 35 look."], "動詞が文の最初。", "Look at page 35. です。"),
+    sc("s3", "imForm", "（ ） to the CD. の（ ）は？", ["Listen", "Listens", "Listening", "To listen"], "動詞のもとの形で始める。", "Listen です。")
+  ], ["imForm"], "教室の指示も命令文。", "Open、Look at page 35.、Listen です。");
+  ch("imForm-retention-1", "imForm", "retention", "「ドアを閉めなさい。」を英語にすると？", ["Close the door.", "Closes the door.", "Closing the door.", "To close the door."], "動詞のもとの形で始める。", "Close the door. です。", RB);
+  ch("imForm-retention-2", "imForm", "retention", "「あなたの名前を書きなさい。」を英語にすると？", ["Write your name.", "Writes your name.", "Writing your name.", "Your name write."], "動詞が文の最初。", "Write your name. です。", RB);
+  ch("imForm-retention-3", "imForm", "retention", "「ここに来なさい。」を英語にすると？", ["Come here.", "Comes here.", "Coming here.", "You comes here."], "主語を言わず、動詞から。", "Come here. です。", RB);
+  ch("imForm-retention-4", "imForm", "retention", "「この歌を歌いなさい。」を英語にすると？", ["Sing this song.", "Sings this song.", "Singing this song.", "This song sing."], "動詞が文の最初。", "Sing this song. です。", RS);
+  ch("imForm-retention-5", "imForm", "retention", "「立ちなさい。」を英語にすると？", ["Stand up.", "Stands up.", "Standing up.", "To stand up."], "stand up のもとの形で始める。", "Stand up. です。", RS);
+
+  // --- Be 〜. ---
+  ch("imBe-basic-1", "imBe", "basic", "「静かにしなさい。」を英語にすると？", ["Be quiet.", "Are quiet.", "Is quiet.", "Quiet."], "be動詞の命令文は Be で始める。", "Be quiet. です。", { usage: "diagnosis" });
+  ch("imBe-basic-2", "imBe", "basic", "「気をつけなさい。」（ ） careful. の（ ）は？", ["Be", "Are", "Is", "Do"], "careful は様子を表す語。", "Be です。");
+  ch("imBe-basic-3", "imBe", "basic", "be動詞の命令文は何で始める？", ["Be", "Are", "Is", "Am"], "be動詞のもとの形。", "Be です。");
+  ch("imBe-basic-4", "imBe", "basic", "「やさしくしなさい。」を英語にすると？", ["Be kind.", "Are kind.", "Kind be.", "Is kind."], "Be ＋ 様子を表す語。", "Be kind. です。");
+  ch("imBe-basic-5", "imBe", "basic", "You are careful. を「気をつけなさい」の命令文にすると？", ["Be careful.", "Are careful.", "You be careful.", "Careful are."], "You をとって、are を be に。", "Be careful. です。");
+  ch("imBe-basic-6", "imBe", "basic", "「勇気を出しなさい。」を英語にすると？", ["Be brave.", "Are brave.", "Is brave.", "Brave be."], "Be ＋ 様子を表す語。", "Be brave. です。");
+  ch("imBe-basic-7", "imBe", "basic", "「礼儀正しくしなさい。」を英語にすると？", ["Be polite.", "Are polite.", "Is polite.", "Polite."], "Be ＋ 様子を表す語。", "Be polite. です。");
+  ch("imBe-standard-1", "imBe", "standard", "「図書館では静かにしなさい。」（ ） quiet in the library. の（ ）は？", ["Be", "Are", "Is", "Do"], "quiet は様子を表す語。", "Be です。");
+  ch("imBe-standard-2", "imBe", "standard", "「友だちにやさしくしなさい。」を英語にすると？", ["Be kind to your friends.", "Are kind to your friends.", "Is kind to your friends.", "Kind to your friends."], "Be で始める。", "Be kind to your friends. です。");
+  ch("imBe-standard-3", "imBe", "standard", "「道路では気をつけなさい。」（ ） careful on the road. の（ ）は？", ["Be", "Are", "Being", "Do"], "be動詞のもとの形。", "Be です。");
+  ch("imBe-standard-4", "imBe", "standard", "be動詞の命令文で、are・is のかわりに使う形は？", ["be（もとの形）", "been", "being", "am"], "命令文は動詞のもとの形。", "be です。");
+  ch("imBe-standard-5", "imBe", "standard", "「準備しなさい。」を英語にすると？", ["Be ready.", "Are ready.", "Is ready.", "Ready."], "ready は様子を表す語。", "Be ready. です。");
+  ch("imBe-standard-6", "imBe", "standard", "「ケン、正直でいなさい。」を英語にすると？", ["Ken, be honest.", "Ken, are honest.", "Ken, is honest.", "Ken, honest."], "呼びかけのあとも Be で始める。", "Ken, be honest. です。");
+  sp("imBe-application-1", "imBe", "図書館で先生が言います。", [
+    sc("s1", "imBe", "（ ） quiet here. の（ ）は？", ["Be", "Are", "Is", "Do"], "quiet は様子を表す語。", "Be です。"),
+    sc("s2", "imBe", "「本のあつかいに気をつけなさい。」を英語にすると？", ["Be careful with the books.", "Are careful with the books.", "Is careful with the books.", "Careful with the books."], "Be で始める。", "Be careful with the books. です。"),
+    sc("s3", "imBe", "ふつうの文 You are quiet. の are は、命令文で何になる？", ["be", "is", "am", "do"], "命令文は動詞のもとの形。", "be です。")
+  ], ["imBe"], "様子を表す語の命令文は Be から。", "Be、Be careful with the books.、be です。");
+  sp("imBe-application-2", "imBe", "遠足の前に先生が言います。", [
+    sc("s1", "imBe", "（ ） ready at eight. の（ ）は？", ["Be", "Are", "Is", "Do"], "ready は様子を表す語。", "Be です。"),
+    sc("s2", "imBe", "「みんなに親切にしなさい。」を英語にすると？", ["Be nice to everyone.", "Are nice to everyone.", "Is nice to everyone.", "Nice to everyone."], "Be で始める。", "Be nice to everyone. です。"),
+    sc("s3", "imBe", "（ ） careful on the bus. の（ ）は？", ["Be", "Are", "Being", "Do"], "be動詞のもとの形。", "Be です。")
+  ], ["imBe"], "Be ＋ 様子を表す語。", "Be、Be nice to everyone.、Be です。");
+  sp("imBe-application-3", "imBe", "妹のユミに言います。", [
+    sc("s1", "imBe", "Yumi, （ ） a good girl. の（ ）は？", ["be", "are", "is", "being"], "呼びかけのあとも be で始める。", "be です。"),
+    sc("s2", "imBe", "「こわがらずに、勇気を出して。」の「勇気を出して」を英語にすると？", ["Be brave.", "Are brave.", "Is brave.", "Brave."], "Be ＋ 様子を表す語。", "Be brave. です。"),
+    sc("s3", "imBe", "「やさしくしなさい。」Be （ ）. の（ ）は？", ["kind", "kinds", "kindly", "kinding"], "様子を表す語のもとの形。", "kind です。")
+  ], ["imBe"], "Be のあとは様子を表す語。", "be、Be brave.、kind です。");
+  sp("imBe-application-4", "imBe", "サッカーの試合の前に、コーチが言います。", [
+    sc("s1", "imBe", "（ ） strong. の（ ）は？", ["Be", "Are", "Is", "Do"], "strong は様子を表す語。", "Be です。"),
+    sc("s2", "imBe", "「落ち着きなさい。」を英語にすると？", ["Be calm.", "Are calm.", "Is calm.", "Calm."], "Be ＋ 様子を表す語。", "Be calm. です。"),
+    sc("s3", "imBe", "「みんな、準備しなさい。」を英語にすると？", ["Be ready, everyone.", "Are ready, everyone.", "Is ready, everyone.", "Ready, everyone."], "呼びかけは文の最後にもつけられる。", "Be ready, everyone. です。")
+  ], ["imBe"], "呼びかけはコンマでつける。", "Be、Be calm.、Be ready, everyone. です。");
+  sp("imBe-application-5", "imBe", "ALT のブラウン先生が言います。", [
+    sc("s1", "imBe", "（ ） friendly. の（ ）は？", ["Be", "Are", "Is", "Do"], "friendly は様子を表す語。", "Be です。"),
+    sc("s2", "imBe", "「まちがいをこわがらないで。」を英語にすると？", ["Don't be afraid of mistakes.", "Don't are afraid of mistakes.", "Doesn't be afraid of mistakes.", "Not be afraid of mistakes."], "Don't ＋ be。", "Don't be afraid of mistakes. です。"),
+    sc("s3", "imBe", "be動詞の命令文の作り方で正しいものは？", ["Be ＋ 様子を表す語", "Are ＋ 様子を表す語", "You ＋ be ＋ 様子を表す語", "Do ＋ 様子を表す語"], "主語は言わない。", "Be ＋ 様子を表す語 です。")
+  ], ["imBe"], "「〜しないで」なら Don't be。", "Be、Don't be afraid of mistakes.、Be ＋ 様子 です。");
+  ch("imBe-retention-1", "imBe", "retention", "「車に気をつけなさい。」を英語にすると？", ["Be careful of the cars.", "Are careful of the cars.", "Is careful of the cars.", "Careful of the cars."], "Be で始める。", "Be careful of the cars. です。", RB);
+  ch("imBe-retention-2", "imBe", "retention", "「いい子にしていなさい。」を英語にすると？", ["Be a good boy.", "Are a good boy.", "Is a good boy.", "A good boy be."], "Be で始める。", "Be a good boy. です。", RB);
+  ch("imBe-retention-3", "imBe", "retention", "「マイ、静かにして。」を、呼びかけを最後にして英語にすると？", ["Be quiet, Mai.", "Are quiet, Mai.", "Is quiet, Mai.", "Quiet, Mai."], "Be で始めて、最後にコンマと名前。", "Be quiet, Mai. です。", RB);
+  ch("imBe-retention-4", "imBe", "retention", "「正直でいなさい。」を英語にすると？", ["Be honest.", "Are honest.", "Is honest.", "Honest be."], "Be ＋ 様子を表す語。", "Be honest. です。", RS);
+  ch("imBe-retention-5", "imBe", "retention", "「お年寄りにやさしくしなさい。」を英語にすると？", ["Be kind to old people.", "Are kind to old people.", "Is kind to old people.", "Kind to old people."], "Be で始める。", "Be kind to old people. です。", RS);
+
+  // --- Don't 〜. ---
+  ch("imNeg-basic-1", "imNeg", "basic", "「ここで走ってはいけません。」を英語にすると？", ["Don't run here.", "Doesn't run here.", "Don't runs here.", "Not run here."], "Don't ＋ 動詞のもとの形。", "Don't run here. です。", { usage: "diagnosis" });
+  ch("imNeg-basic-2", "imNeg", "basic", "「〜してはいけない」という命令文は何で始める？", ["Don't", "Doesn't", "Not", "No"], "主語がないので Don't。", "Don't です。");
+  ch("imNeg-basic-3", "imNeg", "basic", "「ここで食べてはいけません。」（ ） eat here. の（ ）は？", ["Don't", "Doesn't", "Not", "Aren't"], "Don't ＋ 動詞のもとの形。", "Don't です。");
+  ch("imNeg-basic-4", "imNeg", "basic", "「このいすを使ってはいけません。」Don't （ ） this chair. の（ ）は？", ["use", "uses", "using", "used"], "Don't のあとはもとの形。", "use です。");
+  ch("imNeg-basic-5", "imNeg", "basic", "「テレビを見すぎてはいけません。」を英語にすると？", ["Don't watch TV too much.", "Don't watches TV too much.", "Doesn't watch TV too much.", "Not watch TV too much."], "Don't ＋ 動詞のもとの形。", "Don't watch TV too much. です。");
+  ch("imNeg-basic-6", "imNeg", "basic", "「おくれてはいけません。」を英語にすると？", ["Don't be late.", "Don't late.", "Not be late.", "Don't are late."], "様子を表す語には Don't be。", "Don't be late. です。");
+  ch("imNeg-basic-7", "imNeg", "basic", "「ドアにさわってはいけません。」（ ） touch the door. の（ ）は？", ["Don't", "Doesn't", "Not", "Isn't"], "Don't ＋ 動詞のもとの形。", "Don't です。");
+  ch("imNeg-standard-1", "imNeg", "standard", "「授業中に話してはいけません。」を英語にすると？", ["Don't talk in class.", "Don't talks in class.", "Doesn't talk in class.", "Don't talking in class."], "Don't ＋ 動詞のもとの形。", "Don't talk in class. です。");
+  ch("imNeg-standard-2", "imNeg", "standard", "「こわがらないで。」Don't （ ） afraid. の（ ）は？", ["be", "are", "is", "being"], "afraid は様子を表す語。", "be です。");
+  ch("imNeg-standard-3", "imNeg", "standard", "Open the window. を「〜してはいけない」の文にすると？", ["Don't open the window.", "Not open the window.", "Doesn't open the window.", "Don't opens the window."], "前に Don't をつける。", "Don't open the window. です。");
+  ch("imNeg-standard-4", "imNeg", "standard", "「さわがしくしてはいけません。」を英語にすると？", ["Don't be noisy.", "Don't noisy.", "Doesn't be noisy.", "Be not noisy."], "Don't ＋ be ＋ 様子を表す語。", "Don't be noisy. です。");
+  ch("imNeg-standard-5", "imNeg", "standard", "Don't のあとの動詞の形は？", ["もとの形", "s のついた形", "ing の形", "過去の形"], "命令文の動詞はもとの形。", "もとの形です。");
+  ch("imNeg-standard-6", "imNeg", "standard", "「ここで写真をとってはいけません。」（ ） take pictures here. の（ ）は？", ["Don't", "Doesn't", "Not", "Aren't"], "Don't ＋ 動詞のもとの形。", "Don't です。");
+  sp("imNeg-application-1", "imNeg", "プールの注意書きを読みます。", [
+    sc("s1", "imNeg", "（ ） run near the pool. の（ ）は？", ["Don't", "Doesn't", "Not", "Aren't"], "Don't ＋ 動詞のもとの形。", "Don't です。"),
+    sc("s2", "imNeg", "Don't （ ） into the pool. の（ ）は？（飛びこむ）", ["jump", "jumps", "jumping", "jumped"], "Don't のあとはもとの形。", "jump です。"),
+    sc("s3", "imNeg", "「プールサイドで食べてはいけません。」を英語にすると？", ["Don't eat at the poolside.", "Doesn't eat at the poolside.", "Don't eats at the poolside.", "Not eat at the poolside."], "Don't ＋ 動詞のもとの形。", "Don't eat at the poolside. です。")
+  ], ["imNeg"], "注意書きは Don't 〜. で書く。", "Don't、jump、Don't eat at the poolside. です。");
+  sp("imNeg-application-2", "imNeg", "美術館での注意です。", [
+    sc("s1", "imNeg", "（ ） touch the pictures. の（ ）は？", ["Don't", "Doesn't", "Not", "Isn't"], "Don't ＋ 動詞のもとの形。", "Don't です。"),
+    sc("s2", "imNeg", "「大きな声で話してはいけません。」を英語にすると？", ["Don't speak loudly.", "Don't speaks loudly.", "Doesn't speak loudly.", "Don't speaking loudly."], "Don't ＋ 動詞のもとの形。", "Don't speak loudly. です。"),
+    sc("s3", "imNeg", "Don't （ ） noisy here. の（ ）は？", ["be", "are", "is", "being"], "noisy は様子を表す語。", "be です。")
+  ], ["imNeg"], "動きは Don't ＋ 動詞、様子は Don't be。", "Don't、Don't speak loudly.、be です。");
+  sp("imNeg-application-3", "imNeg", "弟に言います。", [
+    sc("s1", "imNeg", "Don't （ ） video games all day. の（ ）は？", ["play", "plays", "playing", "played"], "Don't のあとはもとの形。", "play です。"),
+    sc("s2", "imNeg", "「ねこにいじわるしてはいけません。」を英語にすると？", ["Don't be mean to the cat.", "Don't mean to the cat.", "Not be mean to the cat.", "Doesn't be mean to the cat."], "mean（いじわるな）は様子を表す語。", "Don't be mean to the cat. です。"),
+    sc("s3", "imNeg", "（ ） forget your homework. の（ ）は？", ["Don't", "Doesn't", "Not", "Isn't"], "Don't ＋ 動詞のもとの形。", "Don't です。")
+  ], ["imNeg"], "相手が弟1人でも Doesn't にはしない。", "play、Don't be mean to the cat.、Don't です。");
+  sp("imNeg-application-4", "imNeg", "授業中のきまりです。", [
+    sc("s1", "imNeg", "（ ） use your phone in class. の（ ）は？", ["Don't", "Doesn't", "Not", "Aren't"], "Don't ＋ 動詞のもとの形。", "Don't です。"),
+    sc("s2", "imNeg", "「授業中にねむってはいけません。」を英語にすると？", ["Don't sleep in class.", "Don't sleeps in class.", "Doesn't sleep in class.", "Not sleep in class."], "Don't ＋ 動詞のもとの形。", "Don't sleep in class. です。"),
+    sc("s3", "imNeg", "Don't は何を短くした形？", ["do not", "does not", "did not", "are not"], "do ＋ not。", "do not です。")
+  ], ["imNeg"], "Don't ＝ do not。", "Don't、Don't sleep in class.、do not です。");
+  sp("imNeg-application-5", "imNeg", "けがをした友だちに言います。", [
+    sc("s1", "imNeg", "Don't （ ） so fast. の（ ）は？（走る）", ["run", "runs", "running", "ran"], "Don't のあとはもとの形。", "run です。"),
+    sc("s2", "imNeg", "「心配しないで。」を英語にすると？", ["Don't worry.", "Don't worries.", "Doesn't worry.", "Not worry."], "Don't ＋ 動詞のもとの形。", "Don't worry. です。"),
+    sc("s3", "imNeg", "Don't （ ） sad. の（ ）は？", ["be", "are", "is", "being"], "sad は様子を表す語。", "be です。")
+  ], ["imNeg"], "気持ちや様子には Don't be。", "run、Don't worry.、be です。");
+  ch("imNeg-retention-1", "imNeg", "retention", "「ここで泳いではいけません。」を英語にすると？", ["Don't swim here.", "Doesn't swim here.", "Don't swims here.", "Not swim here."], "Don't ＋ 動詞のもとの形。", "Don't swim here. です。", RB);
+  ch("imNeg-retention-2", "imNeg", "retention", "「あの窓を閉めてはいけません。」を英語にすると？", ["Don't close that window.", "Doesn't close that window.", "Don't closes that window.", "Not close that window."], "Don't ＋ 動詞のもとの形。", "Don't close that window. です。", RB);
+  ch("imNeg-retention-3", "imNeg", "retention", "「学校におくれてはいけません。」を英語にすると？", ["Don't be late for school.", "Don't late for school.", "Not be late for school.", "Don't are late for school."], "様子を表す語には Don't be。", "Don't be late for school. です。", RB);
+  ch("imNeg-retention-4", "imNeg", "retention", "「このペンを使ってはいけません。」を英語にすると？", ["Don't use this pen.", "Don't uses this pen.", "Doesn't use this pen.", "Don't using this pen."], "Don't ＋ 動詞のもとの形。", "Don't use this pen. です。", RS);
+  ch("imNeg-retention-5", "imNeg", "retention", "「はずかしがらないで。」を英語にすると？", ["Don't be shy.", "Don't shy.", "Doesn't be shy.", "Not be shy."], "shy は様子を表す語。", "Don't be shy. です。", RS);
+
+  // --- Let's 〜. ---
+  ch("imLet-basic-1", "imLet", "basic", "「いっしょにテニスをしましょう。」を英語にすると？", ["Let's play tennis together.", "Let's plays tennis together.", "Let's playing tennis together.", "Let's to play tennis together."], "Let's ＋ 動詞のもとの形。", "Let's play tennis together. です。", { usage: "diagnosis" });
+  ch("imLet-basic-2", "imLet", "basic", "「〜しましょう」とさそうときの形は？", ["Let's ＋ 動詞のもとの形", "Let's ＋ 動詞の s の形", "Let's ＋ ing の形", "Don't ＋ 動詞のもとの形"], "命令文と同じく、もとの形。", "Let's ＋ 動詞のもとの形 です。");
+  ch("imLet-basic-3", "imLet", "basic", "「歌いましょう。」Let's （ ）. の（ ）は？", ["sing", "sings", "singing", "to sing"], "Let's のあとはもとの形。", "sing です。");
+  ch("imLet-basic-4", "imLet", "basic", "Let's go to the park. の答えとして正しいものは？", ["Yes, let's.", "Yes, I am.", "Yes, it is.", "Yes, let's not."], "さそいに「そうしよう」。", "Yes, let's. です。");
+  ch("imLet-basic-5", "imLet", "basic", "「昼ごはんを食べましょう。」（ ） eat lunch. の（ ）は？", ["Let's", "Let", "Lets", "Be"], "Let's は Let us を短くした形。", "Let's です。");
+  ch("imLet-basic-6", "imLet", "basic", "Let's dance. に「いいえ、やめておきましょう」と答えると？", ["No, let's not.", "No, let's.", "No, I don't.", "No, it isn't."], "let's のあとに not。", "No, let's not. です。");
+  ch("imLet-basic-7", "imLet", "basic", "「公園に行きましょう。」を英語にすると？", ["Let's go to the park.", "Let's goes to the park.", "Let's going to the park.", "Let's to go to the park."], "Let's ＋ 動詞のもとの形。", "Let's go to the park. です。");
+  ch("imLet-standard-1", "imLet", "standard", "「放課後、図書館で勉強しましょう。」を英語にすると？", ["Let's study in the library after school.", "Let's studies in the library after school.", "Let's studying in the library after school.", "Let's to study in the library after school."], "Let's ＋ 動詞のもとの形。", "Let's study in the library after school. です。");
+  ch("imLet-standard-2", "imLet", "standard", "「教室をそうじしましょう。」Let's （ ） our classroom. の（ ）は？", ["clean", "cleans", "cleaning", "to clean"], "Let's のあとはもとの形。", "clean です。");
+  ch("imLet-standard-3", "imLet", "standard", "Let's watch a movie. の答えとして正しいものは？", ["Sure.", "Yes, I do.", "Yes, you are.", "No, let's."], "「いいよ」は Sure. とも言う。", "Sure. です。");
+  ch("imLet-standard-4", "imLet", "standard", "「〜しましょう」の文はどれ？", ["Let's make a cake.", "You make a cake.", "Do you make a cake?", "Let's makes a cake."], "Let's ＋ 動詞のもとの形。", "Let's make a cake. です。");
+  ch("imLet-standard-5", "imLet", "standard", "「駅で会いましょう。」を英語にすると？", ["Let's meet at the station.", "Let's meets at the station.", "Let's meeting at the station.", "Let's to meet at the station."], "Let's ＋ 動詞のもとの形。", "Let's meet at the station. です。");
+  ch("imLet-standard-6", "imLet", "standard", "「家に帰りましょう。」Let's （ ） home. の（ ）は？", ["go", "goes", "going", "went"], "Let's のあとはもとの形。", "go です。");
+  sp("imLet-application-1", "imLet", "休み時間に友だちをさそいます。", [
+    sc("s1", "imLet", "Let's （ ） basketball. の（ ）は？", ["play", "plays", "playing", "played"], "Let's のあとはもとの形。", "play です。"),
+    sc("s2", "imLet", "Let's play basketball. の答えとして正しいものは？", ["Yes, let's.", "Yes, I do.", "Yes, it is.", "Yes, let's not."], "さそいに「そうしよう」。", "Yes, let's. です。"),
+    sc("s3", "imLet", "「体育館に行きましょう。」を英語にすると？", ["Let's go to the gym.", "Let's goes to the gym.", "Let's going to the gym.", "Let's to go to the gym."], "Let's ＋ 動詞のもとの形。", "Let's go to the gym. です。")
+  ], ["imLet"], "さそうときは Let's、答えは Yes, let's.", "play、Yes, let's.、Let's go to the gym. です。");
+  sp("imLet-application-2", "imLet", "雨の日の話です。", [
+    sc("s1", "imLet", "Let's （ ） at home today. の（ ）は？", ["stay", "stays", "staying", "to stay"], "Let's のあとはもとの形。", "stay です。"),
+    sc("s2", "imLet", "Let's go out. の答えで「いいえ、やめておこう」は？", ["No, let's not.", "No, let's.", "No, I'm not.", "No, it isn't."], "let's のあとに not。", "No, let's not. です。"),
+    sc("s3", "imLet", "「家で映画を見ましょう。」を英語にすると？", ["Let's watch a movie at home.", "Let's watches a movie at home.", "Let's watching a movie at home.", "Let's to watch a movie at home."], "Let's ＋ 動詞のもとの形。", "Let's watch a movie at home. です。")
+  ], ["imLet"], "ことわるときは No, let's not.", "stay、No, let's not.、Let's watch a movie at home. です。");
+  sp("imLet-application-3", "imLet", "文化祭の準備をしています。", [
+    sc("s1", "imLet", "Let's （ ） a poster. の（ ）は？（ポスターを作る）", ["make", "makes", "making", "made"], "Let's のあとはもとの形。", "make です。"),
+    sc("s2", "imLet", "「いっしょにいすを運びましょう。」を英語にすると？", ["Let's carry the chairs together.", "Let's carries the chairs together.", "Let's carrying the chairs together.", "Let's to carry the chairs together."], "Let's ＋ 動詞のもとの形。", "Let's carry the chairs together. です。"),
+    sc("s3", "imLet", "Let's は何を短くした形？", ["Let us", "Let is", "Let as", "Lets is"], "us（わたしたち）がふくまれる。", "Let us です。")
+  ], ["imLet"], "Let's ＝ Let us（わたしたちに〜させて）。", "make、Let's carry the chairs together.、Let us です。");
+  sp("imLet-application-4", "imLet", "週末の予定を話します。", [
+    sc("s1", "imLet", "Let's （ ） a cake on Sunday. の（ ）は？（ケーキを焼く）", ["bake", "bakes", "baking", "baked"], "Let's のあとはもとの形。", "bake です。"),
+    sc("s2", "imLet", "Let's bake a cake. の答えとして正しいものは？", ["OK.", "Yes, I am.", "Yes, it is.", "No, let's."], "「いいよ」は OK. とも言う。", "OK. です。"),
+    sc("s3", "imLet", "「お母さんを手伝いましょう。」を英語にすると？", ["Let's help our mother.", "Let's helps our mother.", "Let's helping our mother.", "Let's to help our mother."], "Let's ＋ 動詞のもとの形。", "Let's help our mother. です。")
+  ], ["imLet"], "答えは Yes, let's.・OK.・Sure. など。", "bake、OK.、Let's help our mother. です。");
+  sp("imLet-application-5", "imLet", "ALT の先生がクラスに言います。", [
+    sc("s1", "imLet", "Let's （ ） English songs. の（ ）は？", ["sing", "sings", "singing", "sang"], "Let's のあとはもとの形。", "sing です。"),
+    sc("s2", "imLet", "「英語で話しましょう。」を英語にすると？", ["Let's speak in English.", "Let's speaks in English.", "Let's speaking in English.", "Let's to speak in English."], "Let's ＋ 動詞のもとの形。", "Let's speak in English. です。"),
+    sc("s3", "imLet", "Let's のあとの動詞の形は？", ["もとの形", "s のついた形", "ing の形", "to のついた形"], "命令文と同じ。", "もとの形です。")
+  ], ["imLet"], "Let's のあとは動詞のもとの形。", "sing、Let's speak in English.、もとの形 です。");
+  ch("imLet-retention-1", "imLet", "retention", "「サッカーをしましょう。」を英語にすると？", ["Let's play soccer.", "Let's plays soccer.", "Let's playing soccer.", "Let's to play soccer."], "Let's ＋ 動詞のもとの形。", "Let's play soccer. です。", RB);
+  ch("imLet-retention-2", "imLet", "retention", "「写真をとりましょう。」を英語にすると？", ["Let's take a picture.", "Let's takes a picture.", "Let's taking a picture.", "Let's to take a picture."], "Let's ＋ 動詞のもとの形。", "Let's take a picture. です。", RB);
+  ch("imLet-retention-3", "imLet", "retention", "「いっしょに走りましょう。」を英語にすると？", ["Let's run together.", "Let's runs together.", "Let's running together.", "Let's to run together."], "Let's ＋ 動詞のもとの形。", "Let's run together. です。", RB);
+  ch("imLet-retention-4", "imLet", "retention", "さそいに「うん、そうしよう」と答える英語は？", ["Yes, let's.", "Yes, I do.", "Yes, you are.", "Yes, let's not."], "Yes, let's.", "Yes, let's. です。", RS);
+  ch("imLet-retention-5", "imLet", "retention", "「海で泳ぎましょう。」を英語にすると？", ["Let's swim in the sea.", "Let's swims in the sea.", "Let's swimming in the sea.", "Let's to swim in the sea."], "Let's ＋ 動詞のもとの形。", "Let's swim in the sea. です。", RS);
+
+  // --- please と呼びかけ ---
+  ch("imPlease-basic-1", "imPlease", "basic", "「窓を開けてください。」を英語にすると？", ["Please open the window.", "Please opens the window.", "Please opening the window.", "Please you open the window."], "Please ＋ 動詞のもとの形。", "Please open the window. です。", { usage: "diagnosis" });
+  ch("imPlease-basic-2", "imPlease", "basic", "please を文の最後に置くとき、前に入れるのは？", ["コンマ（,）", "ピリオド（.）", "クエスチョンマーク（?）", "何も入れない"], "〜, please. の形。", "コンマです。");
+  ch("imPlease-basic-3", "imPlease", "basic", "「ゆっくり話してください。」Please （ ） slowly. の（ ）は？", ["speak", "speaks", "speaking", "to speak"], "Please のあとはもとの形。", "speak です。");
+  ch("imPlease-basic-4", "imPlease", "basic", "「ドアを閉めてください。」Close the door, （ ）. の（ ）は？", ["please", "plays", "pleases", "pleasing"], "文の最後に , please。", "please です。");
+  ch("imPlease-basic-5", "imPlease", "basic", "「ケン、ここに来て。」を英語にすると？", ["Ken, come here.", "Ken, comes here.", "Ken, coming here.", "Ken comes here, please."], "名前のあとにコンマ、そして動詞のもとの形。", "Ken, come here. です。");
+  ch("imPlease-basic-6", "imPlease", "basic", "「手伝ってください。」を英語にすると？", ["Please help me.", "Please helps me.", "Please helping me.", "Please to help me."], "Please ＋ 動詞のもとの形。", "Please help me. です。");
+  ch("imPlease-basic-7", "imPlease", "basic", "「みなさん、聞いてください。」Everyone, （ ） to me. の（ ）は？", ["listen", "listens", "listening", "to listen"], "呼びかけのあとは動詞のもとの形。", "listen です。");
+  ch("imPlease-standard-1", "imPlease", "standard", "「もう一度言ってください。」を英語にすると？", ["Please say that again.", "Please says that again.", "Please saying that again.", "Please you say that again."], "Please ＋ 動詞のもとの形。", "Please say that again. です。");
+  ch("imPlease-standard-2", "imPlease", "standard", "「ユミ、静かにしてください。」Yumi, please （ ） quiet. の（ ）は？", ["be", "are", "is", "do"], "quiet は様子を表す語。", "be です。");
+  ch("imPlease-standard-3", "imPlease", "standard", "「ここで待っていてください。」を、please を最後にして英語にすると？", ["Wait here, please.", "Waits here, please.", "Waiting here, please.", "Please waits here."], "動詞のもとの形で始めて、最後に , please。", "Wait here, please. です。");
+  ch("imPlease-standard-4", "imPlease", "standard", "「ここでは走らないでください。」を英語にすると？", ["Please don't run here.", "Please doesn't run here.", "Please don't runs here.", "Please not run here."], "Please ＋ Don't ＋ もとの形。", "Please don't run here. です。");
+  ch("imPlease-standard-5", "imPlease", "standard", "命令文に please をつけると、どうなる？", ["ていねいな言い方になる", "過去の文になる", "疑問文になる", "主語が he になる"], "お願いする言い方。", "ていねいな言い方になります。");
+  ch("imPlease-standard-6", "imPlease", "standard", "「ケン、テレビを消して。」を英語にすると？", ["Ken, turn off the TV.", "Ken, turns off the TV.", "Ken, turning off the TV.", "Ken turns off the TV."], "名前のあとにコンマ。", "Ken, turn off the TV. です。");
+  sp("imPlease-application-1", "imPlease", "お店で店員さんに言います。", [
+    sc("s1", "imPlease", "「そのかばんを見せてください。」Please （ ） me that bag. の（ ）は？", ["show", "shows", "showing", "to show"], "Please のあとはもとの形。", "show です。"),
+    sc("s2", "imPlease", "「もう少しゆっくり話してください。」を英語にすると？", ["Please speak more slowly.", "Please speaks more slowly.", "Please speaking more slowly.", "Please you speak more slowly."], "Please ＋ 動詞のもとの形。", "Please speak more slowly. です。"),
+    sc("s3", "imPlease", "Wait a minute, （ ）. の（ ）は？（少し待ってください）", ["please", "pleases", "pleasing", "plays"], "文の最後に , please。", "please です。")
+  ], ["imPlease"], "please は文の最初にも最後にもつけられる。", "show、Please speak more slowly.、please です。");
+  sp("imPlease-application-2", "imPlease", "家で妹のサキに言います。", [
+    sc("s1", "imPlease", "Saki, （ ） the dishes, please. の（ ）は？（皿を洗う）", ["wash", "washes", "washing", "washed"], "呼びかけのあとは動詞のもとの形。", "wash です。"),
+    sc("s2", "imPlease", "「サキ、宿題をしなさい。」を英語にすると？", ["Saki, do your homework.", "Saki, does your homework.", "Saki, doing your homework.", "Saki does your homework."], "名前のあとにコンマ、そして動詞のもとの形。", "Saki, do your homework. です。"),
+    sc("s3", "imPlease", "Saki, please （ ） noisy. の（ ）は？（さわがないで）", ["don't be", "doesn't be", "not be", "don't"], "様子を表す語には don't be。", "don't be です。")
+  ], ["imPlease"], "相手が妹1人でも動詞はもとの形。", "wash、Saki, do your homework.、don't be です。");
+  sp("imPlease-application-3", "imPlease", "授業で先生が言います。", [
+    sc("s1", "imPlease", "Everyone, （ ） your notebooks. の（ ）は？（ノートを開く）", ["open", "opens", "opening", "opened"], "呼びかけのあとは動詞のもとの形。", "open です。"),
+    sc("s2", "imPlease", "「みなさん、この文を読んでください。」を英語にすると？", ["Everyone, please read this sentence.", "Everyone, please reads this sentence.", "Everyone, please reading this sentence.", "Everyone reads this sentence, please."], "Everyone, のあとに please ＋ もとの形。", "Everyone, please read this sentence. です。"),
+    sc("s3", "imPlease", "呼びかけの語（Everyone など）のあとにつけるのは？", ["コンマ（,）", "ピリオド（.）", "not", "is"], "呼びかけと文をコンマで区切る。", "コンマです。")
+  ], ["imPlease"], "呼びかけのあとはコンマ。", "open、Everyone, please read this sentence.、コンマ です。");
+  sp("imPlease-application-4", "imPlease", "電話で話します。", [
+    sc("s1", "imPlease", "Please （ ） me later. の（ ）は？（あとで電話して）", ["call", "calls", "calling", "called"], "Please のあとはもとの形。", "call です。"),
+    sc("s2", "imPlease", "「少し待ってください。」を、please を最初にして英語にすると？", ["Please wait a minute.", "Please waits a minute.", "Please waiting a minute.", "Please you wait a minute."], "Please ＋ 動詞のもとの形。", "Please wait a minute. です。"),
+    sc("s3", "imPlease", "Mom, （ ） the phone, please. の（ ）は？（電話に出て）", ["answer", "answers", "answering", "answered"], "呼びかけのあとは動詞のもとの形。", "answer です。")
+  ], ["imPlease"], "呼びかけも please も、動詞はもとの形のまま。", "call、Please wait a minute.、answer です。");
+  sp("imPlease-application-5", "imPlease", "となりの席のリクにお願いします。", [
+    sc("s1", "imPlease", "Riku, please （ ） me your eraser. の（ ）は？（消しゴムを貸して）", ["lend", "lends", "lending", "lent"], "please のあとはもとの形。", "lend です。"),
+    sc("s2", "imPlease", "「リク、手伝って。」を、please を最後にして英語にすると？", ["Riku, help me, please.", "Riku, helps me, please.", "Riku, helping me, please.", "Riku helps me, please."], "名前, 動詞のもとの形 〜, please.", "Riku, help me, please. です。"),
+    sc("s3", "imPlease", "Please のあとの動詞の形は？", ["もとの形", "s のついた形", "ing の形", "to のついた形"], "命令文と同じ。", "もとの形です。")
+  ], ["imPlease"], "Please のあとも、動詞はもとの形。", "lend、Riku, help me, please.、もとの形 です。");
+  ch("imPlease-retention-1", "imPlease", "retention", "「あなたの名前を教えてください。」を英語にすると？", ["Please tell me your name.", "Please tells me your name.", "Please telling me your name.", "Please you tell me your name."], "Please ＋ 動詞のもとの形。", "Please tell me your name. です。", RB);
+  ch("imPlease-retention-2", "imPlease", "retention", "「マイ、ドアを開けて。」を英語にすると？", ["Mai, open the door.", "Mai, opens the door.", "Mai, opening the door.", "Mai opens the door."], "名前のあとにコンマ、そして動詞のもとの形。", "Mai, open the door. です。", RB);
+  ch("imPlease-retention-3", "imPlease", "retention", "「水を少しください。」を英語にすると？", ["Please give me some water.", "Please gives me some water.", "Please giving me some water.", "Please you give me some water."], "Please ＋ 動詞のもとの形。", "Please give me some water. です。", RB);
+  ch("imPlease-retention-4", "imPlease", "retention", "「みなさん、立ってください。」を英語にすると？", ["Everyone, please stand up.", "Everyone, please stands up.", "Everyone, please standing up.", "Everyone stands up, please."], "Everyone, のあとに please ＋ もとの形。", "Everyone, please stand up. です。", RS);
+  ch("imPlease-retention-5", "imPlease", "retention", "「ここに座ってください。」を、お願いの語を文の最後に置いて英語にすると？", ["Sit down here, please.", "Sits down here, please.", "Sitting down here, please.", "Please you sit down here."], "動詞のもとの形で始めて、最後に , please。", "Sit down here, please. です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

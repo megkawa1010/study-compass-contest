@@ -36,7 +36,8 @@
       "be動詞": "「〜は…です」を英語で言う単元です。主語（I・you・he など）に合わせて am・are・is を選び、否定文（not）や疑問文（Are you 〜?）もつくります。",
       "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。",
       "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。",
-      "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。"
+      "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。",
+      "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。"
     },
     skills: {
       // --- 正負の数 ---
@@ -206,6 +207,12 @@
       nnThese: { point: "「これら」は these、「あれら」は those。主語が複数なら be動詞は are、あとの名詞も複数形です。", example: "These are my pens.／Are these your bags? — Yes, they are.", trap: "These is 〜. や These are my pen. にしないようにします。" },
       nnSome: { point: "「いくつか」はふつうの文で some、否定文・疑問文では any を使います。", example: "I have some books.／I don't have any pens.", trap: "数えられない名詞（water など）にも some・any は使えます。" },
       nnMany: { point: "数は How many ＋ 名詞の複数形 ＋ do（does）〜? でたずね、数 ＋ 複数形で答えます。", example: "How many cats do you have? — I have two cats.", trap: "How many cat のように名詞をもとの形にしないようにします。" },
+      // --- 命令文（英語） ---
+      imForm: { point: "命令文は主語（you）を言わずに、動詞のもとの形で始めます。", example: "Open the window.／Sit here.", trap: "Opens 〜. や Opening 〜. のように形をかえないようにします。" },
+      imBe: { point: "quiet・careful のような様子を表す語の命令文は、be動詞のもとの形 Be で始めます。", example: "Be quiet.／Be careful.", trap: "Are quiet. や Quiet. にしないようにします。" },
+      imNeg: { point: "「〜してはいけない」は Don't ＋ 動詞のもとの形。様子を表す語なら Don't be 〜. です。", example: "Don't run here.／Don't be late.", trap: "相手が1人でも Doesn't にはしません。" },
+      imLet: { point: "「〜しましょう」とさそうときは Let's ＋ 動詞のもとの形。答えは Yes, let's.／No, let's not. です。", example: "Let's play tennis. — Yes, let's.", trap: "Let's のあとに to や ing をつけないようにします。" },
+      imPlease: { point: "please をつけるとていねいなお願いになります。文の最初か、最後（コンマのあと）につけます。名前の呼びかけもコンマで区切ります。", example: "Please open the window.／Ken, come here.", trap: "please や名前があっても、動詞はもとの形のままです。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },
