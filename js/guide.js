@@ -38,7 +38,8 @@
       "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。",
       "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。",
       "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。",
-      "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。"
+      "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。",
+      "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。"
     },
     skills: {
       // --- 正負の数 ---
@@ -220,6 +221,12 @@
       cnQues: { point: "疑問文は can を主語の前に出し、Yes, 〜 can.／No, 〜 can't. と答えます。", example: "Can you swim? — Yes, I can.", trap: "Do you can 〜? にしないようにします。答えの主語は代名詞にかえます。" },
       cnWhat: { point: "What ＋ can ＋ 主語 ＋ もとの形 〜? でたずねます。「だれが」は Who can 〜? で、名前 ＋ can. と答えます。", example: "What can you make? — I can make cookies.", trap: "What you can 〜? の順にしないようにします。" },
       cnReq: { point: "Can you 〜? は「〜してくれる？」、Can I 〜? は「〜してもいい？」。Sure.・OK.・Sorry, I can't. などで答えます。", example: "Can I use your pen? — Sure.", trap: "Can I 〜? には Yes, you can. で答えます（I can ではない）。" },
+      // --- 疑問詞（英語） ---
+      qwWhere: { point: "場所は Where でたずね、疑問詞のあとは疑問文の語順（is 〜?／do you 〜?）にします。", example: "Where do you live? — I live in Osaka.", trap: "Where you live? のように語順をそのままにしないようにします。" },
+      qwWhen: { point: "「いつ」は When、「何時」は What time。答えは時刻なら at、曜日なら on、月なら in を使います。", example: "What time do you get up? — At six.", trap: "When の質問に場所で答えないようにします。" },
+      qwWhich: { point: "「どちら」は Which。Which ＋ 名詞 ＋ 疑問文の形にもなり、A or B の中からえらんで答えます。", example: "Which do you like, dogs or cats? — I like cats.", trap: "Which 〜 が主語のときは Which train goes 〜? のようにすぐ動詞が来ます。" },
+      qwWhose: { point: "「だれの」は Whose ＋ 名詞。答えは mine・yours・his・hers・ours や Ken's（ケンのもの）を使います。", example: "Whose bag is this? — It's mine.", trap: "these・those には They're 〜. で答えます。It's my. とはしません。" },
+      qwHow: { point: "How は方法（How do you 〜?）・ようす（How is the weather?）。How old は年れい、How many は数です。", example: "How do you go to school? — By bus.", trap: "How のあとの語で、たずねている内容がかわります。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

@@ -263,7 +263,13 @@
     cnNeg:          { label: "can't の否定文", unit: "can", grade: "中1", subject: "英語", prerequisites: ["cnForm", "gvNeg"] },
     cnQues:         { label: "Can you 〜? と答え方", unit: "can", grade: "中1", subject: "英語", prerequisites: ["cnForm", "gvQues"] },
     cnWhat:         { label: "What・Who can 〜?", unit: "can", grade: "中1", subject: "英語", prerequisites: ["cnQues", "gvWhat"] },
-    cnReq:          { label: "Can you 〜?・Can I 〜?（依頼・許可）", unit: "can", grade: "中1", subject: "英語", prerequisites: ["cnQues", "imPlease"] }
+    cnReq:          { label: "Can you 〜?・Can I 〜?（依頼・許可）", unit: "can", grade: "中1", subject: "英語", prerequisites: ["cnQues", "imPlease"] },
+    // --- 中1 英語 疑問詞 ---（Where・When／What time・Which・Whose・How）
+    qwWhere:        { label: "Where 〜?（場所）", unit: "疑問詞", grade: "中1", subject: "英語", prerequisites: ["beWh", "gvWhat"] },
+    qwWhen:         { label: "When・What time 〜?（時）", unit: "疑問詞", grade: "中1", subject: "英語", prerequisites: ["qwWhere", "tsWhat"] },
+    qwWhich:        { label: "Which 〜?（どちら）", unit: "疑問詞", grade: "中1", subject: "英語", prerequisites: ["qwWhere", "nnThese"] },
+    qwWhose:        { label: "Whose 〜?（だれの）と mine・yours", unit: "疑問詞", grade: "中1", subject: "英語", prerequisites: ["qwWhich", "beSubject"] },
+    qwHow:          { label: "How 〜?（方法・年れい・天気・数）", unit: "疑問詞", grade: "中1", subject: "英語", prerequisites: ["qwWhen", "nnMany"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -301,7 +307,8 @@
     "tsForm", "tsSpell", "tsNeg", "tsQues", "tsWhat",
     "nnArticle", "nnPlural", "nnThese", "nnSome", "nnMany",
     "imForm", "imBe", "imNeg", "imLet", "imPlease",
-    "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq"];
+    "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq",
+    "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -326,7 +333,8 @@
     "tsForm", "tsSpell", "tsNeg", "tsQues", "tsWhat",
     "nnArticle", "nnPlural", "nnThese", "nnSome", "nnMany",
     "imForm", "imBe", "imNeg", "imLet", "imPlease",
-    "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq"];
+    "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq",
+    "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -359,7 +367,8 @@
     "3人称単数現在": ["tsForm", "tsSpell", "tsNeg", "tsQues", "tsWhat"],
     "名詞の複数形": ["nnArticle", "nnPlural", "nnThese", "nnSome", "nnMany"],
     "命令文": ["imForm", "imBe", "imNeg", "imLet", "imPlease"],
-    "can": ["cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq"]
+    "can": ["cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq"],
+    "疑問詞": ["qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
@@ -367,7 +376,7 @@
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
   var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
   // 数学以外の教科。学年ごとの単元（まだない学年は空）。GRADE_UNITS は数学のまま
-  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can"], "中学2年": [], "中学3年": [] } };
+  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞"], "中学2年": [], "中学3年": [] } };
   var SUBJECTS = ["数学", "英語"];
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"], SUBJECT_UNITS["英語"]["中学1年"], SUBJECT_UNITS["英語"]["中学2年"], SUBJECT_UNITS["英語"]["中学3年"]);
   var currentGrade = "中学2年", currentSubject = "数学";
@@ -731,6 +740,7 @@
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
     suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
+    qwWhere: "practice_where", qwWhen: "practice_when_what_time", qwWhich: "practice_which", qwWhose: "practice_whose", qwHow: "practice_how",
     cnForm: "review_can_form", cnNeg: "practice_cant", cnQues: "practice_can_question", cnWhat: "practice_what_can", cnReq: "practice_can_request",
     imForm: "review_imperative_form", imBe: "practice_be_imperative", imNeg: "practice_dont", imLet: "practice_lets", imPlease: "practice_please",
     nnArticle: "review_a_an", nnPlural: "review_plural_spelling", nnThese: "practice_these_are", nnSome: "practice_some_any", nnMany: "practice_how_many",

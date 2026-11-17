@@ -17,7 +17,9 @@ const SCHOOL = { grade: "中2", subject: "数学", current_unit: UNIT, school_st
 
 const history = [];
 let n = 0;
-const knows = UNIT === "can"
+const knows = UNIT === "疑問詞"
+  ? { beWh: true, gvWhat: true, tsWhat: true, nnThese: true, nnMany: true, beSubject: true, qwWhere: true, qwWhen: true, qwWhich: true, qwWhose: false, qwHow: false }
+  : UNIT === "can"
   ? { gvSent: true, tsForm: true, gvNeg: true, gvQues: true, gvWhat: true, imPlease: true, cnForm: true, cnNeg: true, cnQues: true, cnWhat: false, cnReq: false }
   : UNIT === "命令文"
   ? { gvSent: true, beForm: true, gvNeg: true, imForm: true, imBe: true, imNeg: true, imLet: false, imPlease: false }
@@ -84,7 +86,7 @@ function answer(qid, at, context) {
 }
 const CAUSE = process.argv[5] || null;
 if (CAUSE) { knows[CAUSE] = false; if (UNIT === "合同と証明" && CAUSE !== "congCorr") knows.congCorr = true; if (UNIT === "図形の角" && CAUSE !== "angleNames") knows.angleNames = true; if (CAUSE !== "transpose" && UNIT === "連立方程式") knows.transpose = true; }
-const FIRST = UNIT === "can" || UNIT === "命令文" || UNIT === "名詞の複数形" || UNIT === "3人称単数現在" || UNIT === "一般動詞" || UNIT === "be動詞" || UNIT === "標本調査" || UNIT === "三平方の定理" || UNIT === "円" || UNIT === "相似" || UNIT === "関数 y＝ax²" || UNIT === "二次方程式" || UNIT === "平方根" || UNIT === "多項式" || UNIT === "データの分布" || UNIT === "空間図形" || UNIT === "平面図形" || UNIT === "比例と反比例" || UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
+const FIRST = UNIT === "疑問詞" || UNIT === "can" || UNIT === "命令文" || UNIT === "名詞の複数形" || UNIT === "3人称単数現在" || UNIT === "一般動詞" || UNIT === "be動詞" || UNIT === "標本調査" || UNIT === "三平方の定理" || UNIT === "円" || UNIT === "相似" || UNIT === "関数 y＝ax²" || UNIT === "二次方程式" || UNIT === "平方根" || UNIT === "多項式" || UNIT === "データの分布" || UNIT === "空間図形" || UNIT === "平面図形" || UNIT === "比例と反比例" || UNIT === "文字と式" || UNIT === "正負の数" || UNIT === "一次方程式" || UNIT === "三角形と四角形" || UNIT === "確率" || UNIT === "データの活用" ? SC.compass.unitCheck(UNIT).questions
   : UNIT === "合同と証明" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1"])
   : UNIT === "図形の角" ? SC.compass.unitCheck(UNIT).questions.concat(["angleBasics-basic-1", "transpose-basic-2"])
   : UNIT === "式の計算" ? SC.compass.unitCheck(UNIT).questions.concat(["likeTerms-basic-2", "signed-basic-2"])
@@ -93,7 +95,9 @@ FIRST.forEach((id) => answer(id, T0, "compass_check"));
 // 想定（合同と証明）：合同条件でまちがえ、原因が「対応する辺・角」。原因に parallelAngles（図形①）を指定すると、図から使える事実（錯角）でつまずく子ども。
 //                      proofHypConc を指定すると、証明の組み立てで仮定と結論を取り違える子ども
 const PROOF_SYMPTOM = { congCorr: "congCond", parallelAngles: "proofFigureFacts", proofHypConc: "proofBuild" };
-const explorations = UNIT === "can"
+const explorations = UNIT === "疑問詞"
+  ? [{ date: new Date(T0).toISOString(), symptom: { skill: "qwHow", label: E.SKILLS.qwHow.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "qwWhen" } }]
+  : UNIT === "can"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "cnWhat", label: E.SKILLS.cnWhat.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "cnQues" } }]
   : UNIT === "命令文"
   ? [{ date: new Date(T0).toISOString(), symptom: { skill: "imPlease", label: E.SKILLS.imPlease.label }, conclusion: { kind: "gap_found", return_to: CAUSE || "imNeg" } }]

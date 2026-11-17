@@ -9837,6 +9837,236 @@
   ch("cnReq-retention-5", "cnReq", "retention", "「ここに座ってもいいですか。」を英語にすると？", ["Can I sit here?", "Do I can sit here?", "Can I sits here?", "Am I can sit here?"], "Can I ＋ もとの形。", "Can I sit here? です。", RS);
 
   // =====================================================================
+  // 中1 英語「疑問詞」（Where・When／What time・Which・Whose・How）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-wh.test.js が文の形と答えの合い方を確かめる）
+  // =====================================================================
+
+  // --- Where 〜? ---
+  ch("qwWhere-basic-1", "qwWhere", "basic", "「あなたはどこに住んでいますか。」を英語にすると？", ["Where do you live?", "Where you live?", "Where are you live?", "Where do you lives?"], "Where ＋ 疑問文の形（do you 〜?）。", "Where do you live? です。", { usage: "diagnosis" });
+  ch("qwWhere-basic-2", "qwWhere", "basic", "「どこ」とたずねる語は？", ["Where", "When", "Which", "Whose"], "場所をたずねる。", "Where です。");
+  ch("qwWhere-basic-3", "qwWhere", "basic", "「わたしのかばんはどこですか。」（ ） is my bag? の（ ）は？", ["Where", "When", "Whose", "How"], "場所をたずねる語。", "Where です。");
+  ch("qwWhere-basic-4", "qwWhere", "basic", "Where is my cat? の答えとして正しいものは？", ["It's under the table.", "Yes, it is.", "At seven.", "It's mine."], "場所で答える。", "It's under the table. です。");
+  ch("qwWhere-basic-5", "qwWhere", "basic", "「ケンはどこにいますか。」Where （ ） Ken? の（ ）は？", ["is", "are", "does", "do"], "「いる」は be動詞。ケンは1人。", "is です。");
+  ch("qwWhere-basic-6", "qwWhere", "basic", "「あなたはどこでサッカーをしますか。」Where do you （ ） soccer? の（ ）は？", ["play", "plays", "playing", "to play"], "do you のあとはもとの形。", "play です。");
+  ch("qwWhere-basic-7", "qwWhere", "basic", "「わたしのくつはどこですか。」を英語にすると？", ["Where are my shoes?", "Where is my shoes?", "Where my shoes are?", "Where do my shoes?"], "shoes は複数 → are。", "Where are my shoes? です。");
+  ch("qwWhere-standard-1", "qwWhere", "standard", "「あなたのお兄さんはどこで働いていますか。」を英語にすると？", ["Where does your brother work?", "Where do your brother work?", "Where does your brother works?", "Where your brother works?"], "主語は兄1人 → does ＋ もとの形。", "Where does your brother work? です。");
+  ch("qwWhere-standard-2", "qwWhere", "standard", "Where do you study? の答えとして正しいものは？", ["I study in my room.", "Yes, I do.", "On Sunday.", "By bus."], "場所で答える。", "I study in my room. です。");
+  ch("qwWhere-standard-3", "qwWhere", "standard", "「あなたはどこの出身ですか。」Where （ ） you from? の（ ）は？", ["are", "do", "is", "does"], "be from で「〜の出身」。主語は you。", "are です。");
+  ch("qwWhere-standard-4", "qwWhere", "standard", "「ユミはどこで昼食を食べますか。」Where （ ） Yumi eat lunch? の（ ）は？", ["does", "do", "is", "are"], "主語はユミ1人。一般動詞の文。", "does です。");
+  ch("qwWhere-standard-5", "qwWhere", "standard", "Where are the children? の答えとして正しいものは？", ["They're in the park.", "Yes, they are.", "At noon.", "By train."], "場所で答える。", "They're in the park. です。");
+  ch("qwWhere-standard-6", "qwWhere", "standard", "「駅はどこですか。」を英語にすると？", ["Where is the station?", "Where the station is?", "Where does the station?", "Where are the station?"], "Where ＋ is ＋ 主語?", "Where is the station? です。");
+  sp("qwWhere-application-1", "qwWhere", "なくし物をさがしています。", [
+    sc("s1", "qwWhere", "（ ） is my pencil case? の（ ）は？（どこ）", ["Where", "When", "Whose", "How"], "場所をたずねる語。", "Where です。"),
+    sc("s2", "qwWhere", "Where is my pencil case? の答えとして正しいものは？", ["It's on your desk.", "Yes, it is.", "It's Ken's.", "At eight."], "場所で答える。", "It's on your desk. です。"),
+    sc("s3", "qwWhere", "「わたしのめがねはどこですか。」を英語にすると？", ["Where are my glasses?", "Where is my glasses?", "Where my glasses are?", "Where do my glasses?"], "glasses（めがね）は複数あつかい → are。", "Where are my glasses? です。")
+  ], ["qwWhere"], "Where で聞かれたら場所で答える。", "Where、It's on your desk.、Where are my glasses? です。");
+  sp("qwWhere-application-2", "qwWhere", "転校生と話します。", [
+    sc("s1", "qwWhere", "「あなたはどこの出身ですか。」を英語にすると？", ["Where are you from?", "Where do you from?", "Where you are from?", "Where is you from?"], "Where ＋ are you from?", "Where are you from? です。"),
+    sc("s2", "qwWhere", "I'm from Canada. と答えたいとき、たずねる語は？", ["Where", "When", "Which", "How"], "出身地は場所。", "Where です。"),
+    sc("s3", "qwWhere", "Where （ ） your family live now? の（ ）は？", ["does", "do", "is", "are"], "your family は1つのまとまり → does。", "does です。")
+  ], ["qwWhere"], "be動詞の文か一般動詞の文かで is・does を使い分ける。", "Where are you from?、Where、does です。");
+  sp("qwWhere-application-3", "qwWhere", "町を案内します。", [
+    sc("s1", "qwWhere", "「図書館はどこですか。」（ ） is the library? の（ ）は？", ["Where", "When", "Whose", "Which"], "場所をたずねる語。", "Where です。"),
+    sc("s2", "qwWhere", "Where is the library? の答えとして正しいものは？", ["It's near the station.", "Yes, it is.", "On Monday.", "It's mine."], "場所で答える。", "It's near the station. です。"),
+    sc("s3", "qwWhere", "「本屋はどこにありますか。」を英語にすると？", ["Where is the bookstore?", "Where are the bookstore?", "Where the bookstore is?", "Where does the bookstore?"], "Where ＋ is ＋ 主語?", "Where is the bookstore? です。")
+  ], ["qwWhere"], "Where のあとは疑問文の語順。", "Where、It's near the station.、Where is the bookstore? です。");
+  sp("qwWhere-application-4", "qwWhere", "休みの日の話です。", [
+    sc("s1", "qwWhere", "Where do you （ ） on Sundays? の（ ）は？（行く）", ["go", "goes", "going", "went"], "do you のあとはもとの形。", "go です。"),
+    sc("s2", "qwWhere", "Where do you go on Sundays? の答えとして正しいものは？", ["I go to the park.", "Yes, I do.", "On Sundays.", "By bike."], "行く場所で答える。", "I go to the park. です。"),
+    sc("s3", "qwWhere", "Where （ ） your sister go on Sundays? の（ ）は？", ["does", "do", "is", "are"], "主語は姉1人。", "does です。")
+  ], ["qwWhere"], "主語が1人なら does。", "go、I go to the park.、does です。");
+  sp("qwWhere-application-5", "qwWhere", "にげた犬たちをさがしています。", [
+    sc("s1", "qwWhere", "Where （ ） my dogs? の（ ）は？", ["are", "is", "do", "does"], "dogs は複数 → are。", "are です。"),
+    sc("s2", "qwWhere", "Where are my dogs? の答えとして正しいものは？", ["They're in the garden.", "Yes, they are.", "They're mine.", "At five."], "場所で答える。", "They're in the garden. です。"),
+    sc("s3", "qwWhere", "Where のあとに一般動詞の疑問文を続けるときの形は？", ["Where ＋ do（does） ＋ 主語 ＋ 動詞のもとの形", "Where ＋ 主語 ＋ 動詞", "Where ＋ is ＋ 主語 ＋ 動詞", "Where ＋ 動詞 ＋ 主語"], "Do you 〜? の前に Where。", "Where ＋ do ＋ 主語 ＋ もとの形 です。")
+  ], ["qwWhere"], "Where ＋ ふつうの疑問文。", "are、They're in the garden.、Where ＋ do ＋ 主語 ＋ もとの形 です。");
+  ch("qwWhere-retention-1", "qwWhere", "retention", "「あなたのお父さんはどこにいますか。」を英語にすると？", ["Where is your father?", "Where are your father?", "Where your father is?", "Where does your father?"], "Where ＋ is ＋ 主語?", "Where is your father? です。", RB);
+  ch("qwWhere-retention-2", "qwWhere", "retention", "「あなたはどこで泳ぎますか。」を英語にすると？", ["Where do you swim?", "Where you swim?", "Where are you swim?", "Where do you swims?"], "Where ＋ do you ＋ もとの形?", "Where do you swim? です。", RB);
+  ch("qwWhere-retention-3", "qwWhere", "retention", "「わたしのぼうしはどこですか。」を英語にすると？", ["Where is my cap?", "Where are my cap?", "Where my cap is?", "Where does my cap?"], "cap は1つ → is。", "Where is my cap? です。", RB);
+  ch("qwWhere-retention-4", "qwWhere", "retention", "「サキはどこで勉強しますか。」を英語にすると？", ["Where does Saki study?", "Where do Saki study?", "Where does Saki studies?", "Where Saki studies?"], "Where ＋ does ＋ 主語 ＋ もとの形?", "Where does Saki study? です。", RS);
+  ch("qwWhere-retention-5", "qwWhere", "retention", "「わたしのペンはどこ？」と聞かれて「机の上にあるよ」と答えると？", ["It's on the desk.", "Yes, it is.", "At nine.", "It's yours."], "場所で答える。", "It's on the desk. です。", RS);
+
+  // --- When・What time 〜? ---
+  ch("qwWhen-basic-1", "qwWhen", "basic", "「あなたの誕生日はいつですか。」を英語にすると？", ["When is your birthday?", "When your birthday is?", "When does your birthday?", "When are your birthday?"], "When ＋ is ＋ 主語?", "When is your birthday? です。", { usage: "diagnosis" });
+  ch("qwWhen-basic-2", "qwWhen", "basic", "「いつ」とたずねる語は？", ["When", "Where", "Which", "How"], "時をたずねる。", "When です。");
+  ch("qwWhen-basic-3", "qwWhen", "basic", "「あなたは何時に起きますか。」（ ） do you get up? の（ ）は？", ["What time", "Where", "Whose", "Which"], "時刻は What time。", "What time です。");
+  ch("qwWhen-basic-4", "qwWhen", "basic", "When is your birthday? の答えとして正しいものは？", ["It's May 5.", "Yes, it is.", "It's in my bag.", "By bus."], "日にちで答える。", "It's May 5. です。");
+  ch("qwWhen-basic-5", "qwWhen", "basic", "「あなたはいつテニスをしますか。」When （ ） you play tennis? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。");
+  ch("qwWhen-basic-6", "qwWhen", "basic", "「今何時ですか。」What time （ ） it? の（ ）は？", ["is", "are", "does", "do"], "時刻は it is で表す。", "is です。");
+  ch("qwWhen-basic-7", "qwWhen", "basic", "What time do you go to bed? の答えとして正しいものは？", ["At ten.", "In the park.", "Yes, I do.", "It's Ken's."], "時刻で答える。", "At ten. です。");
+  ch("qwWhen-standard-1", "qwWhen", "standard", "「あなたのお姉さんはいつピアノを練習しますか。」を英語にすると？", ["When does your sister practice the piano?", "When do your sister practice the piano?", "When does your sister practices the piano?", "When your sister practices the piano?"], "主語は姉1人 → does ＋ もとの形。", "When does your sister practice the piano? です。");
+  ch("qwWhen-standard-2", "qwWhen", "standard", "「ケンは何時に家を出ますか。」What time （ ） Ken leave home? の（ ）は？", ["does", "do", "is", "are"], "主語はケン1人。", "does です。");
+  ch("qwWhen-standard-3", "qwWhen", "standard", "When do you study? の答えとして正しいものは？", ["After dinner.", "In my room.", "Yes, I do.", "By train."], "時で答える。", "After dinner. です。");
+  ch("qwWhen-standard-4", "qwWhen", "standard", "「夏祭りはいつですか。」を英語にすると？", ["When is the summer festival?", "When are the summer festival?", "When the summer festival is?", "When does the summer festival?"], "When ＋ is ＋ 主語?", "When is the summer festival? です。");
+  ch("qwWhen-standard-5", "qwWhen", "standard", "「あなたは何時に昼食を食べますか。」What time do you （ ） lunch? の（ ）は？", ["eat", "eats", "eating", "ate"], "do you のあとはもとの形。", "eat です。");
+  ch("qwWhen-standard-6", "qwWhen", "standard", "What time is it now? の答えとして正しいものは？", ["It's three o'clock.", "It's Monday.", "It's in the box.", "Yes, it is."], "時刻で答える。", "It's three o'clock. です。");
+  sp("qwWhen-application-1", "qwWhen", "朝の予定の話です。", [
+    sc("s1", "qwWhen", "What time （ ） you get up? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。"),
+    sc("s2", "qwWhen", "What time do you get up? の答えとして正しいものは？", ["At six thirty.", "In my bed.", "Yes, I do.", "On Sunday."], "時刻で答える。", "At six thirty. です。"),
+    sc("s3", "qwWhen", "「あなたのお父さんは何時に会社に行きますか。」を英語にすると？", ["What time does your father go to the office?", "What time do your father go to the office?", "What time does your father goes to the office?", "What time your father goes to the office?"], "What time ＋ does ＋ 主語 ＋ もとの形?", "What time does your father go to the office? です。")
+  ], ["qwWhen"], "What time のあとは疑問文の語順。", "do、At six thirty.、What time does your father go to the office? です。");
+  sp("qwWhen-application-2", "qwWhen", "誕生日の話です。", [
+    sc("s1", "qwWhen", "（ ） is your birthday? の（ ）は？（いつ）", ["When", "Where", "Whose", "How"], "時をたずねる語。", "When です。"),
+    sc("s2", "qwWhen", "When is your sister's birthday? の答えとして正しいものは？", ["It's in October.", "It's in her room.", "Yes, it is.", "It's hers."], "月で答える。", "It's in October. です。"),
+    sc("s3", "qwWhen", "When （ ） your brother's birthday? の（ ）は？", ["is", "are", "does", "do"], "birthday は1つ → is。", "is です。")
+  ], ["qwWhen"], "When に「〜月」と答えるときは in 〜。", "When、It's in October.、is です。");
+  sp("qwWhen-application-3", "qwWhen", "部活の予定を話します。", [
+    sc("s1", "qwWhen", "When do you （ ） volleyball? の（ ）は？", ["practice", "practices", "practicing", "practiced"], "do you のあとはもとの形。", "practice です。"),
+    sc("s2", "qwWhen", "When do you practice volleyball? の答えとして正しいものは？", ["On Mondays and Fridays.", "In the gym.", "Yes, I do.", "By bus."], "曜日で答える。", "On Mondays and Fridays. です。"),
+    sc("s3", "qwWhen", "「試合はいつですか。」を英語にすると？", ["When is the game?", "When are the game?", "When the game is?", "When does the game?"], "When ＋ is ＋ 主語?", "When is the game? です。")
+  ], ["qwWhen"], "曜日は on 〜。", "practice、On Mondays and Fridays.、When is the game? です。");
+  sp("qwWhen-application-4", "qwWhen", "旅行の計画です。", [
+    sc("s1", "qwWhen", "When （ ） you go to Okinawa? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。"),
+    sc("s2", "qwWhen", "When do you go to Okinawa? の答えとして正しいものは？", ["In August.", "In Okinawa.", "Yes, I do.", "It's mine."], "時（月）で答える。", "In August. です。"),
+    sc("s3", "qwWhen", "「飛行機は何時に出発しますか。」What time （ ） the plane leave? の（ ）は？", ["does", "do", "is", "are"], "the plane は1つ → does。", "does です。")
+  ], ["qwWhen"], "When の答えは時、Where の答えは場所。", "do、In August.、does です。");
+  sp("qwWhen-application-5", "qwWhen", "テレビ番組の話です。", [
+    sc("s1", "qwWhen", "「その番組は何時に始まりますか。」What time does the show （ ）? の（ ）は？", ["start", "starts", "starting", "started"], "does のあとはもとの形。", "start です。"),
+    sc("s2", "qwWhen", "What time does the show start? の答えとして正しいものは？", ["At eight.", "On TV.", "Yes, it does.", "It's my show."], "時刻で答える。", "At eight. です。"),
+    sc("s3", "qwWhen", "When と What time のちがいで正しいものは？", ["What time は時刻、When は日・月・季節などもふくめた「いつ」", "When は時刻だけ", "What time は月をたずねる", "同じ意味で使い分けはない"], "What time は「何時」。", "What time は時刻、When は「いつ」です。")
+  ], ["qwWhen"], "「何時」は What time、「いつ」は When。", "start、At eight.、What time は時刻 です。");
+  ch("qwWhen-retention-1", "qwWhen", "retention", "「あなたはいつ宿題をしますか。」を英語にすると？", ["When do you do your homework?", "When you do your homework?", "When are you do your homework?", "When do you does your homework?"], "When ＋ do you ＋ もとの形?", "When do you do your homework? です。", RB);
+  ch("qwWhen-retention-2", "qwWhen", "retention", "「何時ですか。」を英語にすると？", ["What time is it?", "What time it is?", "What time does it?", "What time are it?"], "What time ＋ is it?", "What time is it? です。", RB);
+  ch("qwWhen-retention-3", "qwWhen", "retention", "「あなたのお母さんは何時に寝ますか。」を英語にすると？", ["What time does your mother go to bed?", "What time do your mother go to bed?", "What time does your mother goes to bed?", "What time your mother goes to bed?"], "What time ＋ does ＋ 主語 ＋ もとの形?", "What time does your mother go to bed? です。", RB);
+  ch("qwWhen-retention-4", "qwWhen", "retention", "「運動会はいつですか。」を英語にすると？", ["When is the sports day?", "When are the sports day?", "When the sports day is?", "When does the sports day?"], "When ＋ is ＋ 主語?", "When is the sports day? です。", RS);
+  ch("qwWhen-retention-5", "qwWhen", "retention", "「あなたたちはいつ公園で会いますか。」を英語にすると？", ["When do you meet in the park?", "When does you meet in the park?", "When you meet in the park?", "When are you meet in the park?"], "When ＋ do you ＋ もとの形?", "When do you meet in the park? です。", RS);
+
+  // --- Which 〜? ---
+  ch("qwWhich-basic-1", "qwWhich", "basic", "「あなたはどちらのかばんがほしいですか。」を英語にすると？", ["Which bag do you want?", "Which bag you want?", "Which bag are you want?", "Which bag do you wants?"], "Which ＋ 名詞 ＋ 疑問文の形。", "Which bag do you want? です。", { usage: "diagnosis" });
+  ch("qwWhich-basic-2", "qwWhich", "basic", "「どちら・どれ」とたずねる語は？", ["Which", "Where", "Whose", "When"], "いくつかの中からえらぶ。", "Which です。");
+  ch("qwWhich-basic-3", "qwWhich", "basic", "「どちらがあなたのペンですか。」（ ） is your pen? の（ ）は？", ["Which", "Where", "When", "How"], "「どちら」をたずねる語。", "Which です。");
+  ch("qwWhich-basic-4", "qwWhich", "basic", "Which do you like, dogs or cats? の答えとして正しいものは？", ["I like cats.", "Yes, I do.", "In the park.", "At seven."], "どちらかをえらんで答える。", "I like cats. です。");
+  ch("qwWhich-basic-5", "qwWhich", "basic", "「あなたはどちらの色が好きですか。」Which color （ ） you like? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。");
+  ch("qwWhich-basic-6", "qwWhich", "basic", "「どちらの自転車があなたのものですか。」Which bike （ ） yours? の（ ）は？", ["is", "are", "does", "do"], "bike は1台 → is。", "is です。");
+  ch("qwWhich-basic-7", "qwWhich", "basic", "Which is your bag, this one or that one? の答えとして正しいものは？", ["That one is.", "Yes, it is.", "It's in my room.", "At noon."], "どちらかをえらんで答える。", "That one is. です。");
+  ch("qwWhich-standard-1", "qwWhich", "standard", "「あなたのお兄さんはどちらのスポーツが好きですか。」を英語にすると？", ["Which sport does your brother like?", "Which sport do your brother like?", "Which sport does your brother likes?", "Which sport your brother likes?"], "Which ＋ 名詞 ＋ does ＋ 主語 ＋ もとの形?", "Which sport does your brother like? です。");
+  ch("qwWhich-standard-2", "qwWhich", "standard", "Which do you want, tea or coffee? の答えとして正しいものは？", ["Tea, please.", "Yes, please.", "In the kitchen.", "At three."], "どちらかをえらんで答える。", "Tea, please. です。");
+  ch("qwWhich-standard-3", "qwWhich", "standard", "「どちらの電車が京都に行きますか。」Which train （ ） to Kyoto? の（ ）は？", ["goes", "go", "is go", "going"], "Which train が主語。1つなので goes。", "goes です。");
+  ch("qwWhich-standard-4", "qwWhich", "standard", "「どちらの本があなたのものですか。」を英語にすると？", ["Which book is yours?", "Which book are yours?", "Which book yours is?", "Which book does yours?"], "Which ＋ 名詞 ＋ is 〜?", "Which book is yours? です。");
+  ch("qwWhich-standard-5", "qwWhich", "standard", "Which do you like better, summer or winter? の答えとして正しいものは？", ["I like summer better.", "Yes, I do.", "In July.", "By train."], "どちらかをえらんで答える。", "I like summer better. です。");
+  ch("qwWhich-standard-6", "qwWhich", "standard", "「どちらがケンのぼうしですか。」Which （ ） Ken's cap? の（ ）は？", ["is", "are", "does", "do"], "cap は1つ → is。", "is です。");
+  sp("qwWhich-application-1", "qwWhich", "お店でシャツをえらびます。", [
+    sc("s1", "qwWhich", "Which shirt （ ） you want? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。"),
+    sc("s2", "qwWhich", "Which do you want, the red one or the blue one? の答えとして正しいものは？", ["The blue one, please.", "Yes, please.", "In the shop.", "At five."], "どちらかをえらんで答える。", "The blue one, please. です。"),
+    sc("s3", "qwWhich", "「どちらがあなたのお姉さんのくつですか。」を英語にすると？", ["Which are your sister's shoes?", "Which is your sister's shoes?", "Which your sister's shoes are?", "Which do your sister's shoes?"], "shoes は複数 → are。", "Which are your sister's shoes? です。")
+  ], ["qwWhich"], "Which の答えは、えらんだほうを言う。", "do、The blue one, please.、Which are your sister's shoes? です。");
+  sp("qwWhich-application-2", "qwWhich", "夕ごはんを決めます。", [
+    sc("s1", "qwWhich", "Which do you want, curry or pizza? の答えとして正しいものは？", ["Curry, please.", "Yes, I do.", "In the kitchen.", "At seven."], "どちらかをえらんで答える。", "Curry, please. です。"),
+    sc("s2", "qwWhich", "「お父さんはどちらが好きですか。」Which （ ） your father like? の（ ）は？", ["does", "do", "is", "are"], "主語は父1人。一般動詞の文。", "does です。"),
+    sc("s3", "qwWhich", "Which のあとに名詞をつけるときの形は？", ["Which ＋ 名詞 ＋ 疑問文の形", "Which ＋ 主語 ＋ 動詞", "Which ＋ 名詞 ＋ 主語 ＋ 動詞", "名詞 ＋ Which ＋ 疑問文の形"], "Which color do you 〜? の形。", "Which ＋ 名詞 ＋ 疑問文の形 です。")
+  ], ["qwWhich"], "Which ＋ 名詞 ＋ 疑問文。", "Curry, please.、does、Which ＋ 名詞 ＋ 疑問文 です。");
+  sp("qwWhich-application-3", "qwWhich", "駅で電車とバスをえらびます。", [
+    sc("s1", "qwWhich", "「どちらの電車が大阪に行きますか。」Which train （ ） to Osaka? の（ ）は？", ["goes", "go", "is go", "going"], "Which train が主語。1つなので goes。", "goes です。"),
+    sc("s2", "qwWhich", "「わたしはどちらのバスに乗りますか。」Which bus （ ） I take? の（ ）は？", ["do", "does", "am", "is"], "主語は I。一般動詞の文。", "do です。"),
+    sc("s3", "qwWhich", "Which train goes to Osaka, the red one or the white one? の答えとして正しいものは？", ["The white one does.", "Yes, it does.", "At ten.", "In Osaka."], "どちらかをえらんで答える。", "The white one does. です。")
+  ], ["qwWhich"], "Which 〜 が主語なら、すぐあとに動詞。", "goes、do、The white one does. です。");
+  sp("qwWhich-application-4", "qwWhich", "放課後の話です。", [
+    sc("s1", "qwWhich", "Which do you like, soccer or baseball? の答えとして正しいものは？", ["I like baseball.", "Yes, I do.", "After school.", "In the park."], "どちらかをえらんで答える。", "I like baseball. です。"),
+    sc("s2", "qwWhich", "「あなたの弟はどちらのゲームをしますか。」Which game （ ） your brother play? の（ ）は？", ["does", "do", "is", "are"], "主語は弟1人。", "does です。"),
+    sc("s3", "qwWhich", "「どちらのチームが強いですか。」Which team （ ） strong? の（ ）は？", ["is", "are", "does", "do"], "strong は様子 → be動詞。チームは1つ。", "is です。")
+  ], ["qwWhich"], "様子は be動詞、動きは do・does。", "I like baseball.、does、is です。");
+  sp("qwWhich-application-5", "qwWhich", "図書館で本をえらびます。", [
+    sc("s1", "qwWhich", "Which book （ ） you read? の（ ）は？", ["do", "does", "are", "is"], "主語は you。一般動詞の文。", "do です。"),
+    sc("s2", "qwWhich", "「どちらの本がおもしろいですか。」を英語にすると？", ["Which book is interesting?", "Which book are interesting?", "Which book interesting is?", "Which book does interesting?"], "Which book が主語。様子 → is。", "Which book is interesting? です。"),
+    sc("s3", "qwWhich", "Which is yours, this book or that book? の答えとして正しいものは？", ["This book is.", "Yes, it is.", "It's in the library.", "On Friday."], "どちらかをえらんで答える。", "This book is. です。")
+  ], ["qwWhich"], "A or B の質問には、A か B で答える。", "do、Which book is interesting?、This book is. です。");
+  ch("qwWhich-retention-1", "qwWhich", "retention", "「あなたはどちらのぼうしがほしいですか。」を英語にすると？", ["Which cap do you want?", "Which cap you want?", "Which cap are you want?", "Which cap do you wants?"], "Which ＋ 名詞 ＋ do you ＋ もとの形?", "Which cap do you want? です。", RB);
+  ch("qwWhich-retention-2", "qwWhich", "retention", "「どちらがあなたの自転車ですか。」を英語にすると？", ["Which is your bike?", "Which are your bike?", "Which your bike is?", "Which does your bike?"], "Which ＋ is ＋ 主語?", "Which is your bike? です。", RB);
+  ch("qwWhich-retention-3", "qwWhich", "retention", "「あなたのお母さんはどちらの花が好きですか。」を英語にすると？", ["Which flower does your mother like?", "Which flower do your mother like?", "Which flower does your mother likes?", "Which flower your mother likes?"], "Which ＋ 名詞 ＋ does ＋ 主語 ＋ もとの形?", "Which flower does your mother like? です。", RB);
+  ch("qwWhich-retention-4", "qwWhich", "retention", "「どちらのバスが駅に行きますか。」を英語にすると？", ["Which bus goes to the station?", "Which bus go to the station?", "Which bus is go to the station?", "Which bus going to the station?"], "Which bus が主語。1つなので goes。", "Which bus goes to the station? です。", RS);
+  ch("qwWhich-retention-5", "qwWhich", "retention", "「りんごとバナナ、どちらが好き？」に「バナナが好きです」と答えると？", ["I like bananas.", "Yes, I do.", "In the kitchen.", "At lunch."], "えらんだほうを答える。", "I like bananas. です。", RS);
+
+  // --- Whose 〜? ---
+  ch("qwWhose-basic-1", "qwWhose", "basic", "「これはだれのかばんですか。」を英語にすると？", ["Whose bag is this?", "Whose bag this is?", "Whose bag are this?", "Whose is bag this?"], "Whose ＋ 名詞 ＋ is this?", "Whose bag is this? です。", { usage: "diagnosis" });
+  ch("qwWhose-basic-2", "qwWhose", "basic", "「だれの」とたずねる語は？", ["Whose", "Who", "Where", "Which"], "持ち主をたずねる。", "Whose です。");
+  ch("qwWhose-basic-3", "qwWhose", "basic", "Whose pen is this? の答えとして正しいものは？", ["It's mine.", "It's my.", "Yes, it is.", "It's in my bag."], "「わたしのもの」は mine。", "It's mine. です。");
+  ch("qwWhose-basic-4", "qwWhose", "basic", "「これはだれのノートですか。」（ ） notebook is this? の（ ）は？", ["Whose", "Who", "Where", "When"], "「だれの」をたずねる語。", "Whose です。");
+  ch("qwWhose-basic-5", "qwWhose", "basic", "「わたしのもの」を1語で言うと？", ["mine", "my", "me", "I"], "my ＋ 名詞 ＝ mine。", "mine です。");
+  ch("qwWhose-basic-6", "qwWhose", "basic", "「あれらはだれのくつですか。」Whose shoes （ ） those? の（ ）は？", ["are", "is", "does", "do"], "those は複数 → are。", "are です。");
+  ch("qwWhose-basic-7", "qwWhose", "basic", "Whose cap is that? — It's （ ）. の（ ）は？（ケンのもの）", ["Ken's", "Ken", "Kens", "Ken is"], "「ケンのもの」は Ken's。", "Ken's です。");
+  ch("qwWhose-standard-1", "qwWhose", "standard", "「これはだれの自転車ですか。」に「わたしの姉のものです」と答えると？", ["It's my sister's.", "It's my sister.", "It's my sisters.", "It's mine sister's."], "「姉のもの」は sister's。", "It's my sister's. です。");
+  ch("qwWhose-standard-2", "qwWhose", "standard", "「あれはだれの家ですか。」を英語にすると？", ["Whose house is that?", "Whose house that is?", "Whose house are that?", "Who house is that?"], "「だれの」は Whose。", "Whose house is that? です。");
+  ch("qwWhose-standard-3", "qwWhose", "standard", "「あなたのもの」を1語で言うと？", ["yours", "your", "you", "you's"], "your ＋ 名詞 ＝ yours。", "yours です。");
+  ch("qwWhose-standard-4", "qwWhose", "standard", "Whose books are these? の答えとして正しいものは？", ["They're Yumi's.", "It's Yumi's.", "They're Yumi.", "Yes, they are."], "these（複数）には They're で答える。", "They're Yumi's. です。");
+  ch("qwWhose-standard-5", "qwWhose", "standard", "「彼女のもの」を1語で言うと？", ["hers", "her", "she's", "shes"], "her ＋ 名詞 ＝ hers。", "hers です。");
+  ch("qwWhose-standard-6", "qwWhose", "standard", "「これはだれのかさですか。」Whose umbrella （ ） this? の（ ）は？", ["is", "are", "does", "do"], "this は1つ → is。", "is です。");
+  sp("qwWhose-application-1", "qwWhose", "教室の忘れ物を調べます。", [
+    sc("s1", "qwWhose", "「これはだれの筆箱ですか。」Whose pencil case （ ） this? の（ ）は？", ["is", "are", "does", "do"], "this は1つ → is。", "is です。"),
+    sc("s2", "qwWhose", "Whose pencil case is this? — It's （ ）. の（ ）は？（ユミのもの）", ["Yumi's", "Yumi", "Yumis", "Yumi is"], "「ユミのもの」は Yumi's。", "Yumi's です。"),
+    sc("s3", "qwWhose", "「これらはだれのえんぴつですか。」を英語にすると？", ["Whose pencils are these?", "Whose pencils is this?", "Whose pencils these are?", "Whose are pencils these?"], "pencils・these は複数 → are。", "Whose pencils are these? です。")
+  ], ["qwWhose"], "「〜のもの」は名前に 's。", "is、Yumi's、Whose pencils are these? です。");
+  sp("qwWhose-application-2", "qwWhose", "家族の持ち物の話です。", [
+    sc("s1", "qwWhose", "Whose car is that? の答えとして正しいものは？", ["It's my father's.", "It's my father.", "They're my father's.", "Yes, it is."], "that（1つ）には It's で答える。", "It's my father's. です。"),
+    sc("s2", "qwWhose", "「あれはだれのギターですか。」（ ） guitar is that? の（ ）は？", ["Whose", "Who", "Which", "Where"], "「だれの」をたずねる語。", "Whose です。"),
+    sc("s3", "qwWhose", "「それは兄のものです。」It's my （ ）. の（ ）は？", ["brother's", "brother", "brothers", "brother is"], "「兄のもの」は brother's。", "brother's です。")
+  ], ["qwWhose"], "持ち主は 's で表す。", "It's my father's.、Whose、brother's です。");
+  sp("qwWhose-application-3", "qwWhose", "部屋のパソコンの話です。", [
+    sc("s1", "qwWhose", "「これはだれのコンピューターですか。」を英語にすると？", ["Whose computer is this?", "Whose computer this is?", "Whose computer are this?", "Who computer is this?"], "Whose ＋ 名詞 ＋ is this?", "Whose computer is this? です。"),
+    sc("s2", "qwWhose", "Whose computer is this? の答えとして正しいものは？", ["It's ours.", "It's our.", "They're ours.", "Yes, it is."], "「わたしたちのもの」は ours。", "It's ours. です。"),
+    sc("s3", "qwWhose", "「わたしたちのもの」を1語で言うと？", ["ours", "our", "us", "we's"], "our ＋ 名詞 ＝ ours。", "ours です。")
+  ], ["qwWhose"], "mine・yours・his・hers・ours。", "Whose computer is this?、It's ours.、ours です。");
+  sp("qwWhose-application-4", "qwWhose", "落とし物の箱を見ています。", [
+    sc("s1", "qwWhose", "Whose gloves are these? の答えとして正しいものは？", ["They're Tom's.", "It's Tom's.", "They're Tom.", "Yes, they are."], "these（複数）には They're で答える。", "They're Tom's. です。"),
+    sc("s2", "qwWhose", "「彼のもの」を1語で言うと？", ["his", "him", "he's", "hes"], "his は「彼の」「彼のもの」の両方。", "his です。"),
+    sc("s3", "qwWhose", "「あれらはだれのボールですか。」Whose balls （ ） those? の（ ）は？", ["are", "is", "does", "do"], "those は複数 → are。", "are です。")
+  ], ["qwWhose"], "複数のものには They're 〜. で答える。", "They're Tom's.、his、are です。");
+  sp("qwWhose-application-5", "qwWhose", "名前の書いていないかさがあります。", [
+    sc("s1", "qwWhose", "（ ） umbrella is this? の（ ）は？（だれの）", ["Whose", "Who", "When", "Where"], "「だれの」をたずねる語。", "Whose です。"),
+    sc("s2", "qwWhose", "Whose umbrella is this? — It's （ ）. の（ ）は？（あなたのもの）", ["yours", "your", "you", "you's"], "「あなたのもの」は yours。", "yours です。"),
+    sc("s3", "qwWhose", "Whose と Who のちがいで正しいものは？", ["Whose は「だれの」、Who は「だれ」", "どちらも「だれの」", "Who は「だれの」", "Whose は「どこ」"], "Whose は持ち主。", "Whose は「だれの」、Who は「だれ」です。")
+  ], ["qwWhose"], "Whose は「だれの」。", "Whose、yours、Whose は「だれの」です。");
+  ch("qwWhose-retention-1", "qwWhose", "retention", "「あれはだれの自転車ですか。」を英語にすると？", ["Whose bike is that?", "Whose bike that is?", "Whose bike are that?", "Who bike is that?"], "Whose ＋ 名詞 ＋ is that?", "Whose bike is that? です。", RB);
+  ch("qwWhose-retention-2", "qwWhose", "retention", "「それはわたしのものです。」を英語にすると？", ["It's mine.", "It's my.", "It's me.", "It's I."], "「わたしのもの」は mine。", "It's mine. です。", RB);
+  ch("qwWhose-retention-3", "qwWhose", "retention", "「これらはだれの本ですか。」を英語にすると？", ["Whose books are these?", "Whose books is this?", "Whose books these are?", "Whose are books these?"], "books・these は複数 → are。", "Whose books are these? です。", RB);
+  ch("qwWhose-retention-4", "qwWhose", "retention", "「それはマイのものです。」を英語にすると？", ["It's Mai's.", "It's Mai.", "It's Mais.", "It's Mai is."], "「マイのもの」は Mai's。", "It's Mai's. です。", RS);
+  ch("qwWhose-retention-5", "qwWhose", "retention", "「あれらはだれのくつ？」に「それらは彼のものです」と答えると？", ["They're his.", "It's his.", "They're him.", "They're he."], "複数には They're、「彼のもの」は his。", "They're his. です。", RS);
+
+  // --- How 〜? ---
+  ch("qwHow-basic-1", "qwHow", "basic", "「あなたは何歳ですか。」を英語にすると？", ["How old are you?", "How old you are?", "How old do you?", "How old is you?"], "How old ＋ are you?", "How old are you? です。", { usage: "diagnosis" });
+  ch("qwHow-basic-2", "qwHow", "basic", "「どうやって・どのように」とたずねる語は？", ["How", "Who", "Where", "Whose"], "方法やようすをたずねる。", "How です。");
+  ch("qwHow-basic-3", "qwHow", "basic", "「あなたはどうやって学校に来ますか。」（ ） do you come to school? の（ ）は？", ["How", "Where", "Whose", "Which"], "方法をたずねる語。", "How です。");
+  ch("qwHow-basic-4", "qwHow", "basic", "How do you go to school? の答えとして正しいものは？", ["By bus.", "In the bus.", "Yes, I do.", "At eight."], "「〜で」は By 〜。", "By bus. です。");
+  ch("qwHow-basic-5", "qwHow", "basic", "「今日の天気はどうですか。」How （ ） the weather today? の（ ）は？", ["is", "are", "does", "do"], "the weather は1つ → is。", "is です。");
+  ch("qwHow-basic-6", "qwHow", "basic", "How old is your sister? の答えとして正しいものは？", ["She's fifteen years old.", "Yes, she is.", "By train.", "It's hers."], "年れいで答える。", "She's fifteen years old. です。");
+  ch("qwHow-basic-7", "qwHow", "basic", "「元気ですか。」How （ ） you? の（ ）は？", ["are", "is", "do", "does"], "主語は you → are。", "are です。");
+  ch("qwHow-standard-1", "qwHow", "standard", "「あなたのお父さんはどうやって会社に行きますか。」を英語にすると？", ["How does your father go to his office?", "How do your father go to his office?", "How does your father goes to his office?", "How your father goes to his office?"], "How ＋ does ＋ 主語 ＋ もとの形?", "How does your father go to his office? です。");
+  ch("qwHow-standard-2", "qwHow", "standard", "How is the weather in Sapporo? の答えとして正しいものは？", ["It's snowy.", "By bus.", "It's mine.", "Yes, it is."], "天気で答える。", "It's snowy. です。");
+  ch("qwHow-standard-3", "qwHow", "standard", "「あなたはえんぴつを何本持っていますか。」を英語にすると？", ["How many pencils do you have?", "How many pencil do you have?", "How many pencils you have?", "How much pencils do you have?"], "How many ＋ 複数形 ＋ 疑問文の形。", "How many pencils do you have? です。");
+  ch("qwHow-standard-4", "qwHow", "standard", "How old is this temple? の答えとして正しいものは？", ["It's 500 years old.", "Yes, it is.", "By car.", "In Kyoto."], "古さ（年数）で答える。", "It's 500 years old. です。");
+  ch("qwHow-standard-5", "qwHow", "standard", "「ユミはどうやって駅へ行きますか。」How （ ） Yumi go to the station? の（ ）は？", ["does", "do", "is", "are"], "主語はユミ1人。一般動詞の文。", "does です。");
+  ch("qwHow-standard-6", "qwHow", "standard", "How are you? の答えとして正しいものは？", ["I'm fine, thank you.", "I'm fifteen.", "By bike.", "Yes, I am."], "調子で答える。", "I'm fine, thank you. です。");
+  sp("qwHow-application-1", "qwHow", "転校生に質問します。", [
+    sc("s1", "qwHow", "「あなたは何歳ですか。」（ ） old are you? の（ ）は？", ["How", "What", "Which", "Where"], "年れいは How old。", "How です。"),
+    sc("s2", "qwHow", "How old are you? の答えとして正しいものは？", ["I'm thirteen.", "I'm fine.", "By bus.", "Yes, I am."], "年れいで答える。", "I'm thirteen. です。"),
+    sc("s3", "qwHow", "How do you come to school? の答えとして正しいものは？", ["I walk.", "I'm fine.", "At eight.", "Yes, I do."], "方法で答える。", "I walk. です。")
+  ], ["qwHow"], "How old は年れい、How do you 〜? は方法。", "How、I'm thirteen.、I walk. です。");
+  sp("qwHow-application-2", "qwHow", "天気の話です。", [
+    sc("s1", "qwHow", "How （ ） the weather in Okinawa? の（ ）は？", ["is", "are", "does", "do"], "the weather は1つ → is。", "is です。"),
+    sc("s2", "qwHow", "How is the weather in Okinawa? の答えとして正しいものは？", ["It's sunny.", "It's mine.", "By plane.", "Yes, it is."], "天気で答える。", "It's sunny. です。"),
+    sc("s3", "qwHow", "「東京の天気はどうですか。」を英語にすると？", ["How is the weather in Tokyo?", "How are the weather in Tokyo?", "How the weather is in Tokyo?", "How does the weather in Tokyo?"], "How ＋ is ＋ the weather?", "How is the weather in Tokyo? です。")
+  ], ["qwHow"], "天気は How is the weather? — It's sunny.", "is、It's sunny.、How is the weather in Tokyo? です。");
+  sp("qwHow-application-3", "qwHow", "家族のことを聞きます。", [
+    sc("s1", "qwHow", "How old （ ） your grandmother? の（ ）は？", ["is", "are", "does", "do"], "主語は祖母1人 → is。", "is です。"),
+    sc("s2", "qwHow", "How old is your grandmother? の答えとして正しいものは？", ["She's eighty years old.", "She's fine.", "By taxi.", "It's hers."], "年れいで答える。", "She's eighty years old. です。"),
+    sc("s3", "qwHow", "「あなたのおばあさんはどうやってスーパーに行きますか。」を英語にすると？", ["How does your grandmother go to the supermarket?", "How do your grandmother go to the supermarket?", "How does your grandmother goes to the supermarket?", "How your grandmother goes to the supermarket?"], "How ＋ does ＋ 主語 ＋ もとの形?", "How does your grandmother go to the supermarket? です。")
+  ], ["qwHow"], "How old ＋ be動詞、How ＋ does ＋ 一般動詞。", "is、She's eighty years old.、How does your grandmother go to the supermarket? です。");
+  sp("qwHow-application-4", "qwHow", "飼っている動物の数をたずねます。", [
+    sc("s1", "qwHow", "How many （ ） do you have? の（ ）は？（ねこ）", ["cats", "cat", "a cat", "one cat"], "How many ＋ 複数形。", "cats です。"),
+    sc("s2", "qwHow", "How many cats do you have? の答えとして正しいものは？", ["I have two.", "I'm fine.", "By bus.", "Yes, I do."], "数で答える。", "I have two. です。"),
+    sc("s3", "qwHow", "How many と How old のちがいで正しいものは？", ["How many は数、How old は年れい", "How many は年れい", "How old は数", "どちらも天気"], "many は数、old は年れい。", "How many は数、How old は年れい です。")
+  ], ["qwHow"], "How のあとの語で、たずねる内容がかわる。", "cats、I have two.、How many は数 です。");
+  sp("qwHow-application-5", "qwHow", "ALT のブラウン先生と話します。", [
+    sc("s1", "qwHow", "「今日は元気ですか。」How （ ） you today? の（ ）は？", ["are", "is", "do", "does"], "主語は you → are。", "are です。"),
+    sc("s2", "qwHow", "How are you today? の答えとして正しいものは？", ["I'm great.", "I'm twelve.", "By car.", "It's sunny."], "調子で答える。", "I'm great. です。"),
+    sc("s3", "qwHow", "「先生はどうやって学校に来ますか。」How （ ） Ms. Brown come to school? の（ ）は？", ["does", "do", "is", "are"], "主語は先生1人。一般動詞の文。", "does です。")
+  ], ["qwHow"], "How are you? には調子で答える。", "are、I'm great.、does です。");
+  ch("qwHow-retention-1", "qwHow", "retention", "「あなたのお兄さんは何歳ですか。」を英語にすると？", ["How old is your brother?", "How old your brother is?", "How old does your brother?", "How old are your brother?"], "How old ＋ is ＋ 主語?", "How old is your brother? です。", RB);
+  ch("qwHow-retention-2", "qwHow", "retention", "「あなたはどうやってその公園に行きますか。」を英語にすると？", ["How do you go to the park?", "How you go to the park?", "How are you go to the park?", "How do you goes to the park?"], "How ＋ do you ＋ もとの形?", "How do you go to the park? です。", RB);
+  ch("qwHow-retention-3", "qwHow", "retention", "「京都の天気はどうですか。」を英語にすると？", ["How is the weather in Kyoto?", "How are the weather in Kyoto?", "How the weather is in Kyoto?", "How does the weather in Kyoto?"], "How ＋ is ＋ the weather?", "How is the weather in Kyoto? です。", RB);
+  ch("qwHow-retention-4", "qwHow", "retention", "「あなたは本を何冊持っていますか。」を英語にすると？", ["How many books do you have?", "How many book do you have?", "How many books you have?", "How much books do you have?"], "How many ＋ 複数形 ＋ 疑問文の形。", "How many books do you have? です。", RS);
+  ch("qwHow-retention-5", "qwHow", "retention", "「ケンはどうやって学校に来ますか。」を英語にすると？", ["How does Ken come to school?", "How do Ken come to school?", "How does Ken comes to school?", "How Ken comes to school?"], "How ＋ does ＋ 主語 ＋ もとの形?", "How does Ken come to school? です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

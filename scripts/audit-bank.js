@@ -46,7 +46,8 @@ const SCENARIOS = [
   ["3人称単数現在"], ["3人称単数現在", "tsSpell"],
   ["名詞の複数形"], ["名詞の複数形", "nnPlural"],
   ["命令文"], ["命令文", "imNeg"],
-  ["can"], ["can", "cnQues"]
+  ["can"], ["can", "cnQues"],
+  ["疑問詞"], ["疑問詞", "qwWhen"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;
