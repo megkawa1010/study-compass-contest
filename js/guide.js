@@ -37,7 +37,8 @@
       "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。",
       "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。",
       "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。",
-      "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。"
+      "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。",
+      "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。"
     },
     skills: {
       // --- 正負の数 ---
@@ -213,6 +214,12 @@
       imNeg: { point: "「〜してはいけない」は Don't ＋ 動詞のもとの形。様子を表す語なら Don't be 〜. です。", example: "Don't run here.／Don't be late.", trap: "相手が1人でも Doesn't にはしません。" },
       imLet: { point: "「〜しましょう」とさそうときは Let's ＋ 動詞のもとの形。答えは Yes, let's.／No, let's not. です。", example: "Let's play tennis. — Yes, let's.", trap: "Let's のあとに to や ing をつけないようにします。" },
       imPlease: { point: "please をつけるとていねいなお願いになります。文の最初か、最後（コンマのあと）につけます。名前の呼びかけもコンマで区切ります。", example: "Please open the window.／Ken, come here.", trap: "please や名前があっても、動詞はもとの形のままです。" },
+      // --- can（英語） ---
+      cnForm: { point: "「〜できる」は can ＋ 動詞のもとの形。主語が he・she でも can も動詞も形はかわりません。", example: "She can play the piano.", trap: "She can plays 〜. や She cans 〜. にしないようにします。" },
+      cnNeg: { point: "「〜できない」は can't（cannot）＋ 動詞のもとの形です。", example: "I can't swim.", trap: "don't can・doesn't can のように重ねないようにします。" },
+      cnQues: { point: "疑問文は can を主語の前に出し、Yes, 〜 can.／No, 〜 can't. と答えます。", example: "Can you swim? — Yes, I can.", trap: "Do you can 〜? にしないようにします。答えの主語は代名詞にかえます。" },
+      cnWhat: { point: "What ＋ can ＋ 主語 ＋ もとの形 〜? でたずねます。「だれが」は Who can 〜? で、名前 ＋ can. と答えます。", example: "What can you make? — I can make cookies.", trap: "What you can 〜? の順にしないようにします。" },
+      cnReq: { point: "Can you 〜? は「〜してくれる？」、Can I 〜? は「〜してもいい？」。Sure.・OK.・Sorry, I can't. などで答えます。", example: "Can I use your pen? — Sure.", trap: "Can I 〜? には Yes, you can. で答えます（I can ではない）。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

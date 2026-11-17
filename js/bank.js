@@ -9595,6 +9595,248 @@
   ch("imPlease-retention-5", "imPlease", "retention", "「ここに座ってください。」を、お願いの語を文の最後に置いて英語にすると？", ["Sit down here, please.", "Sits down here, please.", "Sitting down here, please.", "Please you sit down here."], "動詞のもとの形で始めて、最後に , please。", "Sit down here, please. です。", RS);
 
   // =====================================================================
+  // 中1 英語「can」（can ＋ もとの形・can't・Can you 〜?・What／Who can 〜?・依頼と許可）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-can.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- can ＋ 動詞のもとの形 ---
+  ch("cnForm-basic-1", "cnForm", "basic", "「わたしは泳ぐことができます。」を英語にすると？", ["I can swim.", "I can swims.", "I can swimming.", "I can to swim."], "can ＋ 動詞のもとの形。", "I can swim. です。", { usage: "diagnosis" });
+  ch("cnForm-basic-2", "cnForm", "basic", "can のあとの動詞の形は？", ["もとの形", "s のついた形", "ing の形", "to のついた形"], "主語が何でも、もとの形。", "もとの形です。");
+  ch("cnForm-basic-3", "cnForm", "basic", "「ケンは速く走れます。」Ken can （ ） fast. の（ ）は？", ["run", "runs", "running", "to run"], "can のあとはもとの形。", "run です。");
+  ch("cnForm-basic-4", "cnForm", "basic", "「彼女はピアノがひけます。」を英語にすると？", ["She can play the piano.", "She cans play the piano.", "She can plays the piano.", "She can playing the piano."], "主語が she でも can も動詞も形はかわらない。", "She can play the piano. です。");
+  ch("cnForm-basic-5", "cnForm", "basic", "「わたしは英語が話せます。」I （ ） speak English. の（ ）は？", ["can", "cans", "is", "does"], "「〜できる」は can。", "can です。");
+  ch("cnForm-basic-6", "cnForm", "basic", "「トムは日本語が読めます。」Tom can （ ） Japanese. の（ ）は？", ["read", "reads", "reading", "to read"], "can のあとはもとの形。", "read です。");
+  ch("cnForm-basic-7", "cnForm", "basic", "主語が he のとき、can の形は？", ["can のまま", "cans", "canes", "is can"], "can は形がかわらない。", "can のままです。");
+  ch("cnForm-standard-1", "cnForm", "standard", "「わたしの母は上手に料理ができます。」を英語にすると？", ["My mother can cook well.", "My mother can cooks well.", "My mother cans cook well.", "My mother is can cook well."], "can ＋ もとの形。be動詞はいらない。", "My mother can cook well. です。");
+  ch("cnForm-standard-2", "cnForm", "standard", "「夜は星が見えます。」We can （ ） the stars at night. の（ ）は？", ["see", "sees", "seeing", "saw"], "can のあとはもとの形。", "see です。");
+  ch("cnForm-standard-3", "cnForm", "standard", "「ユミとマイは上手に踊れます。」を英語にすると？", ["Yumi and Mai can dance well.", "Yumi and Mai can dances well.", "Yumi and Mai cans dance well.", "Yumi and Mai can dancing well."], "can ＋ もとの形。", "Yumi and Mai can dance well. です。");
+  ch("cnForm-standard-4", "cnForm", "standard", "He plays the guitar. を「〜できる」の文にすると？", ["He can play the guitar.", "He can plays the guitar.", "He cans play the guitar.", "He can playing the guitar."], "plays をもとの形にもどして、前に can。", "He can play the guitar. です。");
+  ch("cnForm-standard-5", "cnForm", "standard", "「わたしの犬は高くジャンプできます。」My dog （ ） jump high. の（ ）は？", ["can", "cans", "is", "does"], "主語が my dog でも can のまま。", "can です。");
+  ch("cnForm-standard-6", "cnForm", "standard", "「リクは自転車に乗れます。」Riku can （ ） a bike. の（ ）は？", ["ride", "rides", "riding", "rode"], "can のあとはもとの形。", "ride です。");
+  sp("cnForm-application-1", "cnForm", "友だちのアオイのできることを紹介します。", [
+    sc("s1", "cnForm", "Aoi can （ ） three languages. の（ ）は？（3つの言語を話せる）", ["speak", "speaks", "speaking", "spoke"], "can のあとはもとの形。", "speak です。"),
+    sc("s2", "cnForm", "「彼女はギターもひけます。」を英語にすると？", ["She can play the guitar, too.", "She can plays the guitar, too.", "She cans play the guitar, too.", "She can playing the guitar, too."], "can ＋ もとの形。", "She can play the guitar, too. です。"),
+    sc("s3", "cnForm", "Aoi （ ） sing well. の（ ）は？", ["can", "cans", "is", "does"], "主語が1人でも can のまま。", "can です。")
+  ], ["cnForm"], "主語が he・she でも can と動詞に s はつけない。", "speak、She can play the guitar, too.、can です。");
+  sp("cnForm-application-2", "cnForm", "自分のできることを話します。", [
+    sc("s1", "cnForm", "I can （ ） curry. の（ ）は？（カレーを作れる）", ["cook", "cooks", "cooking", "cooked"], "can のあとはもとの形。", "cook です。"),
+    sc("s2", "cnForm", "「わたしは速く泳げます。」を英語にすると？", ["I can swim fast.", "I can swims fast.", "I can swimming fast.", "I can to swim fast."], "can ＋ もとの形。", "I can swim fast. です。"),
+    sc("s3", "cnForm", "can の文の説明で正しいものは？", ["主語が何でも can の形はかわらない", "主語が he なら cans", "主語が they なら canes", "can のあとは ing の形"], "can は形がかわらない。", "主語が何でも can のままです。")
+  ], ["cnForm"], "can ＋ 動詞のもとの形。", "cook、I can swim fast.、形はかわらない です。");
+  sp("cnForm-application-3", "cnForm", "ペットのことを話します。", [
+    sc("s1", "cnForm", "My cat can （ ） very high. の（ ）は？", ["jump", "jumps", "jumping", "jumped"], "can のあとはもとの形。", "jump です。"),
+    sc("s2", "cnForm", "「わたしの鳥は話せます。」を英語にすると？", ["My bird can talk.", "My bird can talks.", "My bird cans talk.", "My bird can talking."], "can ＋ もとの形。", "My bird can talk. です。"),
+    sc("s3", "cnForm", "My dogs （ ） run fast. の（ ）は？", ["can", "cans", "are", "is"], "主語が複数でも can。", "can です。")
+  ], ["cnForm"], "動物が主語でも can ＋ もとの形。", "jump、My bird can talk.、can です。");
+  sp("cnForm-application-4", "cnForm", "スポーツの話です。", [
+    sc("s1", "cnForm", "Kenta can （ ） well. の（ ）は？（スキーをする）", ["ski", "skis", "skiing", "to ski"], "can のあとはもとの形。", "ski です。"),
+    sc("s2", "cnForm", "「わたしの兄はサッカーが上手にできます。」を英語にすると？", ["My brother can play soccer well.", "My brother can plays soccer well.", "My brother cans play soccer well.", "My brother is can play soccer well."], "can ＋ もとの形。", "My brother can play soccer well. です。"),
+    sc("s3", "cnForm", "They （ ） swim very fast. の（ ）は？", ["can", "cans", "are", "does"], "「〜できる」は can。", "can です。")
+  ], ["cnForm"], "be動詞と can をいっしょに使わない。", "ski、My brother can play soccer well.、can です。");
+  sp("cnForm-application-5", "cnForm", "ALT のグリーン先生の紹介です。", [
+    sc("s1", "cnForm", "Ms. Green can （ ） Japanese. の（ ）は？（日本語を書ける）", ["write", "writes", "writing", "wrote"], "can のあとはもとの形。", "write です。"),
+    sc("s2", "cnForm", "「彼女ははしを使えます。」を英語にすると？", ["She can use chopsticks.", "She can uses chopsticks.", "She cans use chopsticks.", "She can using chopsticks."], "can ＋ もとの形。", "She can use chopsticks. です。"),
+    sc("s3", "cnForm", "She （ ） make sushi. の（ ）は？", ["can", "cans", "is", "does"], "主語が she でも can のまま。", "can です。")
+  ], ["cnForm"], "人をしょうかいするときにも can が使える。", "write、She can use chopsticks.、can です。");
+  ch("cnForm-retention-1", "cnForm", "retention", "「わたしはスケートができます。」を英語にすると？", ["I can skate.", "I can skates.", "I can skating.", "I can to skate."], "can ＋ もとの形。", "I can skate. です。", RB);
+  ch("cnForm-retention-2", "cnForm", "retention", "「ケンは上手に絵がかけます。」を英語にすると？", ["Ken can draw pictures well.", "Ken can draws pictures well.", "Ken cans draw pictures well.", "Ken can drawing pictures well."], "主語が1人でも can ＋ もとの形。", "Ken can draw pictures well. です。", RB);
+  ch("cnForm-retention-3", "cnForm", "retention", "「わたしの姉は車を運転できます。」を英語にすると？", ["My sister can drive a car.", "My sister can drives a car.", "My sister cans drive a car.", "My sister is can drive a car."], "can ＋ もとの形。", "My sister can drive a car. です。", RB);
+  ch("cnForm-retention-4", "cnForm", "retention", "「わたしたちは公園でテニスができます。」を英語にすると？", ["We can play tennis in the park.", "We can plays tennis in the park.", "We cans play tennis in the park.", "We can playing tennis in the park."], "can ＋ もとの形。", "We can play tennis in the park. です。", RS);
+  ch("cnForm-retention-5", "cnForm", "retention", "「その赤ちゃんは歩けます。」を英語にすると？", ["The baby can walk.", "The baby can walks.", "The baby cans walk.", "The baby can walking."], "can ＋ もとの形。", "The baby can walk. です。", RS);
+
+  // --- can't の否定文 ---
+  ch("cnNeg-basic-1", "cnNeg", "basic", "「わたしは泳げません。」を英語にすると？", ["I can't swim.", "I don't can swim.", "I can't swims.", "I not can swim."], "can't ＋ 動詞のもとの形。", "I can't swim. です。", { usage: "diagnosis" });
+  ch("cnNeg-basic-2", "cnNeg", "basic", "can't は何を短くした形？", ["cannot", "can no", "can do not", "do not can"], "can と not をくっつけた cannot。", "cannot です。");
+  ch("cnNeg-basic-3", "cnNeg", "basic", "「彼は料理ができません。」He （ ） cook. の（ ）は？", ["can't", "doesn't can", "isn't", "not can"], "can の否定は can't。", "can't です。");
+  ch("cnNeg-basic-4", "cnNeg", "basic", "「わたしはピアノがひけません。」I can't （ ） the piano. の（ ）は？", ["play", "plays", "playing", "played"], "can't のあとはもとの形。", "play です。");
+  ch("cnNeg-basic-5", "cnNeg", "basic", "「ユミはスキーができません。」を英語にすると？", ["Yumi can't ski.", "Yumi doesn't can ski.", "Yumi can't skis.", "Yumi isn't can ski."], "can't ＋ もとの形。", "Yumi can't ski. です。");
+  ch("cnNeg-basic-6", "cnNeg", "basic", "can の否定文の作り方で正しいものは？", ["can のあとに not をつける", "can の前に don't をつける", "can の前に not をつける", "動詞に s をつける"], "don't は使わない。", "can のあとに not です。");
+  ch("cnNeg-basic-7", "cnNeg", "basic", "「わたしの弟は自転車に乗れません。」My brother can't （ ） a bike. の（ ）は？", ["ride", "rides", "riding", "rode"], "can't のあとはもとの形。", "ride です。");
+  ch("cnNeg-standard-1", "cnNeg", "standard", "「わたしたちはここでは泳げません。」を英語にすると？", ["We can't swim here.", "We don't can swim here.", "We can't swimming here.", "We not can swim here."], "can't ＋ もとの形。", "We can't swim here. です。");
+  ch("cnNeg-standard-2", "cnNeg", "standard", "He can read French. を否定文にすると？", ["He can't read French.", "He doesn't can read French.", "He can't reads French.", "He can read not French."], "can のあとに not。", "He can't read French. です。");
+  ch("cnNeg-standard-3", "cnNeg", "standard", "「祖父はスマホが使えません。」My grandfather （ ） use a smartphone. の（ ）は？", ["cannot", "doesn't can", "isn't", "not can"], "cannot は1語で書く。", "cannot です。");
+  ch("cnNeg-standard-4", "cnNeg", "standard", "「ケンとリクは今日は来られません。」を英語にすると？", ["Ken and Riku can't come today.", "Ken and Riku don't can come today.", "Ken and Riku can't comes today.", "Ken and Riku not can come today."], "can't ＋ もとの形。", "Ken and Riku can't come today. です。");
+  ch("cnNeg-standard-5", "cnNeg", "standard", "cannot の正しい書き方は？", ["cannot（1語）", "can't not", "cann't", "can'nt"], "can と not をつなげて1語。", "cannot です。");
+  ch("cnNeg-standard-6", "cnNeg", "standard", "「わたしのねこは泳げません。」My cat can't （ ）. の（ ）は？", ["swim", "swims", "swimming", "swam"], "can't のあとはもとの形。", "swim です。");
+  sp("cnNeg-application-1", "cnNeg", "自分のできないこと・できることを話します。", [
+    sc("s1", "cnNeg", "I （ ） cook well. の（ ）は？（上手に料理できない）", ["can't", "don't can", "am not", "not can"], "can の否定は can't。", "can't です。"),
+    sc("s2", "cnNeg", "But I （ ） wash the dishes. の（ ）は？（でも皿は洗える）", ["can", "cans", "am", "not"], "「〜できる」は can。", "can です。"),
+    sc("s3", "cnNeg", "「わたしは早起きができません。」を英語にすると？", ["I can't get up early.", "I can't gets up early.", "I don't can get up early.", "I can't getting up early."], "can't ＋ もとの形。", "I can't get up early. です。")
+  ], ["cnNeg"], "できないことは can't、できることは can。", "can't、can、I can't get up early. です。");
+  sp("cnNeg-application-2", "cnNeg", "図書館のきまりを説明します。", [
+    sc("s1", "cnNeg", "You can't （ ） here. の（ ）は？（ここでは食べられない）", ["eat", "eats", "eating", "ate"], "can't のあとはもとの形。", "eat です。"),
+    sc("s2", "cnNeg", "「ここでは話せません。」を英語にすると？", ["You can't talk here.", "You don't can talk here.", "You can't talks here.", "You not can talk here."], "can't ＋ もとの形。", "You can't talk here. です。"),
+    sc("s3", "cnNeg", "You （ ） read books here. の（ ）は？（本は読める）", ["can", "cans", "are", "is"], "「〜できる」は can。", "can です。")
+  ], ["cnNeg"], "You can't 〜. は「〜してはいけない」の意味にもなる。", "eat、You can't talk here.、can です。");
+  sp("cnNeg-application-3", "cnNeg", "弟のことを話します。", [
+    sc("s1", "cnNeg", "My brother （ ） swim yet. の（ ）は？（まだ泳げない）", ["can't", "doesn't can", "isn't", "not can"], "can の否定は can't。", "can't です。"),
+    sc("s2", "cnNeg", "He can't （ ） his name. の（ ）は？（名前が書けない）", ["write", "writes", "writing", "wrote"], "can't のあとはもとの形。", "write です。"),
+    sc("s3", "cnNeg", "「でも彼は速く走れます。」を英語にすると？", ["But he can run fast.", "But he can runs fast.", "But he cans run fast.", "But he can running fast."], "can ＋ もとの形。", "But he can run fast. です。")
+  ], ["cnNeg"], "主語が he でも doesn't は使わない。", "can't、write、But he can run fast. です。");
+  sp("cnNeg-application-4", "cnNeg", "雨の日の話です。", [
+    sc("s1", "cnNeg", "We （ ） play outside today. の（ ）は？", ["can't", "don't can", "aren't", "not can"], "can の否定は can't。", "can't です。"),
+    sc("s2", "cnNeg", "「わたしたちは家でゲームができます。」を英語にすると？", ["We can play games at home.", "We can plays games at home.", "We cans play games at home.", "We can playing games at home."], "can ＋ もとの形。", "We can play games at home. です。"),
+    sc("s3", "cnNeg", "can't のあとの動詞の形は？", ["もとの形", "s のついた形", "ing の形", "過去の形"], "can と同じ。", "もとの形です。")
+  ], ["cnNeg"], "can't のあとも動詞はもとの形。", "can't、We can play games at home.、もとの形 です。");
+  sp("cnNeg-application-5", "cnNeg", "外国から来たエマの話です。", [
+    sc("s1", "cnNeg", "Emma （ ） read kanji. の（ ）は？（漢字が読めない）", ["can't", "doesn't can", "isn't", "not can"], "can の否定は can't。", "can't です。"),
+    sc("s2", "cnNeg", "「彼女ははしが使えません。」を英語にすると？", ["She can't use chopsticks.", "She doesn't can use chopsticks.", "She can't uses chopsticks.", "She not can use chopsticks."], "can't ＋ もとの形。", "She can't use chopsticks. です。"),
+    sc("s3", "cnNeg", "But she can （ ） Japanese a little. の（ ）は？（日本語を少し話せる）", ["speak", "speaks", "speaking", "spoke"], "can のあとはもとの形。", "speak です。")
+  ], ["cnNeg"], "doesn't can のように2つ重ねない。", "can't、She can't use chopsticks.、speak です。");
+  ch("cnNeg-retention-1", "cnNeg", "retention", "「わたしは歌が上手ではありません（上手に歌えません）。」を英語にすると？", ["I can't sing well.", "I don't can sing well.", "I can't sings well.", "I not can sing well."], "can't ＋ もとの形。", "I can't sing well. です。", RB);
+  ch("cnNeg-retention-2", "cnNeg", "retention", "「彼はその箱を運べません。」を英語にすると？", ["He can't carry the box.", "He doesn't can carry the box.", "He can't carries the box.", "He isn't can carry the box."], "can't ＋ もとの形。", "He can't carry the box. です。", RB);
+  ch("cnNeg-retention-3", "cnNeg", "retention", "「わたしの父は泳げません。」を英語にすると？", ["My father can't swim.", "My father doesn't can swim.", "My father can't swims.", "My father not can swim."], "can't ＋ もとの形。", "My father can't swim. です。", RB);
+  ch("cnNeg-retention-4", "cnNeg", "retention", "「今夜は星が見えません。」を、主語を we にして英語にすると？", ["We can't see the stars tonight.", "We don't can see the stars tonight.", "We can't seeing the stars tonight.", "We not can see the stars tonight."], "can't ＋ もとの形。", "We can't see the stars tonight. です。", RS);
+  ch("cnNeg-retention-5", "cnNeg", "retention", "「サキはスケートができません。」を英語にすると？", ["Saki can't skate.", "Saki doesn't can skate.", "Saki can't skates.", "Saki isn't can skate."], "can't ＋ もとの形。", "Saki can't skate. です。", RS);
+
+  // --- Can you 〜? と答え方 ---
+  ch("cnQues-basic-1", "cnQues", "basic", "「あなたは泳げますか。」を英語にすると？", ["Can you swim?", "Do you can swim?", "Are you can swim?", "Can you swims?"], "can を主語の前に出す。", "Can you swim? です。", { usage: "diagnosis" });
+  ch("cnQues-basic-2", "cnQues", "basic", "Can you swim? の答えとして正しいものは？", ["Yes, I can.", "Yes, I do.", "Yes, you can.", "Yes, I am."], "can で聞かれたら can で答える。", "Yes, I can. です。");
+  ch("cnQues-basic-3", "cnQues", "basic", "「ケンはスキーができますか。」（ ） Ken ski? の（ ）は？", ["Can", "Cans", "Is", "Are"], "can を文の最初に。", "Can です。");
+  ch("cnQues-basic-4", "cnQues", "basic", "Can Mai play the violin? — No, （ ）. の（ ）は？", ["she can't", "she doesn't", "she isn't", "Mai can't"], "マイ → she、can't で答える。", "she can't です。");
+  ch("cnQues-basic-5", "cnQues", "basic", "「あなたはギターがひけますか。」Can you （ ） the guitar? の（ ）は？", ["play", "plays", "playing", "to play"], "Can ＋ 主語 ＋ もとの形。", "play です。");
+  ch("cnQues-basic-6", "cnQues", "basic", "can の疑問文の作り方で正しいものは？", ["can を主語の前に出す", "Do を文の最初につける", "主語のあとに can を2回", "動詞に s をつける"], "Do は使わない。", "can を主語の前に出します。");
+  ch("cnQues-basic-7", "cnQues", "basic", "Can your brother drive a car? の答えとして正しいものは？", ["Yes, he can.", "Yes, he does.", "Yes, she can.", "Yes, he is."], "兄 → he、can で答える。", "Yes, he can. です。");
+  ch("cnQues-standard-1", "cnQues", "standard", "「あなたのお母さんはケーキを作れますか。」を英語にすると？", ["Can your mother make a cake?", "Does your mother can make a cake?", "Can your mother makes a cake?", "Is your mother can make a cake?"], "Can ＋ 主語 ＋ もとの形。", "Can your mother make a cake? です。");
+  ch("cnQues-standard-2", "cnQues", "standard", "Can Ken and Riku swim? — Yes, （ ）. の（ ）は？", ["they can", "he can", "they do", "we can"], "2人 → they。", "they can です。");
+  ch("cnQues-standard-3", "cnQues", "standard", "She can ride a horse. を疑問文にすると？", ["Can she ride a horse?", "Does she can ride a horse?", "Can she rides a horse?", "She can ride a horse?"], "can を主語の前に出す。", "Can she ride a horse? です。");
+  ch("cnQues-standard-4", "cnQues", "standard", "Can you and Yumi come tomorrow? — No, （ ）. の（ ）は？", ["we can't", "I can't", "you can't", "we don't"], "あなたとユミ → we。", "we can't です。");
+  ch("cnQues-standard-5", "cnQues", "standard", "「あなたは漢字が書けますか。」Can you （ ） kanji? の（ ）は？", ["write", "writes", "writing", "wrote"], "Can ＋ 主語 ＋ もとの形。", "write です。");
+  ch("cnQues-standard-6", "cnQues", "standard", "Can your cat jump high? の答えとして正しいものは？", ["Yes, it can.", "Yes, it does.", "Yes, she does.", "Yes, it is."], "ねこ → it、can で答える。", "Yes, it can. です。");
+  sp("cnQues-application-1", "cnQues", "クラブ活動の話です。", [
+    sc("s1", "cnQues", "「あなたはバスケットボールができますか。」を英語にすると？", ["Can you play basketball?", "Do you can play basketball?", "Can you plays basketball?", "Are you can play basketball?"], "Can ＋ 主語 ＋ もとの形。", "Can you play basketball? です。"),
+    sc("s2", "cnQues", "Can you play basketball? — Yes, （ ）. の（ ）は？", ["I can", "I do", "you can", "I am"], "you で聞かれたら I で答える。", "I can です。"),
+    sc("s3", "cnQues", "Can your sister play it, too? — No, （ ）. の（ ）は？", ["she can't", "she doesn't", "he can't", "she isn't"], "姉 → she。", "she can't です。")
+  ], ["cnQues"], "Can で聞かれたら can・can't で答える。", "Can you play basketball?、I can、she can't です。");
+  sp("cnQues-application-2", "cnQues", "料理の話です。", [
+    sc("s1", "cnQues", "（ ） you cook curry? の（ ）は？", ["Can", "Cans", "Are", "Is"], "can を文の最初に。", "Can です。"),
+    sc("s2", "cnQues", "Can your father cook? — Yes, （ ）. の（ ）は？", ["he can", "he does", "she can", "he is"], "父 → he。", "he can です。"),
+    sc("s3", "cnQues", "「あなたのお父さんはすしを作れますか。」を英語にすると？", ["Can your father make sushi?", "Does your father can make sushi?", "Can your father makes sushi?", "Is your father can make sushi?"], "Can ＋ 主語 ＋ もとの形。", "Can your father make sushi? です。")
+  ], ["cnQues"], "主語が your father でも Does は使わない。", "Can、he can、Can your father make sushi? です。");
+  sp("cnQues-application-3", "cnQues", "ペンギンについて話します。", [
+    sc("s1", "cnQues", "Can penguins fly? — No, （ ）. の（ ）は？", ["they can't", "it can't", "they don't", "they aren't"], "penguins（複数） → they。", "they can't です。"),
+    sc("s2", "cnQues", "「ペンギンは泳げますか。」を英語にすると？", ["Can penguins swim?", "Do penguins can swim?", "Can penguins swims?", "Are penguins can swim?"], "Can ＋ 主語 ＋ もとの形。", "Can penguins swim? です。"),
+    sc("s3", "cnQues", "Can a penguin swim fast? — Yes, （ ）. の（ ）は？", ["it can", "they can", "it does", "he can"], "a penguin（1羽） → it。", "it can です。")
+  ], ["cnQues"], "答えの主語は、1ぴきなら it、2ひき以上なら they。", "they can't、Can penguins swim?、it can です。");
+  sp("cnQues-application-4", "cnQues", "転校生と話します。", [
+    sc("s1", "cnQues", "Can you （ ） Japanese? の（ ）は？（日本語を話す）", ["speak", "speaks", "speaking", "spoke"], "Can ＋ 主語 ＋ もとの形。", "speak です。"),
+    sc("s2", "cnQues", "Can you speak Japanese? — Yes, （ ）. の（ ）は？", ["I can", "I do", "you can", "I am"], "you で聞かれたら I で答える。", "I can です。"),
+    sc("s3", "cnQues", "「あなたの妹さんは日本語が読めますか。」を英語にすると？", ["Can your sister read Japanese?", "Does your sister can read Japanese?", "Can your sister reads Japanese?", "Is your sister can read Japanese?"], "Can ＋ 主語 ＋ もとの形。", "Can your sister read Japanese? です。")
+  ], ["cnQues"], "Can の文では、主語が he・she でも動詞はもとの形。", "speak、I can、Can your sister read Japanese? です。");
+  sp("cnQues-application-5", "cnQues", "スポーツテストの話です。", [
+    sc("s1", "cnQues", "Can Tom run fast? — No, （ ）. の（ ）は？", ["he can't", "he doesn't", "she can't", "Tom can"], "トム → he。", "he can't です。"),
+    sc("s2", "cnQues", "「トムは高く跳べますか。」を英語にすると？", ["Can Tom jump high?", "Does Tom can jump high?", "Can Tom jumps high?", "Is Tom can jump high?"], "Can ＋ 主語 ＋ もとの形。", "Can Tom jump high? です。"),
+    sc("s3", "cnQues", "Can の疑問文に答えるとき、使う語は？", ["can（can't）", "do（don't）", "is（isn't）", "does（doesn't）"], "聞かれた語で答える。", "can（can't）です。")
+  ], ["cnQues"], "答えも can・can't。", "he can't、Can Tom jump high?、can です。");
+  ch("cnQues-retention-1", "cnQues", "retention", "「あなたはスケートができますか。」を英語にすると？", ["Can you skate?", "Do you can skate?", "Can you skates?", "Are you can skate?"], "can を主語の前に出す。", "Can you skate? です。", RB);
+  ch("cnQues-retention-2", "cnQues", "retention", "「ユミはピアノがひけますか。」を英語にすると？", ["Can Yumi play the piano?", "Does Yumi can play the piano?", "Can Yumi plays the piano?", "Is Yumi can play the piano?"], "Can ＋ 主語 ＋ もとの形。", "Can Yumi play the piano? です。", RB);
+  ch("cnQues-retention-3", "cnQues", "retention", "「あなたのお兄さんは英語が話せますか。」に「はい、話せます」と答えると？", ["Yes, he can.", "Yes, he does.", "Yes, I can.", "Yes, he is."], "兄 → he、can で答える。", "Yes, he can. です。", RB);
+  ch("cnQues-retention-4", "cnQues", "retention", "「彼らは泳げますか。」を英語にすると？", ["Can they swim?", "Do they can swim?", "Can they swims?", "Are they can swim?"], "can を主語の前に出す。", "Can they swim? です。", RS);
+  ch("cnQues-retention-5", "cnQues", "retention", "「あなたは自転車に乗れますか。」に「いいえ、乗れません」と答えると？", ["No, I can't.", "No, I don't.", "No, you can't.", "No, I'm not."], "you で聞かれたら I、can't で答える。", "No, I can't. です。", RS);
+
+  // --- What・Who can 〜? ---
+  ch("cnWhat-basic-1", "cnWhat", "basic", "「あなたは何を作れますか。」を英語にすると？", ["What can you make?", "What do you can make?", "What can you makes?", "What you can make?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can you make? です。", { usage: "diagnosis" });
+  ch("cnWhat-basic-2", "cnWhat", "basic", "「だれが速く走れますか。」を英語にすると？", ["Who can run fast?", "Who cans run fast?", "Who can runs fast?", "Who does can run fast?"], "Who ＋ can ＋ もとの形。", "Who can run fast? です。");
+  ch("cnWhat-basic-3", "cnWhat", "basic", "What can you cook? の答えとして正しいものは？", ["I can cook curry.", "Yes, I can.", "I can cooks curry.", "I cook can curry."], "Yes・No ではなく、作れるものを答える。", "I can cook curry. です。");
+  ch("cnWhat-basic-4", "cnWhat", "basic", "「あなたは何のスポーツができますか。」What sport （ ） you play? の（ ）は？", ["can", "cans", "do can", "are"], "What sport ＋ can ＋ 主語 ＋ もとの形。", "can です。");
+  ch("cnWhat-basic-5", "cnWhat", "basic", "Who can play the piano? — Yumi （ ）. の（ ）は？", ["can", "does", "is", "plays"], "can で聞かれたら can で答える。", "can です。");
+  ch("cnWhat-basic-6", "cnWhat", "basic", "「何が見えますか。」What can you （ ）? の（ ）は？", ["see", "sees", "seeing", "saw"], "can のあとはもとの形。", "see です。");
+  ch("cnWhat-basic-7", "cnWhat", "basic", "What can 〜? の文で、can のあとの順番は？", ["主語 ＋ 動詞のもとの形", "動詞 ＋ 主語", "do ＋ 主語 ＋ 動詞", "主語 ＋ 動詞の s の形"], "Can you 〜? の前に What をつけた形。", "主語 ＋ 動詞のもとの形 です。");
+  ch("cnWhat-standard-1", "cnWhat", "standard", "「あなたのお姉さんは何語が話せますか。」を英語にすると？", ["What languages can your sister speak?", "What languages does your sister can speak?", "What languages can your sister speaks?", "What languages your sister can speak?"], "What ＋ 名詞 ＋ can ＋ 主語 ＋ もとの形。", "What languages can your sister speak? です。");
+  ch("cnWhat-standard-2", "cnWhat", "standard", "What can Ken play? — He （ ） the guitar. の（ ）は？", ["can play", "can plays", "cans play", "plays can"], "can ＋ もとの形。", "can play です。");
+  ch("cnWhat-standard-3", "cnWhat", "standard", "「だれがこの漢字を読めますか。」Who （ ） read this kanji? の（ ）は？", ["can", "cans", "does can", "is"], "Who ＋ can ＋ もとの形。", "can です。");
+  ch("cnWhat-standard-4", "cnWhat", "standard", "Who can swim fast? の答えとして正しいものは？", ["Riku can.", "Riku does.", "Riku is.", "Riku swims can."], "名前 ＋ can. で答える。", "Riku can. です。");
+  ch("cnWhat-standard-5", "cnWhat", "standard", "「あなたは何がかけますか。」What can you （ ）? の（ ）は？", ["draw", "draws", "drawing", "drew"], "can のあとはもとの形。", "draw です。");
+  ch("cnWhat-standard-6", "cnWhat", "standard", "What can your dog do? の答えとして正しいものは？", ["It can jump high.", "It can jumps high.", "It cans jump high.", "It jump can high."], "It can ＋ もとの形。", "It can jump high. です。");
+  sp("cnWhat-application-1", "cnWhat", "クラスのお楽しみ会の話です。", [
+    sc("s1", "cnWhat", "「だれが歌えますか。」を英語にすると？", ["Who can sing?", "Who cans sing?", "Who can sings?", "Who does can sing?"], "Who ＋ can ＋ もとの形。", "Who can sing? です。"),
+    sc("s2", "cnWhat", "Who can sing? — Mai （ ）. の（ ）は？", ["can", "cans", "does", "is"], "名前 ＋ can. で答える。", "can です。"),
+    sc("s3", "cnWhat", "What can Mai sing? — She （ ） English songs. の（ ）は？", ["can sing", "can sings", "cans sing", "sings can"], "can ＋ もとの形。", "can sing です。")
+  ], ["cnWhat"], "Who can 〜? には「名前 ＋ can.」で答える。", "Who can sing?、can、can sing です。");
+  sp("cnWhat-application-2", "cnWhat", "料理クラブの話です。", [
+    sc("s1", "cnWhat", "What （ ） you make? の（ ）は？", ["can", "cans", "do can", "are"], "What ＋ can ＋ 主語 ＋ もとの形。", "can です。"),
+    sc("s2", "cnWhat", "「わたしはクッキーを作れます。」を英語にすると？", ["I can make cookies.", "I can makes cookies.", "I cans make cookies.", "I can making cookies."], "can ＋ もとの形。", "I can make cookies. です。"),
+    sc("s3", "cnWhat", "「あなたは何を焼けますか。」を英語にすると？", ["What can you bake?", "What do you can bake?", "What can you bakes?", "What you can bake?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can you bake? です。")
+  ], ["cnWhat"], "What can 〜? には作れるものを答える。", "can、I can make cookies.、What can you bake? です。");
+  sp("cnWhat-application-3", "cnWhat", "動物園で話します。", [
+    sc("s1", "cnWhat", "What can elephants do? — They can （ ） heavy things. の（ ）は？", ["carry", "carries", "carrying", "carried"], "can のあとはもとの形。", "carry です。"),
+    sc("s2", "cnWhat", "「何が速く走れますか。」を英語にすると？", ["What can run fast?", "What cans run fast?", "What can runs fast?", "What does can run fast?"], "What が主語なら What ＋ can ＋ もとの形。", "What can run fast? です。"),
+    sc("s3", "cnWhat", "Who・What が主語の疑問文の形は？", ["Who（What） ＋ can ＋ 動詞のもとの形", "Who ＋ do ＋ can ＋ 動詞", "Who ＋ 主語 ＋ can", "Who ＋ cans ＋ 動詞"], "Who・What がそのまま主語。", "Who ＋ can ＋ もとの形 です。")
+  ], ["cnWhat"], "「だれが」「何が」をたずねるときは、すぐあとに can。", "carry、What can run fast?、Who ＋ can ＋ もとの形 です。");
+  sp("cnWhat-application-4", "cnWhat", "放課後の予定を話します。", [
+    sc("s1", "cnWhat", "What can we do after school? — We can （ ） basketball. の（ ）は？", ["play", "plays", "playing", "played"], "can のあとはもとの形。", "play です。"),
+    sc("s2", "cnWhat", "「わたしたちは何が食べられますか。」を英語にすると？", ["What can we eat?", "What do we can eat?", "What can we eats?", "What we can eat?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can we eat? です。"),
+    sc("s3", "cnWhat", "Who can come with me? — I （ ）. の（ ）は？", ["can", "cans", "do", "am"], "can で聞かれたら can で答える。", "can です。")
+  ], ["cnWhat"], "答えも can を使う。", "play、What can we eat?、can です。");
+  sp("cnWhat-application-5", "cnWhat", "家族のとくいなことを話します。", [
+    sc("s1", "cnWhat", "What can your grandmother make? — She can （ ） kimonos. の（ ）は？", ["make", "makes", "making", "made"], "can のあとはもとの形。", "make です。"),
+    sc("s2", "cnWhat", "「だれがその車を運転できますか。」を英語にすると？", ["Who can drive the car?", "Who cans drive the car?", "Who can drives the car?", "Who does can drive the car?"], "Who ＋ can ＋ もとの形。", "Who can drive the car? です。"),
+    sc("s3", "cnWhat", "Who can drive the car? — My father （ ）. の（ ）は？", ["can", "cans", "does", "is"], "主語 ＋ can. で答える。", "can です。")
+  ], ["cnWhat"], "Who can 〜? の答えは「人 ＋ can.」。", "make、Who can drive the car?、can です。");
+  ch("cnWhat-retention-1", "cnWhat", "retention", "「あなたは何が歌えますか。」を英語にすると？", ["What can you sing?", "What do you can sing?", "What can you sings?", "What you can sing?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can you sing? です。", RB);
+  ch("cnWhat-retention-2", "cnWhat", "retention", "「だれが英語を話せますか。」を英語にすると？", ["Who can speak English?", "Who cans speak English?", "Who can speaks English?", "Who does can speak English?"], "Who ＋ can ＋ もとの形。", "Who can speak English? です。", RB);
+  ch("cnWhat-retention-3", "cnWhat", "retention", "「あなたのお兄さんは何が料理できますか。」を英語にすると？", ["What can your brother cook?", "What does your brother can cook?", "What can your brother cooks?", "What your brother can cook?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can your brother cook? です。", RB);
+  ch("cnWhat-retention-4", "cnWhat", "retention", "「だれがピアノをひけますか。」に「ケンです」と答えると？", ["Ken can.", "Ken does.", "Ken is.", "Ken plays can."], "名前 ＋ can. で答える。", "Ken can. です。", RS);
+  ch("cnWhat-retention-5", "cnWhat", "retention", "「その鳥は何ができますか。」を英語にすると？", ["What can the bird do?", "What does the bird can do?", "What can the bird does?", "What the bird can do?"], "What ＋ can ＋ 主語 ＋ do。", "What can the bird do? です。", RS);
+  sp("cnWhat-application-6", "cnWhat", "スポーツ大会のチーム決めをします。", [
+    sc("s1", "cnWhat", "「だれがバレーボールをできますか。」を英語にすると？", ["Who can play volleyball?", "Who cans play volleyball?", "Who can plays volleyball?", "Who does can play volleyball?"], "Who ＋ can ＋ もとの形。", "Who can play volleyball? です。"),
+    sc("s2", "cnWhat", "Who can play volleyball? — Saki and Aoi （ ）. の（ ）は？", ["can", "cans", "do", "are"], "2人でも can。", "can です。"),
+    sc("s3", "cnWhat", "What sports can Kenta play? — He （ ） baseball and tennis. の（ ）は？", ["can play", "can plays", "cans play", "plays can"], "can ＋ もとの形。", "can play です。")
+  ], ["cnWhat"], "Who can 〜? には「人 ＋ can.」で答える。", "Who can play volleyball?、can、can play です。");
+  sp("cnWhat-application-7", "cnWhat", "職場体験で、お店の人にたずねます。", [
+    sc("s1", "cnWhat", "「わたしたちは何を手伝えますか。」を英語にすると？", ["What can we help with?", "What do we can help with?", "What can we helps with?", "What we can help with?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can we help with? です。"),
+    sc("s2", "cnWhat", "What can we do here? — You can （ ） the shelves. の（ ）は？（たなをきれいにする）", ["clean", "cleans", "cleaning", "cleaned"], "can のあとはもとの形。", "clean です。"),
+    sc("s3", "cnWhat", "「だれがこの機械を使えますか。」Who （ ） use this machine? の（ ）は？", ["can", "cans", "does can", "is"], "Who ＋ can ＋ もとの形。", "can です。")
+  ], ["cnWhat"], "What can we 〜? で、自分たちにできることをたずねる。", "What can we help with?、clean、can です。");
+  ch("cnWhat-retention-6", "cnWhat", "retention", "「あなたの妹さんは何が読めますか。」を英語にすると？", ["What can your sister read?", "What does your sister can read?", "What can your sister reads?", "What your sister can read?"], "What ＋ can ＋ 主語 ＋ もとの形。", "What can your sister read? です。", RS);
+  ch("cnWhat-retention-7", "cnWhat", "retention", "「だれが一輪車に乗れますか。」に「ユミです」と答えると？", ["Yumi can.", "Yumi does.", "Yumi is.", "Yumi rides can."], "名前 ＋ can. で答える。", "Yumi can. です。", RB);
+
+  // --- Can you 〜?（依頼）・Can I 〜?（許可） ---
+  ch("cnReq-basic-1", "cnReq", "basic", "「手伝ってくれますか。」を英語にすると？", ["Can you help me?", "Do you can help me?", "Can you helps me?", "Are you can help me?"], "「〜してくれますか」は Can you 〜?", "Can you help me? です。", { usage: "diagnosis" });
+  ch("cnReq-basic-2", "cnReq", "basic", "「あなたのペンを使ってもいいですか。」を英語にすると？", ["Can I use your pen?", "Do I can use your pen?", "Can I uses your pen?", "Am I can use your pen?"], "「〜してもいいですか」は Can I 〜?", "Can I use your pen? です。");
+  ch("cnReq-basic-3", "cnReq", "basic", "Can you open the window? の答えとして正しいものは？", ["Sure.", "Yes, I do.", "No, you can.", "Yes, you are."], "たのまれて「いいよ」は Sure.", "Sure. です。");
+  ch("cnReq-basic-4", "cnReq", "basic", "「〜してくれますか」とたのむときの形は？", ["Can you 〜?", "Can I 〜?", "Do you 〜?", "Let's 〜."], "相手（you）にたのむ。", "Can you 〜? です。");
+  ch("cnReq-basic-5", "cnReq", "basic", "「〜してもいいですか」と許可を求める形は？", ["Can I 〜?", "Can you 〜?", "Do I 〜?", "Am I 〜?"], "自分（I）がしてもいいか。", "Can I 〜? です。");
+  ch("cnReq-basic-6", "cnReq", "basic", "Can I sit here? の答えとして正しいものは？", ["Sure.", "Yes, I can.", "No, I'm not.", "Yes, you do."], "「いいですよ」は Sure.", "Sure. です。");
+  ch("cnReq-basic-7", "cnReq", "basic", "「窓を閉めてくれますか。」Can you （ ） the window? の（ ）は？", ["close", "closes", "closing", "closed"], "Can you ＋ もとの形。", "close です。");
+  ch("cnReq-standard-1", "cnReq", "standard", "「宿題を手伝ってくれますか。」を英語にすると？", ["Can you help me with my homework?", "Do you can help me with my homework?", "Can you helps me with my homework?", "Can you helping me with my homework?"], "Can you ＋ もとの形。", "Can you help me with my homework? です。");
+  ch("cnReq-standard-2", "cnReq", "standard", "「このコンピューターを使ってもいいですか。」Can I （ ） this computer? の（ ）は？", ["use", "uses", "using", "used"], "Can I ＋ もとの形。", "use です。");
+  ch("cnReq-standard-3", "cnReq", "standard", "Can I eat this cake? の答えとして正しいものは？", ["Yes, you can.", "Yes, I can.", "Yes, you do.", "Yes, I am."], "Can I 〜? には you can で答える。", "Yes, you can. です。");
+  ch("cnReq-standard-4", "cnReq", "standard", "Can you carry this bag? にことわるときの答えは？", ["Sorry, I can't.", "Sorry, I don't.", "Sorry, you can't.", "Sorry, I'm not."], "できないときは Sorry, I can't.", "Sorry, I can't. です。");
+  ch("cnReq-standard-5", "cnReq", "standard", "「トイレに行ってもいいですか。」を英語にすると？", ["Can I go to the bathroom?", "Do I can go to the bathroom?", "Can I goes to the bathroom?", "Am I can go to the bathroom?"], "Can I ＋ もとの形。", "Can I go to the bathroom? です。");
+  ch("cnReq-standard-6", "cnReq", "standard", "「もう一度言ってくれますか。」Can you （ ） that again? の（ ）は？", ["say", "says", "saying", "said"], "Can you ＋ もとの形。", "say です。");
+  sp("cnReq-application-1", "cnReq", "授業中に先生にたずねます。", [
+    sc("s1", "cnReq", "「質問してもいいですか。」を英語にすると？", ["Can I ask a question?", "Do I can ask a question?", "Can I asks a question?", "Am I can ask a question?"], "Can I ＋ もとの形。", "Can I ask a question? です。"),
+    sc("s2", "cnReq", "Can I ask a question? の答えとして正しいものは？", ["Sure.", "Yes, I can.", "No, I'm not.", "Yes, you do."], "「いいですよ」は Sure.", "Sure. です。"),
+    sc("s3", "cnReq", "「黒板の字を読んでくれますか。」Can you （ ） the words on the board? の（ ）は？", ["read", "reads", "reading", "to read"], "Can you ＋ もとの形。", "read です。")
+  ], ["cnReq"], "自分がするなら Can I、相手にたのむなら Can you。", "Can I ask a question?、Sure.、read です。");
+  sp("cnReq-application-2", "cnReq", "家でお母さんと話します。", [
+    sc("s1", "cnReq", "「テレビを見てもいい？」Can I （ ） TV? の（ ）は？", ["watch", "watches", "watching", "watched"], "Can I ＋ もとの形。", "watch です。"),
+    sc("s2", "cnReq", "Can I watch TV? の答えで、だめなときは？", ["Sorry, you can't.", "Sorry, I can't.", "No, you don't.", "No, I'm not."], "Can I 〜? には you can't で答える。", "Sorry, you can't. です。"),
+    sc("s3", "cnReq", "「お皿を洗ってくれる？」を英語にすると？", ["Can you wash the dishes?", "Do you can wash the dishes?", "Can you washes the dishes?", "Are you can wash the dishes?"], "Can you ＋ もとの形。", "Can you wash the dishes? です。")
+  ], ["cnReq"], "Can I 〜? の答えは you can・you can't。", "watch、Sorry, you can't.、Can you wash the dishes? です。");
+  sp("cnReq-application-3", "cnReq", "友だちにたのみます。", [
+    sc("s1", "cnReq", "Can you （ ） me your notebook? の（ ）は？（ノートを見せて）", ["show", "shows", "showing", "showed"], "Can you ＋ もとの形。", "show です。"),
+    sc("s2", "cnReq", "Can you show me your notebook? の答えとして正しいものは？", ["Sure.", "Yes, you can.", "No, you can.", "Yes, I am."], "たのまれて「いいよ」は Sure.", "Sure. です。"),
+    sc("s3", "cnReq", "Can you 〜? と Can I 〜? のちがいで正しいものは？", ["Can you は「〜してくれる？」、Can I は「〜してもいい？」", "どちらも「〜できますか」だけ", "Can I は「〜してくれる？」", "Can you は「〜してもいい？」"], "だれがするかで考える。", "Can you はたのむ、Can I は許可を求める、です。")
+  ], ["cnReq"], "Can you 〜? は「できますか」と「してくれますか」の両方の意味がある。", "show、Sure.、Can you はたのむ です。");
+  sp("cnReq-application-4", "cnReq", "洋服屋さんで話します。", [
+    sc("s1", "cnReq", "「これを試着してもいいですか。」Can I （ ） this on? の（ ）は？", ["try", "tries", "trying", "tried"], "Can I ＋ もとの形。", "try です。"),
+    sc("s2", "cnReq", "Can I try this on? の答えとして正しいものは？", ["Of course.", "Yes, I can.", "No, I'm not.", "Yes, you do."], "「もちろん」は Of course.", "Of course. です。"),
+    sc("s3", "cnReq", "「もっと大きいのを見せてくれますか。」を英語にすると？", ["Can you show me a bigger one?", "Do you can show me a bigger one?", "Can you shows me a bigger one?", "Are you can show me a bigger one?"], "Can you ＋ もとの形。", "Can you show me a bigger one? です。")
+  ], ["cnReq"], "お店でも Can I 〜?・Can you 〜? が使える。", "try、Of course.、Can you show me a bigger one? です。");
+  sp("cnReq-application-5", "cnReq", "電話で話します。", [
+    sc("s1", "cnReq", "「ケンと話してもいいですか。」Can I （ ） to Ken? の（ ）は？", ["speak", "speaks", "speaking", "spoke"], "Can I ＋ もとの形。", "speak です。"),
+    sc("s2", "cnReq", "「あとで電話してくれますか。」を英語にすると？", ["Can you call me later?", "Do you can call me later?", "Can you calls me later?", "Are you can call me later?"], "Can you ＋ もとの形。", "Can you call me later? です。"),
+    sc("s3", "cnReq", "Can you call me later? の答えとして正しいものは？", ["All right.", "Yes, you can.", "No, you can.", "Yes, I am."], "「わかった」は All right.", "All right. です。")
+  ], ["cnReq"], "答えは Sure.・OK.・All right.・Of course. など。", "speak、Can you call me later?、All right. です。");
+  ch("cnReq-retention-1", "cnReq", "retention", "「窓を開けてもいいですか。」を英語にすると？", ["Can I open the window?", "Do I can open the window?", "Can I opens the window?", "Am I can open the window?"], "Can I ＋ もとの形。", "Can I open the window? です。", RB);
+  ch("cnReq-retention-2", "cnReq", "retention", "「その箱を運んでくれますか。」を英語にすると？", ["Can you carry the box?", "Do you can carry the box?", "Can you carries the box?", "Are you can carry the box?"], "Can you ＋ もとの形。", "Can you carry the box? です。", RB);
+  ch("cnReq-retention-3", "cnReq", "retention", "「あなたの辞書を使ってもいい？」と聞かれて「いいですよ」と答えると？", ["Sure.", "Yes, I can.", "No, I'm not.", "Yes, I do."], "「いいですよ」は Sure.", "Sure. です。", RB);
+  ch("cnReq-retention-4", "cnReq", "retention", "「写真をとってくれますか。」を英語にすると？", ["Can you take a picture?", "Do you can take a picture?", "Can you takes a picture?", "Can you taking a picture?"], "Can you ＋ もとの形。", "Can you take a picture? です。", RS);
+  ch("cnReq-retention-5", "cnReq", "retention", "「ここに座ってもいいですか。」を英語にすると？", ["Can I sit here?", "Do I can sit here?", "Can I sits here?", "Am I can sit here?"], "Can I ＋ もとの形。", "Can I sit here? です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
