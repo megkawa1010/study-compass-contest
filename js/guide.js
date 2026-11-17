@@ -39,7 +39,8 @@
       "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。",
       "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。",
       "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。",
-      "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。"
+      "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。",
+      "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。"
     },
     skills: {
       // --- 正負の数 ---
@@ -227,6 +228,12 @@
       qwWhich: { point: "「どちら」は Which。Which ＋ 名詞 ＋ 疑問文の形にもなり、A or B の中からえらんで答えます。", example: "Which do you like, dogs or cats? — I like cats.", trap: "Which 〜 が主語のときは Which train goes 〜? のようにすぐ動詞が来ます。" },
       qwWhose: { point: "「だれの」は Whose ＋ 名詞。答えは mine・yours・his・hers・ours や Ken's（ケンのもの）を使います。", example: "Whose bag is this? — It's mine.", trap: "these・those には They're 〜. で答えます。It's my. とはしません。" },
       qwHow: { point: "How は方法（How do you 〜?）・ようす（How is the weather?）。How old は年れい、How many は数です。", example: "How do you go to school? — By bus.", trap: "How のあとの語で、たずねている内容がかわります。" },
+      // --- 現在進行形（英語） ---
+      pgForm: { point: "「今〜している」は be動詞（am・are・is）＋ 動詞の ing 形。be動詞は主語に合わせます。", example: "Ken is playing soccer now.", trap: "Ken playing 〜. のように be動詞をぬかしたり、is play のように ing をつけわすれたりしないようにします。" },
+      pgSpell: { point: "ふつうはそのまま ing。e で終わる語は e をとって ing、短い音 ＋ 1字で終わる語は最後の字を重ねます。", example: "play → playing、make → making、swim → swimming", trap: "writting・makeing のようなつづりにしないようにします。" },
+      pgNeg: { point: "否定文は be動詞のあとに not。isn't・aren't・I'm not を使います。", example: "I'm not watching TV now.", trap: "don't・doesn't は使いません（I don't watching は×）。" },
+      pgQues: { point: "疑問文は be動詞を主語の前に出し、Is・Are ＋ 主語 ＋ 〜ing? にします。答えも be動詞で答えます。", example: "Are you studying now? — Yes, I am.", trap: "Do you 〜ing? とはしません。Yes, I do. と答えないようにします。" },
+      pgWhat: { point: "What・Where のあとに be動詞 ＋ 主語 ＋ 〜ing? を続けます。Who が主語なら Who is 〜ing?。", example: "What are you doing? — I'm reading a book.", trap: "What you are doing? のように語順をそのままにしないようにします。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

@@ -10067,6 +10067,236 @@
   ch("qwHow-retention-5", "qwHow", "retention", "「ケンはどうやって学校に来ますか。」を英語にすると？", ["How does Ken come to school?", "How do Ken come to school?", "How does Ken comes to school?", "How Ken comes to school?"], "How ＋ does ＋ 主語 ＋ もとの形?", "How does Ken come to school? です。", RS);
 
   // =====================================================================
+  // 中1 英語「現在進行形」（be動詞 ＋ 〜ing・ing のつけ方・否定文・疑問文・What are you doing?）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-progressive.test.js が文の形と答えの合い方を確かめる）
+  // =====================================================================
+
+  // --- be動詞 ＋ 〜ing ---
+  ch("pgForm-basic-1", "pgForm", "basic", "「わたしは今、テレビを見ています。」を英語にすると？", ["I'm watching TV now.", "I watching TV now.", "I'm watch TV now.", "I am watches TV now."], "be動詞 ＋ 〜ing で「〜している」。", "I'm watching TV now. です。", { usage: "diagnosis" });
+  ch("pgForm-basic-2", "pgForm", "basic", "「（今）〜しているところです」を表す形は？", ["be動詞 ＋ 〜ing", "do ＋ もとの形", "can ＋ もとの形", "動詞 ＋ s"], "今していることを表す形。", "be動詞 ＋ 〜ing です。");
+  ch("pgForm-basic-3", "pgForm", "basic", "「ケンは今、サッカーをしています。」Ken （ ） playing soccer now. の（ ）は？", ["is", "are", "am", "does"], "主語はケン1人 → is。", "is です。");
+  ch("pgForm-basic-4", "pgForm", "basic", "「わたしたちは今、昼食を食べています。」We are （ ） lunch now. の（ ）は？", ["eating", "eat", "eats", "to eat"], "be動詞のあとは 〜ing。", "eating です。");
+  ch("pgForm-basic-5", "pgForm", "basic", "「わたしの姉は今、ピアノをひいています。」を英語にすると？", ["My sister is playing the piano now.", "My sister playing the piano now.", "My sister is play the piano now.", "My sister are playing the piano now."], "is ＋ playing。", "My sister is playing the piano now. です。");
+  ch("pgForm-basic-6", "pgForm", "basic", "「彼らは今、公園で走っています。」They （ ） running in the park now. の（ ）は？", ["are", "is", "am", "do"], "主語は they → are。", "are です。");
+  ch("pgForm-basic-7", "pgForm", "basic", "「わたしは今、手紙を書いています。」I'm （ ） a letter now. の（ ）は？", ["writing", "write", "writes", "wrote"], "I'm のあとは 〜ing。", "writing です。");
+  ch("pgForm-standard-1", "pgForm", "standard", "「父は今、夕食を作っています。」を英語にすると？", ["My father is cooking dinner now.", "My father cooking dinner now.", "My father is cooks dinner now.", "My father does cooking dinner now."], "is ＋ cooking。does は使わない。", "My father is cooking dinner now. です。");
+  ch("pgForm-standard-2", "pgForm", "standard", "「ユミとサキは今、歌を歌っています。」を英語にすると？", ["Yumi and Saki are singing a song now.", "Yumi and Saki is singing a song now.", "Yumi and Saki are sing a song now.", "Yumi and Saki singing a song now."], "2人の主語 → are ＋ 〜ing。", "Yumi and Saki are singing a song now. です。");
+  ch("pgForm-standard-3", "pgForm", "standard", "「その犬は今、眠っています。」The dog （ ） now. の（ ）は？", ["is sleeping", "sleeping", "is sleep", "sleeps is"], "is ＋ 〜ing。", "is sleeping です。");
+  ch("pgForm-standard-4", "pgForm", "standard", "「わたしは今、宿題をしています。」I （ ） my homework now. の（ ）は？", ["am doing", "doing", "am do", "do am"], "I には am ＋ 〜ing。", "am doing です。");
+  ch("pgForm-standard-5", "pgForm", "standard", "「生徒たちは今、英語を勉強しています。」The students （ ） English now. の（ ）は？", ["are studying", "is studying", "are study", "studying"], "students は複数 → are。", "are studying です。");
+  ch("pgForm-standard-6", "pgForm", "standard", "「わたしの兄は今、自分の部屋で音楽を聞いています。」を英語にすると？", ["My brother is listening to music in his room now.", "My brother is listen to music in his room now.", "My brother listening to music in his room now.", "My brother are listening to music in his room now."], "is ＋ listening。", "My brother is listening to music in his room now. です。");
+  sp("pgForm-application-1", "pgForm", "家族にメッセージを送ります。", [
+    sc("s1", "pgForm", "「わたしは今、駅で待っています。」を英語にすると？", ["I'm waiting at the station now.", "I waiting at the station now.", "I'm wait at the station now.", "I am waits at the station now."], "I'm ＋ 〜ing。", "I'm waiting at the station now. です。"),
+    sc("s2", "pgForm", "「ケンもいっしょに待っています。」Ken （ ） waiting with me. の（ ）は？", ["is", "are", "am", "do"], "主語はケン1人。", "is です。"),
+    sc("s3", "pgForm", "「わたしたちは今、バスを待っています。」We （ ） for the bus now. の（ ）は？", ["are waiting", "is waiting", "are wait", "waiting"], "we → are ＋ 〜ing。", "are waiting です。")
+  ], ["pgForm"], "主語に合わせて am・are・is をえらび、〜ing をつづける。", "I'm waiting at the station now.、is、are waiting です。");
+  sp("pgForm-application-2", "pgForm", "家の中のようすを電話で伝えます。", [
+    sc("s1", "pgForm", "「母は今、台所で料理をしています。」を英語にすると？", ["My mother is cooking in the kitchen now.", "My mother cooking in the kitchen now.", "My mother is cook in the kitchen now.", "My mother are cooking in the kitchen now."], "is ＋ cooking。", "My mother is cooking in the kitchen now. です。"),
+    sc("s2", "pgForm", "「弟たちはテレビを見ています。」My brothers （ ） TV. の（ ）は？", ["are watching", "is watching", "are watch", "watching"], "brothers は複数 → are。", "are watching です。"),
+    sc("s3", "pgForm", "「ネコはソファで眠っています。」The cat （ ） on the sofa. の（ ）は？", ["is sleeping", "are sleeping", "is sleep", "sleeping"], "the cat は1ぴき → is。", "is sleeping です。")
+  ], ["pgForm"], "今のようすは be動詞 ＋ 〜ing で伝える。", "My mother is cooking in the kitchen now.、are watching、is sleeping です。");
+  sp("pgForm-application-3", "pgForm", "体育の授業のようすを書きます。", [
+    sc("s1", "pgForm", "「男の子たちは今、サッカーをしています。」を英語にすると？", ["The boys are playing soccer now.", "The boys is playing soccer now.", "The boys are play soccer now.", "The boys playing soccer now."], "boys は複数 → are。", "The boys are playing soccer now. です。"),
+    sc("s2", "pgForm", "「サキは今、走っています。」Saki （ ） now. の（ ）は？", ["is running", "is runing", "runs is", "is run"], "run は n を重ねて running。", "is running です。"),
+    sc("s3", "pgForm", "「先生は今、写真をとっています。」Our teacher is （ ） pictures now. の（ ）は？", ["taking", "takeing", "take", "takes"], "take は e をとって ing。", "taking です。")
+  ], ["pgForm"], "be動詞 ＋ 〜ing。〜ing のつづりにも気をつける。", "The boys are playing soccer now.、is running、taking です。");
+  sp("pgForm-application-4", "pgForm", "友だちに今していることを伝えます。", [
+    sc("s1", "pgForm", "「わたしは今、ギターを練習しています。」を英語にすると？", ["I'm practicing the guitar now.", "I'm practice the guitar now.", "I practicing the guitar now.", "I'm practiceing the guitar now."], "practice は e をとって ing。", "I'm practicing the guitar now. です。"),
+    sc("s2", "pgForm", "「姉もいっしょに歌っています。」My sister （ ） singing with me. の（ ）は？", ["is", "are", "am", "does"], "my sister は1人 → is。", "is です。"),
+    sc("s3", "pgForm", "「わたしたちは今、新しい歌を作っています。」We are （ ） a new song now. の（ ）は？", ["making", "makeing", "make", "makes"], "make は e をとって ing。", "making です。")
+  ], ["pgForm"], "今していることは be動詞 ＋ 〜ing。", "I'm practicing the guitar now.、is、making です。");
+  sp("pgForm-application-5", "pgForm", "公園のようすを説明します。", [
+    sc("s1", "pgForm", "「子どもたちは今、川で泳いでいます。」を英語にすると？", ["The children are swimming in the river now.", "The children is swimming in the river now.", "The children are swiming in the river now.", "The children swimming in the river now."], "children は複数 → are。swim は m を重ねる。", "The children are swimming in the river now. です。"),
+    sc("s2", "pgForm", "「男の人がベンチにすわっています。」A man （ ） on the bench. の（ ）は？", ["is sitting", "is siting", "are sitting", "sits is"], "sit は t を重ねて sitting。", "is sitting です。"),
+    sc("s3", "pgForm", "「ユミは自転車に乗っています。」Yumi is （ ） a bike. の（ ）は？", ["riding", "rideing", "ride", "rides"], "ride は e をとって ing。", "riding です。")
+  ], ["pgForm"], "主語の数で be動詞をえらび、〜ing をつづける。", "The children are swimming in the river now.、is sitting、riding です。");
+  ch("pgForm-retention-1", "pgForm", "retention", "「わたしは今、本を読んでいます。」を英語にすると？", ["I'm reading a book now.", "I reading a book now.", "I'm read a book now.", "I am reads a book now."], "be動詞 ＋ 〜ing。", "I'm reading a book now. です。", RB);
+  ch("pgForm-retention-2", "pgForm", "retention", "「トムは今、昼食を食べています。」を英語にすると？", ["Tom is eating lunch now.", "Tom eating lunch now.", "Tom is eat lunch now.", "Tom are eating lunch now."], "トムは1人 → is ＋ 〜ing。", "Tom is eating lunch now. です。", RB);
+  ch("pgForm-retention-3", "pgForm", "retention", "「わたしの両親は今、皿を洗っています。」を英語にすると？", ["My parents are washing the dishes now.", "My parents is washing the dishes now.", "My parents are wash the dishes now.", "My parents washing the dishes now."], "両親は2人 → are ＋ 〜ing。", "My parents are washing the dishes now. です。", RB);
+  ch("pgForm-retention-4", "pgForm", "retention", "「わたしたちは今、教室をそうじしています。」を英語にすると？", ["We are cleaning the classroom now.", "We is cleaning the classroom now.", "We are clean the classroom now.", "We cleaning the classroom now."], "we → are ＋ 〜ing。", "We are cleaning the classroom now. です。", RS);
+  ch("pgForm-retention-5", "pgForm", "retention", "「エマは今、絵をかいています。」を英語にすると？", ["Emma is drawing a picture now.", "Emma drawing a picture now.", "Emma is draw a picture now.", "Emma does drawing a picture now."], "is ＋ drawing。", "Emma is drawing a picture now. です。", RS);
+
+  // --- ing のつけ方 ---
+  ch("pgSpell-basic-1", "pgSpell", "basic", "swim の ing の形は？", ["swimming", "swiming", "swimeing", "swims"], "短い音 ＋ m → m を重ねる。", "swimming です。", { usage: "diagnosis" });
+  ch("pgSpell-basic-2", "pgSpell", "basic", "make の ing の形は？", ["making", "makeing", "makking", "makes"], "e で終わる → e をとって ing。", "making です。");
+  ch("pgSpell-basic-3", "pgSpell", "basic", "play の ing の形は？", ["playing", "plaing", "playng", "plays"], "そのまま ing。", "playing です。");
+  ch("pgSpell-basic-4", "pgSpell", "basic", "run の ing の形は？", ["running", "runing", "runeing", "runs"], "短い音 ＋ n → n を重ねる。", "running です。");
+  ch("pgSpell-basic-5", "pgSpell", "basic", "write の ing の形は？", ["writing", "writeing", "writting", "writes"], "e で終わる → e をとって ing。", "writing です。");
+  ch("pgSpell-basic-6", "pgSpell", "basic", "study の ing の形は？", ["studying", "studing", "studiing", "studies"], "y はそのまま ing。", "studying です。");
+  ch("pgSpell-basic-7", "pgSpell", "basic", "「最後の e をとって ing をつける」動詞は？", ["use", "play", "run", "read"], "e で終わる動詞。", "use（→ using）です。");
+  ch("pgSpell-standard-1", "pgSpell", "standard", "sit の ing の形は？", ["sitting", "siting", "siteing", "sits"], "短い音 ＋ t → t を重ねる。", "sitting です。");
+  ch("pgSpell-standard-2", "pgSpell", "standard", "「彼は今、自転車に乗っています。」He is （ ） a bike now. の（ ）は？", ["riding", "rideing", "ridding", "rides"], "ride は e をとって ing。", "riding です。");
+  ch("pgSpell-standard-3", "pgSpell", "standard", "「わたしは今、ノートを使っています。」I'm （ ） my notebook now. の（ ）は？", ["using", "useing", "usying", "uses"], "use は e をとって ing。", "using です。");
+  ch("pgSpell-standard-4", "pgSpell", "standard", "ing のつけ方が正しい組み合わせは？", ["come → coming", "come → comeing", "get → geting", "swim → swiming"], "e をとる・最後の字を重ねる。", "come → coming です。");
+  ch("pgSpell-standard-5", "pgSpell", "standard", "「ケンは今、こちらに来ています。」Ken is （ ） here now. の（ ）は？", ["coming", "comeing", "comming", "comes"], "come は e をとって ing。", "coming です。");
+  ch("pgSpell-standard-6", "pgSpell", "standard", "「彼女は今、ダンスをしています。」She is （ ） now. の（ ）は？", ["dancing", "danceing", "dansing", "dances"], "dance は e をとって ing。", "dancing です。");
+  sp("pgSpell-application-1", "pgSpell", "日記を書いています。", [
+    sc("s1", "pgSpell", "「わたしは今、日記を書いています。」I'm （ ） in my diary now. の（ ）は？", ["writing", "writeing", "writting", "write"], "write は e をとって ing。", "writing です。"),
+    sc("s2", "pgSpell", "「妹はとなりにすわっています。」My sister is （ ） next to me. の（ ）は？", ["sitting", "siting", "sit", "sits"], "sit は t を重ねる。", "sitting です。"),
+    sc("s3", "pgSpell", "get の ing の形は？", ["getting", "geting", "geteing", "gets"], "短い音 ＋ t → t を重ねる。", "getting です。")
+  ], ["pgSpell"], "e をとる・最後の字を重ねる、を見分ける。", "writing、sitting、getting です。");
+  sp("pgSpell-application-2", "pgSpell", "料理の手伝いをします。", [
+    sc("s1", "pgSpell", "「わたしは今、カレーを作っています。」I'm （ ） curry now. の（ ）は？", ["making", "makeing", "make", "makes"], "make は e をとって ing。", "making です。"),
+    sc("s2", "pgSpell", "「父は野菜を切っています。」My father is （ ） vegetables. の（ ）は？", ["cutting", "cuting", "cut", "cuts"], "cut は t を重ねる。", "cutting です。"),
+    sc("s3", "pgSpell", "「兄はスプーンを使っています。」My brother is （ ） a spoon. の（ ）は？", ["using", "useing", "use", "uses"], "use は e をとって ing。", "using です。")
+  ], ["pgSpell"], "動詞の終わりの字で ing のつけ方が変わる。", "making、cutting、using です。");
+  sp("pgSpell-application-3", "pgSpell", "プールのようすを伝えます。", [
+    sc("s1", "pgSpell", "「ユミは今、泳いでいます。」を英語にすると？", ["Yumi is swimming now.", "Yumi is swiming now.", "Yumi is swim now.", "Yumi swimming now."], "swim は m を重ねる。", "Yumi is swimming now. です。"),
+    sc("s2", "pgSpell", "「男の子たちはプールのまわりを走っています。」The boys are （ ） around the pool. の（ ）は？", ["running", "runing", "run", "runs"], "run は n を重ねる。", "running です。"),
+    sc("s3", "pgSpell", "「わたしたちはプールで遊んでいます。」We are （ ） in the pool. の（ ）は？", ["playing", "plaing", "play", "plays"], "play はそのまま ing。", "playing です。")
+  ], ["pgSpell"], "重ねる動詞（swim・run）とそのままの動詞（play）を見分ける。", "Yumi is swimming now.、running、playing です。");
+  sp("pgSpell-application-4", "pgSpell", "放課後の教室のようすです。", [
+    sc("s1", "pgSpell", "「サキは今、本を読んでいます。」Saki is （ ） a book now. の（ ）は？", ["reading", "readding", "read", "reads"], "read はそのまま ing。", "reading です。"),
+    sc("s2", "pgSpell", "「リクは今、英語を勉強しています。」Riku is （ ） English now. の（ ）は？", ["studying", "studing", "study", "studies"], "study は y を残して ing。", "studying です。"),
+    sc("s3", "pgSpell", "「先生がこちらに来ています。」Our teacher is （ ） here. の（ ）は？", ["coming", "comeing", "come", "comes"], "come は e をとって ing。", "coming です。")
+  ], ["pgSpell"], "ing のつけ方を動詞ごとに見分ける。", "reading、studying、coming です。");
+  sp("pgSpell-application-5", "pgSpell", "ダンス部の練習を見ています。", [
+    sc("s1", "pgSpell", "「部員たちは今、おどっています。」The members are （ ） now. の（ ）は？", ["dancing", "danceing", "dance", "dances"], "dance は e をとって ing。", "dancing です。"),
+    sc("s2", "pgSpell", "stop の ing の形は？", ["stopping", "stoping", "stopeing", "stops"], "短い音 ＋ p → p を重ねる。", "stopping です。"),
+    sc("s3", "pgSpell", "「エマは水を飲んでいます。」Emma is （ ） water. の（ ）は？", ["drinking", "drinkking", "drink", "drinks"], "drink はそのまま ing。", "drinking です。")
+  ], ["pgSpell"], "e をとる・重ねる・そのまま、の3通りを使い分ける。", "dancing、stopping、drinking です。");
+  ch("pgSpell-retention-1", "pgSpell", "retention", "「わたしは今、走っています。」を英語にすると？", ["I'm running now.", "I'm runing now.", "I'm run now.", "I running now."], "run は n を重ねる。", "I'm running now. です。", RB);
+  ch("pgSpell-retention-2", "pgSpell", "retention", "「彼女は今、ケーキを作っています。」を英語にすると？", ["She is making a cake now.", "She is makeing a cake now.", "She is make a cake now.", "She making a cake now."], "make は e をとって ing。", "She is making a cake now. です。", RB);
+  ch("pgSpell-retention-3", "pgSpell", "retention", "「彼らは今、すわっています。」を英語にすると？", ["They are sitting now.", "They are siting now.", "They are sit now.", "They sitting now."], "sit は t を重ねる。", "They are sitting now. です。", RB);
+  ch("pgSpell-retention-4", "pgSpell", "retention", "「ケンは今、手紙を書いています。」を英語にすると？", ["Ken is writing a letter now.", "Ken is writeing a letter now.", "Ken is writting a letter now.", "Ken writing a letter now."], "write は e をとって ing。t は重ねない。", "Ken is writing a letter now. です。", RS);
+  ch("pgSpell-retention-5", "pgSpell", "retention", "「わたしの弟は今、英語を勉強しています。」を英語にすると？", ["My brother is studying English now.", "My brother is studing English now.", "My brother is study English now.", "My brother studying English now."], "study は y を残して ing。", "My brother is studying English now. です。", RS);
+
+  // --- 現在進行形の否定文 ---
+  ch("pgNeg-basic-1", "pgNeg", "basic", "「わたしは今、テレビを見ていません。」を英語にすると？", ["I'm not watching TV now.", "I don't watching TV now.", "I'm not watch TV now.", "I not watching TV now."], "be動詞のあとに not。", "I'm not watching TV now. です。", { usage: "diagnosis" });
+  ch("pgNeg-basic-2", "pgNeg", "basic", "「彼は今、勉強していません。」He （ ） studying now. の（ ）は？", ["isn't", "doesn't", "aren't", "don't"], "be動詞 ＋ not。he → isn't。", "isn't です。");
+  ch("pgNeg-basic-3", "pgNeg", "basic", "「彼らは今、遊んでいません。」They （ ） playing now. の（ ）は？", ["aren't", "isn't", "don't", "doesn't"], "they → aren't。", "aren't です。");
+  ch("pgNeg-basic-4", "pgNeg", "basic", "現在進行形の否定文で not を置く場所は？", ["be動詞のあと", "be動詞の前", "〜ing のあと", "文の最後"], "is not 〜ing の順。", "be動詞のあとです。");
+  ch("pgNeg-basic-5", "pgNeg", "basic", "「ユミは今、料理をしていません。」を英語にすると？", ["Yumi isn't cooking now.", "Yumi doesn't cooking now.", "Yumi isn't cook now.", "Yumi not cooking now."], "isn't ＋ 〜ing。", "Yumi isn't cooking now. です。");
+  ch("pgNeg-basic-6", "pgNeg", "basic", "「わたしは今、走っていません。」I'm （ ） running now. の（ ）は？", ["not", "don't", "no", "isn't"], "I'm のあとに not。", "not です。");
+  ch("pgNeg-basic-7", "pgNeg", "basic", "「わたしたちは今、歌っていません。」We （ ） singing now. の（ ）は？", ["aren't", "isn't", "don't", "not"], "we → aren't。", "aren't です。");
+  ch("pgNeg-standard-1", "pgNeg", "standard", "「父は今、新聞を読んでいません。」を英語にすると？", ["My father isn't reading the newspaper now.", "My father doesn't reading the newspaper now.", "My father isn't read the newspaper now.", "My father not reading the newspaper now."], "isn't ＋ 〜ing。doesn't は使わない。", "My father isn't reading the newspaper now. です。");
+  ch("pgNeg-standard-2", "pgNeg", "standard", "「その子どもたちは今、眠っていません。」The children （ ） now. の（ ）は？", ["aren't sleeping", "isn't sleeping", "don't sleeping", "aren't sleep"], "children は複数 → aren't。", "aren't sleeping です。");
+  ch("pgNeg-standard-3", "pgNeg", "standard", "「ケンとトムは今、サッカーをしていません。」を英語にすると？", ["Ken and Tom aren't playing soccer now.", "Ken and Tom isn't playing soccer now.", "Ken and Tom don't playing soccer now.", "Ken and Tom aren't play soccer now."], "2人 → aren't ＋ 〜ing。", "Ken and Tom aren't playing soccer now. です。");
+  ch("pgNeg-standard-4", "pgNeg", "standard", "「わたしは今、音楽を聞いていません。」I （ ） to music now. の（ ）は？", ["am not listening", "not am listening", "don't listening", "am not listen"], "am ＋ not ＋ 〜ing。", "am not listening です。");
+  ch("pgNeg-standard-5", "pgNeg", "standard", "「ネコは今、何も食べていません。」The cat （ ） anything now. の（ ）は？", ["isn't eating", "aren't eating", "doesn't eating", "isn't eat"], "the cat → isn't ＋ 〜ing。", "isn't eating です。");
+  ch("pgNeg-standard-6", "pgNeg", "standard", "「エマは今、ピアノをひいていません。」を英語にすると？", ["Emma isn't playing the piano now.", "Emma doesn't playing the piano now.", "Emma isn't playing not the piano now.", "Emma aren't playing the piano now."], "not は1回だけ、be動詞のあと。", "Emma isn't playing the piano now. です。");
+  sp("pgNeg-application-1", "pgNeg", "電話で家のようすを伝えます。", [
+    sc("s1", "pgNeg", "「弟は今、宿題をしていません。」を英語にすると？", ["My brother isn't doing his homework now.", "My brother doesn't doing his homework now.", "My brother isn't do his homework now.", "My brother not doing his homework now."], "isn't ＋ 〜ing。", "My brother isn't doing his homework now. です。"),
+    sc("s2", "pgNeg", "「彼はゲームをしています。」He （ ） a game. の（ ）は？", ["is playing", "is play", "playing", "does playing"], "is ＋ 〜ing。", "is playing です。"),
+    sc("s3", "pgNeg", "「わたしは今、テレビを見ていません。」I'm （ ） TV now. の（ ）は？", ["not watching", "watching not", "don't watching", "not watch"], "I'm not ＋ 〜ing。", "not watching です。")
+  ], ["pgNeg"], "否定は be動詞のあとに not。", "My brother isn't doing his homework now.、is playing、not watching です。");
+  sp("pgNeg-application-2", "pgNeg", "部活のようすを話します。", [
+    sc("s1", "pgNeg", "「わたしたちは今、練習していません。」を英語にすると？", ["We aren't practicing now.", "We don't practicing now.", "We aren't practice now.", "We not practicing now."], "aren't ＋ 〜ing。", "We aren't practicing now. です。"),
+    sc("s2", "pgNeg", "「コーチはまだ来ていません。」Our coach （ ） yet. の（ ）は？", ["isn't coming", "aren't coming", "doesn't coming", "isn't come"], "coach は1人 → isn't ＋ 〜ing。", "isn't coming です。"),
+    sc("s3", "pgNeg", "「先輩たちは走っていません。」The older members （ ）. の（ ）は？", ["aren't running", "isn't running", "don't running", "aren't run"], "members は複数 → aren't。", "aren't running です。")
+  ], ["pgNeg"], "主語に合わせて isn't・aren't をえらぶ。", "We aren't practicing now.、isn't coming、aren't running です。");
+  sp("pgNeg-application-3", "pgNeg", "教室のようすを伝えます。", [
+    sc("s1", "pgNeg", "「サキは今、眠っていません。」を英語にすると？", ["Saki isn't sleeping now.", "Saki doesn't sleeping now.", "Saki isn't sleep now.", "Saki aren't sleeping now."], "isn't ＋ 〜ing。", "Saki isn't sleeping now. です。"),
+    sc("s2", "pgNeg", "「彼女はノートに書いています。」She （ ） in her notebook. の（ ）は？", ["is writing", "is writeing", "writing", "is write"], "is ＋ writing。", "is writing です。"),
+    sc("s3", "pgNeg", "「男の子たちは話していません。」The boys （ ） now. の（ ）は？", ["aren't talking", "isn't talking", "don't talking", "aren't talk"], "boys は複数 → aren't。", "aren't talking です。")
+  ], ["pgNeg"], "していること・していないことを be動詞で言い分ける。", "Saki isn't sleeping now.、is writing、aren't talking です。");
+  sp("pgNeg-application-4", "pgNeg", "キャンプのようすです。", [
+    sc("s1", "pgNeg", "「父は今、料理をしていません。」My father （ ） now. の（ ）は？", ["isn't cooking", "doesn't cooking", "aren't cooking", "isn't cook"], "isn't ＋ 〜ing。", "isn't cooking です。"),
+    sc("s2", "pgNeg", "「母がカレーを作っています。」を英語にすると？", ["My mother is making curry.", "My mother is makeing curry.", "My mother making curry.", "My mother is make curry."], "is ＋ making。", "My mother is making curry. です。"),
+    sc("s3", "pgNeg", "「わたしたちは泳いでいません。」We （ ） now. の（ ）は？", ["aren't swimming", "aren't swiming", "don't swimming", "isn't swimming"], "we → aren't ＋ swimming。", "aren't swimming です。")
+  ], ["pgNeg"], "否定は be動詞 ＋ not。don't は使わない。", "isn't cooking、My mother is making curry.、aren't swimming です。");
+  sp("pgNeg-application-5", "pgNeg", "図書館で友だちに話しかけます。", [
+    sc("s1", "pgNeg", "「わたしは今、本を読んでいません。」を英語にすると？", ["I'm not reading a book now.", "I don't reading a book now.", "I'm not read a book now.", "I isn't reading a book now."], "I'm not ＋ 〜ing。", "I'm not reading a book now. です。"),
+    sc("s2", "pgNeg", "「わたしは友だちを待っています。」I'm （ ） for my friend. の（ ）は？", ["waiting", "waitting", "wait", "waits"], "wait はそのまま ing。", "waiting です。"),
+    sc("s3", "pgNeg", "「彼女はまだ来ていません。」She （ ） yet. の（ ）は？", ["isn't coming", "doesn't coming", "aren't coming", "isn't comeing"], "she → isn't ＋ coming。", "isn't coming です。")
+  ], ["pgNeg"], "I'm not・isn't・aren't ＋ 〜ing。", "I'm not reading a book now.、waiting、isn't coming です。");
+  ch("pgNeg-retention-1", "pgNeg", "retention", "「わたしは今、勉強していません。」を英語にすると？", ["I'm not studying now.", "I don't studying now.", "I'm not study now.", "I not studying now."], "I'm not ＋ 〜ing。", "I'm not studying now. です。", RB);
+  ch("pgNeg-retention-2", "pgNeg", "retention", "「ケンは今、走っていません。」を英語にすると？", ["Ken isn't running now.", "Ken doesn't running now.", "Ken isn't run now.", "Ken aren't running now."], "isn't ＋ 〜ing。", "Ken isn't running now. です。", RB);
+  ch("pgNeg-retention-3", "pgNeg", "retention", "「彼らは今、テレビを見ていません。」を英語にすると？", ["They aren't watching TV now.", "They don't watching TV now.", "They isn't watching TV now.", "They aren't watch TV now."], "they → aren't ＋ 〜ing。", "They aren't watching TV now. です。", RB);
+  ch("pgNeg-retention-4", "pgNeg", "retention", "「わたしの姉は今、料理をしていません。」を英語にすると？", ["My sister isn't cooking now.", "My sister doesn't cooking now.", "My sister isn't cook now.", "My sister not cooking now."], "isn't ＋ 〜ing。", "My sister isn't cooking now. です。", RS);
+  ch("pgNeg-retention-5", "pgNeg", "retention", "「わたしたちは今、歌っていません。」を英語にすると？", ["We aren't singing now.", "We don't singing now.", "We isn't singing now.", "We aren't sing now."], "we → aren't ＋ 〜ing。", "We aren't singing now. です。", RS);
+
+  // --- 現在進行形の疑問文 ---
+  ch("pgQues-basic-1", "pgQues", "basic", "「あなたは今、勉強していますか。」を英語にすると？", ["Are you studying now?", "Do you studying now?", "Are you study now?", "You are studying now?"], "be動詞を主語の前に出す。", "Are you studying now? です。", { usage: "diagnosis" });
+  ch("pgQues-basic-2", "pgQues", "basic", "Are you reading now? — Yes, （ ）. の（ ）は？", ["I am", "I do", "you are", "I can"], "Are you 〜? には I am で答える。", "I am です。");
+  ch("pgQues-basic-3", "pgQues", "basic", "「ケンは今、走っていますか。」（ ） Ken running now? の（ ）は？", ["Is", "Are", "Does", "Do"], "ケンは1人 → Is。", "Is です。");
+  ch("pgQues-basic-4", "pgQues", "basic", "Is your sister cooking now? — No, （ ）. の（ ）は？", ["she isn't", "she doesn't", "she is", "he isn't"], "your sister → she。No なら isn't。", "she isn't です。");
+  ch("pgQues-basic-5", "pgQues", "basic", "「彼らは今、泳いでいますか。」を英語にすると？", ["Are they swimming now?", "Is they swimming now?", "Do they swimming now?", "Are they swim now?"], "Are ＋ they ＋ 〜ing?", "Are they swimming now? です。");
+  ch("pgQues-basic-6", "pgQues", "basic", "Are they playing tennis? の答えとして正しいものは？", ["Yes, they are.", "Yes, they do.", "Yes, they is.", "Yes, it is."], "Are で聞かれたら are で答える。", "Yes, they are. です。");
+  ch("pgQues-basic-7", "pgQues", "basic", "「あなたは今、テレビを見ていますか。」Are you （ ） TV now? の（ ）は？", ["watching", "watch", "watches", "to watch"], "Are you のあとは 〜ing。", "watching です。");
+  ch("pgQues-standard-1", "pgQues", "standard", "「あなたのお父さんは今、料理をしていますか。」を英語にすると？", ["Is your father cooking now?", "Does your father cooking now?", "Is your father cook now?", "Are your father cooking now?"], "Is ＋ 主語 ＋ 〜ing?", "Is your father cooking now? です。");
+  ch("pgQues-standard-2", "pgQues", "standard", "Is Yumi sleeping now? の答えとして正しいものは？", ["No, she isn't.", "No, she doesn't.", "No, he isn't.", "No, she aren't."], "ユミ → she。Is で聞かれたら isn't。", "No, she isn't. です。");
+  ch("pgQues-standard-3", "pgQues", "standard", "「ケンとサキは今、話していますか。」（ ） Ken and Saki talking now? の（ ）は？", ["Are", "Is", "Do", "Does"], "2人 → Are。", "Are です。");
+  ch("pgQues-standard-4", "pgQues", "standard", "Are you and Ken playing soccer now? — Yes, （ ）. の（ ）は？", ["we are", "we do", "they are", "I am"], "you and Ken → we で答える。", "we are です。");
+  ch("pgQues-standard-5", "pgQues", "standard", "「その犬は今、走っていますか。」を英語にすると？", ["Is the dog running now?", "Does the dog running now?", "Is the dog runing now?", "Are the dog running now?"], "Is ＋ the dog ＋ running?", "Is the dog running now? です。");
+  ch("pgQues-standard-6", "pgQues", "standard", "Are your brothers studying now? — No, （ ）. の（ ）は？", ["they aren't", "they don't", "he isn't", "they are"], "your brothers → they。No なら aren't。", "they aren't です。");
+  sp("pgQues-application-1", "pgQues", "電話で友だちと話します。", [
+    sc("s1", "pgQues", "「あなたは今、宿題をしていますか。」を英語にすると？", ["Are you doing your homework now?", "Do you doing your homework now?", "Are you do your homework now?", "Is you doing your homework now?"], "Are you ＋ 〜ing?", "Are you doing your homework now? です。"),
+    sc("s2", "pgQues", "Are you doing your homework now? — No, （ ）. の（ ）は？", ["I'm not", "I don't", "you aren't", "I am"], "No なら I'm not。", "I'm not です。"),
+    sc("s3", "pgQues", "「お兄さんは今、ギターをひいていますか。」（ ） your brother playing the guitar now? の（ ）は？", ["Is", "Are", "Does", "Do"], "your brother は1人 → Is。", "Is です。")
+  ], ["pgQues"], "be動詞を前に出してたずね、be動詞で答える。", "Are you doing your homework now?、I'm not、Is です。");
+  sp("pgQues-application-2", "pgQues", "家族のようすをたずねます。", [
+    sc("s1", "pgQues", "「お母さんは今、ねていますか。」を英語にすると？", ["Is your mother sleeping now?", "Does your mother sleeping now?", "Is your mother sleep now?", "Are your mother sleeping now?"], "Is ＋ 主語 ＋ 〜ing?", "Is your mother sleeping now? です。"),
+    sc("s2", "pgQues", "Is your mother sleeping now? — Yes, （ ）. の（ ）は？", ["she is", "she does", "he is", "she are"], "your mother → she is。", "she is です。"),
+    sc("s3", "pgQues", "Are your parents watching TV? の答えとして正しいものは？", ["No, they aren't.", "No, they don't.", "No, he isn't.", "No, they isn't."], "your parents → they。", "No, they aren't. です。")
+  ], ["pgQues"], "主語を代名詞にかえて、be動詞で答える。", "Is your mother sleeping now?、she is、No, they aren't. です。");
+  sp("pgQues-application-3", "pgQues", "公園で見かけた人について聞きます。", [
+    sc("s1", "pgQues", "「あの男の子たちは今、野球をしていますか。」を英語にすると？", ["Are those boys playing baseball now?", "Is those boys playing baseball now?", "Do those boys playing baseball now?", "Are those boys play baseball now?"], "those boys は複数 → Are。", "Are those boys playing baseball now? です。"),
+    sc("s2", "pgQues", "Are those boys playing baseball now? — Yes, （ ）. の（ ）は？", ["they are", "they do", "he is", "we are"], "those boys → they。", "they are です。"),
+    sc("s3", "pgQues", "「あの女の人は走っていますか。」（ ） that woman running? の（ ）は？", ["Is", "Are", "Does", "Do"], "that woman は1人 → Is。", "Is です。")
+  ], ["pgQues"], "主語の数で Is・Are をえらぶ。", "Are those boys playing baseball now?、they are、Is です。");
+  sp("pgQues-application-4", "pgQues", "オンラインで話します。", [
+    sc("s1", "pgQues", "「あなたは今、音楽を聞いていますか。」を英語にすると？", ["Are you listening to music now?", "Do you listening to music now?", "Are you listen to music now?", "You are listening to music now?"], "Are you ＋ 〜ing?", "Are you listening to music now? です。"),
+    sc("s2", "pgQues", "Are you listening to music now? の答えとして正しいものは？", ["Yes, I am.", "Yes, I do.", "Yes, you are.", "Yes, I listening."], "Are you 〜? → Yes, I am.", "Yes, I am. です。"),
+    sc("s3", "pgQues", "「エマも聞いていますか。」（ ） Emma listening, too? の（ ）は？", ["Is", "Are", "Does", "Do"], "エマは1人 → Is。", "Is です。")
+  ], ["pgQues"], "Are you 〜? には I am・I'm not で答える。", "Are you listening to music now?、Yes, I am.、Is です。");
+  sp("pgQues-application-5", "pgQues", "教室で先生がたずねます。", [
+    sc("s1", "pgQues", "「あなたたちは今、ノートに書いていますか。」を英語にすると？", ["Are you writing in your notebooks now?", "Do you writing in your notebooks now?", "Are you write in your notebooks now?", "Is you writing in your notebooks now?"], "Are you ＋ 〜ing?", "Are you writing in your notebooks now? です。"),
+    sc("s2", "pgQues", "「リクは今、ねむっていますか。」Is Riku （ ） now? の（ ）は？", ["sleeping", "sleep", "sleeps", "to sleep"], "Is ＋ 主語 ＋ 〜ing?", "sleeping です。"),
+    sc("s3", "pgQues", "Is Riku sleeping now? — No, （ ）. の（ ）は？", ["he isn't", "he doesn't", "she isn't", "he aren't"], "リク → he。No なら isn't。", "he isn't です。")
+  ], ["pgQues"], "Is・Are ＋ 主語 ＋ 〜ing? と、その答え方。", "Are you writing in your notebooks now?、sleeping、he isn't です。");
+  ch("pgQues-retention-1", "pgQues", "retention", "「あなたは今、走っていますか。」を英語にすると？", ["Are you running now?", "Do you running now?", "Are you run now?", "Is you running now?"], "Are you ＋ 〜ing?", "Are you running now? です。", RB);
+  ch("pgQues-retention-2", "pgQues", "retention", "「ユミは今、ピアノをひいていますか。」を英語にすると？", ["Is Yumi playing the piano now?", "Does Yumi playing the piano now?", "Is Yumi play the piano now?", "Are Yumi playing the piano now?"], "Is ＋ ユミ ＋ 〜ing?", "Is Yumi playing the piano now? です。", RB);
+  ch("pgQues-retention-3", "pgQues", "retention", "「彼らは今、昼食を食べていますか。」に「はい」と答えると？", ["Yes, they are.", "Yes, they do.", "Yes, they is.", "Yes, he is."], "they → are で答える。", "Yes, they are. です。", RB);
+  ch("pgQues-retention-4", "pgQues", "retention", "「あなたのお兄さんは今、勉強していますか。」を英語にすると？", ["Is your brother studying now?", "Does your brother studying now?", "Is your brother study now?", "Are your brother studying now?"], "Is ＋ 主語 ＋ 〜ing?", "Is your brother studying now? です。", RS);
+  ch("pgQues-retention-5", "pgQues", "retention", "「あなたのお姉さんは今、ねていますか。」に「いいえ」と答えると？", ["No, she isn't.", "No, she doesn't.", "No, he isn't.", "No, she aren't."], "お姉さん → she isn't。", "No, she isn't. です。", RS);
+
+  // --- What are you doing? ---
+  ch("pgWhat-basic-1", "pgWhat", "basic", "「あなたは今、何をしていますか。」を英語にすると？", ["What are you doing now?", "What do you doing now?", "What are you do now?", "What you are doing now?"], "What ＋ are you ＋ doing?", "What are you doing now? です。", { usage: "diagnosis" });
+  ch("pgWhat-basic-2", "pgWhat", "basic", "What are you doing? の答えとして正しいものは？", ["I'm reading a book.", "Yes, I am.", "I read a book.", "You are reading a book."], "今していることを I'm 〜ing. で答える。", "I'm reading a book. です。");
+  ch("pgWhat-basic-3", "pgWhat", "basic", "「ケンは今、何を食べていますか。」What （ ） Ken eating now? の（ ）は？", ["is", "are", "does", "do"], "ケンは1人 → is。", "is です。");
+  ch("pgWhat-basic-4", "pgWhat", "basic", "「あなたはどこへ行くところですか。」（ ） are you going? の（ ）は？", ["Where", "What", "Who", "When"], "場所をたずねる語。", "Where です。");
+  ch("pgWhat-basic-5", "pgWhat", "basic", "「だれがピアノをひいていますか。」を英語にすると？", ["Who is playing the piano?", "Who are playing the piano?", "Who is play the piano?", "Who does playing the piano?"], "Who ＋ is ＋ 〜ing?", "Who is playing the piano? です。");
+  ch("pgWhat-basic-6", "pgWhat", "basic", "What is your sister doing? の答えとして正しいものは？", ["She's cooking dinner.", "He's cooking dinner.", "Yes, she is.", "She cooking dinner."], "your sister → she。She's 〜ing.", "She's cooking dinner. です。");
+  ch("pgWhat-basic-7", "pgWhat", "basic", "「彼らは今、何をしていますか。」What are they （ ） now? の（ ）は？", ["doing", "do", "does", "to do"], "「している」は doing。", "doing です。");
+  ch("pgWhat-standard-1", "pgWhat", "standard", "「ユミは今、何を勉強していますか。」を英語にすると？", ["What is Yumi studying now?", "What does Yumi studying now?", "What is Yumi study now?", "What Yumi is studying now?"], "What ＋ is ＋ 主語 ＋ 〜ing?", "What is Yumi studying now? です。");
+  ch("pgWhat-standard-2", "pgWhat", "standard", "Where are you going? の答えとして正しいものは？", ["I'm going to the library.", "Yes, I am.", "I go to the library.", "You're going to the library."], "I'm going to 〜. で答える。", "I'm going to the library. です。");
+  ch("pgWhat-standard-3", "pgWhat", "standard", "「あなたたちは何を作っていますか。」What （ ） you making? の（ ）は？", ["are", "is", "do", "does"], "you → are。", "are です。");
+  ch("pgWhat-standard-4", "pgWhat", "standard", "What are your brothers doing? の答えとして正しいものは？", ["They're playing a game.", "He's playing a game.", "Yes, they are.", "They playing a game."], "your brothers → they。", "They're playing a game. です。");
+  ch("pgWhat-standard-5", "pgWhat", "standard", "「だれが歌っていますか。」（ ） is singing? の（ ）は？", ["Who", "What", "Where", "When"], "人をたずねる語。", "Who です。");
+  ch("pgWhat-standard-6", "pgWhat", "standard", "「トムは今、どこで走っていますか。」を英語にすると？", ["Where is Tom running now?", "Where does Tom running now?", "Where is Tom run now?", "Where Tom is running now?"], "Where ＋ is ＋ 主語 ＋ 〜ing?", "Where is Tom running now? です。");
+  sp("pgWhat-application-1", "pgWhat", "家族に電話で聞きます。", [
+    sc("s1", "pgWhat", "「お父さんは今、何をしていますか。」を英語にすると？", ["What is Dad doing now?", "What does Dad doing now?", "What is Dad do now?", "What Dad is doing now?"], "What ＋ is ＋ 主語 ＋ doing?", "What is Dad doing now? です。"),
+    sc("s2", "pgWhat", "What is Dad doing now? の答えとして正しいものは？", ["He's washing the car.", "She's washing the car.", "He washing the car.", "Yes, he is."], "Dad → he。He's 〜ing.", "He's washing the car. です。"),
+    sc("s3", "pgWhat", "「お母さんは何を作っていますか。」What is Mom （ ）? の（ ）は？", ["making", "makeing", "make", "makes"], "make は e をとって ing。", "making です。")
+  ], ["pgWhat"], "What ＋ be動詞 ＋ 主語 ＋ 〜ing? に、主語 ＋ be動詞 ＋ 〜ing. で答える。", "What is Dad doing now?、He's washing the car.、making です。");
+  sp("pgWhat-application-2", "pgWhat", "教室のようすをたずねます。", [
+    sc("s1", "pgWhat", "「だれが黒板に書いていますか。」を英語にすると？", ["Who is writing on the blackboard?", "Who are writing on the blackboard?", "Who is write on the blackboard?", "Who does writing on the blackboard?"], "Who ＋ is ＋ 〜ing?", "Who is writing on the blackboard? です。"),
+    sc("s2", "pgWhat", "「リクは何を読んでいますか。」What （ ） Riku reading? の（ ）は？", ["is", "are", "does", "do"], "リクは1人 → is。", "is です。"),
+    sc("s3", "pgWhat", "What is Riku reading? の答えとして正しいものは？", ["He's reading a comic book.", "He reads a comic book.", "Yes, he is.", "She's reading a comic book."], "リク → he。He's 〜ing.", "He's reading a comic book. です。")
+  ], ["pgWhat"], "Who・What で今していることをたずねる。", "Who is writing on the blackboard?、is、He's reading a comic book. です。");
+  sp("pgWhat-application-3", "pgWhat", "道で友だちに会いました。", [
+    sc("s1", "pgWhat", "「どこへ行くところですか。」を英語にすると？", ["Where are you going?", "Where do you going?", "Where are you go?", "Where you are going?"], "Where ＋ are you ＋ going?", "Where are you going? です。"),
+    sc("s2", "pgWhat", "Where are you going? の答えとして正しいものは？", ["I'm going to the station.", "I go to the station.", "Yes, I am.", "You're going to the station."], "I'm going to 〜. で答える。", "I'm going to the station. です。"),
+    sc("s3", "pgWhat", "「何を運んでいるの？」What are you （ ）? の（ ）は？", ["carrying", "carring", "carry", "carries"], "carry は y を残して ing。", "carrying です。")
+  ], ["pgWhat"], "Where・What ＋ are you 〜ing? に I'm 〜ing. で答える。", "Where are you going?、I'm going to the station.、carrying です。");
+  sp("pgWhat-application-4", "pgWhat", "体育館のようすです。", [
+    sc("s1", "pgWhat", "「生徒たちは何をしていますか。」を英語にすると？", ["What are the students doing?", "What is the students doing?", "What do the students doing?", "What are the students do?"], "students は複数 → are。", "What are the students doing? です。"),
+    sc("s2", "pgWhat", "What are the students doing? の答えとして正しいものは？", ["They're playing basketball.", "He's playing basketball.", "They play basketball.", "Yes, they are."], "the students → they。", "They're playing basketball. です。"),
+    sc("s3", "pgWhat", "「だれが走っていますか。」（ ） is running? の（ ）は？", ["Who", "What", "Where", "When"], "人をたずねる語。", "Who です。")
+  ], ["pgWhat"], "主語を代名詞にかえて、今していることを答える。", "What are the students doing?、They're playing basketball.、Who です。");
+  sp("pgWhat-application-5", "pgWhat", "写真を見ながら話します。", [
+    sc("s1", "pgWhat", "「この写真で、あなたは何をしていますか。」を英語にすると？", ["What are you doing in this picture?", "What do you doing in this picture?", "What are you do in this picture?", "What you are doing in this picture?"], "What ＋ are you ＋ doing?", "What are you doing in this picture? です。"),
+    sc("s2", "pgWhat", "What are you doing in this picture? の答えとして正しいものは？", ["I'm swimming in the sea.", "I swim in the sea.", "Yes, I am.", "You're swimming in the sea."], "I'm 〜ing. で答える。", "I'm swimming in the sea. です。"),
+    sc("s3", "pgWhat", "「お兄さんはどこで泳いでいますか。」Where is your brother （ ）? の（ ）は？", ["swimming", "swiming", "swim", "swims"], "swim は m を重ねる。", "swimming です。")
+  ], ["pgWhat"], "What・Where ＋ be動詞 ＋ 主語 ＋ 〜ing?", "What are you doing in this picture?、I'm swimming in the sea.、swimming です。");
+  ch("pgWhat-retention-1", "pgWhat", "retention", "「あなたは今、何を読んでいますか。」を英語にすると？", ["What are you reading now?", "What do you reading now?", "What are you read now?", "What you are reading now?"], "What ＋ are you ＋ 〜ing?", "What are you reading now? です。", RB);
+  ch("pgWhat-retention-2", "pgWhat", "retention", "「だれが料理をしていますか。」を英語にすると？", ["Who is cooking?", "Who are cooking?", "Who is cook?", "Who does cooking?"], "Who ＋ is ＋ 〜ing?", "Who is cooking? です。", RB);
+  ch("pgWhat-retention-3", "pgWhat", "retention", "「ケンは今、どこで勉強していますか。」を英語にすると？", ["Where is Ken studying now?", "Where does Ken studying now?", "Where is Ken study now?", "Where Ken is studying now?"], "Where ＋ is ＋ 主語 ＋ 〜ing?", "Where is Ken studying now? です。", RB);
+  ch("pgWhat-retention-4", "pgWhat", "retention", "「彼らは今、何を見ていますか。」を英語にすると？", ["What are they watching now?", "What is they watching now?", "What do they watching now?", "What are they watch now?"], "they → are ＋ 〜ing。", "What are they watching now? です。", RS);
+  ch("pgWhat-retention-5", "pgWhat", "retention", "「何をしているの？」に「本を読んでいるよ」と答えると？", ["I'm reading a book.", "I read a book.", "Yes, I am.", "I reading a book."], "I'm 〜ing. で答える。", "I'm reading a book. です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
