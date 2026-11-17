@@ -34,7 +34,8 @@
       "三平方の定理": "直角三角形の3辺の関係（a² ＋ b² ＝ c²）を使って、いろいろな図形の長さや距離を求める単元です。平方根の計算をたくさん使います。",
       "標本調査": "全体の一部（標本）を、かたよりなく選んで調べ、その割合や平均から全体（母集団）の様子を見積もる単元です。",
       "be動詞": "「〜は…です」を英語で言う単元です。主語（I・you・he など）に合わせて am・are・is を選び、否定文（not）や疑問文（Are you 〜?）もつくります。",
-      "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。"
+      "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。",
+      "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。"
     },
     skills: {
       // --- 正負の数 ---
@@ -192,6 +193,12 @@
       gvNeg: { point: "一般動詞の否定文は、動詞の前に do not（don't）を置きます。", example: "I don't like carrots.", trap: "I'm not like 〜. はまちがい。busy・hungry のような様子は be動詞の文なので I'm not です。" },
       gvQues: { point: "一般動詞の疑問文は Do で始め、Yes, I do.／No, I don't. と答えます。", example: "Do you like music? — Yes, I do.", trap: "Are you play 〜? はまちがい。Are でたずねられたら am・are で答えます。" },
       gvWhat: { point: "「何を〜する？」は What ＋ do ＋ 主語 ＋ 動詞。答えは Yes・No ではなく具体的に言います。", example: "What do you want? — I want a new bag.", trap: "What you want? のように do をぬかさないようにします。" },
+      // --- 3人称単数現在（英語） ---
+      tsForm: { point: "主語が I・you 以外の1人・1つ（he・she・it・Ken・my mother など）のとき、一般動詞に s をつけます。", example: "Ken plays soccer.／They play soccer.", trap: "Ken and Yumi のように2人以上なら s はつけません。" },
+      tsSpell: { point: "ふつうは s。sh・ch・s・x・o で終わる語は es。子音字 ＋ y は y を i にかえて es。have は has。", example: "watches・goes・studies・has", trap: "play・enjoy のように y の前が a・o なら s だけです。" },
+      tsNeg: { point: "主語が3人称単数の否定文は doesn't ＋ 動詞のもとの形です。", example: "He doesn't play tennis.", trap: "He doesn't plays 〜. のように s を2回つけないようにします。" },
+      tsQues: { point: "Does ＋ 主語 ＋ 動詞のもとの形 〜? でたずね、Yes, he does.／No, she doesn't. と答えます。", example: "Does she like sushi? — Yes, she does.", trap: "Does she likes 〜? はまちがい。主語が2人以上なら Do です。" },
+      tsWhat: { point: "What ＋ does ＋ 主語 ＋ もとの形 〜? でたずね、答えの文では動詞に s・es をつけます。", example: "What does he want? — He wants a ball.", trap: "答えの文で He want 〜. と s をわすれないようにします。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

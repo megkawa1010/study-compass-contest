@@ -8905,6 +8905,236 @@
   ch("gvWhat-retention-5", "gvWhat", "retention", "What do your sisters have? — （ ） have a rabbit. の（ ）は？", ["They", "She", "We", "You"], "姉妹（2人以上） → they。", "They です。", RS);
 
   // =====================================================================
+  // 中1 英語「3人称単数現在」（he・she・1人・1つのものが主語のとき、動詞に s・es）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-third.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- 3人称単数の主語 ---
+  ch("tsForm-basic-1", "tsForm", "basic", "「ケンはサッカーをします。」を英語にすると？", ["Ken plays soccer.", "Ken play soccer.", "Ken is play soccer.", "Ken playing soccer."], "主語はケン1人。", "Ken plays soccer. です。", { usage: "diagnosis" });
+  ch("tsForm-basic-2", "tsForm", "basic", "動詞に s をつけるのは、主語がどんなとき？", ["he・she や、1人・1つのもの", "I", "you", "we・they や2人以上"], "わたし・あなた以外の、1人や1つ。", "he・she や1人・1つのものです。");
+  ch("tsForm-basic-3", "tsForm", "basic", "「彼女は音楽が好きです。」She （ ） music. の（ ）は？", ["likes", "like", "is like", "liking"], "主語は she。", "likes です。");
+  ch("tsForm-basic-4", "tsForm", "basic", "「わたしは音楽が好きです。」I （ ） music. の（ ）は？", ["like", "likes", "am like", "liking"], "主語が I のときは s をつけない。", "like です。");
+  ch("tsForm-basic-5", "tsForm", "basic", "次の主語のうち、動詞に s がつくのはどれ？", ["My mother", "My parents", "You", "We"], "1人の人。", "My mother です。");
+  ch("tsForm-basic-6", "tsForm", "basic", "「トムは大阪に住んでいます。」Tom （ ） in Osaka. の（ ）は？", ["lives", "live", "is live", "living"], "主語はトム1人。", "lives です。");
+  ch("tsForm-basic-7", "tsForm", "basic", "「彼らはテニスをします。」They （ ） tennis. の（ ）は？", ["play", "plays", "is play", "playing"], "主語は2人以上。", "play です。");
+  ch("tsForm-standard-1", "tsForm", "standard", "「わたしの兄は歩いて学校に行きます。」My brother （ ） to school. の（ ）は？", ["walks", "walk", "is walk", "walking"], "主語は兄1人。", "walks です。");
+  ch("tsForm-standard-2", "tsForm", "standard", "「ケンとユミはピアノをひきます。」Ken and Yumi （ ） the piano. の（ ）は？", ["play", "plays", "is play", "playing"], "主語は2人。", "play です。");
+  ch("tsForm-standard-3", "tsForm", "standard", "「わたしの犬は毎朝ミルクを飲みます。」を英語にすると？", ["My dog drinks milk every morning.", "My dog drink milk every morning.", "My dog is drink milk every morning.", "My dog drinking milk every morning."], "動物1ぴきも3人称単数。", "drinks です。");
+  ch("tsForm-standard-4", "tsForm", "standard", "3人称単数にあたる主語はどれ？", ["Ms. Sato", "I", "you", "Ms. Sato and I"], "自分・相手以外の1人。", "Ms. Sato です。");
+  ch("tsForm-standard-5", "tsForm", "standard", "「あなたはすてきなバッグを持っています。」You （ ） a nice bag. の（ ）は？", ["have", "has", "is have", "having"], "主語は you。", "have です。");
+  ch("tsForm-standard-6", "tsForm", "standard", "「わたしたちの先生は英語を上手に話します。」を英語にすると？", ["Our teacher speaks English well.", "Our teacher speak English well.", "Our teacher is speak English well.", "Our teacher speaking English well."], "主語は先生1人。", "speaks です。");
+  sp("tsForm-application-1", "tsForm", "友だちのミカを紹介します。「This is Mika. She （ア） basketball. She （イ） a sister. Her sister and Mika （ウ） to the same school.」", [
+    sc("s1", "tsForm", "（ア）に入る語は？", ["plays", "play", "is play", "playing"], "主語は she。", "plays です。"),
+    sc("s2", "tsForm", "（イ）に入る語は？（姉妹がいる）", ["has", "have", "haves", "is have"], "have は has にかわる。", "has です。"),
+    sc("s3", "tsForm", "（ウ）に入る語は？", ["go", "goes", "is go", "going"], "主語は2人。", "go です。")
+  ], ["tsForm"], "主語が1人なら s、2人以上ならそのまま。", "plays、has、go です。");
+  sp("tsForm-application-2", "tsForm", "家族の朝のようすです。「My father （ア） up at six. My mother （イ） breakfast. My brother and I （ウ） to school at eight.」", [
+    sc("s1", "tsForm", "（ア）に入る語は？", ["gets", "get", "is get", "getting"], "主語は父1人。", "gets です。"),
+    sc("s2", "tsForm", "（イ）に入る語は？（朝ごはんを作る）", ["makes", "make", "is make", "making"], "主語は母1人。", "makes です。"),
+    sc("s3", "tsForm", "（ウ）に入る語は？", ["go", "goes", "is go", "going"], "My brother and I は2人。", "go です。")
+  ], ["tsForm"], "and でつながった主語は2人以上。", "gets、makes、go です。");
+  sp("tsForm-application-3", "tsForm", "飼っているねこの話です。「We have a cat. It （ア） a lot. It （イ） fish.」（よくねる・魚が好き）", [
+    sc("s1", "tsForm", "（ア）に入る語は？", ["sleeps", "sleep", "is sleep", "sleeping"], "主語は it。", "sleeps です。"),
+    sc("s2", "tsForm", "（イ）に入る語は？", ["likes", "like", "is like", "liking"], "主語は it。", "likes です。"),
+    sc("s3", "tsForm", "It を My cats（2ひき）にかえると、動詞はどうなる？", ["s をとる", "s をつけたまま", "es にかえる", "be動詞を足す"], "2ひき以上は3人称単数ではない。", "s をとります。")
+  ], ["tsForm"], "動物やもの1つは it で、動詞に s。", "sleeps、likes です。");
+  sp("tsForm-application-4", "tsForm", "ALT のブラウン先生を紹介します。「Mr. Brown （ア） in Kyoto. He （イ） English at our school.」", [
+    sc("s1", "tsForm", "（ア）に入る語は？（住んでいる）", ["lives", "live", "is live", "living"], "主語は先生1人。", "lives です。"),
+    sc("s2", "tsForm", "（イ）に入る語は？（教えている）", ["teaches", "teach", "is teach", "teaching"], "主語は he。", "teaches です。"),
+    sc("s3", "tsForm", "「ブラウン先生とわたしたちは毎週サッカーをします。」を英語にすると？", ["Mr. Brown and we play soccer every week.", "Mr. Brown and we plays soccer every week.", "Mr. Brown and we is play soccer every week.", "Mr. Brown and we playing soccer every week."], "主語は2人以上。", "play です。")
+  ], ["tsForm"], "Mr. 〜 は he と同じ。", "lives、teaches です。");
+  sp("tsForm-application-5", "tsForm", "吹奏楽部の友だちの話です。「Rin （ア） the trumpet. Rin and Aoi （イ） in the brass band.」", [
+    sc("s1", "tsForm", "（ア）に入る語は？（トランペットをふく）", ["plays", "play", "is play", "playing"], "主語はリン1人。", "plays です。"),
+    sc("s2", "tsForm", "（イ）に入る語は？", ["are", "is", "plays", "play"], "「部にいる」は be動詞。主語は2人。", "are です。"),
+    sc("s3", "tsForm", "Aoi （ ） the drums.（ドラムをたたく）の（ ）は？", ["plays", "play", "is play", "playing"], "主語はアオイ1人。", "plays です。")
+  ], ["tsForm"], "be動詞の文か一般動詞の文かも見る。", "plays、are、plays です。");
+  ch("tsForm-retention-1", "tsForm", "retention", "「マイはねこが好きです。」Mai （ ） cats. の（ ）は？", ["likes", "like", "is like", "liking"], "主語はマイ1人。", "likes です。", RB);
+  ch("tsForm-retention-2", "tsForm", "retention", "「わたしの父は車を運転します。」を英語にすると？", ["My father drives a car.", "My father drive a car.", "My father is drive a car.", "My father driving a car."], "主語は父1人。", "drives です。", RB);
+  ch("tsForm-retention-3", "tsForm", "retention", "「わたしたちは正午に昼食を食べます。」We （ ） lunch at noon. の（ ）は？", ["eat", "eats", "is eat", "eating"], "主語は we。", "eat です。", RB);
+  ch("tsForm-retention-4", "tsForm", "retention", "動詞に s がつく主語はどれ？", ["the girl", "the girls", "you and I", "they"], "1人の人。", "the girl です。", RS);
+  ch("tsForm-retention-5", "tsForm", "retention", "「その店は9時に開きます。」を英語にすると？", ["The shop opens at nine.", "The shop open at nine.", "The shop opening at nine.", "The shop are open at nine."], "主語はお店1つ。", "opens です。", RS);
+
+  // --- 動詞の s・es のつけ方 ---
+  ch("tsSpell-basic-1", "tsSpell", "basic", "study を、主語が he のときの形にすると？", ["studies", "studys", "studyes", "studis"], "子音字 ＋ y は y を i にかえて es。", "studies です。", { usage: "diagnosis" });
+  ch("tsSpell-basic-2", "tsSpell", "basic", "watch を、主語が she のときの形にすると？", ["watches", "watchs", "watchies", "watch"], "ch で終わる語は es。", "watches です。");
+  ch("tsSpell-basic-3", "tsSpell", "basic", "have を、主語が he のときの形にすると？", ["has", "haves", "havs", "have"], "形がかわる特別な語。", "has です。");
+  ch("tsSpell-basic-4", "tsSpell", "basic", "go を、主語が she のときの形にすると？", ["goes", "gos", "goies", "go"], "o で終わる語は es。", "goes です。");
+  ch("tsSpell-basic-5", "tsSpell", "basic", "play を、主語が he のときの形にすると？", ["plays", "plaies", "playes", "plaes"], "母音字 ＋ y はそのまま s。", "plays です。");
+  ch("tsSpell-basic-6", "tsSpell", "basic", "es をつける語はどれ？", ["wash", "like", "play", "read"], "sh・ch・s・x・o で終わる語。", "wash（washes）です。");
+  ch("tsSpell-basic-7", "tsSpell", "basic", "「彼女は夕食のあとテレビを見ます。」She （ ） TV after dinner. の（ ）は？", ["watches", "watchs", "watch", "watchies"], "ch で終わる語。", "watches です。");
+  ch("tsSpell-standard-1", "tsSpell", "standard", "try を、主語が he のときの形にすると？", ["tries", "trys", "tryes", "tryies"], "子音字 ＋ y。", "tries です。");
+  ch("tsSpell-standard-2", "tsSpell", "standard", "「彼にはたくさんの友だちがいます。」He （ ） a lot of friends. の（ ）は？", ["has", "haves", "have", "hass"], "have の特別な形。", "has です。");
+  ch("tsSpell-standard-3", "tsSpell", "standard", "「ミキは毎晩宿題をします。」を英語にすると？", ["Miki does her homework every night.", "Miki dos her homework every night.", "Miki do her homework every night.", "Miki doies her homework every night."], "do は o で終わる語。", "does です。");
+  ch("tsSpell-standard-4", "tsSpell", "standard", "teach を、主語が she のときの形にすると？", ["teaches", "teachs", "teachies", "teach"], "ch で終わる語。", "teaches です。");
+  ch("tsSpell-standard-5", "tsSpell", "standard", "y を i にかえて es をつける語はどれ？", ["carry", "play", "enjoy", "stay"], "y の前が a・e・i・o・u 以外。", "carry（carries）です。");
+  ch("tsSpell-standard-6", "tsSpell", "standard", "「姉は毎日英語を勉強します。」My sister （ ） English every day. の（ ）は？", ["studies", "studys", "study", "studyes"], "子音字 ＋ y。", "studies です。");
+  sp("tsSpell-application-1", "tsSpell", "兄の朝のようすです。「My brother （ア） up at seven. He （イ） his face. He （ウ） to school by bike.」", [
+    sc("s1", "tsSpell", "（ア）に入る語は？（起きる）", ["gets", "getes", "get", "getts"], "ふつうは s だけ。", "gets です。"),
+    sc("s2", "tsSpell", "（イ）に入る語は？（顔を洗う）", ["washes", "washs", "wash", "washies"], "sh で終わる語。", "washes です。"),
+    sc("s3", "tsSpell", "（ウ）に入る語は？（行く）", ["goes", "gos", "go", "goies"], "o で終わる語。", "goes です。")
+  ], ["tsSpell"], "sh・ch・o で終わる語は es。", "gets、washes、goes です。");
+  sp("tsSpell-application-2", "tsSpell", "母の仕事を紹介します。「My mother （ア） at a hospital.」（病院で働いている）", [
+    sc("s1", "tsSpell", "（ア）に入る語は？", ["works", "workes", "work", "workies"], "ふつうは s だけ。", "works です。"),
+    sc("s2", "tsSpell", "She （ ） a car to work.（車で通う）の（ ）は？", ["drives", "drivs", "drive", "drivies"], "e で終わる語も s だけ。", "drives です。"),
+    sc("s3", "tsSpell", "She （ ） very busy.（とても忙しい）の（ ）は？", ["is", "are", "be", "ises"], "様子は be動詞。", "is です。")
+  ], ["tsSpell"], "e で終わる語は s だけ。", "works、drives、is です。");
+  sp("tsSpell-application-3", "tsSpell", "弟とゲームの話です。「My brother （ア） video games. He （イ） a new game. He （ウ） hard to win.」", [
+    sc("s1", "tsSpell", "（ア）に入る語は？（ゲームをする）", ["plays", "plaies", "play", "playes"], "母音字 ＋ y はそのまま s。", "plays です。"),
+    sc("s2", "tsSpell", "（イ）に入る語は？（持っている）", ["has", "haves", "have", "hass"], "have の特別な形。", "has です。"),
+    sc("s3", "tsSpell", "（ウ）に入る語は？（がんばる）", ["tries", "trys", "try", "tryes"], "子音字 ＋ y。", "tries です。")
+  ], ["tsSpell"], "play は plays、try は tries。", "plays、has、tries です。");
+  sp("tsSpell-application-4", "tsSpell", "数学の伊藤先生の紹介です。「Ms. Ito （ア） math. She （イ） our questions kindly.」", [
+    sc("s1", "tsSpell", "（ア）に入る語は？（教える）", ["teaches", "teachs", "teach", "teachies"], "ch で終わる語。", "teaches です。"),
+    sc("s2", "tsSpell", "（イ）に入る語は？（答える）", ["answers", "answeres", "answer", "answeries"], "ふつうは s だけ。", "answers です。"),
+    sc("s3", "tsSpell", "「伊藤先生はテニスを楽しみます。」を英語にすると？", ["Ms. Ito enjoys tennis.", "Ms. Ito enjoies tennis.", "Ms. Ito enjoy tennis.", "Ms. Ito enjoyes tennis."], "母音字 ＋ y。", "enjoys です。")
+  ], ["tsSpell"], "enjoy は y の前が o なので s だけ。", "teaches、answers、enjoys です。");
+  sp("tsSpell-application-5", "tsSpell", "祖父の朝のようすです。「My grandfather （ア） his dog in the morning. He （イ） the newspaper.」", [
+    sc("s1", "tsSpell", "（ア）に入る語は？（犬を散歩させる）", ["walks", "walkes", "walk", "walkies"], "ふつうは s だけ。", "walks です。"),
+    sc("s2", "tsSpell", "（イ）に入る語は？（読む）", ["reads", "readies", "read", "reades"], "ふつうは s だけ。", "reads です。"),
+    sc("s3", "tsSpell", "He （ ） tea with my grandmother.（お茶を飲む）の（ ）は？", ["drinks", "drinkes", "drink", "drinkies"], "ふつうは s だけ。", "drinks です。")
+  ], ["tsSpell"], "多くの動詞は s をつけるだけ。", "walks、reads、drinks です。");
+  ch("tsSpell-retention-1", "tsSpell", "retention", "fly を、主語が it のときの形にすると？", ["flies", "flys", "flyes", "flyies"], "子音字 ＋ y。", "flies です。", RB);
+  ch("tsSpell-retention-2", "tsSpell", "retention", "catch を、主語が he のときの形にすると？", ["catches", "catchs", "catch", "catchies"], "ch で終わる語。", "catches です。", RB);
+  ch("tsSpell-retention-3", "tsSpell", "retention", "「ケンタは大きな犬を飼っています。」Kenta （ ） a big dog. の（ ）は？", ["has", "haves", "have", "hass"], "have の特別な形。", "has です。", RB);
+  ch("tsSpell-retention-4", "tsSpell", "retention", "「姉は毎朝かみをとかします。」を英語にすると？", ["My sister brushes her hair every morning.", "My sister brushs her hair every morning.", "My sister brush her hair every morning.", "My sister brushies her hair every morning."], "sh で終わる語。", "brushes です。", RS);
+  ch("tsSpell-retention-5", "tsSpell", "retention", "「ユキは日曜日に部屋をそうじします。」を英語にすると？", ["Yuki cleans her room on Sundays.", "Yuki cleanes her room on Sundays.", "Yuki clean her room on Sundays.", "Yuki cleanies her room on Sundays."], "ふつうは s だけ。", "cleans です。", RS);
+
+  // --- doesn't の否定文 ---
+  ch("tsNeg-basic-1", "tsNeg", "basic", "He plays tennis. を「〜しない」の文にすると？", ["He doesn't play tennis.", "He don't play tennis.", "He doesn't plays tennis.", "He isn't play tennis."], "doesn't ＋ 動詞のもとの形。", "He doesn't play tennis. です。", { usage: "diagnosis" });
+  ch("tsNeg-basic-2", "tsNeg", "basic", "does not の短縮形は？", ["doesn't", "does'nt", "dosen't", "doesnt"], "o を ' にかえる。", "doesn't です。");
+  ch("tsNeg-basic-3", "tsNeg", "basic", "「彼女はコーヒーが好きではありません。」She （ ） like coffee. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は she。", "doesn't です。");
+  ch("tsNeg-basic-4", "tsNeg", "basic", "doesn't のあとの動詞は、どんな形？", ["もとの形", "s・es のついた形", "ing のついた形", "be動詞を入れた形"], "s は does についている。", "もとの形です。");
+  ch("tsNeg-basic-5", "tsNeg", "basic", "「父はテレビを見ません。」My father （ ） watch TV. の（ ）は？", ["doesn't", "don't", "isn't", "aren't"], "主語は父1人。", "doesn't です。");
+  ch("tsNeg-basic-6", "tsNeg", "basic", "「わたしは納豆を食べません。」I （ ） eat natto. の（ ）は？", ["don't", "doesn't", "isn't", "not"], "主語は I。", "don't です。");
+  ch("tsNeg-basic-7", "tsNeg", "basic", "「ケンは犬を飼っていません。」を英語にすると？", ["Ken doesn't have a dog.", "Ken doesn't has a dog.", "Ken don't have a dog.", "Ken hasn't a dog."], "doesn't のあとはもとの形 have。", "Ken doesn't have a dog. です。");
+  ch("tsNeg-standard-1", "tsNeg", "standard", "「わたしの母は肉を食べません。」を英語にすると？", ["My mother doesn't eat meat.", "My mother doesn't eats meat.", "My mother don't eat meat.", "My mother isn't eat meat."], "doesn't ＋ もとの形。", "My mother doesn't eat meat. です。");
+  ch("tsNeg-standard-2", "tsNeg", "standard", "「トムとケンはここに住んでいません。」Tom and Ken （ ） live here. の（ ）は？", ["don't", "doesn't", "isn't", "not"], "主語は2人。", "don't です。");
+  ch("tsNeg-standard-3", "tsNeg", "standard", "「ここではあまり雨がふりません。」It （ ） rain much here. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は it。", "doesn't です。");
+  ch("tsNeg-standard-4", "tsNeg", "standard", "「サキはピアノをひきません。」を英語にすると？", ["Saki doesn't play the piano.", "Saki doesn't plays the piano.", "Saki not plays the piano.", "Saki don't play the piano."], "doesn't ＋ もとの形。", "Saki doesn't play the piano. です。");
+  ch("tsNeg-standard-5", "tsNeg", "standard", "「彼女は今日忙しくありません。」She （ ） busy today. の（ ）は？", ["isn't", "doesn't", "don't", "not"], "busy は様子 → be動詞。", "isn't です。");
+  ch("tsNeg-standard-6", "tsNeg", "standard", "「兄は数学を勉強しません。」My brother doesn't （ ） math. の（ ）は？", ["study", "studies", "studys", "studying"], "doesn't のあとはもとの形。", "study です。");
+  sp("tsNeg-application-1", "tsNeg", "姉はくだものが好きです。でも、バナナは好きではありません。", [
+    sc("s1", "tsNeg", "But she （ ） like bananas. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は she。", "doesn't です。"),
+    sc("s2", "tsNeg", "「彼女はりんごを食べません。」を英語にすると？", ["She doesn't eat apples.", "She doesn't eats apples.", "She don't eat apples.", "She isn't eat apples."], "doesn't ＋ もとの形。", "She doesn't eat apples. です。"),
+    sc("s3", "tsNeg", "「両親もバナナを食べません。」My parents （ ） eat bananas. の（ ）は？", ["don't", "doesn't", "isn't", "aren't"], "主語は2人。", "don't です。")
+  ], ["tsNeg"], "主語が1人なら doesn't、2人以上なら don't。", "doesn't、She doesn't eat 〜、don't です。");
+  sp("tsNeg-application-2", "tsNeg", "祖母とスマホの話です。", [
+    sc("s1", "tsNeg", "「祖母はスマホを使いません。」My grandmother （ ） use a smartphone. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は祖母1人。", "doesn't です。"),
+    sc("s2", "tsNeg", "「彼女はメールを書きません。」を英語にすると？", ["She doesn't write emails.", "She doesn't writes emails.", "She don't write emails.", "She not writes emails."], "doesn't ＋ もとの形。", "She doesn't write emails. です。"),
+    sc("s3", "tsNeg", "「彼女はそれを悲しく思っていません。」She （ ） sad about it. の（ ）は？", ["isn't", "doesn't", "don't", "not"], "sad は様子 → be動詞。", "isn't です。")
+  ], ["tsNeg"], "様子は isn't、動きは doesn't。", "doesn't、isn't です。");
+  sp("tsNeg-application-3", "tsNeg", "雨の日のケンのようすです。", [
+    sc("s1", "tsNeg", "「ケンは今日公園に行きません。」Ken （ ） go to the park today. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語はケン1人。", "doesn't です。"),
+    sc("s2", "tsNeg", "「彼は家にいます。」He （ ） at home. の（ ）は？", ["is", "does", "has", "doesn't"], "「いる」は be動詞。", "is です。"),
+    sc("s3", "tsNeg", "「彼は自転車に乗りません。」He doesn't （ ） his bike. の（ ）は？", ["ride", "rides", "riding", "rided"], "doesn't のあとはもとの形。", "ride です。")
+  ], ["tsNeg"], "doesn't のあとの動詞に s はつけない。", "doesn't、is、ride です。");
+  sp("tsNeg-application-4", "tsNeg", "飼っているねこと犬の話です。", [
+    sc("s1", "tsNeg", "「うちのねこは水が好きではありません。」Our cat （ ） like water. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語はねこ1ぴき。", "doesn't です。"),
+    sc("s2", "tsNeg", "「ねこはおふろに入りません。」It doesn't （ ） a bath. の（ ）は？", ["take", "takes", "taking", "takees"], "doesn't のあとはもとの形。", "take です。"),
+    sc("s3", "tsNeg", "「うちの犬たちも水が好きではありません。」Our dogs （ ） like water. の（ ）は？", ["don't", "doesn't", "isn't", "aren't"], "犬は2ひき以上。", "don't です。")
+  ], ["tsNeg"], "主語が1つか2つ以上かで doesn't と don't を分ける。", "doesn't、take、don't です。");
+  sp("tsNeg-application-5", "tsNeg", "森先生は理科の先生です。「Mr. Mori teaches science.」", [
+    sc("s1", "tsNeg", "「森先生は英語を教えません。」Mr. Mori （ ） teach English. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は先生1人。", "doesn't です。"),
+    sc("s2", "tsNeg", "He doesn't （ ） math. の（ ）は？（数学も教えない）", ["teach", "teaches", "teachs", "teaching"], "doesn't のあとはもとの形。", "teach です。"),
+    sc("s3", "tsNeg", "3人称単数の否定文で、s（es）がつくのはどこ？", ["does（doesn't）", "動詞", "主語", "not"], "does ＝ do ＋ es。", "does です。")
+  ], ["tsNeg"], "s は does にうつる。", "doesn't、teach です。");
+  ch("tsNeg-retention-1", "tsNeg", "retention", "「彼はわたしの名前を知りません。」He （ ） know my name. の（ ）は？", ["doesn't", "don't", "isn't", "not"], "主語は he。", "doesn't です。", RB);
+  ch("tsNeg-retention-2", "tsNeg", "retention", "「エマは日本語を話しません。」を英語にすると？", ["Emma doesn't speak Japanese.", "Emma doesn't speaks Japanese.", "Emma don't speak Japanese.", "Emma isn't speak Japanese."], "doesn't ＋ もとの形。", "Emma doesn't speak Japanese. です。", RB);
+  ch("tsNeg-retention-3", "tsNeg", "retention", "doesn't を短くしない形にすると？", ["does not", "do not", "is not", "did not"], "doesn't ＝ does ＋ not。", "does not です。", RB);
+  ch("tsNeg-retention-4", "tsNeg", "retention", "「おじは東京に住んでいません。」My uncle doesn't （ ） in Tokyo. の（ ）は？", ["live", "lives", "living", "lived"], "doesn't のあとはもとの形。", "live です。", RS);
+  ch("tsNeg-retention-5", "tsNeg", "retention", "「兄は朝食を作りません。」を英語にすると？", ["My brother doesn't make breakfast.", "My brother doesn't makes breakfast.", "My brother don't make breakfast.", "My brother not makes breakfast."], "doesn't ＋ もとの形。", "My brother doesn't make breakfast. です。", RS);
+
+  // --- Does 〜? と答え方 ---
+  ch("tsQues-basic-1", "tsQues", "basic", "She plays the piano. をたずねる文にすると？", ["Does she play the piano?", "Does she plays the piano?", "Do she play the piano?", "Is she play the piano?"], "Does ＋ 主語 ＋ もとの形。", "Does she play the piano? です。", { usage: "diagnosis" });
+  ch("tsQues-basic-2", "tsQues", "basic", "Does Ken like dogs? — Yes, （ ）. の（ ）は？", ["he does", "he is", "he do", "Ken likes"], "Does には does で答える。", "he does です。");
+  ch("tsQues-basic-3", "tsQues", "basic", "（ ） your sister cook? の（ ）は？", ["Does", "Do", "Is", "Are"], "主語は姉1人。", "Does です。");
+  ch("tsQues-basic-4", "tsQues", "basic", "Does your father drive? — No, （ ）. の（ ）は？", ["he doesn't", "he don't", "he isn't", "she doesn't"], "父 → he。", "he doesn't です。");
+  ch("tsQues-basic-5", "tsQues", "basic", "Does のあとの動詞は、どんな形？", ["もとの形", "s・es のついた形", "ing のついた形", "be動詞を入れた形"], "s は does についている。", "もとの形です。");
+  ch("tsQues-basic-6", "tsQues", "basic", "（ ） your parents speak English? の（ ）は？", ["Do", "Does", "Is", "Are"], "主語は2人。", "Do です。");
+  ch("tsQues-basic-7", "tsQues", "basic", "Does Mai study French? — Yes, （ ）. の（ ）は？", ["she does", "he does", "she is", "she do"], "マイ → she。", "she does です。");
+  ch("tsQues-standard-1", "tsQues", "standard", "「あなたのお兄さんはテニスをしますか。」を英語にすると？", ["Does your brother play tennis?", "Does your brother plays tennis?", "Do your brother play tennis?", "Is your brother play tennis?"], "Does ＋ 主語 ＋ もとの形。", "Does your brother play tennis? です。");
+  ch("tsQues-standard-2", "tsQues", "standard", "Does your dog swim? — No, （ ）. の（ ）は？", ["it doesn't", "he doesn't", "it isn't", "it don't"], "犬 → it。", "it doesn't です。");
+  ch("tsQues-standard-3", "tsQues", "standard", "Is your mother busy? — Yes, （ ）. の（ ）は？", ["she is", "she does", "she do", "he is"], "Is でたずねられたら is で答える。", "she is です。");
+  ch("tsQues-standard-4", "tsQues", "standard", "Does Mr. Ito teach music? — Yes, he （ ）. の（ ）は？", ["does", "do", "is", "teaches"], "Does には does。", "does です。");
+  ch("tsQues-standard-5", "tsQues", "standard", "「ユミは毎日走りますか。」を英語にすると？", ["Does Yumi run every day?", "Does Yumi runs every day?", "Do Yumi run every day?", "Is Yumi run every day?"], "Does ＋ 主語 ＋ もとの形。", "Does Yumi run every day? です。");
+  ch("tsQues-standard-6", "tsQues", "standard", "Do Ken and Mai walk to school? — No, （ ）. の（ ）は？", ["they don't", "they doesn't", "he doesn't", "they aren't"], "2人 → they、Do には do。", "they don't です。");
+  sp("tsQues-application-1", "tsQues", "新しく来たホワイト先生について話しています。", [
+    sc("s1", "tsQues", "（ ） Ms. White speak Japanese? の（ ）は？", ["Does", "Do", "Is", "Are"], "主語は先生1人。", "Does です。"),
+    sc("s2", "tsQues", "Does Ms. White speak Japanese? — Yes, （ ）. She speaks it well. の（ ）は？", ["she does", "he does", "she is", "she do"], "Ms. → she。", "she does です。"),
+    sc("s3", "tsQues", "「彼女はすしが好きですか。」を英語にすると？", ["Does she like sushi?", "Does she likes sushi?", "Do she like sushi?", "Is she like sushi?"], "Does ＋ 主語 ＋ もとの形。", "Does she like sushi? です。")
+  ], ["tsQues"], "Does でたずね、does で答える。", "Does、she does です。");
+  sp("tsQues-application-2", "tsQues", "友だちの弟について聞きます。", [
+    sc("s1", "tsQues", "Does your brother play video games? — Yes, （ ）. の（ ）は？", ["he does", "he is", "he do", "she does"], "弟 → he。", "he does です。"),
+    sc("s2", "tsQues", "（ ） he play every day? の（ ）は？", ["Does", "Do", "Is", "Are"], "主語は he。", "Does です。"),
+    sc("s3", "tsQues", "Does he have a lot of games? — No, （ ）. の（ ）は？", ["he doesn't", "he don't", "he isn't", "he hasn't"], "No なら doesn't。", "he doesn't です。")
+  ], ["tsQues"], "No のときは doesn't。", "he does、Does、he doesn't です。");
+  sp("tsQues-application-3", "tsQues", "家族について聞かれました。", [
+    sc("s1", "tsQues", "Does your mother work? — Yes, （ ）. の（ ）は？", ["she does", "he does", "she is", "she works"], "母 → she。", "she does です。"),
+    sc("s2", "tsQues", "Do your grandparents live with you? — No, （ ）. の（ ）は？", ["they don't", "they doesn't", "he doesn't", "they aren't"], "祖父母 → they。", "they don't です。"),
+    sc("s3", "tsQues", "「お父さんは料理をしますか。」を英語にすると？", ["Does your father cook?", "Does your father cooks?", "Do your father cook?", "Is your father cook?"], "Does ＋ 主語 ＋ もとの形。", "Does your father cook? です。")
+  ], ["tsQues"], "主語が1人なら Does、2人以上なら Do。", "she does、they don't です。");
+  sp("tsQues-application-4", "tsQues", "友だちのねこについて聞きます。", [
+    sc("s1", "tsQues", "（ ） your cat sleep a lot? の（ ）は？", ["Does", "Do", "Is", "Are"], "ねこ1ぴき。", "Does です。"),
+    sc("s2", "tsQues", "Does your cat sleep a lot? — Yes, （ ）. の（ ）は？", ["it does", "it is", "it do", "they do"], "ねこ → it。", "it does です。"),
+    sc("s3", "tsQues", "Is your cat big? — No, （ ）. の（ ）は？", ["it isn't", "it doesn't", "it don't", "they aren't"], "Is には is で答える。", "it isn't です。")
+  ], ["tsQues"], "Does には does、Is には is。", "Does、it does、it isn't です。");
+  sp("tsQues-application-5", "tsQues", "給食当番の仕事について話します。", [
+    sc("s1", "tsQues", "Does Rina carry the milk? — No, （ ）. の（ ）は？", ["she doesn't", "she don't", "she isn't", "he doesn't"], "リナ → she。", "she doesn't です。"),
+    sc("s2", "tsQues", "「タクはテーブルをふきますか。」を英語にすると？", ["Does Taku wipe the tables?", "Does Taku wipes the tables?", "Do Taku wipe the tables?", "Is Taku wipe the tables?"], "Does ＋ 主語 ＋ もとの形。", "Does Taku wipe the tables? です。"),
+    sc("s3", "tsQues", "答え方のきまりとして正しいものは？", ["Does には does、Do には do、Is には is で答える", "いつも does で答える", "いつも do で答える", "いつも is で答える"], "たずねた文の最初の語で答える。", "たずねた語に合わせて答えます。")
+  ], ["tsQues"], "たずねた文の最初の語に合わせて答える。", "she doesn't、Does Taku wipe 〜 です。");
+  ch("tsQues-retention-1", "tsQues", "retention", "（ ） your father play golf? の（ ）は？", ["Does", "Do", "Is", "Are"], "主語は父1人。", "Does です。", RB);
+  ch("tsQues-retention-2", "tsQues", "retention", "Does Emma live in London? — Yes, （ ）. の（ ）は？", ["she does", "she is", "she do", "he does"], "エマ → she。", "she does です。", RB);
+  ch("tsQues-retention-3", "tsQues", "retention", "Does your bike have a basket? — No, （ ）. の（ ）は？", ["it doesn't", "it isn't", "it don't", "he doesn't"], "自転車 → it。", "it doesn't です。", RB);
+  ch("tsQues-retention-4", "tsQues", "retention", "「あなたの妹はピーマンを食べますか。」を英語にすると？", ["Does your sister eat green peppers?", "Does your sister eats green peppers?", "Do your sister eat green peppers?", "Is your sister eat green peppers?"], "Does ＋ 主語 ＋ もとの形。", "Does your sister eat green peppers? です。", RS);
+  ch("tsQues-retention-5", "tsQues", "retention", "Do your cousins visit you? — Yes, （ ）. の（ ）は？", ["they do", "they does", "he does", "they are"], "いとこたち → they、Do には do。", "they do です。", RS);
+
+  // --- What does 〜? ---
+  ch("tsWhat-basic-1", "tsWhat", "basic", "「彼は何がほしいですか。」を英語にすると？", ["What does he want?", "What does he wants?", "What do he want?", "What he wants?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does he want? です。", { usage: "diagnosis" });
+  ch("tsWhat-basic-2", "tsWhat", "basic", "What does she have? — （ ） a guitar. の（ ）は？", ["She has", "She have", "She does", "She is"], "答えの文では has にする。", "She has です。");
+  ch("tsWhat-basic-3", "tsWhat", "basic", "What （ ） Ken study? の（ ）は？", ["does", "do", "is", "are"], "主語はケン1人。", "does です。");
+  ch("tsWhat-basic-4", "tsWhat", "basic", "What does your mother make? — （ ） cookies. の（ ）は？", ["She makes", "She make", "She does", "She is"], "答えの文では動詞に s。", "She makes です。");
+  ch("tsWhat-basic-5", "tsWhat", "basic", "What （ ） you eat? の（ ）は？", ["do", "does", "is", "are"], "主語は you。", "do です。");
+  ch("tsWhat-basic-6", "tsWhat", "basic", "What does Tom do on Sundays? の答えとして正しいものは？", ["He plays soccer.", "He play soccer.", "He soccer plays.", "He is play soccer."], "答えの文では動詞に s。", "He plays soccer. です。");
+  ch("tsWhat-basic-7", "tsWhat", "basic", "What does 〜? のあとの動詞は、どんな形？", ["もとの形", "s・es のついた形", "ing のついた形", "be動詞を入れた形"], "s は does についている。", "もとの形です。");
+  ch("tsWhat-standard-1", "tsWhat", "standard", "「あなたのお姉さんは何を勉強しますか。」を英語にすると？", ["What does your sister study?", "What does your sister studies?", "What do your sister study?", "What your sister studies?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does your sister study? です。");
+  ch("tsWhat-standard-2", "tsWhat", "standard", "What does Ms. Kato teach? — （ ） science. の（ ）は？", ["She teaches", "She teach", "She does", "He teaches"], "Ms. → she、動詞に es。", "She teaches です。");
+  ch("tsWhat-standard-3", "tsWhat", "standard", "What sport does Kenta like? の答えとして正しいものは？", ["He likes baseball.", "He like baseball.", "He baseball likes.", "He is like baseball."], "答えの文では動詞に s。", "He likes baseball. です。");
+  ch("tsWhat-standard-4", "tsWhat", "standard", "「あなたのお父さんは朝に何を飲みますか。」を英語にすると？", ["What does your father drink in the morning?", "What does your father drinks in the morning?", "What do your father drink in the morning?", "What your father drinks in the morning?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does your father drink in the morning? です。");
+  ch("tsWhat-standard-5", "tsWhat", "standard", "What do your parents watch? — （ ） watch the news. の（ ）は？", ["They", "He", "She", "It"], "両親 → they。", "They です。");
+  ch("tsWhat-standard-6", "tsWhat", "standard", "What （ ） your brother's name? の（ ）は？", ["is", "does", "do", "are"], "動詞がない → be動詞の文。", "is です。");
+  sp("tsWhat-application-1", "tsWhat", "留学生のエマについて話します。", [
+    sc("s1", "tsWhat", "What does Emma like? — （ ） Japanese anime. の（ ）は？", ["She likes", "She like", "She does", "She is like"], "答えの文では動詞に s。", "She likes です。"),
+    sc("s2", "tsWhat", "「エマは放課後に何をしますか。」を英語にすると？", ["What does Emma do after school?", "What does Emma does after school?", "What do Emma do after school?", "What Emma does after school?"], "What does 〜 do?", "What does Emma do after school? です。"),
+    sc("s3", "tsWhat", "— She （ ） judo. の（ ）は？（柔道を練習する）", ["practices", "practice", "practicies", "practicing"], "e で終わる語は s だけ。", "practices です。")
+  ], ["tsWhat"], "たずねる文はもとの形、答える文は s のついた形。", "She likes、What does Emma do 〜、practices です。");
+  sp("tsWhat-application-2", "tsWhat", "弟の誕生日プレゼントを考えています。", [
+    sc("s1", "tsWhat", "What does your brother want? — He （ ） a new ball. の（ ）は？", ["wants", "want", "wantes", "wanties"], "答えの文では動詞に s。", "wants です。"),
+    sc("s2", "tsWhat", "What color does he like? — He （ ） blue. の（ ）は？", ["likes", "like", "likies", "liking"], "答えの文では動詞に s。", "likes です。"),
+    sc("s3", "tsWhat", "What does he eat on his birthday? の答えとして正しいものは？", ["He eats cake.", "He eat cake.", "He cake eats.", "He is eat cake."], "答えの文では動詞に s。", "He eats cake. です。")
+  ], ["tsWhat"], "What の答えでは、主語に合う形の動詞を使う。", "wants、likes、He eats cake. です。");
+  sp("tsWhat-application-3", "tsWhat", "パン屋で働く母について話します。", [
+    sc("s1", "tsWhat", "「あなたのお母さんは何を作りますか。」を英語にすると？", ["What does your mother make?", "What does your mother makes?", "What do your mother make?", "What your mother makes?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does your mother make? です。"),
+    sc("s2", "tsWhat", "— She （ ） bread at a bakery. の（ ）は？", ["makes", "make", "makies", "making"], "答えの文では動詞に s。", "makes です。"),
+    sc("s3", "tsWhat", "What does she sell? — She （ ） bread and cakes. の（ ）は？", ["sells", "sell", "selles", "sellies"], "答えの文では動詞に s。", "sells です。")
+  ], ["tsWhat"], "たずねる文は make、答える文は makes。", "What does your mother make?、makes、sells です。");
+  sp("tsWhat-application-4", "tsWhat", "飼っている犬について聞かれました。", [
+    sc("s1", "tsWhat", "What does your dog eat? — （ ） eats dog food. の（ ）は？", ["It", "They", "We", "I"], "犬1ぴき → it。", "It です。"),
+    sc("s2", "tsWhat", "What does it do in the morning? — It （ ） in the park. の（ ）は？", ["runs", "run", "runes", "runnies"], "答えの文では動詞に s。", "runs です。"),
+    sc("s3", "tsWhat", "What do your dogs like? — （ ） like balls. の（ ）は？", ["They", "It", "He", "She"], "犬たち → they。", "They です。")
+  ], ["tsWhat"], "1ぴきなら it と does、2ひき以上なら they と do。", "It、runs、They です。");
+  sp("tsWhat-application-5", "tsWhat", "社会の佐藤先生について話します。", [
+    sc("s1", "tsWhat", "（ ） subject does Mr. Sato teach? の（ ）は？", ["What", "Does", "Do", "Is"], "「何の教科」。", "What です。"),
+    sc("s2", "tsWhat", "What subject does Mr. Sato teach? — He （ ） history. の（ ）は？", ["teaches", "teach", "teachs", "teaching"], "答えの文では動詞に es。", "teaches です。"),
+    sc("s3", "tsWhat", "主語を Mr. Sato and Ms. Ito（2人）にかえると、What does はどうなる？", ["What do にかわる", "What does のまま", "What is にかわる", "What are にかわる"], "2人以上は do。", "What do にかわります。")
+  ], ["tsWhat"], "主語が1人なら does、2人以上なら do。", "What、teaches です。");
+  ch("tsWhat-retention-1", "tsWhat", "retention", "「ケイは何を読みますか。」を英語にすると？", ["What does Kei read?", "What does Kei reads?", "What do Kei read?", "What Kei reads?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does Kei read? です。", RB);
+  ch("tsWhat-retention-2", "tsWhat", "retention", "What （ ） your aunt cook? の（ ）は？", ["does", "do", "is", "are"], "主語はおば1人。", "does です。", RB);
+  ch("tsWhat-retention-3", "tsWhat", "retention", "What does Ann play? の答えとして正しいものは？", ["She plays the flute.", "She play the flute.", "She the flute plays.", "She is play the flute."], "答えの文では動詞に s。", "She plays the flute. です。", RB);
+  ch("tsWhat-retention-4", "tsWhat", "retention", "「あなたのおじいさんは何を育てていますか。」を英語にすると？", ["What does your grandfather grow?", "What does your grandfather grows?", "What do your grandfather grow?", "What your grandfather grows?"], "What ＋ does ＋ 主語 ＋ もとの形。", "What does your grandfather grow? です。", RS);
+  ch("tsWhat-retention-5", "tsWhat", "retention", "What do Mika and Rin practice? — （ ） practice dance. の（ ）は？", ["They", "She", "He", "We"], "2人 → they。", "They です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

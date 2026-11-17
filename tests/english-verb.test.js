@@ -113,7 +113,7 @@ test("What do 〜? の答え：主語は答える人（you → I、you and 〜 �
 });
 
 test("中1 英語 一般動詞：be動詞の次・前提は先に来る・英語の中でつながる・問題数・はじめのチェック", () => {
-  assert.deepEqual(E.SUBJECT_UNITS["英語"]["中学1年"], ["be動詞", U]);
+  assert.deepEqual(E.SUBJECT_UNITS["英語"]["中学1年"].slice(0, 2), ["be動詞", U]);
   assert.deepEqual(E.UNITS[U], SK);
   SK.forEach((k) => {
     E.SKILLS[k].prerequisites.forEach((p) => {

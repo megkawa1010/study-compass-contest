@@ -194,10 +194,10 @@ function numbersOf(q) {
 }
 
 // 英語の問題文に出てくる英単語（選択肢は除く。主語・be動詞・冠詞のようにどの問題にも出る語も除く）
-const EN_STOP = new Set(["a", "an", "the", "is", "are", "am", "i", "you", "he", "she", "it", "we", "they", "this", "that", "yes", "no", "my", "your", "do", "don't", "what", "who"]);
+const EN_STOP = new Set(["a", "an", "the", "is", "are", "am", "i", "you", "he", "she", "it", "we", "they", "this", "that", "yes", "no", "my", "your", "do", "don't", "does", "doesn't", "what", "who"]);
 function wordsOf(q) {
   const text = [q.text, (q.steps || []).map((s) => s.text).join(" ")].join(" ");
-  return new Set((text.toLowerCase().match(/[a-z][a-z'.]*/g) || []).map((w) => w.replace(/\.$/, "")).filter((w) => !EN_STOP.has(w)));
+  return new Set((text.toLowerCase().match(/[a-z][a-z'.]*/g) || []).map((w) => w.replace(/\.$/, "")).filter((w) => w.length > 1 && !EN_STOP.has(w)));
 }
 
 test("定着用の問題は、同じスキルの他の問題と見た目・数値が重なりすぎない", () => {
