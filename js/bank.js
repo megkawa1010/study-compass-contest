@@ -9135,6 +9135,236 @@
   ch("tsWhat-retention-5", "tsWhat", "retention", "What do Mika and Rin practice? — （ ） practice dance. の（ ）は？", ["They", "She", "He", "We"], "2人 → they。", "They です。", RS);
 
   // =====================================================================
+  // 中1 英語「名詞の複数形」（a・an、複数形のつくり方、These are 〜、some・any、How many 〜?）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-plural.test.js が文の形を確かめる）
+  // =====================================================================
+
+  // --- a・an と数えられる名詞 ---
+  ch("nnArticle-basic-1", "nnArticle", "basic", "「これはりんごです。」を英語にすると？", ["This is an apple.", "This is a apple.", "This is apple.", "This is two apple."], "apple は母音（ア）の音で始まる。", "This is an apple. です。", { usage: "diagnosis" });
+  ch("nnArticle-basic-2", "nnArticle", "basic", "「（ ） orange」の（ ）は？", ["an", "a", "two", "many"], "orange は「オ」の音で始まる。", "an です。");
+  ch("nnArticle-basic-3", "nnArticle", "basic", "「（ ） pen」の（ ）は？", ["a", "an", "two", "many"], "pen は「プ」の音で始まる。", "a です。");
+  ch("nnArticle-basic-4", "nnArticle", "basic", "a と an のどちらをつけるかは、何で決まる？", ["すぐあとの語の最初の音（ア・イ・ウ・エ・オの音なら an）", "名詞の長さ", "名詞の意味", "文の最後の語"], "つづりではなく音で決まる。", "すぐあとの語の最初の音です。");
+  ch("nnArticle-basic-5", "nnArticle", "basic", "数えられない名詞はどれ？", ["water", "egg", "pen", "dog"], "1つ、2つと数えられないもの。", "water です。");
+  ch("nnArticle-basic-6", "nnArticle", "basic", "「これは卵です。」This is （ ） egg. の（ ）は？", ["an", "a", "two", "many"], "egg は「エ」の音で始まる。", "an です。");
+  ch("nnArticle-basic-7", "nnArticle", "basic", "「あれは犬です。」That is （ ） dog. の（ ）は？", ["a", "an", "two", "many"], "1ぴきの犬。", "a です。");
+  ch("nnArticle-standard-1", "nnArticle", "standard", "「（ ） old book」の（ ）は？", ["an", "a", "two", "many"], "すぐあとの old の音で決まる。", "an です。");
+  ch("nnArticle-standard-2", "nnArticle", "standard", "「（ ） hour」の（ ）は？", ["an", "a", "two", "many"], "hour の h は読まない（アワー）。", "an です。");
+  ch("nnArticle-standard-3", "nnArticle", "standard", "「（ ） uniform」の（ ）は？", ["a", "an", "two", "many"], "uniform は「ユ」の音で始まる。", "a です。");
+  ch("nnArticle-standard-4", "nnArticle", "standard", "「わたしはかさを持っています。」を英語にすると？", ["I have an umbrella.", "I have a umbrella.", "I have umbrella.", "I have two umbrella."], "umbrella は「ア」の音で始まる。", "I have an umbrella. です。");
+  ch("nnArticle-standard-5", "nnArticle", "standard", "「これは大きな卵です。」This is （ ） big egg. の（ ）は？", ["a", "an", "two", "many"], "すぐあとの big の音で決まる。", "a です。");
+  ch("nnArticle-standard-6", "nnArticle", "standard", "「彼女はおもしろい考えを持っています。」She has （ ） interesting idea. の（ ）は？", ["an", "a", "two", "many"], "interesting は「イ」の音で始まる。", "an です。");
+  sp("nnArticle-application-1", "nnArticle", "筆箱の中を見せながら話します。", [
+    sc("s1", "nnArticle", "This is （ ） eraser. の（ ）は？", ["an", "a", "two", "many"], "eraser は「イ」の音で始まる。", "an です。"),
+    sc("s2", "nnArticle", "This is （ ） red pen. の（ ）は？", ["a", "an", "two", "many"], "すぐあとの red の音。", "a です。"),
+    sc("s3", "nnArticle", "「これは定規です。」を英語にすると？", ["This is a ruler.", "This is an ruler.", "This is ruler.", "This is two ruler."], "1つのものには a・an。", "This is a ruler. です。")
+  ], ["nnArticle"], "1つのものには a か an をつける。", "an、a、This is a ruler. です。");
+  sp("nnArticle-application-2", "nnArticle", "朝ごはんの話です。", [
+    sc("s1", "nnArticle", "I eat （ ） egg every morning. の（ ）は？", ["an", "a", "two", "many"], "egg は「エ」の音。", "an です。"),
+    sc("s2", "nnArticle", "milk（牛乳）について正しいものは？", ["数えられないので a はつけない", "a milk と言う", "an milk と言う", "milks と言う"], "牛乳は1つ、2つと数えない。", "a はつけません。"),
+    sc("s3", "nnArticle", "I eat （ ） banana, too. の（ ）は？", ["a", "an", "two", "many"], "banana は「バ」の音。", "a です。")
+  ], ["nnArticle"], "数えられるものは a・an、数えられないものはつけない。", "an、つけない、a です。");
+  sp("nnArticle-application-3", "nnArticle", "動物園で見た動物を言います。", [
+    sc("s1", "nnArticle", "「（ ） elephant」の（ ）は？", ["an", "a", "two", "many"], "elephant は「エ」の音。", "an です。"),
+    sc("s2", "nnArticle", "「（ ） lion」の（ ）は？", ["a", "an", "two", "many"], "lion は「ラ」の音。", "a です。"),
+    sc("s3", "nnArticle", "「（ ） owl」の（ ）は？", ["an", "a", "two", "many"], "owl（ふくろう）は「ア」の音。", "an です。")
+  ], ["nnArticle"], "最初の音がア・イ・ウ・エ・オなら an。", "an、a、an です。");
+  sp("nnArticle-application-4", "nnArticle", "京都旅行のおみやげ話です。", [
+    sc("s1", "nnArticle", "This is （ ） cake from Kyoto. の（ ）は？", ["a", "an", "two", "many"], "cake は「ケ」の音。", "a です。"),
+    sc("s2", "nnArticle", "It is （ ） old temple. の（ ）は？", ["an", "a", "two", "many"], "すぐあとの old の音。", "an です。"),
+    sc("s3", "nnArticle", "「（ ） glass of water」の（ ）は？", ["a", "an", "two", "many"], "water は数えないので、コップ（glass）で数える。", "a です。")
+  ], ["nnArticle"], "a・an はすぐあとの語の音で決める。", "a、an、a です。");
+  sp("nnArticle-application-5", "nnArticle", "クラスの人を紹介します。", [
+    sc("s1", "nnArticle", "Ken is （ ） English teacher. の（ ）は？", ["an", "a", "two", "many"], "English は「イ」の音。", "an です。"),
+    sc("s2", "nnArticle", "Mai is （ ） good student. の（ ）は？", ["a", "an", "two", "many"], "すぐあとの good の音。", "a です。"),
+    sc("s3", "nnArticle", "「わたしは生徒です。」を英語にすると？", ["I am a student.", "I am an student.", "I am student.", "I am two student."], "1人の生徒。", "I am a student. です。")
+  ], ["nnArticle"], "人1人にも a・an をつける。", "an、a、I am a student. です。");
+  ch("nnArticle-retention-1", "nnArticle", "retention", "「これはオレンジです。」を英語にすると？", ["This is an orange.", "This is a orange.", "This is orange.", "This is two orange."], "orange は「オ」の音。", "This is an orange. です。", RB);
+  ch("nnArticle-retention-2", "nnArticle", "retention", "「（ ） ant」の（ ）は？", ["an", "a", "two", "many"], "ant（あり）は「ア」の音。", "an です。", RB);
+  ch("nnArticle-retention-3", "nnArticle", "retention", "「（ ） university」の（ ）は？", ["a", "an", "two", "many"], "university は「ユ」の音。", "a です。", RS);
+  ch("nnArticle-retention-4", "nnArticle", "retention", "次のうち、数えられない名詞はどれ？", ["milk", "cup", "book", "egg"], "1つ、2つと数えないもの。", "milk です。", RB);
+  ch("nnArticle-retention-5", "nnArticle", "retention", "「わたしの兄は新しい自転車を持っています。」を英語にすると？", ["My brother has a new bike.", "My brother has an new bike.", "My brother has new bike.", "My brother has two new bike."], "すぐあとの new の音。", "My brother has a new bike. です。", RS);
+
+  // --- 複数形のつくり方 ---
+  ch("nnPlural-basic-1", "nnPlural", "basic", "book の複数形は？", ["books", "bookes", "bookies", "book"], "ふつうは s。", "books です。", { usage: "diagnosis" });
+  ch("nnPlural-basic-2", "nnPlural", "basic", "box の複数形は？", ["boxes", "boxs", "boxies", "boxen"], "x で終わる語は es。", "boxes です。");
+  ch("nnPlural-basic-3", "nnPlural", "basic", "city の複数形は？", ["cities", "citys", "cityes", "citis"], "子音字 ＋ y は y を i にかえて es。", "cities です。");
+  ch("nnPlural-basic-4", "nnPlural", "basic", "child の複数形は？", ["children", "childs", "childrens", "childes"], "形がかわる語。", "children です。");
+  ch("nnPlural-basic-5", "nnPlural", "basic", "「わたしはねこを2ひき飼っています。」を英語にすると？", ["I have two cats.", "I have two cat.", "I have two a cat.", "I have two cates."], "2つ以上なら名詞を複数形に。", "I have two cats. です。");
+  ch("nnPlural-basic-6", "nnPlural", "basic", "bus の複数形は？", ["buses", "buss", "busies", "bus"], "s で終わる語は es。", "buses です。");
+  ch("nnPlural-basic-7", "nnPlural", "basic", "複数形にするとき es をつける語はどれ？", ["watch", "pen", "cat", "bird"], "ch で終わる語は es。", "watch（watches）です。");
+  ch("nnPlural-standard-1", "nnPlural", "standard", "dish の複数形は？", ["dishes", "dishs", "dishies", "dish"], "sh で終わる語は es。", "dishes です。");
+  ch("nnPlural-standard-2", "nnPlural", "standard", "tomato の複数形は？", ["tomatoes", "tomatos", "tomaties", "tomato"], "tomato・potato は es。", "tomatoes です。");
+  ch("nnPlural-standard-3", "nnPlural", "standard", "knife の複数形は？", ["knives", "knifes", "knifs", "knife"], "fe を v にかえて es。", "knives です。");
+  ch("nnPlural-standard-4", "nnPlural", "standard", "woman の複数形は？", ["women", "womans", "womens", "womanes"], "形がかわる語。", "women です。");
+  ch("nnPlural-standard-5", "nnPlural", "standard", "boy の複数形は？", ["boys", "boies", "boyes", "boy"], "y の前が o（母音字）なら s だけ。", "boys です。");
+  ch("nnPlural-standard-6", "nnPlural", "standard", "「わたしはかばんに本を3冊入れています。」を英語にすると？", ["I have three books in my bag.", "I have three book in my bag.", "I have three bookes in my bag.", "I have a three books in my bag."], "3冊 → 複数形。a はつけない。", "I have three books in my bag. です。");
+  sp("nnPlural-application-1", "nnPlural", "おつかいのメモです。「two （ア）, three （イ）, four （ウ）」（じゃがいも・卵・もも）", [
+    sc("s1", "nnPlural", "potato の複数形は？", ["potatoes", "potatos", "potaties", "potato"], "tomato・potato は es。", "potatoes です。"),
+    sc("s2", "nnPlural", "egg の複数形は？", ["eggs", "egges", "eggies", "egg"], "ふつうは s。", "eggs です。"),
+    sc("s3", "nnPlural", "peach の複数形は？", ["peaches", "peachs", "peachies", "peach"], "ch で終わる語は es。", "peaches です。")
+  ], ["nnPlural"], "語の終わりを見て s か es かを決める。", "potatoes、eggs、peaches です。");
+  sp("nnPlural-application-2", "nnPlural", "家族の紹介です。", [
+    sc("s1", "nnPlural", "「わたしには兄が2人います。」を英語にすると？", ["I have two brothers.", "I have two brother.", "I have two brotheres.", "I have a two brothers."], "2人 → 複数形。", "I have two brothers. です。"),
+    sc("s2", "nnPlural", "baby の複数形は？", ["babies", "babys", "babyes", "babis"], "子音字 ＋ y。", "babies です。"),
+    sc("s3", "nnPlural", "「おばには子どもが3人います。」My aunt has three （ ）. の（ ）は？", ["children", "childs", "childrens", "child"], "child は形がかわる。", "children です。")
+  ], ["nnPlural"], "人も2人以上なら複数形。", "brothers、babies、children です。");
+  sp("nnPlural-application-3", "nnPlural", "学校の話です。", [
+    sc("s1", "nnPlural", "class の複数形は？", ["classes", "classs", "classies", "clas"], "s で終わる語は es。", "classes です。"),
+    sc("s2", "nnPlural", "「わたしたちの学校には先生が20人います。」Our school has twenty （ ）. の（ ）は？", ["teachers", "teacher", "teacheres", "a teacher"], "20人 → 複数形。", "teachers です。"),
+    sc("s3", "nnPlural", "library の複数形は？", ["libraries", "librarys", "libraryes", "librarise"], "子音字 ＋ y。", "libraries です。")
+  ], ["nnPlural"], "s・es・ies を語の終わりで決める。", "classes、teachers、libraries です。");
+  sp("nnPlural-application-4", "nnPlural", "歯医者さんのポスターを読みます。", [
+    sc("s1", "nnPlural", "tooth の複数形は？", ["teeth", "tooths", "toothes", "teeths"], "形がかわる語。", "teeth です。"),
+    sc("s2", "nnPlural", "foot の複数形は？", ["feet", "foots", "footes", "feets"], "tooth と同じかわり方。", "feet です。"),
+    sc("s3", "nnPlural", "複数形のつくり方で正しいものは？", ["man → men", "man → mans", "man → manes", "man → mens"], "形がかわる語。", "man → men です。")
+  ], ["nnPlural"], "形がかわる語はセットで覚える。", "teeth、feet、men です。");
+  sp("nnPlural-application-5", "nnPlural", "おやつの話です。", [
+    sc("s1", "nnPlural", "cherry の複数形は？", ["cherries", "cherrys", "cherryes", "cherris"], "子音字 ＋ y。", "cherries です。"),
+    sc("s2", "nnPlural", "「わたしはクッキーを5まい食べます。」を英語にすると？", ["I eat five cookies.", "I eat five cookie.", "I eat five cookiees.", "I eat a five cookies."], "5まい → 複数形。", "I eat five cookies. です。"),
+    sc("s3", "nnPlural", "sandwich の複数形は？", ["sandwiches", "sandwichs", "sandwichies", "sandwich"], "ch で終わる語は es。", "sandwiches です。")
+  ], ["nnPlural"], "数が2つ以上なら複数形。", "cherries、cookies、sandwiches です。");
+  ch("nnPlural-retention-1", "nnPlural", "retention", "watch の複数形は？", ["watches", "watchs", "watchies", "watch"], "ch で終わる語は es。", "watches です。", RB);
+  ch("nnPlural-retention-2", "nnPlural", "retention", "story の複数形は？", ["stories", "storys", "storyes", "storis"], "子音字 ＋ y。", "stories です。", RB);
+  ch("nnPlural-retention-3", "nnPlural", "retention", "man の複数形は？", ["men", "mans", "manes", "mens"], "形がかわる語。", "men です。", RS);
+  ch("nnPlural-retention-4", "nnPlural", "retention", "leaf の複数形は？", ["leaves", "leafs", "leafes", "leavs"], "f を v にかえて es。", "leaves です。", RS);
+  ch("nnPlural-retention-5", "nnPlural", "retention", "「わたしは毎日りんごを2つ食べます。」を英語にすると？", ["I eat two apples every day.", "I eat two apple every day.", "I eat two applees every day.", "I eat a two apples every day."], "2つ → 複数形。", "I eat two apples every day. です。", RB);
+
+  // --- 複数の文（These are 〜・They are 〜） ---
+  ch("nnThese-basic-1", "nnThese", "basic", "「これらはわたしのペンです。」を英語にすると？", ["These are my pens.", "These is my pens.", "These are my pen.", "This are my pens."], "これら → These ＋ are ＋ 複数形。", "These are my pens. です。", { usage: "diagnosis" });
+  ch("nnThese-basic-2", "nnThese", "basic", "this を「これら」の意味にすると？", ["these", "those", "thises", "they"], "this の複数は these。", "these です。");
+  ch("nnThese-basic-3", "nnThese", "basic", "that を「あれら」の意味にすると？", ["those", "these", "thats", "they"], "that の複数は those。", "those です。");
+  ch("nnThese-basic-4", "nnThese", "basic", "「これらはねこです。」These （ ） cats. の（ ）は？", ["are", "is", "am", "be"], "主語が複数なら are。", "are です。");
+  ch("nnThese-basic-5", "nnThese", "basic", "「あれらはわたしの本です。」Those （ ） my books. の（ ）は？", ["are", "is", "am", "be"], "those は複数。", "are です。");
+  ch("nnThese-basic-6", "nnThese", "basic", "「彼らはわたしの友だちです。」を英語にすると？", ["They are my friends.", "They is my friends.", "They are my friend.", "They are a my friends."], "彼ら → They ＋ are ＋ 複数形。", "They are my friends. です。");
+  ch("nnThese-basic-7", "nnThese", "basic", "Are these your bags? の答えとして正しいものは？", ["Yes, they are.", "Yes, these are.", "Yes, it is.", "Yes, they is."], "these で聞かれたら they で答える。", "Yes, they are. です。");
+  ch("nnThese-standard-1", "nnThese", "standard", "「これらは新しいかばんです。」These are （ ） bags. の（ ）は？", ["new", "a new", "an new", "one new"], "複数形の前に a・one はつけない。", "new です。");
+  ch("nnThese-standard-2", "nnThese", "standard", "「あれらは大きな木です。」を英語にすると？", ["Those are big trees.", "Those is big trees.", "Those are big tree.", "That are big trees."], "あれら → Those ＋ are ＋ 複数形。", "Those are big trees. です。");
+  ch("nnThese-standard-3", "nnThese", "standard", "Is this your cup? を「これらはあなたのカップですか。」にすると？", ["Are these your cups?", "Is these your cups?", "Are these your cup?", "Are this your cups?"], "Is → Are、this → these、cup → cups。", "Are these your cups? です。");
+  ch("nnThese-standard-4", "nnThese", "standard", "「わたしの犬たちは小さいです。」My dogs （ ） small. の（ ）は？", ["are", "is", "am", "be"], "dogs は複数。", "are です。");
+  ch("nnThese-standard-5", "nnThese", "standard", "「ケンとリクはわたしのいとこです。」を英語にすると？", ["Ken and Riku are my cousins.", "Ken and Riku is my cousins.", "Ken and Riku are my cousin.", "Ken and Riku are a my cousins."], "2人 → are ＋ 複数形。", "Ken and Riku are my cousins. です。");
+  ch("nnThese-standard-6", "nnThese", "standard", "「それらはわたしのくつです。」They are my （ ）. の（ ）は？", ["shoes", "shoe", "shoeses", "a shoes"], "they は複数。", "shoes です。");
+  sp("nnThese-application-1", "nnThese", "自分の部屋にあるものを紹介します。", [
+    sc("s1", "nnThese", "These （ ） my comics. の（ ）は？", ["are", "is", "am", "be"], "these は複数。", "are です。"),
+    sc("s2", "nnThese", "That （ ） my guitar. の（ ）は？", ["is", "are", "am", "be"], "that は1つ。", "is です。"),
+    sc("s3", "nnThese", "「あれらはわたしのポスターです。」を英語にすると？", ["Those are my posters.", "Those is my posters.", "Those are my poster.", "That are my posters."], "あれら → Those。", "Those are my posters. です。")
+  ], ["nnThese"], "1つなら is、2つ以上なら are。", "are、is、Those are my posters. です。");
+  sp("nnThese-application-2", "nnThese", "ペットショップで話します。", [
+    sc("s1", "nnThese", "「これらの犬はかわいいです。」These dogs （ ） cute. の（ ）は？", ["are", "is", "am", "be"], "these dogs は複数。", "are です。"),
+    sc("s2", "nnThese", "「あのねこは白いです。」That cat （ ） white. の（ ）は？", ["is", "are", "am", "be"], "that cat は1ぴき。", "is です。"),
+    sc("s3", "nnThese", "「これらの鳥は小さいです。」を英語にすると？", ["These birds are small.", "These bird are small.", "These birds is small.", "This birds are small."], "these のあとは複数形。", "These birds are small. です。")
+  ], ["nnThese"], "these・those のあとの名詞も複数形。", "are、is、These birds are small. です。");
+  sp("nnThese-application-3", "nnThese", "友だちの写真を見せます。", [
+    sc("s1", "nnThese", "「この女の子たちはわたしの友だちです。」These girls are my （ ）. の（ ）は？", ["friends", "friend", "friendes", "a friend"], "主語が複数なら、あとの名詞も複数形。", "friends です。"),
+    sc("s2", "nnThese", "Are those girls your classmates? の答えとして正しいものは？", ["Yes, they are.", "Yes, those are.", "Yes, it is.", "Yes, they is."], "those girls → they。", "Yes, they are. です。"),
+    sc("s3", "nnThese", "「彼女たちは同じクラスです。」They （ ） in the same class. の（ ）は？", ["are", "is", "am", "be"], "they は複数。", "are です。")
+  ], ["nnThese"], "答えるときは they。be動詞は are。", "friends、Yes, they are.、are です。");
+  sp("nnThese-application-4", "nnThese", "冷蔵庫の中を見ています。", [
+    sc("s1", "nnThese", "「これらはトマトです。」These are （ ）. の（ ）は？", ["tomatoes", "tomato", "tomatos", "a tomato"], "these → 複数形。", "tomatoes です。"),
+    sc("s2", "nnThese", "「あれは卵です。」That is （ ） egg. の（ ）は？", ["an", "a", "two", "many"], "that は1つ。egg は「エ」の音。", "an です。"),
+    sc("s3", "nnThese", "「これらのりんごは赤いです。」を英語にすると？", ["These apples are red.", "These apple are red.", "These apples is red.", "This apples are red."], "these ＋ 複数形 ＋ are。", "These apples are red. です。")
+  ], ["nnThese"], "1つか2つ以上かで、名詞と be動詞の形をそろえる。", "tomatoes、an、These apples are red. です。");
+  sp("nnThese-application-5", "nnThese", "新しい教室のようすです。", [
+    sc("s1", "nnThese", "「これらの机は新しいです。」These desks （ ） new. の（ ）は？", ["are", "is", "am", "be"], "these desks は複数。", "are です。"),
+    sc("s2", "nnThese", "「あのいすは古いです。」That chair （ ） old. の（ ）は？", ["is", "are", "am", "be"], "that chair は1つ。", "is です。"),
+    sc("s3", "nnThese", "「あれらの窓は大きいです。」を英語にすると？", ["Those windows are big.", "Those window are big.", "Those windows is big.", "That windows are big."], "those ＋ 複数形 ＋ are。", "Those windows are big. です。")
+  ], ["nnThese"], "this・that は is、these・those は are。", "are、is、Those windows are big. です。");
+  ch("nnThese-retention-1", "nnThese", "retention", "「これらはわたしのぼうしです。」を英語にすると？", ["These are my caps.", "These is my caps.", "These are my cap.", "This are my caps."], "これら → These ＋ are。", "These are my caps. です。", RB);
+  ch("nnThese-retention-2", "nnThese", "retention", "「あれらの花はきれいです。」を英語にすると？", ["Those flowers are beautiful.", "Those flower are beautiful.", "Those flowers is beautiful.", "That flowers are beautiful."], "those ＋ 複数形 ＋ are。", "Those flowers are beautiful. です。", RB);
+  ch("nnThese-retention-3", "nnThese", "retention", "「わたしのねこたちは黒いです。」を英語にすると？", ["My cats are black.", "My cats is black.", "My cat are black.", "My a cats are black."], "ねこたち → cats ＋ are。", "My cats are black. です。", RB);
+  ch("nnThese-retention-4", "nnThese", "retention", "「これらはあなたのノートですか。」を英語にすると？", ["Are these your notebooks?", "Is these your notebooks?", "Are these your notebook?", "Are this your notebooks?"], "Are these 〜s?", "Are these your notebooks? です。", RS);
+  ch("nnThese-retention-5", "nnThese", "retention", "「ユミとマイはわたしの姉妹です。」を英語にすると？", ["Yumi and Mai are my sisters.", "Yumi and Mai is my sisters.", "Yumi and Mai are my sister.", "Yumi and Mai are a my sisters."], "2人 → are ＋ 複数形。", "Yumi and Mai are my sisters. です。", RS);
+
+  // --- some と any ---
+  ch("nnSome-basic-1", "nnSome", "basic", "「わたしは何冊かの本を持っています。」を英語にすると？", ["I have some books.", "I have any books.", "I have some book.", "I have a some books."], "ふつうの文は some ＋ 複数形。", "I have some books. です。", { usage: "diagnosis" });
+  ch("nnSome-basic-2", "nnSome", "basic", "「わたしはペンを1本も持っていません。」I don't have （ ） pens. の（ ）は？", ["any", "some", "a", "much"], "否定文は any。", "any です。");
+  ch("nnSome-basic-3", "nnSome", "basic", "「あなたはペットを飼っていますか。」Do you have （ ） pets? の（ ）は？", ["any", "some", "a", "much"], "疑問文は any。", "any です。");
+  ch("nnSome-basic-4", "nnSome", "basic", "疑問文や否定文でふつう使うのは？", ["any", "some", "many", "much"], "ふつうの文は some。", "any です。");
+  ch("nnSome-basic-5", "nnSome", "basic", "「わたしは卵をいくつか買います。」I buy （ ） eggs. の（ ）は？", ["some", "any", "a", "an"], "ふつうの文。eggs は複数形。", "some です。");
+  ch("nnSome-basic-6", "nnSome", "basic", "「わたしは水が少しほしいです。」I want （ ） water. の（ ）は？", ["some", "a", "an", "two"], "water は数えない。", "some です。");
+  ch("nnSome-basic-7", "nnSome", "basic", "「わたしたちはりんごを1つも持っていません。」を英語にすると？", ["We don't have any apples.", "We don't have some apples.", "We have any apples.", "We don't have any apple."], "否定文は any ＋ 複数形。", "We don't have any apples. です。");
+  ch("nnSome-standard-1", "nnSome", "standard", "「彼はボールをいくつか持っています。」He has （ ） balls. の（ ）は？", ["some", "any", "a", "an"], "ふつうの文。", "some です。");
+  ch("nnSome-standard-2", "nnSome", "standard", "「彼女には兄弟がいますか。」Does she have （ ） brothers? の（ ）は？", ["any", "some", "a", "much"], "疑問文は any。", "any です。");
+  ch("nnSome-standard-3", "nnSome", "standard", "「ケンは牛乳を飲みません。」Ken doesn't drink （ ） milk. の（ ）は？", ["any", "some", "a", "many"], "否定文。milk は数えない。", "any です。");
+  ch("nnSome-standard-4", "nnSome", "standard", "「わたしには姉が2人います。」I have （ ） sisters. の（ ）は？", ["two", "a", "one", "much"], "2人 → two ＋ 複数形。", "two です。");
+  ch("nnSome-standard-5", "nnSome", "standard", "「母はパンを買います。」My mother buys （ ） bread. の（ ）は？", ["some", "a", "an", "many"], "bread は数えない。ふつうの文。", "some です。");
+  ch("nnSome-standard-6", "nnSome", "standard", "「あなたは日本のマンガを何冊か持っていますか。」を英語にすると？", ["Do you have any Japanese comics?", "Do you have some Japanese comics?", "Do you have any Japanese comic?", "Are you have any Japanese comics?"], "疑問文は any ＋ 複数形。", "Do you have any Japanese comics? です。");
+  sp("nnSome-application-1", "nnSome", "パーティーの準備をしています。", [
+    sc("s1", "nnSome", "「わたしたちはジュースを買います。」We buy （ ） juice. の（ ）は？", ["some", "any", "a", "many"], "ふつうの文。juice は数えない。", "some です。"),
+    sc("s2", "nnSome", "「わたしたちは皿を持っていません。」We don't have （ ） plates. の（ ）は？", ["any", "some", "a", "much"], "否定文。", "any です。"),
+    sc("s3", "nnSome", "「あなたはカップを持っていますか。」を英語にすると？", ["Do you have any cups?", "Do you have some cups?", "Do you have any cup?", "Are you have any cups?"], "疑問文は any。", "Do you have any cups? です。")
+  ], ["nnSome"], "ふつうの文は some、否定文・疑問文は any。", "some、any、Do you have any cups? です。");
+  sp("nnSome-application-2", "nnSome", "弟の部屋の話です。", [
+    sc("s1", "nnSome", "「弟はおもちゃをいくつか持っています。」My brother has （ ） toys. の（ ）は？", ["some", "any", "a", "much"], "ふつうの文。", "some です。"),
+    sc("s2", "nnSome", "「彼はマンガを1冊も持っていません。」He doesn't have （ ） comics. の（ ）は？", ["any", "some", "a", "much"], "否定文。", "any です。"),
+    sc("s3", "nnSome", "「彼はゲームを持っていますか。」を英語にすると？", ["Does he have any games?", "Does he have some games?", "Does he has any games?", "Do he have any games?"], "Does ＋ he ＋ have ＋ any。", "Does he have any games? です。")
+  ], ["nnSome"], "主語が he でも some・any の使い分けは同じ。", "some、any、Does he have any games? です。");
+  sp("nnSome-application-3", "nnSome", "お弁当の話です。", [
+    sc("s1", "nnSome", "「わたしはごはんを少し食べます。」I eat （ ） rice. の（ ）は？", ["some", "a", "an", "many"], "rice は数えない。", "some です。"),
+    sc("s2", "nnSome", "「わたしはトマトを食べません。」I don't eat （ ） tomatoes. の（ ）は？", ["any", "some", "a", "much"], "否定文。", "any です。"),
+    sc("s3", "nnSome", "some と any の使い分けで正しいものは？", ["ふつうの文は some、否定文・疑問文は any", "ふつうの文は any、疑問文は some", "どちらも否定文だけで使う", "数えられない名詞には使えない"], "数えられない名詞にも使える。", "ふつうの文は some、否定文・疑問文は any です。")
+  ], ["nnSome"], "some・any は数えられない名詞にも使える。", "some、any です。");
+  sp("nnSome-application-4", "nnSome", "図書館で話します。", [
+    sc("s1", "nnSome", "「わたしは英語の本を何冊か借ります。」I borrow （ ） English books. の（ ）は？", ["some", "any", "a", "an"], "ふつうの文。", "some です。"),
+    sc("s2", "nnSome", "「わたしは今日は宿題がありません。」I don't have （ ） homework today. の（ ）は？", ["any", "some", "a", "many"], "否定文。homework は数えない。", "any です。"),
+    sc("s3", "nnSome", "「あなたは辞書を何冊か持っていますか。」を英語にすると？", ["Do you have any dictionaries?", "Do you have some dictionaries?", "Do you have a dictionaries?", "Are you have any dictionaries?"], "疑問文は any ＋ 複数形。", "Do you have any dictionaries? です。")
+  ], ["nnSome"], "homework も数えない名詞。", "some、any、Do you have any dictionaries? です。");
+  sp("nnSome-application-5", "nnSome", "ケーキ屋さんで話します。", [
+    sc("s1", "nnSome", "「わたしはケーキをいくつかほしいです。」I want （ ） cakes. の（ ）は？", ["some", "any", "a", "much"], "ふつうの文。", "some です。"),
+    sc("s2", "nnSome", "「姉はチョコレートを食べません。」My sister doesn't eat （ ） chocolate. の（ ）は？", ["any", "some", "a", "many"], "否定文。chocolate は数えない。", "any です。"),
+    sc("s3", "nnSome", "「あなたはいちごがほしいですか。」を英語にすると？", ["Do you want any strawberries?", "Do you want some strawberries?", "Do you want any strawberry?", "Are you want any strawberries?"], "疑問文は any ＋ 複数形。", "Do you want any strawberries? です。")
+  ], ["nnSome"], "want の文でも、疑問文なら any。", "some、any、Do you want any strawberries? です。");
+  ch("nnSome-retention-1", "nnSome", "retention", "「わたしはえんぴつを何本か持っています。」を英語にすると？", ["I have some pencils.", "I have any pencils.", "I have some pencil.", "I have a some pencils."], "ふつうの文は some ＋ 複数形。", "I have some pencils. です。", RB);
+  ch("nnSome-retention-2", "nnSome", "retention", "「わたしたちは今日は授業がありません。」を英語にすると？", ["We don't have any classes today.", "We don't have some classes today.", "We have any classes today.", "We don't have any class today."], "否定文は any ＋ 複数形。", "We don't have any classes today. です。", RB);
+  ch("nnSome-retention-3", "nnSome", "retention", "「あなたは犬を飼っていますか。」を英語にすると？", ["Do you have any dogs?", "Do you have some dogs?", "Do you have any dog?", "Are you have any dogs?"], "疑問文は any ＋ 複数形。", "Do you have any dogs? です。", RB);
+  ch("nnSome-retention-4", "nnSome", "retention", "「父はコーヒーを少し飲みます。」を英語にすると？", ["My father drinks some coffee.", "My father drinks any coffee.", "My father drinks a coffee.", "My father drinks many coffee."], "coffee は数えない。ふつうの文は some。", "My father drinks some coffee. です。", RS);
+  ch("nnSome-retention-5", "nnSome", "retention", "「彼女には姉妹がいません。」を英語にすると？", ["She doesn't have any sisters.", "She doesn't have some sisters.", "She doesn't has any sisters.", "She don't have any sisters."], "doesn't ＋ have ＋ any。", "She doesn't have any sisters. です。", RS);
+
+  // --- How many 〜? ---
+  ch("nnMany-basic-1", "nnMany", "basic", "「あなたはペンを何本持っていますか。」を英語にすると？", ["How many pens do you have?", "How many pen do you have?", "How many pens you have?", "How much pens do you have?"], "How many ＋ 複数形 ＋ do you 〜?", "How many pens do you have? です。", { usage: "diagnosis" });
+  ch("nnMany-basic-2", "nnMany", "basic", "「いくつ」と数をたずねるときに使うのは？", ["How many", "How old", "How much", "What time"], "数をたずねる。", "How many です。");
+  ch("nnMany-basic-3", "nnMany", "basic", "How many （ ） do you have? の（ ）は？（ねこの数をたずねる）", ["cats", "cat", "a cat", "cates"], "How many のあとは複数形。", "cats です。");
+  ch("nnMany-basic-4", "nnMany", "basic", "How many dogs do you have? — I have （ ） dogs. の（ ）は？", ["two", "a", "one", "much"], "数で答える。dogs は複数形。", "two です。");
+  ch("nnMany-basic-5", "nnMany", "basic", "「あなたには兄弟が何人いますか。」How many brothers （ ） you have? の（ ）は？", ["do", "does", "are", "is"], "主語は you。", "do です。");
+  ch("nnMany-basic-6", "nnMany", "basic", "How many apples do you want? の答えとして正しいものは？", ["I want three apples.", "I want three apple.", "I want a three apples.", "I want much apples."], "数 ＋ 複数形で答える。", "I want three apples. です。");
+  ch("nnMany-basic-7", "nnMany", "basic", "How many のあとの名詞の形は？", ["複数形（s・es のついた形）", "もとの形", "a をつけた形", "ing の形"], "数が2つ以上かもしれないので。", "複数形です。");
+  ch("nnMany-standard-1", "nnMany", "standard", "「彼は自転車を何台持っていますか。」を英語にすると？", ["How many bikes does he have?", "How many bikes does he has?", "How many bikes do he have?", "How many bike does he have?"], "主語は he → does。", "How many bikes does he have? です。");
+  ch("nnMany-standard-2", "nnMany", "standard", "How many classes （ ） Ken have on Monday? の（ ）は？", ["does", "do", "is", "are"], "主語はケン1人。", "does です。");
+  ch("nnMany-standard-3", "nnMany", "standard", "How many cousins does Yumi have? — She （ ） three cousins. の（ ）は？", ["has", "have", "is", "haves"], "主語は she。", "has です。");
+  ch("nnMany-standard-4", "nnMany", "standard", "「あなたのお姉さんはペンを何本持っていますか。」How many pens does your sister （ ）? の（ ）は？", ["have", "has", "having", "haves"], "does のあとはもとの形。", "have です。");
+  ch("nnMany-standard-5", "nnMany", "standard", "「あなたは毎朝卵を何個食べますか。」を英語にすると？", ["How many eggs do you eat every morning?", "How many egg do you eat every morning?", "How many eggs you eat every morning?", "How much eggs do you eat every morning?"], "How many ＋ 複数形 ＋ do you 〜?", "How many eggs do you eat every morning? です。");
+  ch("nnMany-standard-6", "nnMany", "standard", "How many dogs does Mr. Green have? の答えとして正しいものは？", ["He has two dogs.", "He have two dogs.", "He has two dog.", "He has a two dogs."], "He has ＋ 数 ＋ 複数形。", "He has two dogs. です。");
+  sp("nnMany-application-1", "nnMany", "友だちと持ち物の話をします。", [
+    sc("s1", "nnMany", "「あなたはえんぴつを何本持っていますか。」How many （ ） do you have? の（ ）は？", ["pencils", "pencil", "a pencil", "pencilies"], "How many のあとは複数形。", "pencils です。"),
+    sc("s2", "nnMany", "— I have （ ） pencils. の（ ）は？（6本）", ["six", "a", "one", "much"], "数で答える。", "six です。"),
+    sc("s3", "nnMany", "「あなたの弟は何本持っていますか。」を英語にすると？", ["How many pencils does your brother have?", "How many pencils do your brother have?", "How many pencils does your brother has?", "How many pencil does your brother have?"], "主語は弟1人 → does。", "How many pencils does your brother have? です。")
+  ], ["nnMany"], "How many ＋ 複数形。主語に合わせて do・does。", "pencils、six、How many pencils does your brother have? です。");
+  sp("nnMany-application-2", "nnMany", "家族の人数の話です。", [
+    sc("s1", "nnMany", "「あなたには姉妹が何人いますか。」を英語にすると？", ["How many sisters do you have?", "How many sister do you have?", "How many sisters you have?", "How much sisters do you have?"], "How many ＋ 複数形 ＋ do you 〜?", "How many sisters do you have? です。"),
+    sc("s2", "nnMany", "— I have （ ） sister. の（ ）は？（1人）", ["one", "two", "three", "many"], "1人なら複数形にしない。", "one です。"),
+    sc("s3", "nnMany", "「ケンにはいとこが何人いますか。」How many cousins （ ） Ken have? の（ ）は？", ["does", "do", "is", "are"], "主語はケン1人。", "does です。")
+  ], ["nnMany"], "答えが1つなら名詞はもとの形。", "How many sisters do you have?、one、does です。");
+  sp("nnMany-application-3", "nnMany", "マイのペットの話です。", [
+    sc("s1", "nnMany", "How many （ ） does Mai have? の（ ）は？（うさぎの数）", ["rabbits", "rabbit", "a rabbit", "rabbites"], "How many のあとは複数形。", "rabbits です。"),
+    sc("s2", "nnMany", "— She （ ） four rabbits. の（ ）は？", ["has", "have", "is", "haves"], "主語は she。", "has です。"),
+    sc("s3", "nnMany", "How many の文で、数えられない名詞（water など）は使える？", ["使えない（How many は数えられる名詞の複数形とセット）", "使える", "a をつければ使える", "s をつければ使える"], "How many は数えられるもの。", "使えません。")
+  ], ["nnMany"], "How many は数えられる名詞と使う。", "rabbits、has、使えない です。");
+  sp("nnMany-application-4", "nnMany", "時間割の話です。", [
+    sc("s1", "nnMany", "「あなたたちは月曜日に授業がいくつありますか。」を英語にすると？", ["How many classes do you have on Monday?", "How many class do you have on Monday?", "How many classes you have on Monday?", "How many classes are you have on Monday?"], "How many ＋ 複数形 ＋ do you 〜?", "How many classes do you have on Monday? です。"),
+    sc("s2", "nnMany", "— We have （ ） classes. の（ ）は？（6つ）", ["six", "a", "one", "much"], "数で答える。", "six です。"),
+    sc("s3", "nnMany", "「先生は火曜日に授業が5つあります。」Our teacher has （ ） classes on Tuesday. の（ ）は？", ["five", "a", "one", "much"], "5つ → five ＋ 複数形。", "five です。")
+  ], ["nnMany"], "数 ＋ 複数形で答える。", "How many classes do you have on Monday?、six、five です。");
+  sp("nnMany-application-5", "nnMany", "くだもの屋さんで数をたずねます。", [
+    sc("s1", "nnMany", "「あなたはオレンジがいくつほしいですか。」を英語にすると？", ["How many oranges do you want?", "How many orange do you want?", "How many oranges you want?", "How much oranges do you want?"], "How many ＋ 複数形。", "How many oranges do you want? です。"),
+    sc("s2", "nnMany", "— I want （ ） oranges. の（ ）は？（10個）", ["ten", "a", "one", "much"], "数で答える。", "ten です。"),
+    sc("s3", "nnMany", "「お母さんはりんごを何個買いますか。」How many apples （ ） your mother buy? の（ ）は？", ["does", "do", "is", "are"], "主語は母1人。", "does です。")
+  ], ["nnMany"], "主語が1人なら does。", "How many oranges do you want?、ten、does です。");
+  ch("nnMany-retention-1", "nnMany", "retention", "「あなたはぼうしを何個持っていますか。」を英語にすると？", ["How many caps do you have?", "How many cap do you have?", "How many caps you have?", "How much caps do you have?"], "How many ＋ 複数形 ＋ do you 〜?", "How many caps do you have? です。", RB);
+  ch("nnMany-retention-2", "nnMany", "retention", "「あなたのお父さんは車を何台持っていますか。」を英語にすると？", ["How many cars does your father have?", "How many cars do your father have?", "How many cars does your father has?", "How many car does your father have?"], "主語は父1人 → does ＋ have。", "How many cars does your father have? です。", RB);
+  ch("nnMany-retention-3", "nnMany", "retention", "「わたしは犬を3びき飼っています。」を英語にすると？", ["I have three dogs.", "I have three dog.", "I have a three dogs.", "I have much dogs."], "数 ＋ 複数形。", "I have three dogs. です。", RB);
+  ch("nnMany-retention-4", "nnMany", "retention", "「あなたは毎日本を何冊読みますか。」を英語にすると？", ["How many books do you read every day?", "How many book do you read every day?", "How many books you read every day?", "How many books are you read every day?"], "How many ＋ 複数形 ＋ do you 〜?", "How many books do you read every day? です。", RS);
+  ch("nnMany-retention-5", "nnMany", "retention", "「サキはねこを何びき飼っていますか。」を英語にすると？", ["How many cats does Saki have?", "How many cats do Saki have?", "How many cats does Saki has?", "How much cats does Saki have?"], "主語はサキ1人 → does。", "How many cats does Saki have? です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

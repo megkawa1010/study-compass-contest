@@ -35,7 +35,8 @@
       "標本調査": "全体の一部（標本）を、かたよりなく選んで調べ、その割合や平均から全体（母集団）の様子を見積もる単元です。",
       "be動詞": "「〜は…です」を英語で言う単元です。主語（I・you・he など）に合わせて am・are・is を選び、否定文（not）や疑問文（Are you 〜?）もつくります。",
       "一般動詞": "like・play・have のような動きや気持ちを表す語（一般動詞）を使う単元です。否定文は don't、疑問文は Do you 〜? でつくります。主語は I・you・we・they までで、he・she は次の単元です。",
-      "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。"
+      "3人称単数現在": "主語が he・she や1人・1つのもののとき、一般動詞に s・es をつける単元です。否定文は doesn't、疑問文は Does 〜? を使い、そのあとの動詞はもとの形にもどします。",
+      "名詞の複数形": "1つのものには a・an、2つ以上なら名詞を複数形（s・es）にする単元です。These are 〜 の文、some と any の使い分け、How many 〜? で数をたずねる文も学びます。"
     },
     skills: {
       // --- 正負の数 ---
@@ -199,6 +200,12 @@
       tsNeg: { point: "主語が3人称単数の否定文は doesn't ＋ 動詞のもとの形です。", example: "He doesn't play tennis.", trap: "He doesn't plays 〜. のように s を2回つけないようにします。" },
       tsQues: { point: "Does ＋ 主語 ＋ 動詞のもとの形 〜? でたずね、Yes, he does.／No, she doesn't. と答えます。", example: "Does she like sushi? — Yes, she does.", trap: "Does she likes 〜? はまちがい。主語が2人以上なら Do です。" },
       tsWhat: { point: "What ＋ does ＋ 主語 ＋ もとの形 〜? でたずね、答えの文では動詞に s・es をつけます。", example: "What does he want? — He wants a ball.", trap: "答えの文で He want 〜. と s をわすれないようにします。" },
+      // --- 名詞の複数形（英語） ---
+      nnArticle: { point: "数えられる名詞が1つのときは a か an をつけます。すぐあとの語がア・イ・ウ・エ・オの音で始まるときは an です。", example: "a pen・an apple・an old book", trap: "water・milk のような数えられない名詞には a・an をつけません。" },
+      nnPlural: { point: "2つ以上のときは名詞を複数形にします。ふつうは s、s・sh・ch・x で終わる語は es、子音字 ＋ y は ies。", example: "books・boxes・cities・children", trap: "child → children、man → men のように形がかわる語もあります。" },
+      nnThese: { point: "「これら」は these、「あれら」は those。主語が複数なら be動詞は are、あとの名詞も複数形です。", example: "These are my pens.／Are these your bags? — Yes, they are.", trap: "These is 〜. や These are my pen. にしないようにします。" },
+      nnSome: { point: "「いくつか」はふつうの文で some、否定文・疑問文では any を使います。", example: "I have some books.／I don't have any pens.", trap: "数えられない名詞（water など）にも some・any は使えます。" },
+      nnMany: { point: "数は How many ＋ 名詞の複数形 ＋ do（does）〜? でたずね、数 ＋ 複数形で答えます。", example: "How many cats do you have? — I have two cats.", trap: "How many cat のように名詞をもとの形にしないようにします。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

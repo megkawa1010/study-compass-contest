@@ -130,7 +130,7 @@ test("Yes／No の答え方：Does には does、Do には do、Is には is。�
 });
 
 test("中1 英語 3人称単数現在：一般動詞の次・前提は英語の中で先に来る・問題数・はじめのチェック", () => {
-  assert.deepEqual(E.SUBJECT_UNITS["英語"]["中学1年"], ["be動詞", "一般動詞", U]);
+  assert.deepEqual(E.SUBJECT_UNITS["英語"]["中学1年"].slice(0, 3), ["be動詞", "一般動詞", U]);
   assert.deepEqual(E.UNITS[U], SK);
   SK.forEach((k) => {
     E.SKILLS[k].prerequisites.forEach((p) => {

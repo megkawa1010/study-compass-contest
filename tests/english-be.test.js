@@ -119,7 +119,7 @@ test("教科の切りかえ：英語は中学1年だけ。数学にもどすと�
   const g = E.grade(), list = E.SELECTABLE_UNITS.slice();
   assert.equal(E.setSubject("英語"), "英語");
   assert.equal(E.grade(), "中学1年");
-  assert.deepEqual(E.SELECTABLE_UNITS, [U, "一般動詞", "3人称単数現在"]);
+  assert.deepEqual(E.SELECTABLE_UNITS, [U, "一般動詞", "3人称単数現在", "名詞の複数形"]);
   assert.equal(E.setGrade("中学2年"), "中学1年");
   assert.ok(!E.gradeHasUnits("英語", "中学2年") && E.gradeHasUnits("英語", "中学1年"));
   assert.equal(E.setSubject("国語"), "英語");
