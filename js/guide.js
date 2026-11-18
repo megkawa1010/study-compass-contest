@@ -43,7 +43,8 @@
       "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。",
       "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。",
       "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。",
-      "助動詞": "must・have to（〜しなければならない）、must not（〜してはいけない）、don't have to（〜しなくてもよい）、may（〜してもよい・〜かもしれない）、should（〜すべき）を使う単元です。助動詞のあとは動詞のもとの形。must not と don't have to は意味がちがうので気をつけます。"
+      "助動詞": "must・have to（〜しなければならない）、must not（〜してはいけない）、don't have to（〜しなくてもよい）、may（〜してもよい・〜かもしれない）、should（〜すべき）を使う単元です。助動詞のあとは動詞のもとの形。must not と don't have to は意味がちがうので気をつけます。",
+      "不定詞": "to ＋ 動詞のもとの形（不定詞）を使う単元です。「〜すること」（want to 〜）、「〜するために・〜して」（went there to 〜・glad to 〜）、「〜するための」（something to drink）、Why 〜? への To 〜. の答え方、It is 〜 (for 人) to …. を学びます。to のあとはいつも動詞のもとの形です。"
     },
     skills: {
       // --- 正負の数 ---
@@ -255,6 +256,12 @@
       mdNeg: { point: "must not（mustn't）は「〜してはいけない」、don't have to は「〜しなくてもよい」。形は似ていますが意味がちがいます。", example: "You must not swim here. ／ You don't have to hurry.", trap: "「しなくてもよい」を must not にしないようにします。主語が he・she なら doesn't have to。" },
       mdMay: { point: "may ＋ もとの形は「〜してもよい」「〜かもしれない」。should ＋ もとの形は「〜すべき・〜したほうがよい」。", example: "May I come in? ／ You should rest at home.", trap: "「〜すべきではない」は shouldn't。don't should とはしません。" },
       mdQues: { point: "Must I 〜?・Should I 〜? は助動詞を前に。have to は Do・Does ＋ 主語 ＋ have to 〜? にします。", example: "Do I have to bring lunch? — Yes, you do.", trap: "Must I 〜? に「その必要はない」と答えるときは No, you don't have to. です（must not ではない）。" },
+      // --- 不定詞（英語） ---
+      inNoun: { point: "to ＋ 動詞のもとの形で「〜すること」。want to 〜（〜したい）、like to 〜（〜するのが好き）、try to 〜（〜しようとする）のように使います。", example: "I want to play tennis.", trap: "want play・want playing としないようにします。to のあとは s も ed もつけません。" },
+      inAdv: { point: "文のうしろに to ＋ もとの形を置くと「〜するために」。glad・happy・sad のあとなら「〜して（うれしい・悲しい）」になります。", example: "I went to the store to buy bread. ／ I'm glad to see you.", trap: "for buy・to bought としないようにします。過去の文でも to のあとはもとの形です。" },
+      inAdj: { point: "名詞のすぐあとに to ＋ もとの形を置くと「〜するための・〜すべき」。something to drink、homework to do のように使います。", example: "I want something to drink.", trap: "to は説明する名詞のあとに置きます（to something drink は×）。" },
+      inWhy: { point: "Why ＋ do・does・did ＋ 主語 ＋ もとの形? で理由をたずね、目的は To ＋ もとの形. で短く答えられます。", example: "Why did you go to the library? — To study for the test.", trap: "Why did you went としないようにします。Yes・No では答えません。" },
+      inIt: { point: "It is 〜 to …. で「…することは〜だ」。だれにとってかは for ＋ 人（me・him・her・us）を to の前に入れます。", example: "It is easy for me to swim.", trap: "for I・for we としないようにします。to me ではなく for me です。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

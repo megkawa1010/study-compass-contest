@@ -10999,6 +10999,236 @@
   ch("mdQues-retention-7", "mdQues", "retention", "「エマは明日、早く来なければなりませんか。」を英語にすると？", ["Does Emma have to come early tomorrow?", "Do Emma have to come early tomorrow?", "Does Emma has to come early tomorrow?", "Is Emma have to come early tomorrow?"], "Does ＋ 主語 ＋ have to?", "Does Emma have to come early tomorrow? です。", RB);
 
   // =====================================================================
+  // 中2 英語「不定詞」（〜すること・〜するために／〜して・〜するための・Why 〜? — To 〜.・It is 〜 for … to 〜.）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-infinitive.test.js が to ＋ もとの形と文の形を確かめる）
+  // =====================================================================
+
+  // --- 〜すること（名詞的用法） ---
+  ch("inNoun-basic-1", "inNoun", "basic", "「わたしはテニスをしたいです。」を英語にすると？", ["I want to play tennis.", "I want play tennis.", "I want to plays tennis.", "I want playing tennis."], "want to ＋ 動詞のもとの形。", "I want to play tennis. です。", { usage: "diagnosis" });
+  ch("inNoun-basic-2", "inNoun", "basic", "「わたしは本を読むことが好きです。」I like （ ） books. の（ ）は？", ["to read", "read", "to reads", "reads"], "like to ＋ もとの形で「〜することが好き」。", "to read です。");
+  ch("inNoun-basic-3", "inNoun", "basic", "不定詞の形は？", ["to ＋ 動詞のもとの形", "to ＋ 動詞の ing 形", "to ＋ 過去形", "for ＋ 動詞のもとの形"], "to のあとはいつももとの形。", "to ＋ 動詞のもとの形です。");
+  ch("inNoun-basic-4", "inNoun", "basic", "「ケンは先生になりたいと思っています。」Ken wants to （ ） a teacher. の（ ）は？", ["be", "is", "being", "was"], "to のあとの be動詞は be。", "be です。");
+  ch("inNoun-basic-5", "inNoun", "basic", "「わたしの夢は医者になることです。」を英語にすると？", ["My dream is to be a doctor.", "My dream is be a doctor.", "My dream is to is a doctor.", "My dream to be a doctor."], "is のあとに to be 〜（〜になること）。", "My dream is to be a doctor. です。");
+  ch("inNoun-basic-6", "inNoun", "basic", "「彼女は歌うことが好きです。」She likes （ ） sing. の（ ）は？", ["to", "for", "is", "can"], "likes to ＋ もとの形。", "to です。");
+  ch("inNoun-basic-7", "inNoun", "basic", "「わたしたちは京都を訪れたいです。」We want （ ） Kyoto. の（ ）は？", ["to visit", "visit", "to visits", "visiting"], "want to ＋ もとの形。", "to visit です。");
+  ch("inNoun-standard-1", "inNoun", "standard", "「ユミは将来、カナダに住みたいと思っています。」を英語にすると？", ["Yumi wants to live in Canada in the future.", "Yumi wants live in Canada in the future.", "Yumi want to live in Canada in the future.", "Yumi wants to lives in Canada in the future."], "ユミ → wants。to のあとはもとの形。", "Yumi wants to live in Canada in the future. です。");
+  ch("inNoun-standard-2", "inNoun", "standard", "「わたしは昨日、ケーキを作ろうとしました。」I tried （ ） a cake yesterday. の（ ）は？", ["to make", "make", "to made", "to makes"], "try to ＋ もとの形で「〜しようとする」。", "to make です。");
+  ch("inNoun-standard-3", "inNoun", "standard", "「雨がふり始めました。」It started （ ） rain. の（ ）は？", ["to", "for", "is", "was"], "start to ＋ もとの形で「〜し始める」。", "to です。");
+  ch("inNoun-standard-4", "inNoun", "standard", "「英語を勉強することは大切です。」を英語にすると？", ["To study English is important.", "Study English is important.", "To studies English is important.", "To study English are important."], "To ＋ もとの形が主語。1つのことなので is。", "To study English is important. です。");
+  ch("inNoun-standard-5", "inNoun", "standard", "「父は新しい車を買いたがっています。」My father （ ） to buy a new car. の（ ）は？", ["wants", "want", "wanting", "to want"], "my father → wants。", "wants です。");
+  ch("inNoun-standard-6", "inNoun", "standard", "「わたしの趣味は写真をとることです。」を英語にすると？", ["My hobby is to take pictures.", "My hobby is take pictures.", "My hobby is to took pictures.", "My hobby to take pictures."], "is to ＋ もとの形。", "My hobby is to take pictures. です。");
+  sp("inNoun-application-1", "inNoun", "将来の夢を話します。", [
+    sc("s1", "inNoun", "「わたしは看護師になりたいです。」を英語にすると？", ["I want to be a nurse.", "I want be a nurse.", "I want to am a nurse.", "I want being a nurse."], "want to be 〜。", "I want to be a nurse. です。"),
+    sc("s2", "inNoun", "「人を助けることが好きです。」I like （ ） people. の（ ）は？", ["to help", "help", "to helps", "helped"], "like to ＋ もとの形。", "to help です。"),
+    sc("s3", "inNoun", "「わたしの夢は病院で働くことです。」My dream is （ ） in a hospital. の（ ）は？", ["to work", "work", "to works", "to worked"], "is to ＋ もとの形。", "to work です。")
+  ], ["inNoun"], "「〜すること」は to ＋ もとの形。", "I want to be a nurse.、to help、to work です。");
+  sp("inNoun-application-2", "inNoun", "週末の予定を話します。", [
+    sc("s1", "inNoun", "「わたしは映画を見たいです。」を英語にすると？", ["I want to see a movie.", "I want see a movie.", "I want to saw a movie.", "I want to sees a movie."], "want to ＋ もとの形。", "I want to see a movie. です。"),
+    sc("s2", "inNoun", "「姉は買い物に行きたがっています。」My sister wants （ ） shopping. の（ ）は？", ["to go", "go", "to goes", "going"], "wants to ＋ もとの形。", "to go です。"),
+    sc("s3", "inNoun", "「わたしたちはいっしょに料理することにしました。」We decided （ ） together. の（ ）は？", ["to cook", "cook", "to cooked", "cooking"], "decide to ＋ もとの形で「〜することに決める」。", "to cook です。")
+  ], ["inNoun"], "want・decide のあとは to ＋ もとの形。", "I want to see a movie.、to go、to cook です。");
+  sp("inNoun-application-3", "inNoun", "部活の話です。", [
+    sc("s1", "inNoun", "「わたしはもっと速く走りたいです。」を英語にすると？", ["I want to run faster.", "I want run faster.", "I want to ran faster.", "I want to runs faster."], "want to ＋ run。", "I want to run faster. です。"),
+    sc("s2", "inNoun", "「毎日練習することは大切です。」（ ） every day is important. の（ ）は？", ["To practice", "Practice", "To practices", "To practiced"], "To ＋ もとの形が主語。", "To practice です。"),
+    sc("s3", "inNoun", "「わたしたちは試合に勝ちたいです。」We want （ ） the game. の（ ）は？", ["to win", "win", "to won", "winning"], "want to ＋ もとの形。", "to win です。")
+  ], ["inNoun"], "「〜したい」「〜することは」を to ＋ もとの形で言う。", "I want to run faster.、To practice、to win です。");
+  sp("inNoun-application-4", "inNoun", "旅行の計画です。", [
+    sc("s1", "inNoun", "「わたしは北海道に行きたいです。」を英語にすると？", ["I want to go to Hokkaido.", "I want go to Hokkaido.", "I want to went to Hokkaido.", "I want going to Hokkaido."], "want to go。", "I want to go to Hokkaido. です。"),
+    sc("s2", "inNoun", "「家族はスキーをしたがっています。」My family wants （ ） ski. の（ ）は？", ["to", "for", "is", "can"], "wants to ＋ もとの形。", "to です。"),
+    sc("s3", "inNoun", "「父はつりをするのが好きです。」My father likes （ ） fish. の（ ）は？", ["to", "for", "is", "can"], "likes to ＋ もとの形。", "to です。")
+  ], ["inNoun"], "家族のしたいこと・好きなことを to ＋ もとの形で言う。", "I want to go to Hokkaido.、to、to です。");
+  sp("inNoun-application-5", "inNoun", "英語のスピーチです。", [
+    sc("s1", "inNoun", "「わたしは世界中を旅したいです。」を英語にすると？", ["I want to travel around the world.", "I want travel around the world.", "I want to traveled around the world.", "I want traveling around the world."], "want to ＋ travel。", "I want to travel around the world. です。"),
+    sc("s2", "inNoun", "「たくさんの人に会うことはわくわくします。」（ ） many people is exciting. の（ ）は？", ["To meet", "Meet", "To met", "To meets"], "To ＋ もとの形が主語。", "To meet です。"),
+    sc("s3", "inNoun", "「わたしは英語をもっと勉強したいです。」I want （ ） English more. の（ ）は？", ["to study", "study", "to studied", "studying"], "want to ＋ もとの形。", "to study です。")
+  ], ["inNoun"], "夢やしたいことを to ＋ もとの形で伝える。", "I want to travel around the world.、To meet、to study です。");
+  ch("inNoun-retention-1", "inNoun", "retention", "「わたしは音楽を聞くことが好きです。」を英語にすると？", ["I like to listen to music.", "I like listen to music.", "I like to listens to music.", "I like to listened to music."], "like to ＋ もとの形。", "I like to listen to music. です。", RB);
+  ch("inNoun-retention-2", "inNoun", "retention", "「ケンはパイロットになりたいと思っています。」を英語にすると？", ["Ken wants to be a pilot.", "Ken wants be a pilot.", "Ken want to be a pilot.", "Ken wants to is a pilot."], "wants to be 〜。", "Ken wants to be a pilot. です。", RB);
+  ch("inNoun-retention-3", "inNoun", "retention", "「わたしたちは公園で遊びたいです。」を英語にすると？", ["We want to play in the park.", "We want play in the park.", "We want to plays in the park.", "We want playing in the park."], "want to ＋ もとの形。", "We want to play in the park. です。", RB);
+  ch("inNoun-retention-4", "inNoun", "retention", "「わたしの夢は先生になることです。」を英語にすると？", ["My dream is to be a teacher.", "My dream is be a teacher.", "My dream is to is a teacher.", "My dream to be a teacher."], "is to be 〜。", "My dream is to be a teacher. です。", RS);
+  ch("inNoun-retention-5", "inNoun", "retention", "「彼女は昨日、手紙を書こうとしました。」を英語にすると？", ["She tried to write a letter yesterday.", "She tried write a letter yesterday.", "She tried to wrote a letter yesterday.", "She tried to writes a letter yesterday."], "tried to ＋ もとの形。", "She tried to write a letter yesterday. です。", RS);
+
+  // --- 〜するために・〜して（副詞的用法） ---
+  ch("inAdv-basic-1", "inAdv", "basic", "「わたしはパンを買うために店に行きました。」を英語にすると？", ["I went to the store to buy bread.", "I went to the store buy bread.", "I went to the store to bought bread.", "I went to the store for buy bread."], "「〜するために」は to ＋ もとの形。", "I went to the store to buy bread. です。", { usage: "diagnosis" });
+  ch("inAdv-basic-2", "inAdv", "basic", "「ケンは英語を勉強するために図書館に行きました。」Ken went to the library （ ） English. の（ ）は？", ["to study", "study", "to studied", "studying"], "目的は to ＋ もとの形。", "to study です。");
+  ch("inAdv-basic-3", "inAdv", "basic", "「〜するために」を表す形は？", ["to ＋ 動詞のもとの形", "動詞の ing 形", "動詞の過去形", "for ＋ 動詞の過去形"], "目的を表す不定詞。", "to ＋ 動詞のもとの形です。");
+  ch("inAdv-basic-4", "inAdv", "basic", "「わたしは友だちに会うために駅に行きました。」I went to the station （ ） meet my friend. の（ ）は？", ["to", "for", "at", "so"], "目的 → to ＋ もとの形。", "to です。");
+  ch("inAdv-basic-5", "inAdv", "basic", "「あなたに会えてうれしいです。」I'm glad （ ） you. の（ ）は？", ["to see", "see", "to saw", "to sees"], "glad to ＋ もとの形で「〜してうれしい」。", "to see です。");
+  ch("inAdv-basic-6", "inAdv", "basic", "「彼女は写真をとるために京都を訪れました。」を英語にすると？", ["She visited Kyoto to take pictures.", "She visited Kyoto take pictures.", "She visited Kyoto to took pictures.", "She visit Kyoto to take pictures."], "visited ＋ to take 〜。", "She visited Kyoto to take pictures. です。");
+  ch("inAdv-basic-7", "inAdv", "basic", "「わたしはそのニュースを聞いて悲しかったです。」I was sad （ ） the news. の（ ）は？", ["to hear", "hear", "to heard", "hears"], "sad to ＋ もとの形で「〜して悲しい」。", "to hear です。");
+  ch("inAdv-standard-1", "inAdv", "standard", "「父は車を洗うために早く起きました。」を英語にすると？", ["My father got up early to wash the car.", "My father got up early wash the car.", "My father got up early to washed the car.", "My father get up early to wash the car."], "got up ＋ to wash 〜。", "My father got up early to wash the car. です。");
+  ch("inAdv-standard-2", "inAdv", "standard", "「わたしたちは野球をするために公園に行きました。」We went to the park （ ） baseball. の（ ）は？", ["to play", "play", "to played", "for play"], "目的 → to ＋ もとの形。", "to play です。");
+  ch("inAdv-standard-3", "inAdv", "standard", "「わたしはあなたからの手紙をもらってうれしかったです。」I was happy （ ） your letter. の（ ）は？", ["to get", "get", "to got", "getting"], "happy to ＋ もとの形。", "to get です。");
+  ch("inAdv-standard-4", "inAdv", "standard", "「ユミは医者になるために一生けんめい勉強しています。」を英語にすると？", ["Yumi studies hard to be a doctor.", "Yumi studies hard be a doctor.", "Yumi study hard to be a doctor.", "Yumi studies hard to is a doctor."], "目的 → to be 〜。", "Yumi studies hard to be a doctor. です。");
+  ch("inAdv-standard-5", "inAdv", "standard", "「彼は友だちを手伝うために残りました。」He stayed （ ） help his friend. の（ ）は？", ["to", "for", "at", "so"], "目的 → to ＋ もとの形。", "to です。");
+  ch("inAdv-standard-6", "inAdv", "standard", "「わたしたちは試合に勝ってわくわくしました。」We were excited （ ） the game. の（ ）は？", ["to win", "win", "to won", "winning"], "excited to ＋ もとの形。", "to win です。");
+  sp("inAdv-application-1", "inAdv", "買い物の話です。", [
+    sc("s1", "inAdv", "「わたしはくつを買うためにデパートに行きました。」を英語にすると？", ["I went to the department store to buy shoes.", "I went to the department store buy shoes.", "I went to the department store to bought shoes.", "I went to the department store for buy shoes."], "目的 → to ＋ もとの形。", "I went to the department store to buy shoes. です。"),
+    sc("s2", "inAdv", "「母は夕食を作るために野菜を買いました。」My mother bought vegetables （ ） dinner. の（ ）は？", ["to cook", "cook", "to cooked", "cooking"], "目的 → to ＋ もとの形。", "to cook です。"),
+    sc("s3", "inAdv", "「わたしは新しいくつを見つけてうれしかったです。」I was happy （ ） new shoes. の（ ）は？", ["to find", "find", "to found", "finds"], "happy to ＋ もとの形。", "to find です。")
+  ], ["inAdv"], "目的と気持ちの理由を to ＋ もとの形で言う。", "I went to the department store to buy shoes.、to cook、to find です。");
+  sp("inAdv-application-2", "inAdv", "図書館での出来事です。", [
+    sc("s1", "inAdv", "「わたしは宿題をするために図書館に行きました。」を英語にすると？", ["I went to the library to do my homework.", "I went to the library do my homework.", "I went to the library to did my homework.", "I went to the library for do my homework."], "目的 → to do 〜。", "I went to the library to do my homework. です。"),
+    sc("s2", "inAdv", "「サキは本を借りるためにそこにいました。」Saki was there （ ） some books. の（ ）は？", ["to borrow", "borrow", "to borrowed", "borrows"], "目的 → to ＋ もとの形。", "to borrow です。"),
+    sc("s3", "inAdv", "「わたしはそこでサキに会えてうれしかったです。」I was glad （ ） Saki there. の（ ）は？", ["to see", "see", "to saw", "sees"], "glad to ＋ もとの形。", "to see です。")
+  ], ["inAdv"], "「〜するために」「〜してうれしい」は to ＋ もとの形。", "I went to the library to do my homework.、to borrow、to see です。");
+  sp("inAdv-application-3", "inAdv", "部活の話です。", [
+    sc("s1", "inAdv", "「わたしたちは試合に勝つために毎日練習しています。」を英語にすると？", ["We practice every day to win the game.", "We practice every day win the game.", "We practice every day to won the game.", "We practices every day to win the game."], "目的 → to win 〜。", "We practice every day to win the game. です。"),
+    sc("s2", "inAdv", "「コーチはわたしたちを見に来ました。」Our coach came （ ） us. の（ ）は？", ["to watch", "watch", "to watched", "watches"], "目的 → to ＋ もとの形。", "to watch です。"),
+    sc("s3", "inAdv", "「わたしたちはコーチの言葉を聞いておどろきました。」We were surprised （ ） his words. の（ ）は？", ["to hear", "hear", "to heard", "hears"], "surprised to ＋ もとの形。", "to hear です。")
+  ], ["inAdv"], "目的と気持ちの理由を to ＋ もとの形で言う。", "We practice every day to win the game.、to watch、to hear です。");
+  sp("inAdv-application-4", "inAdv", "旅行の思い出です。", [
+    sc("s1", "inAdv", "「わたしたちは海で泳ぐために沖縄へ行きました。」を英語にすると？", ["We went to Okinawa to swim in the sea.", "We went to Okinawa swim in the sea.", "We went to Okinawa to swam in the sea.", "We went to Okinawa for swim in the sea."], "目的 → to swim 〜。", "We went to Okinawa to swim in the sea. です。"),
+    sc("s2", "inAdv", "「父は写真をとるために早く起きました。」My father got up early （ ） pictures. の（ ）は？", ["to take", "take", "to took", "takes"], "目的 → to ＋ もとの形。", "to take です。"),
+    sc("s3", "inAdv", "「わたしはきれいな海を見てうれしかったです。」I was happy （ ） the beautiful sea. の（ ）は？", ["to see", "see", "to saw", "sees"], "happy to ＋ もとの形。", "to see です。")
+  ], ["inAdv"], "旅行の目的と気持ちを to ＋ もとの形で言う。", "We went to Okinawa to swim in the sea.、to take、to see です。");
+  sp("inAdv-application-5", "inAdv", "職場体験の報告です。", [
+    sc("s1", "inAdv", "「わたしは仕事について学ぶためにパン屋に行きました。」を英語にすると？", ["I went to a bakery to learn about the job.", "I went to a bakery learn about the job.", "I went to a bakery to learned about the job.", "I went to a bakery for learn about the job."], "目的 → to learn 〜。", "I went to a bakery to learn about the job. です。"),
+    sc("s2", "inAdv", "「わたしはパンを作るために早く起きました。」I got up early （ ） bread. の（ ）は？", ["to make", "make", "to made", "makes"], "目的 → to ＋ もとの形。", "to make です。"),
+    sc("s3", "inAdv", "「お客さんと話せてうれしかったです。」I was glad （ ） with the customers. の（ ）は？", ["to talk", "talk", "to talked", "talks"], "glad to ＋ もとの形。", "to talk です。")
+  ], ["inAdv"], "したことの目的と感想を to ＋ もとの形で伝える。", "I went to a bakery to learn about the job.、to make、to talk です。");
+  ch("inAdv-retention-1", "inAdv", "retention", "「わたしは本を借りるために図書館に行きました。」を英語にすると？", ["I went to the library to borrow books.", "I went to the library borrow books.", "I went to the library to borrowed books.", "I went to the library for borrow books."], "目的 → to ＋ もとの形。", "I went to the library to borrow books. です。", RB);
+  ch("inAdv-retention-2", "inAdv", "retention", "「彼はサッカーをするために公園に行きました。」を英語にすると？", ["He went to the park to play soccer.", "He went to the park play soccer.", "He went to the park to played soccer.", "He go to the park to play soccer."], "went ＋ to play 〜。", "He went to the park to play soccer. です。", RB);
+  ch("inAdv-retention-3", "inAdv", "retention", "「あなたに会えてうれしいです。」を英語にすると？", ["I'm glad to see you.", "I'm glad see you.", "I'm glad to saw you.", "I'm glad to sees you."], "glad to ＋ もとの形。", "I'm glad to see you. です。", RB);
+  ch("inAdv-retention-4", "inAdv", "retention", "「ケンは祖母に会うために大阪を訪れました。」を英語にすると？", ["Ken visited Osaka to see his grandmother.", "Ken visited Osaka see his grandmother.", "Ken visited Osaka to saw his grandmother.", "Ken visit Osaka to see his grandmother."], "目的 → to see 〜。", "Ken visited Osaka to see his grandmother. です。", RS);
+  ch("inAdv-retention-5", "inAdv", "retention", "「わたしたちはその知らせを聞いて悲しかったです。」を英語にすると？", ["We were sad to hear the news.", "We were sad hear the news.", "We were sad to heard the news.", "We was sad to hear the news."], "sad to ＋ もとの形。", "We were sad to hear the news. です。", RS);
+
+  // --- 〜するための・〜すべき（形容詞的用法） ---
+  ch("inAdj-basic-1", "inAdj", "basic", "「わたしは何か飲むものがほしいです。」を英語にすると？", ["I want something to drink.", "I want something drink.", "I want to something drink.", "I want something to drinks."], "something のあとに to ＋ もとの形。", "I want something to drink. です。", { usage: "diagnosis" });
+  ch("inAdj-basic-2", "inAdj", "basic", "「わたしには今日、するべき宿題がたくさんあります。」I have a lot of homework （ ） today. の（ ）は？", ["to do", "do", "to did", "doing"], "名詞のあとに to ＋ もとの形。", "to do です。");
+  ch("inAdj-basic-3", "inAdj", "basic", "「〜するための」「〜すべき」と名詞を説明する to ＋ もとの形は、どこに置く？", ["説明する名詞のあと", "説明する名詞の前", "文の最初", "動詞の前"], "something to drink のように名詞のあと。", "説明する名詞のあとです。");
+  ch("inAdj-basic-4", "inAdj", "basic", "「京都には訪れる場所がたくさんあります。」Kyoto has many places （ ） visit. の（ ）は？", ["to", "for", "and", "can"], "places のあとに to ＋ もとの形。", "to です。");
+  ch("inAdj-basic-5", "inAdj", "basic", "「何か食べるものはありますか。」を英語にすると？", ["Do you have anything to eat?", "Do you have anything eat?", "Do you have to anything eat?", "Do you have anything to ate?"], "anything のあとに to ＋ もとの形。", "Do you have anything to eat? です。");
+  ch("inAdj-basic-6", "inAdj", "basic", "「彼にはテレビを見る時間がありません。」He has no time （ ） TV. の（ ）は？", ["to watch", "watch", "to watches", "watching"], "time のあとに to ＋ もとの形。", "to watch です。");
+  ch("inAdj-basic-7", "inAdj", "basic", "「わたしは読む本がほしいです。」I want a book （ ） read. の（ ）は？", ["to", "for", "and", "can"], "a book のあとに to ＋ もとの形。", "to です。");
+  ch("inAdj-standard-1", "inAdj", "standard", "「わたしにはいっしょに遊ぶ友だちがたくさんいます。」を英語にすると？", ["I have many friends to play with.", "I have many friends play with.", "I have many friends to played with.", "I have to many friends play with."], "friends のあとに to play with。", "I have many friends to play with. です。");
+  ch("inAdj-standard-2", "inAdj", "standard", "「何か温かい飲み物がほしいです。」I want something hot （ ）. の（ ）は？", ["to drink", "drink", "to drank", "drinking"], "something hot のあとに to ＋ もとの形。", "to drink です。");
+  ch("inAdj-standard-3", "inAdj", "standard", "「今日はやるべきことがたくさんあります。」を英語にすると？", ["I have a lot of things to do today.", "I have a lot of things do today.", "I have a lot of things to did today.", "I have to a lot of things do today."], "things のあとに to do。", "I have a lot of things to do today. です。");
+  ch("inAdj-standard-4", "inAdj", "standard", "「ここにはすわる場所がありません。」There is no place （ ） sit. の（ ）は？", ["to", "for", "and", "can"], "place のあとに to ＋ もとの形。", "to です。");
+  ch("inAdj-standard-5", "inAdj", "standard", "「あなたは昼食を食べる時間がありますか。」Do you have time （ ） lunch? の（ ）は？", ["to eat", "eat", "to ate", "eating"], "time のあとに to ＋ もとの形。", "to eat です。");
+  ch("inAdj-standard-6", "inAdj", "standard", "「ケンは何か読むものを買いました。」を英語にすると？", ["Ken bought something to read.", "Ken bought something read.", "Ken bought to something read.", "Ken buy something to read."], "something to read。", "Ken bought something to read. です。");
+  sp("inAdj-application-1", "inAdj", "旅行の準備です。", [
+    sc("s1", "inAdj", "「わたしは電車の中で読む本がほしいです。」を英語にすると？", ["I want a book to read on the train.", "I want a book read on the train.", "I want a book to reads on the train.", "I want to a book read on the train."], "a book のあとに to read。", "I want a book to read on the train. です。"),
+    sc("s2", "inAdj", "「何か飲むものを持っていきます。」I will take something （ ）. の（ ）は？", ["to drink", "drink", "to drank", "drinks"], "something のあとに to ＋ もとの形。", "to drink です。"),
+    sc("s3", "inAdj", "「京都には見るものがたくさんあります。」Kyoto has a lot of things （ ） see. の（ ）は？", ["to", "for", "and", "can"], "things のあとに to ＋ もとの形。", "to です。")
+  ], ["inAdj"], "名詞のあとに to ＋ もとの形で「〜するための」。", "I want a book to read on the train.、to drink、to です。");
+  sp("inAdj-application-2", "inAdj", "放課後の話です。", [
+    sc("s1", "inAdj", "「わたしには今日、するべき宿題がありません。」を英語にすると？", ["I have no homework to do today.", "I have no homework do today.", "I have no homework to did today.", "I have to no homework do today."], "homework のあとに to do。", "I have no homework to do today. です。"),
+    sc("s2", "inAdj", "「サッカーをする時間があります。」I have time （ ） soccer. の（ ）は？", ["to play", "play", "to played", "playing"], "time のあとに to ＋ もとの形。", "to play です。"),
+    sc("s3", "inAdj", "「リクにはいっしょに練習する友だちがたくさんいます。」Riku has many friends （ ） practice with. の（ ）は？", ["to", "for", "and", "can"], "friends のあとに to ＋ もとの形。", "to です。")
+  ], ["inAdj"], "time・friends・homework を to ＋ もとの形で説明する。", "I have no homework to do today.、to play、to です。");
+  sp("inAdj-application-3", "inAdj", "家での会話です。", [
+    sc("s1", "inAdj", "「何か食べるものはある？」を英語にすると？", ["Is there anything to eat?", "Is there anything eat?", "Is there to anything eat?", "Is there anything to ate?"], "anything のあとに to ＋ もとの形。", "Is there anything to eat? です。"),
+    sc("s2", "inAdj", "「父は読む新聞を買いました。」My father bought a newspaper （ ） read. の（ ）は？", ["to", "for", "and", "can"], "a newspaper のあとに to ＋ もとの形。", "to です。"),
+    sc("s3", "inAdj", "「弟には宿題をする時間がありません。」My brother has no time （ ） his homework. の（ ）は？", ["to do", "do", "to does", "doing"], "time のあとに to ＋ もとの形。", "to do です。")
+  ], ["inAdj"], "家の会話でも名詞 ＋ to ＋ もとの形。", "Is there anything to eat?、to、to do です。");
+  sp("inAdj-application-4", "inAdj", "町の案内をします。", [
+    sc("s1", "inAdj", "「この町には訪れるべき場所がたくさんあります。」を英語にすると？", ["This town has many places to visit.", "This town has many places visit.", "This town has many places to visits.", "This town have many places to visit."], "places のあとに to visit。", "This town has many places to visit. です。"),
+    sc("s2", "inAdj", "「食べるところもあります。」There are places （ ） eat, too. の（ ）は？", ["to", "for", "and", "can"], "places のあとに to ＋ もとの形。", "to です。"),
+    sc("s3", "inAdj", "「買い物に行く時間もあります。」You have time （ ） shopping, too. の（ ）は？", ["to go", "go", "to went", "going"], "time のあとに to ＋ もとの形。", "to go です。")
+  ], ["inAdj"], "町の見どころを名詞 ＋ to ＋ もとの形で紹介する。", "This town has many places to visit.、to、to go です。");
+  sp("inAdj-application-5", "inAdj", "クラスの出し物の準備です。", [
+    sc("s1", "inAdj", "「わたしたちには練習する時間があまりありません。」を英語にすると？", ["We don't have much time to practice.", "We don't have much time practice.", "We don't have much time to practiced.", "We don't have to much time practice."], "time のあとに to practice。", "We don't have much time to practice. です。"),
+    sc("s2", "inAdj", "「着る衣装が必要です。」We need costumes （ ） wear. の（ ）は？", ["to", "for", "and", "can"], "costumes のあとに to ＋ もとの形。", "to です。"),
+    sc("s3", "inAdj", "「先生に伝えることがあります。」I have something （ ） tell our teacher. の（ ）は？", ["to", "for", "and", "can"], "something のあとに to ＋ もとの形。", "to です。")
+  ], ["inAdj"], "準備に必要なものを名詞 ＋ to ＋ もとの形で言う。", "We don't have much time to practice.、to、to です。");
+  ch("inAdj-retention-1", "inAdj", "retention", "「わたしは何か食べるものがほしいです。」を英語にすると？", ["I want something to eat.", "I want something eat.", "I want to something eat.", "I want something to ate."], "something to ＋ もとの形。", "I want something to eat. です。", RB);
+  ch("inAdj-retention-2", "inAdj", "retention", "「わたしにはするべき宿題がたくさんあります。」を英語にすると？", ["I have a lot of homework to do.", "I have a lot of homework do.", "I have a lot of homework to did.", "I have to a lot of homework do."], "homework のあとに to do。", "I have a lot of homework to do. です。", RB);
+  ch("inAdj-retention-3", "inAdj", "retention", "「彼にはテレビを見る時間がありません。」を英語にすると？", ["He has no time to watch TV.", "He has no time watch TV.", "He has no time to watches TV.", "He have no time to watch TV."], "time のあとに to ＋ もとの形。", "He has no time to watch TV. です。", RB);
+  ch("inAdj-retention-4", "inAdj", "retention", "「東京には訪れる場所がたくさんあります。」を英語にすると？", ["Tokyo has many places to visit.", "Tokyo has many places visit.", "Tokyo has many places to visited.", "Tokyo have many places to visit."], "places to visit。", "Tokyo has many places to visit. です。", RS);
+  ch("inAdj-retention-5", "inAdj", "retention", "「わたしは電車で読む本を買いました。」を英語にすると？", ["I bought a book to read on the train.", "I bought a book read on the train.", "I bought a book to reads on the train.", "I bought to a book read on the train."], "a book のあとに to read。", "I bought a book to read on the train. です。", RS);
+
+  // --- Why 〜? — To 〜. ---
+  ch("inWhy-basic-1", "inWhy", "basic", "「あなたはなぜ図書館へ行ったのですか。」を英語にすると？", ["Why did you go to the library?", "Why did you went to the library?", "Why you went to the library?", "Why do you went to the library?"], "Why ＋ did ＋ 主語 ＋ もとの形?", "Why did you go to the library? です。", { usage: "diagnosis" });
+  ch("inWhy-basic-2", "inWhy", "basic", "Why did you go to the library? の答えとして正しいものは？", ["To study for the test.", "To studied for the test.", "Yes, I did.", "Study for the test."], "目的を To ＋ もとの形で答える。", "To study for the test. です。");
+  ch("inWhy-basic-3", "inWhy", "basic", "理由・目的をたずねる語は？", ["Why", "What", "Where", "When"], "「なぜ」をたずねる語。", "Why です。");
+  ch("inWhy-basic-4", "inWhy", "basic", "「あなたはなぜ早く起きたのですか。」（ ） did you get up early? の（ ）は？", ["Why", "What", "Where", "When"], "「なぜ」→ Why。", "Why です。");
+  ch("inWhy-basic-5", "inWhy", "basic", "Why did Ken go to the park? — （ ） play soccer. の（ ）は？", ["To", "For", "Because", "And"], "目的は To ＋ もとの形。", "To です。");
+  ch("inWhy-basic-6", "inWhy", "basic", "「なぜ彼女は日本に来たのですか。」Why （ ） she come to Japan? の（ ）は？", ["did", "do", "was", "is"], "過去のこと → did。", "did です。");
+  ch("inWhy-basic-7", "inWhy", "basic", "Why are you studying English? の答えとして正しいものは？", ["To talk with people from other countries.", "Talking with people from other countries.", "To talked with people from other countries.", "Yes, I am."], "目的を To ＋ もとの形で答える。", "To talk with people from other countries. です。");
+  ch("inWhy-standard-1", "inWhy", "standard", "「あなたはなぜカナダに行きたいのですか。」を英語にすると？", ["Why do you want to go to Canada?", "Why do you want go to Canada?", "Why you want to go to Canada?", "Why do you wants to go to Canada?"], "Why ＋ do you want to 〜?", "Why do you want to go to Canada? です。");
+  ch("inWhy-standard-2", "inWhy", "standard", "Why do you want to go to Canada? の答えとして正しいものは？", ["To see my friend.", "To saw my friend.", "See my friend.", "Yes, I do."], "To ＋ もとの形で答える。", "To see my friend. です。");
+  ch("inWhy-standard-3", "inWhy", "standard", "「なぜあなたは駅にいたのですか。」Why （ ） you at the station? の（ ）は？", ["were", "did", "was", "is"], "you の過去の be動詞 → were。", "were です。");
+  ch("inWhy-standard-4", "inWhy", "standard", "Why were you at the station? — （ ） meet my aunt. の（ ）は？", ["To", "For", "Because", "And"], "目的は To ＋ もとの形。", "To です。");
+  ch("inWhy-standard-5", "inWhy", "standard", "「ユミはなぜ早く家を出たのですか。」を英語にすると？", ["Why did Yumi leave home early?", "Why did Yumi left home early?", "Why Yumi left home early?", "Why does Yumi left home early?"], "Why ＋ did ＋ 主語 ＋ もとの形?", "Why did Yumi leave home early? です。");
+  ch("inWhy-standard-6", "inWhy", "standard", "Why did Yumi leave home early? の答えとして正しいものは？", ["To catch the first train.", "To caught the first train.", "Catch the first train.", "Yes, she did."], "To ＋ もとの形で答える。", "To catch the first train. です。");
+  sp("inWhy-application-1", "inWhy", "旅行から帰った友だちと話します。", [
+    sc("s1", "inWhy", "「あなたはなぜ京都に行ったのですか。」を英語にすると？", ["Why did you go to Kyoto?", "Why did you went to Kyoto?", "Why you went to Kyoto?", "Why do you went to Kyoto?"], "Why did you ＋ もとの形?", "Why did you go to Kyoto? です。"),
+    sc("s2", "inWhy", "Why did you go to Kyoto? — （ ） see old temples. の（ ）は？", ["To", "For", "Because", "And"], "目的は To ＋ もとの形。", "To です。"),
+    sc("s3", "inWhy", "「古いお寺を見るのはおもしろかったです。」It was interesting （ ） old temples. の（ ）は？", ["to see", "see", "to saw", "seeing"], "It was 〜 to ＋ もとの形。", "to see です。")
+  ], ["inWhy"], "Why 〜? には To ＋ もとの形で目的を答える。", "Why did you go to Kyoto?、To、to see です。");
+  sp("inWhy-application-2", "inWhy", "放課後の会話です。", [
+    sc("s1", "inWhy", "「なぜあなたは教室に残ったのですか。」を英語にすると？", ["Why did you stay in the classroom?", "Why did you stayed in the classroom?", "Why you stayed in the classroom?", "Why do you stayed in the classroom?"], "Why did you ＋ もとの形?", "Why did you stay in the classroom? です。"),
+    sc("s2", "inWhy", "Why did you stay in the classroom? の答えとして正しいものは？", ["To finish my homework.", "To finished my homework.", "Finish my homework.", "Yes, I did."], "To ＋ もとの形で答える。", "To finish my homework. です。"),
+    sc("s3", "inWhy", "「ケンはなぜ体育館に行ったのですか。」（ ） did Ken go to the gym? の（ ）は？", ["Why", "What", "Where", "Who"], "「なぜ」→ Why。", "Why です。")
+  ], ["inWhy"], "理由・目的を Why でたずね、To 〜. で答える。", "Why did you stay in the classroom?、To finish my homework.、Why です。");
+  sp("inWhy-application-3", "inWhy", "電話で話します。", [
+    sc("s1", "inWhy", "「なぜわたしに電話したのですか。」を英語にすると？", ["Why did you call me?", "Why did you called me?", "Why you called me?", "Why do you called me?"], "Why did you ＋ もとの形?", "Why did you call me? です。"),
+    sc("s2", "inWhy", "Why did you call me? — （ ） ask about the homework. の（ ）は？", ["To", "For", "Because", "And"], "目的は To ＋ もとの形。", "To です。"),
+    sc("s3", "inWhy", "「それについて知ることができてよかったです。」I'm glad （ ） about it. の（ ）は？", ["to know", "know", "to knew", "knows"], "glad to ＋ もとの形。", "to know です。")
+  ], ["inWhy"], "電話の目的を To 〜. で答える。", "Why did you call me?、To、to know です。");
+  sp("inWhy-application-4", "inWhy", "インタビューをします。", [
+    sc("s1", "inWhy", "「あなたはなぜ英語を勉強するのですか。」を英語にすると？", ["Why do you study English?", "Why do you studies English?", "Why you study English?", "Why does you study English?"], "Why ＋ do you ＋ もとの形?", "Why do you study English? です。"),
+    sc("s2", "inWhy", "Why do you study English? の答えとして正しいものは？", ["To work abroad in the future.", "Work abroad in the future.", "To worked abroad in the future.", "Yes, I do."], "To ＋ もとの形で答える。", "To work abroad in the future. です。"),
+    sc("s3", "inWhy", "「彼はなぜ毎朝走るのですか。」Why （ ） he run every morning? の（ ）は？", ["does", "do", "is", "are"], "he → does。", "does です。")
+  ], ["inWhy"], "Why 〜? の語順と To 〜. の答え方。", "Why do you study English?、To work abroad in the future.、does です。");
+  sp("inWhy-application-5", "inWhy", "家族に聞きます。", [
+    sc("s1", "inWhy", "「お母さんはなぜスーパーに行ったのですか。」を英語にすると？", ["Why did Mom go to the supermarket?", "Why did Mom went to the supermarket?", "Why Mom went to the supermarket?", "Why does Mom went to the supermarket?"], "Why did ＋ 主語 ＋ もとの形?", "Why did Mom go to the supermarket? です。"),
+    sc("s2", "inWhy", "Why did Mom go to the supermarket? の答えとして正しいものは？", ["To buy some milk.", "To bought some milk.", "Buy some milk.", "Yes, she did."], "To ＋ もとの形で答える。", "To buy some milk. です。"),
+    sc("s3", "inWhy", "「お父さんはなぜ早く帰ってきたのですか。」Why did Dad （ ） home early? の（ ）は？", ["come", "came", "comes", "coming"], "did のあとはもとの形。", "come です。")
+  ], ["inWhy"], "家族の行動の理由をたずねる。", "Why did Mom go to the supermarket?、To buy some milk.、come です。");
+  ch("inWhy-retention-1", "inWhy", "retention", "「あなたはなぜ公園へ行ったのですか。」を英語にすると？", ["Why did you go to the park?", "Why did you went to the park?", "Why you went to the park?", "Why do you went to the park?"], "Why did you ＋ もとの形?", "Why did you go to the park? です。", RB);
+  ch("inWhy-retention-2", "inWhy", "retention", "「なぜ彼は日本語を勉強するのですか。」を英語にすると？", ["Why does he study Japanese?", "Why does he studies Japanese?", "Why he studies Japanese?", "Why do he study Japanese?"], "Why ＋ does he ＋ もとの形?", "Why does he study Japanese? です。", RB);
+  ch("inWhy-retention-3", "inWhy", "retention", "「なぜ駅に行ったの？」に「おじに会うため」と答えると？", ["To meet my uncle.", "To met my uncle.", "Meet my uncle.", "Yes, I did."], "To ＋ もとの形で答える。", "To meet my uncle. です。", RB);
+  ch("inWhy-retention-4", "inWhy", "retention", "「サキはなぜ早く起きたのですか。」を英語にすると？", ["Why did Saki get up early?", "Why did Saki got up early?", "Why Saki got up early?", "Why does Saki got up early?"], "Why did ＋ 主語 ＋ もとの形?", "Why did Saki get up early? です。", RS);
+  ch("inWhy-retention-5", "inWhy", "retention", "「なぜ英語を勉強するの？」に「海外で働くため」と答えると？", ["To work abroad.", "To worked abroad.", "Work abroad.", "Yes, I do."], "To ＋ もとの形で答える。", "To work abroad. です。", RS);
+
+  // --- It is 〜 (for 人) to … ---
+  ch("inIt-basic-1", "inIt", "basic", "「英語を話すことは楽しいです。」を英語にすると？", ["It is fun to speak English.", "It is fun speak English.", "It is fun to speaks English.", "It fun to speak English."], "It is 〜 to ＋ もとの形。", "It is fun to speak English. です。", { usage: "diagnosis" });
+  ch("inIt-basic-2", "inIt", "basic", "「わたしにとってこの本を読むことはむずかしいです。」It is difficult （ ） me to read this book. の（ ）は？", ["for", "to", "of", "with"], "「〜にとって」は for 〜。", "for です。");
+  ch("inIt-basic-3", "inIt", "basic", "It is 〜 to …. の It がさしているものは？", ["to 以下の内容", "前の文に出た人", "天気", "時刻"], "It ＝ to 〜 の部分。", "to 以下の内容です。");
+  ch("inIt-basic-4", "inIt", "basic", "「早く起きることは大切です。」It is important （ ） get up early. の（ ）は？", ["to", "for", "that", "and"], "It is 〜 to ＋ もとの形。", "to です。");
+  ch("inIt-basic-5", "inIt", "basic", "「ケンにとって泳ぐことは簡単です。」It is easy for Ken （ ） swim. の（ ）は？", ["to", "for", "can", "is"], "for 人 のあとに to ＋ もとの形。", "to です。");
+  ch("inIt-basic-6", "inIt", "basic", "「本を読むことはおもしろいです。」を英語にすると？", ["It is interesting to read books.", "It is interesting read books.", "It is interesting to reads books.", "It is interesting for read books."], "It is 〜 to ＋ もとの形。", "It is interesting to read books. です。");
+  ch("inIt-basic-7", "inIt", "basic", "「わたしたちにとって毎日運動することは大切です。」It is important for （ ） to exercise every day. の（ ）は？", ["us", "we", "our", "ours"], "for のあとは us の形。", "us です。");
+  ch("inIt-standard-1", "inIt", "standard", "「外国語を学ぶことは楽しいです。」を英語にすると？", ["It is fun to learn a foreign language.", "It is fun learn a foreign language.", "It is fun to learned a foreign language.", "It is fun for learn a foreign language."], "It is fun to ＋ もとの形。", "It is fun to learn a foreign language. です。");
+  ch("inIt-standard-2", "inIt", "standard", "「わたしにとって早く起きることはむずかしいです。」It is hard for me （ ） get up early. の（ ）は？", ["to", "for", "and", "can"], "for me のあとに to ＋ もとの形。", "to です。");
+  ch("inIt-standard-3", "inIt", "standard", "「彼女にとってピアノをひくことは簡単です。」It is easy for （ ） to play the piano. の（ ）は？", ["her", "she", "hers", "its"], "for のあとは her の形。", "her です。");
+  ch("inIt-standard-4", "inIt", "standard", "「子どもたちにとって外で遊ぶことはよいことです。」を英語にすると？", ["It is good for children to play outside.", "It is good for children play outside.", "It is good to children to play outside.", "It is good for children to plays outside."], "It is 〜 for 人 to ＋ もとの形。", "It is good for children to play outside. です。");
+  ch("inIt-standard-5", "inIt", "standard", "「わたしたちにとってその質問に答えるのはむずかしかったです。」It was difficult for us （ ） the question. の（ ）は？", ["to answer", "answer", "to answered", "answering"], "for us のあとに to ＋ もとの形。", "to answer です。");
+  ch("inIt-standard-6", "inIt", "standard", "「歴史を勉強することはおもしろいですか。」を英語にすると？", ["Is it interesting to study history?", "Is it interesting study history?", "Is it interesting to studies history?", "Does it interesting to study history?"], "Is it 〜 to ＋ もとの形?", "Is it interesting to study history? です。");
+  sp("inIt-application-1", "inIt", "英語の授業で意見を言います。", [
+    sc("s1", "inIt", "「英語で話すことは楽しいです。」を英語にすると？", ["It is fun to talk in English.", "It is fun talk in English.", "It is fun to talked in English.", "It fun to talk in English."], "It is fun to ＋ もとの形。", "It is fun to talk in English. です。"),
+    sc("s2", "inIt", "「でも、わたしにとって英語で書くことはむずかしいです。」But it is difficult for me （ ） in English. の（ ）は？", ["to write", "write", "to wrote", "writing"], "for me to ＋ もとの形。", "to write です。"),
+    sc("s3", "inIt", "「毎日英語を聞くことは大切です。」It is important （ ） listen to English every day. の（ ）は？", ["to", "for", "that", "and"], "It is 〜 to ＋ もとの形。", "to です。")
+  ], ["inIt"], "意見は It is 〜 (for 人) to ＋ もとの形で言える。", "It is fun to talk in English.、to write、to です。");
+  sp("inIt-application-2", "inIt", "部活について話します。", [
+    sc("s1", "inIt", "「毎日練習することはたいへんです。」を英語にすると？", ["It is hard to practice every day.", "It is hard practice every day.", "It is hard to practiced every day.", "It is hard for practice every day."], "It is hard to ＋ もとの形。", "It is hard to practice every day. です。"),
+    sc("s2", "inIt", "「でも、チームで勝つことはわくわくします。」But it is exciting （ ） with my team. の（ ）は？", ["to win", "win", "to won", "winning"], "It is 〜 to ＋ もとの形。", "to win です。"),
+    sc("s3", "inIt", "「わたしたちにとって先輩から学ぶことは大切です。」It is important for （ ） to learn from older members. の（ ）は？", ["us", "we", "our", "ours"], "for のあとは us の形。", "us です。")
+  ], ["inIt"], "部活の感想を It is 〜 to 〜. で言う。", "It is hard to practice every day.、to win、us です。");
+  sp("inIt-application-3", "inIt", "家族と話します。", [
+    sc("s1", "inIt", "「父にとって早起きは簡単です。」を英語にすると？", ["It is easy for my father to get up early.", "It is easy for my father get up early.", "It is easy to my father to get up early.", "It is easy for my father to got up early."], "for 人 to ＋ もとの形。", "It is easy for my father to get up early. です。"),
+    sc("s2", "inIt", "「わたしにとって料理をすることは楽しいです。」It is fun for me （ ） cook. の（ ）は？", ["to", "for", "and", "can"], "for me のあとに to ＋ もとの形。", "to です。"),
+    sc("s3", "inIt", "「弟にとって野菜を食べることはむずかしいです。」It is hard for my brother （ ） vegetables. の（ ）は？", ["to eat", "eat", "to ate", "eating"], "for 人 のあとに to ＋ もとの形。", "to eat です。")
+  ], ["inIt"], "家族それぞれにとってのことを for 人 to 〜 で言う。", "It is easy for my father to get up early.、to、to eat です。");
+  sp("inIt-application-4", "inIt", "職場体験の感想です。", [
+    sc("s1", "inIt", "「お客さんと話すことはおもしろかったです。」を英語にすると？", ["It was interesting to talk with customers.", "It was interesting talk with customers.", "It was interesting to talked with customers.", "It was interesting for talk with customers."], "It was 〜 to ＋ もとの形。", "It was interesting to talk with customers. です。"),
+    sc("s2", "inIt", "「わたしにとって重い箱を運ぶことはたいへんでした。」It was hard for me （ ） heavy boxes. の（ ）は？", ["to carry", "carry", "to carried", "carrying"], "for me のあとに to ＋ もとの形。", "to carry です。"),
+    sc("s3", "inIt", "「仕事について学ぶことは大切です。」It is important （ ） learn about jobs. の（ ）は？", ["to", "for", "that", "and"], "It is 〜 to ＋ もとの形。", "to です。")
+  ], ["inIt"], "感想を It was 〜 to 〜. で伝える。", "It was interesting to talk with customers.、to carry、to です。");
+  sp("inIt-application-5", "inIt", "旅行の計画を話します。", [
+    sc("s1", "inIt", "「外国を旅行するのはわくわくします。」を英語にすると？", ["It is exciting to travel abroad.", "It is exciting travel abroad.", "It is exciting to traveled abroad.", "It is exciting for travel abroad."], "It is 〜 to ＋ もとの形。", "It is exciting to travel abroad. です。"),
+    sc("s2", "inIt", "「わたしたちにとって地図を確認することは大切です。」It is important for （ ） to check the map. の（ ）は？", ["us", "we", "our", "ours"], "for のあとは us の形。", "us です。"),
+    sc("s3", "inIt", "「その土地の食べ物を食べてみるのは楽しいです。」It is fun （ ） local food. の（ ）は？", ["to try", "try", "to tried", "trying"], "It is 〜 to ＋ もとの形。", "to try です。")
+  ], ["inIt"], "旅行の楽しみを It is 〜 to 〜. で言う。", "It is exciting to travel abroad.、us、to try です。");
+  ch("inIt-retention-1", "inIt", "retention", "「英語を勉強することは楽しいです。」を英語にすると？", ["It is fun to study English.", "It is fun study English.", "It is fun to studies English.", "It fun to study English."], "It is 〜 to ＋ もとの形。", "It is fun to study English. です。", RB);
+  ch("inIt-retention-2", "inIt", "retention", "「わたしにとって泳ぐことは簡単です。」を英語にすると？", ["It is easy for me to swim.", "It is easy for me swim.", "It is easy to me to swim.", "It is easy for I to swim."], "It is 〜 for me to ＋ もとの形。", "It is easy for me to swim. です。", RB);
+  ch("inIt-retention-3", "inIt", "retention", "「早く寝ることは大切です。」を英語にすると？", ["It is important to go to bed early.", "It is important go to bed early.", "It is important to went to bed early.", "It is important for go to bed early."], "It is 〜 to ＋ もとの形。", "It is important to go to bed early. です。", RB);
+  ch("inIt-retention-4", "inIt", "retention", "「彼にとってその本を読むことはむずかしかったです。」を英語にすると？", ["It was difficult for him to read the book.", "It was difficult for he to read the book.", "It was difficult for him read the book.", "It was difficult to him to read the book."], "for のあとは him の形。", "It was difficult for him to read the book. です。", RS);
+  ch("inIt-retention-5", "inIt", "retention", "「毎日運動することはよいことです。」を英語にすると？", ["It is good to exercise every day.", "It is good exercise every day.", "It is good to exercises every day.", "It is good for exercise every day."], "It is 〜 to ＋ もとの形。", "It is good to exercise every day. です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
