@@ -287,7 +287,13 @@
     ftWillNQ:       { label: "won't・Will 〜? と答え方", unit: "未来形", grade: "中2", subject: "英語", prerequisites: ["ftWill", "cnQues"] },
     ftGoing:        { label: "be going to ＋ もとの形（〜するつもり）", unit: "未来形", grade: "中2", subject: "英語", prerequisites: ["ftWill", "beForm"] },
     ftGoingNQ:      { label: "be going to の否定文・疑問文", unit: "未来形", grade: "中2", subject: "英語", prerequisites: ["ftGoing", "beQues"] },
-    ftWhat:         { label: "What will 〜?・What are you going to 〜?", unit: "未来形", grade: "中2", subject: "英語", prerequisites: ["ftGoingNQ", "qwWhere"] }
+    ftWhat:         { label: "What will 〜?・What are you going to 〜?", unit: "未来形", grade: "中2", subject: "英語", prerequisites: ["ftGoingNQ", "qwWhere"] },
+    // --- 中2 英語 助動詞 ---（must・have to・must not と don't have to・may と should・その疑問文）
+    mdMust:         { label: "must ＋ もとの形（〜しなければならない）", unit: "助動詞", grade: "中2", subject: "英語", prerequisites: ["cnForm", "ftWill"] },
+    mdHave:         { label: "have to・has to", unit: "助動詞", grade: "中2", subject: "英語", prerequisites: ["mdMust", "tsForm"] },
+    mdNeg:          { label: "must not と don't have to（禁止と不要）", unit: "助動詞", grade: "中2", subject: "英語", prerequisites: ["mdHave", "imNeg"] },
+    mdMay:          { label: "may と should（許可・すすめ）", unit: "助動詞", grade: "中2", subject: "英語", prerequisites: ["mdMust", "cnReq"] },
+    mdQues:         { label: "Must I・Do I have to・Should I 〜? と答え方", unit: "助動詞", grade: "中2", subject: "英語", prerequisites: ["mdNeg", "mdMay"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -329,7 +335,8 @@
     "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow",
     "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat",
     "psReg", "psIrr", "psNeg", "psQues", "psBe",
-    "ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat"];
+    "ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat",
+    "mdMust", "mdHave", "mdNeg", "mdMay", "mdQues"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -358,7 +365,8 @@
     "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow",
     "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat",
     "psReg", "psIrr", "psNeg", "psQues", "psBe",
-    "ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat"];
+    "ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat",
+    "mdMust", "mdHave", "mdNeg", "mdMay", "mdQues"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -395,7 +403,8 @@
     "疑問詞": ["qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow"],
     "現在進行形": ["pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat"],
     "過去形": ["psReg", "psIrr", "psNeg", "psQues", "psBe"],
-    "未来形": ["ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat"]
+    "未来形": ["ftWill", "ftWillNQ", "ftGoing", "ftGoingNQ", "ftWhat"],
+    "助動詞": ["mdMust", "mdHave", "mdNeg", "mdMay", "mdQues"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
@@ -403,7 +412,7 @@
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
   var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
   // 数学以外の教科。学年ごとの単元（まだない学年は空）。GRADE_UNITS は数学のまま
-  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形", "過去形"], "中学2年": ["未来形"], "中学3年": [] } };
+  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形", "過去形"], "中学2年": ["未来形", "助動詞"], "中学3年": [] } };
   var SUBJECTS = ["数学", "英語"];
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"], SUBJECT_UNITS["英語"]["中学1年"], SUBJECT_UNITS["英語"]["中学2年"], SUBJECT_UNITS["英語"]["中学3年"]);
   var currentGrade = "中学2年", currentSubject = "数学";
@@ -767,6 +776,7 @@
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
     suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
+    mdMust: "practice_must", mdHave: "practice_have_to", mdNeg: "practice_must_not_dont_have_to", mdMay: "practice_may_should", mdQues: "practice_modal_question",
     ftWill: "practice_will", ftWillNQ: "practice_will_question", ftGoing: "practice_going_to", ftGoingNQ: "practice_going_to_question", ftWhat: "practice_future_wh",
     psReg: "practice_past_regular", psIrr: "practice_past_irregular", psNeg: "practice_past_negative", psQues: "practice_past_question", psBe: "practice_was_were",
     pgForm: "practice_progressive_form", pgSpell: "practice_ing_spelling", pgNeg: "practice_progressive_negative", pgQues: "practice_progressive_question", pgWhat: "practice_what_doing",

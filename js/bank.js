@@ -10757,6 +10757,248 @@
   ch("ftWhat-retention-5", "ftWhat", "retention", "「何をするつもり？」に「祖母を訪ねるつもり」と答えると？", ["I'm going to visit my grandmother.", "I visited my grandmother.", "Yes, I am.", "I going to visit my grandmother."], "I'm going to 〜. で答える。", "I'm going to visit my grandmother. です。", RS);
 
   // =====================================================================
+  // 中2 英語「助動詞」（must・have to・must not と don't have to・may と should・Must／Do I have to／Should I 〜?）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-modal.test.js が文の形・意味・答えの合い方を確かめる）
+  // =====================================================================
+
+  // --- must ---
+  ch("mdMust-basic-1", "mdMust", "basic", "「わたしは宿題をしなければなりません。」を英語にすると？", ["I must do my homework.", "I must does my homework.", "I must to do my homework.", "I musts do my homework."], "must ＋ 動詞のもとの形。", "I must do my homework. です。", { usage: "diagnosis" });
+  ch("mdMust-basic-2", "mdMust", "basic", "「〜しなければならない」を表す語は？", ["must", "may", "can", "will"], "強い必要を表す助動詞。", "must です。");
+  ch("mdMust-basic-3", "mdMust", "basic", "「ケンは早く寝なければなりません。」Ken must （ ） to bed early. の（ ）は？", ["go", "goes", "went", "going"], "must のあとはもとの形。", "go です。");
+  ch("mdMust-basic-4", "mdMust", "basic", "「あなたはここで靴をぬがなければなりません。」You （ ） take off your shoes here. の（ ）は？", ["must", "may", "should", "can"], "「〜しなければならない」は must。", "must です。");
+  ch("mdMust-basic-5", "mdMust", "basic", "「わたしたちは静かにしなければなりません。」を英語にすると？", ["We must be quiet.", "We must are quiet.", "We must quiet.", "We are must quiet."], "must のあとの be動詞は be。", "We must be quiet. です。");
+  ch("mdMust-basic-6", "mdMust", "basic", "「彼女は今日、母を手伝わなければなりません。」She must （ ） her mother today. の（ ）は？", ["help", "helps", "helped", "to help"], "主語が she でも must ＋ もとの形。", "help です。");
+  ch("mdMust-basic-7", "mdMust", "basic", "「生徒は制服を着なければなりません。」Students （ ） wear uniforms. の（ ）は？", ["must", "musts", "must to", "are must"], "must の形はかわらない。", "must です。");
+  ch("mdMust-standard-1", "mdMust", "standard", "「わたしたちは毎日英語を勉強しなければなりません。」を英語にすると？", ["We must study English every day.", "We must studies English every day.", "We must to study English every day.", "We musts study English every day."], "must ＋ study。", "We must study English every day. です。");
+  ch("mdMust-standard-2", "mdMust", "standard", "「あなたはもっと野菜を食べなければなりません。」You must （ ） more vegetables. の（ ）は？", ["eat", "eats", "ate", "eating"], "must のあとはもとの形。", "eat です。");
+  ch("mdMust-standard-3", "mdMust", "standard", "「父は今夜、早く帰らなければなりません。」My father （ ） come home early tonight. の（ ）は？", ["must", "musts", "must to", "is must"], "must ＋ もとの形。", "must です。");
+  ch("mdMust-standard-4", "mdMust", "standard", "「わたしはこの本を明日までに読まなければなりません。」を英語にすると？", ["I must read this book by tomorrow.", "I must reads this book by tomorrow.", "I must to read this book by tomorrow.", "I must reading this book by tomorrow."], "must ＋ read。", "I must read this book by tomorrow. です。");
+  ch("mdMust-standard-5", "mdMust", "standard", "「あなたは注意しなければなりません。」You must （ ） careful. の（ ）は？", ["be", "are", "is", "being"], "must のあとの be動詞は be。", "be です。");
+  ch("mdMust-standard-6", "mdMust", "standard", "「ユミはピアノを毎日練習しなければなりません。」Yumi （ ） the piano every day. の（ ）は？", ["must practice", "must practices", "musts practice", "must to practice"], "must ＋ もとの形。", "must practice です。");
+  sp("mdMust-application-1", "mdMust", "図書館のルールを説明します。", [
+    sc("s1", "mdMust", "「図書館では静かにしなければなりません。」を英語にすると？", ["You must be quiet in the library.", "You must are quiet in the library.", "You must quiet in the library.", "You must to be quiet in the library."], "must be ＋ ようすの語。", "You must be quiet in the library. です。"),
+    sc("s2", "mdMust", "「本は2週間で返さなければなりません。」You must （ ） the books in two weeks. の（ ）は？", ["return", "returns", "returned", "to return"], "must のあとはもとの形。", "return です。"),
+    sc("s3", "mdMust", "「カードを見せなければなりません。」You （ ） show your card. の（ ）は？", ["must", "may", "musts", "must to"], "「〜しなければならない」は must。", "must です。")
+  ], ["mdMust"], "ルールは must ＋ もとの形で伝える。", "You must be quiet in the library.、return、must です。");
+  sp("mdMust-application-2", "mdMust", "家のお手伝いのルールです。", [
+    sc("s1", "mdMust", "「わたしは毎朝、犬にえさをやらなければなりません。」を英語にすると？", ["I must feed the dog every morning.", "I must feeds the dog every morning.", "I must to feed the dog every morning.", "I musts feed the dog every morning."], "must ＋ feed。", "I must feed the dog every morning. です。"),
+    sc("s2", "mdMust", "「弟はへやをそうじしなければなりません。」My brother must （ ） his room. の（ ）は？", ["clean", "cleans", "cleaned", "cleaning"], "must のあとはもとの形。", "clean です。"),
+    sc("s3", "mdMust", "「わたしたちは夕食の前に手を洗わなければなりません。」We （ ） our hands before dinner. の（ ）は？", ["must wash", "must washes", "must to wash", "washes must"], "must ＋ wash。", "must wash です。")
+  ], ["mdMust"], "家のルールも must ＋ もとの形。", "I must feed the dog every morning.、clean、must wash です。");
+  sp("mdMust-application-3", "mdMust", "部活の連絡です。", [
+    sc("s1", "mdMust", "「わたしたちは7時に集まらなければなりません。」を英語にすると？", ["We must meet at seven.", "We must meets at seven.", "We must to meet at seven.", "We must met at seven."], "must ＋ meet。", "We must meet at seven. です。"),
+    sc("s2", "mdMust", "「水を持ってこなければなりません。」You must （ ） water. の（ ）は？", ["bring", "brings", "brought", "bringing"], "must のあとはもとの形。", "bring です。"),
+    sc("s3", "mdMust", "「キャプテンは早く来なければなりません。」The captain （ ） come early. の（ ）は？", ["must", "musts", "may", "must to"], "「〜しなければならない」は must。", "must です。")
+  ], ["mdMust"], "連絡事項を must で伝える。", "We must meet at seven.、bring、must です。");
+  sp("mdMust-application-4", "mdMust", "病院で言われたことです。", [
+    sc("s1", "mdMust", "「あなたは今日、家にいなければなりません。」を英語にすると？", ["You must stay home today.", "You must stays home today.", "You must to stay home today.", "You must stayed home today."], "must ＋ stay。", "You must stay home today. です。"),
+    sc("s2", "mdMust", "「この薬を飲まなければなりません。」You must （ ） this medicine. の（ ）は？", ["take", "takes", "took", "taking"], "薬を飲む → take。must のあとはもとの形。", "take です。"),
+    sc("s3", "mdMust", "「水をたくさん飲まなければなりません。」You （ ） a lot of water. の（ ）は？", ["must drink", "may drink", "must drinks", "must to drink"], "「〜しなければならない」は must ＋ もとの形。", "must drink です。")
+  ], ["mdMust"], "言われたことを must で伝える。", "You must stay home today.、take、must drink です。");
+  sp("mdMust-application-5", "mdMust", "旅行の準備です。", [
+    sc("s1", "mdMust", "「わたしたちは6時に家を出なければなりません。」を英語にすると？", ["We must leave home at six.", "We must leaves home at six.", "We must left home at six.", "We must to leave home at six."], "must ＋ leave。", "We must leave home at six. です。"),
+    sc("s2", "mdMust", "「わたしはかばんに荷物をつめなければなりません。」I must （ ） my bag. の（ ）は？", ["pack", "packs", "packed", "packing"], "must のあとはもとの形。", "pack です。"),
+    sc("s3", "mdMust", "「父はチケットを買わなければなりません。」My father （ ） the tickets. の（ ）は？", ["must buy", "must buys", "must bought", "must to buy"], "must ＋ buy。", "must buy です。")
+  ], ["mdMust"], "準備でやることを must で言う。", "We must leave home at six.、pack、must buy です。");
+  ch("mdMust-retention-1", "mdMust", "retention", "「わたしは今日、部屋をそうじしなければなりません。」を英語にすると？", ["I must clean my room today.", "I must cleans my room today.", "I must to clean my room today.", "I musts clean my room today."], "must ＋ もとの形。", "I must clean my room today. です。", RB);
+  ch("mdMust-retention-2", "mdMust", "retention", "「あなたは早く寝なければなりません。」を英語にすると？", ["You must go to bed early.", "You must goes to bed early.", "You must to go to bed early.", "You must went to bed early."], "must ＋ go。", "You must go to bed early. です。", RB);
+  ch("mdMust-retention-3", "mdMust", "retention", "「彼は毎日練習しなければなりません。」を英語にすると？", ["He must practice every day.", "He must practices every day.", "He musts practice every day.", "He must to practice every day."], "he でも must ＋ もとの形。", "He must practice every day. です。", RB);
+  ch("mdMust-retention-4", "mdMust", "retention", "「わたしたちは時間を守らなければなりません。」を英語にすると？", ["We must be on time.", "We must are on time.", "We must on time.", "We must to be on time."], "must ＋ be。", "We must be on time. です。", RS);
+  ch("mdMust-retention-5", "mdMust", "retention", "「ケンは明日までに手紙を書かなければなりません。」を英語にすると？", ["Ken must write a letter by tomorrow.", "Ken must writes a letter by tomorrow.", "Ken must wrote a letter by tomorrow.", "Ken must to write a letter by tomorrow."], "must ＋ write。", "Ken must write a letter by tomorrow. です。", RS);
+
+  // --- have to・has to ---
+  ch("mdHave-basic-1", "mdHave", "basic", "「わたしは6時に起きなければなりません。」を英語にすると？", ["I have to get up at six.", "I has to get up at six.", "I have to gets up at six.", "I have get up at six."], "have to ＋ もとの形。", "I have to get up at six. です。", { usage: "diagnosis" });
+  ch("mdHave-basic-2", "mdHave", "basic", "「ケンは宿題をしなければなりません。」Ken （ ） to do his homework. の（ ）は？", ["has", "have", "is", "does"], "ケンは1人 → has to。", "has です。");
+  ch("mdHave-basic-3", "mdHave", "basic", "「わたしたちは駅まで歩かなければなりません。」We have to （ ） to the station. の（ ）は？", ["walk", "walks", "walked", "walking"], "have to のあとはもとの形。", "walk です。");
+  ch("mdHave-basic-4", "mdHave", "basic", "「彼女は母を手伝わなければなりません。」を英語にすると？", ["She has to help her mother.", "She have to help her mother.", "She has to helps her mother.", "She has help her mother."], "she → has to ＋ もとの形。", "She has to help her mother. です。");
+  ch("mdHave-basic-5", "mdHave", "basic", "「あなたは今日、病院に行かなければなりません。」You （ ） go to the hospital today. の（ ）は？", ["have to", "has to", "have", "are to"], "you → have to。", "have to です。");
+  ch("mdHave-basic-6", "mdHave", "basic", "has to を使う主語は？", ["he・she・it や1人の人", "I", "you", "we・they"], "3人称単数のとき has。", "he・she・it や1人の人です。");
+  ch("mdHave-basic-7", "mdHave", "basic", "「わたしの兄は毎日はたらかなければなりません。」My brother （ ） work every day. の（ ）は？", ["has to", "have to", "has", "is to"], "my brother → has to。", "has to です。");
+  ch("mdHave-standard-1", "mdHave", "standard", "「サキとユミは図書館で勉強しなければなりません。」を英語にすると？", ["Saki and Yumi have to study in the library.", "Saki and Yumi has to study in the library.", "Saki and Yumi have to studies in the library.", "Saki and Yumi have study in the library."], "2人 → have to。", "Saki and Yumi have to study in the library. です。");
+  ch("mdHave-standard-2", "mdHave", "standard", "「父は明日、早く出かけなければなりません。」My father has to （ ） early tomorrow. の（ ）は？", ["leave", "leaves", "left", "leaving"], "has to のあとはもとの形。", "leave です。");
+  ch("mdHave-standard-3", "mdHave", "standard", "「わたしは英語でスピーチをしなければなりません。」I （ ） make a speech in English. の（ ）は？", ["have to", "has to", "have", "must to"], "I → have to。", "have to です。");
+  ch("mdHave-standard-4", "mdHave", "standard", "「その子どもたちはもう帰らなければなりません。」The children （ ） go home now. の（ ）は？", ["have to", "has to", "have", "is to"], "children は複数 → have to。", "have to です。");
+  ch("mdHave-standard-5", "mdHave", "standard", "「エマは毎朝、ピアノを練習しなければなりません。」を英語にすると？", ["Emma has to practice the piano every morning.", "Emma have to practice the piano every morning.", "Emma has to practices the piano every morning.", "Emma has practice the piano every morning."], "エマ → has to ＋ もとの形。", "Emma has to practice the piano every morning. です。");
+  ch("mdHave-standard-6", "mdHave", "standard", "「わたしたちは制服を着なければなりません。」We have to （ ） uniforms. の（ ）は？", ["wear", "wears", "wore", "wearing"], "have to のあとはもとの形。", "wear です。");
+  sp("mdHave-application-1", "mdHave", "放課後の予定です。", [
+    sc("s1", "mdHave", "「わたしは図書館に本を返さなければなりません。」を英語にすると？", ["I have to return books to the library.", "I has to return books to the library.", "I have to returns books to the library.", "I have return books to the library."], "I → have to。", "I have to return books to the library. です。"),
+    sc("s2", "mdHave", "「サキは5時に帰らなければなりません。」Saki （ ） go home at five. の（ ）は？", ["has to", "have to", "has", "is to"], "サキ → has to。", "has to です。"),
+    sc("s3", "mdHave", "「わたしたちは教室をそうじしなければなりません。」We have to （ ） the classroom. の（ ）は？", ["clean", "cleans", "cleaned", "cleaning"], "have to のあとはもとの形。", "clean です。")
+  ], ["mdHave"], "主語で have to・has to を使い分ける。", "I have to return books to the library.、has to、clean です。");
+  sp("mdHave-application-2", "mdHave", "家族の予定です。", [
+    sc("s1", "mdHave", "「母は今日、はたらかなければなりません。」を英語にすると？", ["My mother has to work today.", "My mother have to work today.", "My mother has to works today.", "My mother has work today."], "my mother → has to。", "My mother has to work today. です。"),
+    sc("s2", "mdHave", "「わたしは弟の世話をしなければなりません。」I have to （ ） care of my brother. の（ ）は？", ["take", "takes", "took", "taking"], "take care of 〜 ＝ 〜の世話をする。", "take です。"),
+    sc("s3", "mdHave", "「父と兄は車を洗わなければなりません。」My father and my brother （ ） wash the car. の（ ）は？", ["have to", "has to", "have", "is to"], "2人 → have to。", "have to です。")
+  ], ["mdHave"], "家族それぞれの予定を have to・has to で言う。", "My mother has to work today.、take、have to です。");
+  sp("mdHave-application-3", "mdHave", "部活の連絡です。", [
+    sc("s1", "mdHave", "「部員は朝7時に来なければなりません。」The members （ ） come at seven in the morning. の（ ）は？", ["have to", "has to", "have", "are to"], "members は複数 → have to。", "have to です。"),
+    sc("s2", "mdHave", "「キャプテンは鍵を持ってこなければなりません。」を英語にすると？", ["The captain has to bring the key.", "The captain have to bring the key.", "The captain has to brings the key.", "The captain has bring the key."], "the captain → has to。", "The captain has to bring the key. です。"),
+    sc("s3", "mdHave", "「わたしは新しいシューズを買わなければなりません。」I have to （ ） new shoes. の（ ）は？", ["buy", "buys", "bought", "buying"], "have to のあとはもとの形。", "buy です。")
+  ], ["mdHave"], "have to・has to ＋ もとの形。", "have to、The captain has to bring the key.、buy です。");
+  sp("mdHave-application-4", "mdHave", "テスト前です。", [
+    sc("s1", "mdHave", "「わたしは数学を勉強しなければなりません。」を英語にすると？", ["I have to study math.", "I has to study math.", "I have to studied math.", "I have study math."], "I → have to ＋ もとの形。", "I have to study math. です。"),
+    sc("s2", "mdHave", "「リクは新しい単語を覚えなければなりません。」Riku has to （ ） new words. の（ ）は？", ["learn", "learns", "learned", "learning"], "has to のあとはもとの形。", "learn です。"),
+    sc("s3", "mdHave", "「わたしたちは早く寝なければなりません。」We （ ） go to bed early. の（ ）は？", ["have to", "has to", "have", "are to"], "we → have to。", "have to です。")
+  ], ["mdHave"], "テスト前にすべきことを have to で言う。", "I have to study math.、learn、have to です。");
+  sp("mdHave-application-5", "mdHave", "海外の友だちにメールします。", [
+    sc("s1", "mdHave", "「日本の家では、靴をぬがなければなりません。」を英語にすると？", ["You have to take off your shoes in a Japanese house.", "You has to take off your shoes in a Japanese house.", "You have to takes off your shoes in a Japanese house.", "You have take off your shoes in a Japanese house."], "you → have to。", "You have to take off your shoes in a Japanese house. です。"),
+    sc("s2", "mdHave", "「生徒は学校をそうじしなければなりません。」Students （ ） clean their school. の（ ）は？", ["have to", "has to", "have", "are to"], "students は複数 → have to。", "have to です。"),
+    sc("s3", "mdHave", "「わたしの妹は8時に家を出なければなりません。」My sister has to （ ） home at eight. の（ ）は？", ["leave", "leaves", "left", "leaving"], "has to のあとはもとの形。", "leave です。")
+  ], ["mdHave"], "日本のきまりを have to で説明する。", "You have to take off your shoes in a Japanese house.、have to、leave です。");
+  ch("mdHave-retention-1", "mdHave", "retention", "「わたしは毎朝、犬の散歩をしなければなりません。」を英語にすると？", ["I have to walk the dog every morning.", "I has to walk the dog every morning.", "I have to walks the dog every morning.", "I have walk the dog every morning."], "I → have to ＋ もとの形。", "I have to walk the dog every morning. です。", RB);
+  ch("mdHave-retention-2", "mdHave", "retention", "「彼は今日、宿題をしなければなりません。」を英語にすると？", ["He has to do his homework today.", "He have to do his homework today.", "He has to does his homework today.", "He has do his homework today."], "he → has to ＋ もとの形。", "He has to do his homework today. です。", RB);
+  ch("mdHave-retention-3", "mdHave", "retention", "「わたしたちはバスに乗らなければなりません。」を英語にすると？", ["We have to take the bus.", "We has to take the bus.", "We have to took the bus.", "We have take the bus."], "we → have to。", "We have to take the bus. です。", RB);
+  ch("mdHave-retention-4", "mdHave", "retention", "「ユミは祖母を訪ねなければなりません。」を英語にすると？", ["Yumi has to visit her grandmother.", "Yumi have to visit her grandmother.", "Yumi has to visits her grandmother.", "Yumi has visit her grandmother."], "ユミ → has to。", "Yumi has to visit her grandmother. です。", RS);
+  ch("mdHave-retention-5", "mdHave", "retention", "「彼らは明日、早く起きなければなりません。」を英語にすると？", ["They have to get up early tomorrow.", "They has to get up early tomorrow.", "They have to got up early tomorrow.", "They have get up early tomorrow."], "they → have to ＋ もとの形。", "They have to get up early tomorrow. です。", RS);
+
+  // --- must not と don't have to ---
+  ch("mdNeg-basic-1", "mdNeg", "basic", "「ここで写真をとってはいけません。」を英語にすると？", ["You must not take pictures here.", "You don't have to take pictures here.", "You must not takes pictures here.", "You not must take pictures here."], "「〜してはいけない」は must not。", "You must not take pictures here. です。", { usage: "diagnosis" });
+  ch("mdNeg-basic-2", "mdNeg", "basic", "「あなたは急がなくてもいいです。」You （ ） hurry. の（ ）は？", ["don't have to", "must not", "have to", "doesn't have to"], "「〜しなくてもよい」は don't have to。", "don't have to です。");
+  ch("mdNeg-basic-3", "mdNeg", "basic", "「ここで泳いではいけません。」You （ ） swim here. の（ ）は？", ["mustn't", "don't have to", "must", "have to"], "「〜してはいけない」は mustn't。", "mustn't です。");
+  ch("mdNeg-basic-4", "mdNeg", "basic", "must not の意味は？", ["〜してはいけない", "〜しなくてもよい", "〜しなければならない", "〜してもよい"], "禁止を表す。", "〜してはいけない です。");
+  ch("mdNeg-basic-5", "mdNeg", "basic", "「彼は今日、学校に行かなくてもいいです。」を英語にすると？", ["He doesn't have to go to school today.", "He don't have to go to school today.", "He mustn't go to school today.", "He doesn't has to go to school today."], "he → doesn't have to。", "He doesn't have to go to school today. です。");
+  ch("mdNeg-basic-6", "mdNeg", "basic", "don't have to の意味は？", ["〜しなくてもよい", "〜してはいけない", "〜しなければならない", "〜するでしょう"], "必要がないことを表す。", "〜しなくてもよい です。");
+  ch("mdNeg-basic-7", "mdNeg", "basic", "「この部屋で食べてはいけません。」You must not （ ） in this room. の（ ）は？", ["eat", "eats", "ate", "eating"], "must not のあとはもとの形。", "eat です。");
+  ch("mdNeg-standard-1", "mdNeg", "standard", "「わたしたちは明日、早く起きなくてもいいです。」を英語にすると？", ["We don't have to get up early tomorrow.", "We doesn't have to get up early tomorrow.", "We mustn't get up early tomorrow.", "We don't have to got up early tomorrow."], "「〜しなくてもよい」は don't have to。", "We don't have to get up early tomorrow. です。");
+  ch("mdNeg-standard-2", "mdNeg", "standard", "「授業中に話してはいけません。」You （ ） talk in class. の（ ）は？", ["must not", "don't have to", "have to", "doesn't have to"], "禁止 → must not。", "must not です。");
+  ch("mdNeg-standard-3", "mdNeg", "standard", "「サキは夕食を作らなくてもいいです。」Saki （ ） cook dinner. の（ ）は？", ["doesn't have to", "don't have to", "mustn't", "has to"], "サキ → doesn't have to。", "doesn't have to です。");
+  ch("mdNeg-standard-4", "mdNeg", "standard", "「プールのそばを走ってはいけません。」を英語にすると？", ["You must not run by the pool.", "You don't have to run by the pool.", "You must not runs by the pool.", "You must don't run by the pool."], "must not ＋ もとの形。", "You must not run by the pool. です。");
+  ch("mdNeg-standard-5", "mdNeg", "standard", "「無料なので、あなたはお金をはらわなくてもいいです。」You （ ） pay. の（ ）は？", ["don't have to", "must not", "have to", "doesn't have to"], "必要がない → don't have to。", "don't have to です。");
+  ch("mdNeg-standard-6", "mdNeg", "standard", "「わたしの兄は土曜日にははたらかなくてもいいです。」を英語にすると？", ["My brother doesn't have to work on Saturdays.", "My brother don't have to work on Saturdays.", "My brother mustn't work on Saturdays.", "My brother doesn't have to works on Saturdays."], "my brother → doesn't have to。", "My brother doesn't have to work on Saturdays. です。");
+  sp("mdNeg-application-1", "mdNeg", "美術館のルールです。", [
+    sc("s1", "mdNeg", "「絵にさわってはいけません。」You （ ） touch the pictures. の（ ）は？", ["must not", "don't have to", "have to", "must"], "禁止 → must not。", "must not です。"),
+    sc("s2", "mdNeg", "「大きな声で話してはいけません。」を英語にすると？", ["You must not speak loudly.", "You don't have to speak loudly.", "You must not speaks loudly.", "You not must speak loudly."], "must not ＋ もとの形。", "You must not speak loudly. です。"),
+    sc("s3", "mdNeg", "「子どもはお金をはらわなくてもいいです。」Children （ ） pay. の（ ）は？", ["don't have to", "doesn't have to", "must not", "have to"], "必要がない → don't have to。", "don't have to です。")
+  ], ["mdNeg"], "禁止は must not、不要は don't have to。", "must not、You must not speak loudly.、don't have to です。");
+  sp("mdNeg-application-2", "mdNeg", "週末のことを話します。", [
+    sc("s1", "mdNeg", "「土曜日は学校に行かなくてもいいです。」を英語にすると？", ["I don't have to go to school on Saturday.", "I doesn't have to go to school on Saturday.", "I must not go to school on Saturday.", "I don't have to went to school on Saturday."], "不要 → don't have to。", "I don't have to go to school on Saturday. です。"),
+    sc("s2", "mdNeg", "「でも、宿題をわすれてはいけません。」But I （ ） forget my homework. の（ ）は？", ["must not", "don't have to", "have to", "must"], "禁止 → must not。", "must not です。"),
+    sc("s3", "mdNeg", "「弟は早く起きなくてもいいです。」My brother （ ） get up early. の（ ）は？", ["doesn't have to", "don't have to", "must not", "has to"], "my brother → doesn't have to。", "doesn't have to です。")
+  ], ["mdNeg"], "しなくてよいことと、してはいけないことを言い分ける。", "I don't have to go to school on Saturday.、must not、doesn't have to です。");
+  sp("mdNeg-application-3", "mdNeg", "キャンプのルールです。", [
+    sc("s1", "mdNeg", "「森で火を使ってはいけません。」を英語にすると？", ["You must not use fire in the forest.", "You don't have to use fire in the forest.", "You must not uses fire in the forest.", "You mustn't to use fire in the forest."], "禁止 → must not ＋ もとの形。", "You must not use fire in the forest. です。"),
+    sc("s2", "mdNeg", "「テントを持ってこなくてもいいです。」You （ ） bring a tent. の（ ）は？", ["don't have to", "must not", "have to", "doesn't have to"], "不要 → don't have to。", "don't have to です。"),
+    sc("s3", "mdNeg", "「夜、ひとりで出かけてはいけません。」You （ ） go out alone at night. の（ ）は？", ["mustn't", "don't have to", "have to", "must"], "禁止 → mustn't。", "mustn't です。")
+  ], ["mdNeg"], "ルールの禁止と不要を見分ける。", "You must not use fire in the forest.、don't have to、mustn't です。");
+  sp("mdNeg-application-4", "mdNeg", "病院で言われたことです。", [
+    sc("s1", "mdNeg", "「今日はおふろに入ってはいけません。」を英語にすると？", ["You must not take a bath today.", "You don't have to take a bath today.", "You must not took a bath today.", "You must not to take a bath today."], "禁止 → must not ＋ もとの形。", "You must not take a bath today. です。"),
+    sc("s2", "mdNeg", "「でも、学校は休まなくてもいいです。」But you （ ） stay home. の（ ）は？", ["don't have to", "must not", "have to", "doesn't have to"], "家にいる必要はない → don't have to。", "don't have to です。"),
+    sc("s3", "mdNeg", "「あまいものを食べてはいけません。」You （ ） eat sweets. の（ ）は？", ["must not", "don't have to", "have to", "must"], "禁止 → must not。", "must not です。")
+  ], ["mdNeg"], "してはいけないことと、しなくてよいことを伝える。", "You must not take a bath today.、don't have to、must not です。");
+  sp("mdNeg-application-5", "mdNeg", "友だちの家に行きます。", [
+    sc("s1", "mdNeg", "「何も持ってこなくていいよ。」You （ ） bring anything. の（ ）は？", ["don't have to", "must not", "have to", "doesn't have to"], "不要 → don't have to。", "don't have to です。"),
+    sc("s2", "mdNeg", "「ネコにえさをあげてはいけないよ。」を英語にすると？", ["You must not feed the cat.", "You don't have to feed the cat.", "You must not feeds the cat.", "You not must feed the cat."], "禁止 → must not。", "You must not feed the cat. です。"),
+    sc("s3", "mdNeg", "「ケンは早く帰らなくてもいいです。」Ken （ ） go home early. の（ ）は？", ["doesn't have to", "don't have to", "must not", "has to"], "ケン → doesn't have to。", "doesn't have to です。")
+  ], ["mdNeg"], "must not と don't have to の意味のちがい。", "don't have to、You must not feed the cat.、doesn't have to です。");
+  ch("mdNeg-retention-1", "mdNeg", "retention", "「ここで泳いではいけません。」を英語にすると？", ["You must not swim here.", "You don't have to swim here.", "You must not swims here.", "You not must swim here."], "禁止 → must not。", "You must not swim here. です。", RB);
+  ch("mdNeg-retention-2", "mdNeg", "retention", "「あなたは急がなくてもいいです。」を英語にすると？", ["You don't have to hurry.", "You must not hurry.", "You doesn't have to hurry.", "You don't have to hurried."], "不要 → don't have to。", "You don't have to hurry. です。", RB);
+  ch("mdNeg-retention-3", "mdNeg", "retention", "「彼は明日、学校に来なくてもいいです。」を英語にすると？", ["He doesn't have to come to school tomorrow.", "He don't have to come to school tomorrow.", "He must not come to school tomorrow.", "He doesn't has to come to school tomorrow."], "he → doesn't have to。", "He doesn't have to come to school tomorrow. です。", RB);
+  ch("mdNeg-retention-4", "mdNeg", "retention", "「授業中にねてはいけません。」を英語にすると？", ["You must not sleep in class.", "You don't have to sleep in class.", "You must not sleeps in class.", "You must don't sleep in class."], "禁止 → must not。", "You must not sleep in class. です。", RS);
+  ch("mdNeg-retention-5", "mdNeg", "retention", "「わたしたちは制服を着なくてもいいです。」を英語にすると？", ["We don't have to wear uniforms.", "We doesn't have to wear uniforms.", "We must not wear uniforms.", "We don't have to wore uniforms."], "不要 → don't have to。", "We don't have to wear uniforms. です。", RS);
+
+  // --- may と should ---
+  ch("mdMay-basic-1", "mdMay", "basic", "「あなたはこのペンを使ってもいいです。」を英語にすると？", ["You may use this pen.", "You may uses this pen.", "You may to use this pen.", "You must use this pen."], "「〜してもよい」は may ＋ もとの形。", "You may use this pen. です。", { usage: "diagnosis" });
+  ch("mdMay-basic-2", "mdMay", "basic", "「あなたはもっと寝たほうがいいです。」You （ ） sleep more. の（ ）は？", ["should", "may", "must not", "don't have to"], "「〜したほうがよい」は should。", "should です。");
+  ch("mdMay-basic-3", "mdMay", "basic", "「入ってもいいですか。」（ ） I come in? の（ ）は？", ["May", "Must", "Should", "Do"], "許可をもらう → May I 〜?", "May です。");
+  ch("mdMay-basic-4", "mdMay", "basic", "「あなたは先生に聞くべきです。」You should （ ） your teacher. の（ ）は？", ["ask", "asks", "asked", "to ask"], "should のあとはもとの形。", "ask です。");
+  ch("mdMay-basic-5", "mdMay", "basic", "「明日は雨がふるかもしれません。」It （ ） rain tomorrow. の（ ）は？", ["may", "must", "should", "has to"], "「〜かもしれない」も may。", "may です。");
+  ch("mdMay-basic-6", "mdMay", "basic", "「あなたはもっと野菜を食べるべきです。」を英語にすると？", ["You should eat more vegetables.", "You should eats more vegetables.", "You should to eat more vegetables.", "You may eat more vegetables."], "「〜すべき」は should ＋ もとの形。", "You should eat more vegetables. です。");
+  ch("mdMay-basic-7", "mdMay", "basic", "「夜おそくまで起きているべきではありません。」You （ ） stay up late. の（ ）は？", ["shouldn't", "should", "may", "have to"], "「〜すべきではない」は shouldn't。", "shouldn't です。");
+  ch("mdMay-standard-1", "mdMay", "standard", "「あなたはここにすわってもいいです。」を英語にすると？", ["You may sit here.", "You may sits here.", "You should sit here.", "You may to sit here."], "許可 → may ＋ もとの形。", "You may sit here. です。");
+  ch("mdMay-standard-2", "mdMay", "standard", "「ケンは医者にみてもらうべきです。」Ken （ ） see a doctor. の（ ）は？", ["should", "shoulds", "may", "doesn't have to"], "「〜すべき」は should。形はかわらない。", "should です。");
+  ch("mdMay-standard-3", "mdMay", "standard", "「窓を開けてもいいですか。」を英語にすると？", ["May I open the window?", "May I opens the window?", "Must I open the window?", "May I to open the window?"], "May I ＋ もとの形?", "May I open the window? です。");
+  ch("mdMay-standard-4", "mdMay", "standard", "「彼女は今夜、来るかもしれません。」She may （ ） tonight. の（ ）は？", ["come", "comes", "came", "coming"], "may のあとはもとの形。", "come です。");
+  ch("mdMay-standard-5", "mdMay", "standard", "「わたしたちは毎日、運動したほうがいいです。」We （ ） exercise every day. の（ ）は？", ["should", "may", "must not", "don't have to"], "「〜したほうがよい」は should。", "should です。");
+  ch("mdMay-standard-6", "mdMay", "standard", "「あなたはそのゲームを長い時間するべきではありません。」を英語にすると？", ["You shouldn't play the game for a long time.", "You should play the game for a long time.", "You shouldn't plays the game for a long time.", "You don't should play the game for a long time."], "shouldn't ＋ もとの形。", "You shouldn't play the game for a long time. です。");
+  sp("mdMay-application-1", "mdMay", "図書館で係の人と話します。", [
+    sc("s1", "mdMay", "「この本を借りてもいいですか。」を英語にすると？", ["May I borrow this book?", "May I borrows this book?", "Must I borrow this book?", "May I to borrow this book?"], "May I ＋ もとの形?", "May I borrow this book? です。"),
+    sc("s2", "mdMay", "「あなたは2週間借りていてもいいです。」You （ ） keep it for two weeks. の（ ）は？", ["may", "must not", "should not", "don't have to"], "許可 → may。", "may です。"),
+    sc("s3", "mdMay", "「図書館カードを作ったほうがいいですよ。」You （ ） make a library card. の（ ）は？", ["should", "may", "must not", "don't have to"], "すすめる → should。", "should です。")
+  ], ["mdMay"], "許可は may、すすめるときは should。", "May I borrow this book?、may、should です。");
+  sp("mdMay-application-2", "mdMay", "かぜをひいた友だちにアドバイスします。", [
+    sc("s1", "mdMay", "「あなたは家で休んだほうがいいです。」を英語にすると？", ["You should rest at home.", "You should rests at home.", "You should to rest at home.", "You may rest at home."], "アドバイス → should。", "You should rest at home. です。"),
+    sc("s2", "mdMay", "「何かあたたかいものを飲むべきです。」You should （ ） something warm. の（ ）は？", ["drink", "drinks", "drank", "drinking"], "should のあとはもとの形。", "drink です。"),
+    sc("s3", "mdMay", "「今日は外出するべきではありません。」You （ ） go out today. の（ ）は？", ["shouldn't", "should", "may", "have to"], "「〜すべきではない」は shouldn't。", "shouldn't です。")
+  ], ["mdMay"], "アドバイスは should・shouldn't。", "You should rest at home.、drink、shouldn't です。");
+  sp("mdMay-application-3", "mdMay", "お店で店員さんと話します。", [
+    sc("s1", "mdMay", "「これを試着してもいいですか。」を英語にすると？", ["May I try this on?", "May I tries this on?", "Must I try this on?", "May I to try this on?"], "May I ＋ もとの形?", "May I try this on? です。"),
+    sc("s2", "mdMay", "「試着してもいいですよ。」You （ ） try it on. の（ ）は？", ["may", "must", "should", "have to"], "許可 → may。", "may です。"),
+    sc("s3", "mdMay", "「大きいサイズにしたほうがいいですよ。」You should （ ） a bigger size. の（ ）は？", ["get", "gets", "got", "getting"], "should のあとはもとの形。", "get です。")
+  ], ["mdMay"], "許可をもらう May I 〜? と、すすめる should。", "May I try this on?、may、get です。");
+  sp("mdMay-application-4", "mdMay", "天気について話します。", [
+    sc("s1", "mdMay", "「今日の午後は雨がふるかもしれません。」を英語にすると？", ["It may rain this afternoon.", "It may rains this afternoon.", "It must rain this afternoon.", "It may to rain this afternoon."], "「〜かもしれない」は may。", "It may rain this afternoon. です。"),
+    sc("s2", "mdMay", "「かさを持っていったほうがいいです。」You （ ） take an umbrella. の（ ）は？", ["should", "may", "must not", "don't have to"], "すすめる → should。", "should です。"),
+    sc("s3", "mdMay", "「明日は寒くなるかもしれません。」It may （ ） cold tomorrow. の（ ）は？", ["be", "is", "are", "being"], "may のあとの be動詞は be。", "be です。")
+  ], ["mdMay"], "予想は may、アドバイスは should。", "It may rain this afternoon.、should、be です。");
+  sp("mdMay-application-5", "mdMay", "クラスの話し合いです。", [
+    sc("s1", "mdMay", "「わたしたちはもっと話し合うべきです。」を英語にすると？", ["We should talk more.", "We should talks more.", "We should to talk more.", "We may talk more."], "「〜すべき」は should。", "We should talk more. です。"),
+    sc("s2", "mdMay", "「意見を言ってもいいですか。」May I （ ） something? の（ ）は？", ["say", "says", "said", "saying"], "May I のあとはもとの形。", "say です。"),
+    sc("s3", "mdMay", "「人の意見を笑うべきではありません。」We （ ） laugh at other people's ideas. の（ ）は？", ["shouldn't", "should", "may", "have to"], "「〜すべきではない」は shouldn't。", "shouldn't です。")
+  ], ["mdMay"], "should・shouldn't・May I 〜? を場面で使う。", "We should talk more.、say、shouldn't です。");
+  ch("mdMay-retention-1", "mdMay", "retention", "「あなたはこの部屋を使ってもいいです。」を英語にすると？", ["You may use this room.", "You may uses this room.", "You must use this room.", "You may to use this room."], "許可 → may。", "You may use this room. です。", RB);
+  ch("mdMay-retention-2", "mdMay", "retention", "「あなたは早く寝たほうがいいです。」を英語にすると？", ["You should go to bed early.", "You should goes to bed early.", "You may go to bed early.", "You should to go to bed early."], "アドバイス → should。", "You should go to bed early. です。", RB);
+  ch("mdMay-retention-3", "mdMay", "retention", "「明日は雪がふるかもしれません。」を英語にすると？", ["It may snow tomorrow.", "It may snows tomorrow.", "It must snow tomorrow.", "It may to snow tomorrow."], "「〜かもしれない」は may。", "It may snow tomorrow. です。", RB);
+  ch("mdMay-retention-4", "mdMay", "retention", "「あなたはそれを言うべきではありません。」を英語にすると？", ["You shouldn't say that.", "You should say that.", "You shouldn't says that.", "You don't should say that."], "shouldn't ＋ もとの形。", "You shouldn't say that. です。", RS);
+  ch("mdMay-retention-5", "mdMay", "retention", "「トイレを使ってもいいですか。」を英語にすると？", ["May I use the bathroom?", "May I uses the bathroom?", "Must I use the bathroom?", "May I to use the bathroom?"], "May I ＋ もとの形?", "May I use the bathroom? です。", RS);
+
+  // --- 助動詞の疑問文と答え方 ---
+  ch("mdQues-basic-1", "mdQues", "basic", "「わたしは今日、宿題をしなければなりませんか。」を英語にすると？", ["Do I have to do my homework today?", "Does I have to do my homework today?", "Do I have to does my homework today?", "Do I must do my homework today?"], "Do ＋ 主語 ＋ have to ＋ もとの形?", "Do I have to do my homework today? です。", { usage: "diagnosis" });
+  ch("mdQues-basic-2", "mdQues", "basic", "Must I go now? — No, （ ）. の（ ）は？", ["you don't have to", "you must not", "I don't have to", "you mustn't go"], "Must I 〜? に「その必要はない」は don't have to。", "you don't have to です。");
+  ch("mdQues-basic-3", "mdQues", "basic", "「ケンはそこに行かなければなりませんか。」（ ） Ken have to go there? の（ ）は？", ["Does", "Do", "Is", "Must"], "ケン → Does ＋ 主語 ＋ have to?", "Does です。");
+  ch("mdQues-basic-4", "mdQues", "basic", "Do I have to bring lunch? — Yes, （ ）. の（ ）は？", ["you do", "you are", "I do", "you have"], "Do I 〜? → Yes, you do.", "you do です。");
+  ch("mdQues-basic-5", "mdQues", "basic", "「あなたは何をしなければなりませんか。」を英語にすると？", ["What do you have to do?", "What do you have to does?", "What you have to do?", "What does you have to do?"], "What ＋ do you have to ＋ もとの形?", "What do you have to do? です。");
+  ch("mdQues-basic-6", "mdQues", "basic", "What do you have to do today? の答えとして正しいものは？", ["I have to clean my room.", "Yes, I do.", "I cleaned my room.", "You have to clean my room."], "I have to 〜. で答える。", "I have to clean my room. です。");
+  ch("mdQues-basic-7", "mdQues", "basic", "「わたしは窓を開けるべきですか。」Should I （ ） the window? の（ ）は？", ["open", "opens", "opened", "to open"], "Should I ＋ もとの形?", "open です。");
+  ch("mdQues-standard-1", "mdQues", "standard", "「あなたのお姉さんは明日、はたらかなければなりませんか。」を英語にすると？", ["Does your sister have to work tomorrow?", "Do your sister have to work tomorrow?", "Does your sister has to work tomorrow?", "Is your sister have to work tomorrow?"], "Does ＋ 主語 ＋ have to?", "Does your sister have to work tomorrow? です。");
+  ch("mdQues-standard-2", "mdQues", "standard", "Does your sister have to work tomorrow? の答えとして正しいものは？", ["No, she doesn't.", "No, she don't.", "No, he doesn't.", "No, she isn't."], "Does 〜? → she doesn't。", "No, she doesn't. です。");
+  ch("mdQues-standard-3", "mdQues", "standard", "「わたしは何時に来なければなりませんか。」What time （ ） I have to come? の（ ）は？", ["do", "does", "am", "must"], "I → do ＋ I ＋ have to。", "do です。");
+  ch("mdQues-standard-4", "mdQues", "standard", "Should I call him? — Yes, （ ）. の（ ）は？", ["you should", "I should", "you may", "you do"], "Should I 〜? → Yes, you should.", "you should です。");
+  ch("mdQues-standard-5", "mdQues", "standard", "「わたしは何を持っていくべきですか。」を英語にすると？", ["What should I bring?", "What should I brings?", "What I should bring?", "What do I should bring?"], "What ＋ should ＋ 主語 ＋ もとの形?", "What should I bring? です。");
+  ch("mdQues-standard-6", "mdQues", "standard", "What should I bring? の答えとして正しいものは？", ["You should bring a towel.", "I should bring a towel.", "Yes, you should.", "You brought a towel."], "I でたずねられたら You で答える。", "You should bring a towel. です。");
+  sp("mdQues-application-1", "mdQues", "部活の先輩に聞きます。", [
+    sc("s1", "mdQues", "「わたしたちは毎日練習しなければなりませんか。」を英語にすると？", ["Do we have to practice every day?", "Does we have to practice every day?", "Do we have to practices every day?", "Do we must practice every day?"], "Do ＋ we ＋ have to ＋ もとの形?", "Do we have to practice every day? です。"),
+    sc("s2", "mdQues", "「わたしは何時に来なければなりませんか。」を英語にすると？", ["What time do I have to come?", "What time does I have to come?", "What time I have to come?", "What time do I have to came?"], "What time ＋ do I have to 〜?", "What time do I have to come? です。"),
+    sc("s3", "mdQues", "What time do I have to come? の答えとして正しいものは？", ["You have to come at seven.", "I have to come at seven.", "Yes, you do.", "You had to come at seven."], "I でたずねられたら You have to 〜.", "You have to come at seven. です。")
+  ], ["mdQues"], "Do 〜 have to 〜? と、その答え方。", "Do we have to practice every day?、What time do I have to come?、You have to come at seven. です。");
+  sp("mdQues-application-2", "mdQues", "旅行の準備です。", [
+    sc("s1", "mdQues", "「わたしはパスポートを持っていかなければなりませんか。」を英語にすると？", ["Do I have to take my passport?", "Does I have to take my passport?", "Do I have to took my passport?", "Do I has to take my passport?"], "Do I have to ＋ もとの形?", "Do I have to take my passport? です。"),
+    sc("s2", "mdQues", "Do I have to take my passport? — Yes, （ ）. の（ ）は？", ["you do", "you are", "I do", "you have"], "Do I 〜? → Yes, you do.", "you do です。"),
+    sc("s3", "mdQues", "「何を着ていくべきですか。」What should I （ ）? の（ ）は？", ["wear", "wears", "wore", "wearing"], "should のあとはもとの形。", "wear です。")
+  ], ["mdQues"], "必要かどうか・どうすべきかをたずねる。", "Do I have to take my passport?、you do、wear です。");
+  sp("mdQues-application-3", "mdQues", "先生に質問します。", [
+    sc("s1", "mdQues", "「このプリントを読まなければなりませんか。」を英語にすると？", ["Must I read this paper?", "Must I reads this paper?", "Do I must read this paper?", "Must I to read this paper?"], "Must ＋ 主語 ＋ もとの形?", "Must I read this paper? です。"),
+    sc("s2", "mdQues", "Must I read this paper? — No, （ ）. の（ ）は？", ["you don't have to", "you must not", "I don't have to", "you mustn't"], "「その必要はない」は don't have to。", "you don't have to です。"),
+    sc("s3", "mdQues", "「この辞書を使ってもいいですか。」（ ） I use this dictionary? の（ ）は？", ["May", "Must", "Should", "Do"], "許可 → May I 〜?", "May です。")
+  ], ["mdQues"], "Must I 〜? の No は don't have to。許可は May I 〜?", "Must I read this paper?、you don't have to、May です。");
+  sp("mdQues-application-4", "mdQues", "家族に聞きます。", [
+    sc("s1", "mdQues", "「お父さんは今日、早く起きなければなりませんか。」を英語にすると？", ["Does Dad have to get up early today?", "Do Dad have to get up early today?", "Does Dad has to get up early today?", "Is Dad have to get up early today?"], "Does ＋ 主語 ＋ have to?", "Does Dad have to get up early today? です。"),
+    sc("s2", "mdQues", "Does Dad have to get up early today? — Yes, （ ）. の（ ）は？", ["he does", "he do", "she does", "he is"], "Dad → he does。", "he does です。"),
+    sc("s3", "mdQues", "「わたしは夕食のしたくを手伝うべきですか。」Should I （ ） with dinner? の（ ）は？", ["help", "helps", "helped", "helping"], "Should I ＋ もとの形?", "help です。")
+  ], ["mdQues"], "Does 〜 have to? と Should I 〜?", "Does Dad have to get up early today?、he does、help です。");
+  sp("mdQues-application-5", "mdQues", "職場体験の前に確認します。", [
+    sc("s1", "mdQues", "「わたしたちは何を持っていかなければなりませんか。」を英語にすると？", ["What do we have to bring?", "What does we have to bring?", "What do we have to brought?", "What we have to bring?"], "What ＋ do we have to 〜?", "What do we have to bring? です。"),
+    sc("s2", "mdQues", "「わたしは制服を着ていくべきですか。」を英語にすると？", ["Should I wear my uniform?", "Should I wears my uniform?", "Should I to wear my uniform?", "Do I should wear my uniform?"], "Should ＋ 主語 ＋ もとの形?", "Should I wear my uniform? です。"),
+    sc("s3", "mdQues", "Should I wear my uniform? — No, （ ）. の（ ）は？", ["you shouldn't", "you don't should", "I shouldn't", "you may not"], "Should I 〜? → you shouldn't。", "you shouldn't です。")
+  ], ["mdQues"], "What do 〜 have to 〜? と Should I 〜?", "What do we have to bring?、Should I wear my uniform?、you shouldn't です。");
+  ch("mdQues-retention-1", "mdQues", "retention", "「わたしは今、帰らなければなりませんか。」を英語にすると？", ["Do I have to go home now?", "Does I have to go home now?", "Do I have to went home now?", "Do I must go home now?"], "Do I have to ＋ もとの形?", "Do I have to go home now? です。", RB);
+  ch("mdQues-retention-2", "mdQues", "retention", "「ケンは宿題をしなければなりませんか。」を英語にすると？", ["Does Ken have to do his homework?", "Do Ken have to do his homework?", "Does Ken has to do his homework?", "Is Ken have to do his homework?"], "Does ＋ 主語 ＋ have to?", "Does Ken have to do his homework? です。", RB);
+  ch("mdQues-retention-3", "mdQues", "retention", "「わたしは行かなければなりませんか。」に「いいえ、その必要はありません」と答えると？", ["No, you don't have to.", "No, you must not.", "No, I don't have to.", "No, you mustn't go."], "「その必要はない」は don't have to。", "No, you don't have to. です。", RB);
+  ch("mdQues-retention-4", "mdQues", "retention", "「わたしは何をするべきですか。」を英語にすると？", ["What should I do?", "What should I does?", "What I should do?", "What do I should do?"], "What ＋ should ＋ 主語 ＋ もとの形?", "What should I do? です。", RS);
+  ch("mdQues-retention-5", "mdQues", "retention", "「窓を閉めてもいいですか。」を英語にすると？", ["May I close the window?", "May I closes the window?", "Must I close the window?", "May I to close the window?"], "May I ＋ もとの形?", "May I close the window? です。", RS);
+  sp("mdQues-application-6", "mdQues", "体育の授業の前に先生に聞きます。", [
+    sc("s1", "mdQues", "「わたしは体操服を着なければなりませんか。」を英語にすると？", ["Do I have to wear my gym clothes?", "Does I have to wear my gym clothes?", "Do I must wear my gym clothes?", "Do I have to wore my gym clothes?"], "Do I have to ＋ もとの形?", "Do I have to wear my gym clothes? です。"),
+    sc("s2", "mdQues", "Do I have to wear my gym clothes? — No, （ ）. の（ ）は？", ["you don't", "you aren't", "I don't", "you mustn't"], "Do I 〜? → No, you don't.", "you don't です。"),
+    sc("s3", "mdQues", "「水とうを持っていくべきですか。」Should I （ ） a water bottle? の（ ）は？", ["bring", "brings", "brought", "to bring"], "Should I ＋ もとの形?", "bring です。")
+  ], ["mdQues"], "Do I have to 〜? の No は you don't。", "Do I have to wear my gym clothes?、you don't、bring です。");
+  sp("mdQues-application-7", "mdQues", "友だちの家でたずねます。", [
+    sc("s1", "mdQues", "「ここにかばんを置いてもいいですか。」（ ） I leave my bag here? の（ ）は？", ["May", "Must", "Should", "Do"], "許可 → May I 〜?", "May です。"),
+    sc("s2", "mdQues", "「くつをぬがなければなりませんか。」を英語にすると？", ["Must I take off my shoes?", "Must I takes off my shoes?", "Do I must take off my shoes?", "Must I to take off my shoes?"], "Must ＋ 主語 ＋ もとの形?", "Must I take off my shoes? です。"),
+    sc("s3", "mdQues", "Must I take off my shoes? — Yes, （ ）. の（ ）は？", ["you must", "I must", "you do", "you may"], "Must I 〜? → Yes, you must.", "you must です。")
+  ], ["mdQues"], "May I 〜? と Must I 〜? を場面で使い分ける。", "May、Must I take off my shoes?、you must です。");
+  ch("mdQues-retention-6", "mdQues", "retention", "「わたしはここで待つべきですか。」を英語にすると？", ["Should I wait here?", "Should I waits here?", "Do I should wait here?", "Should I to wait here?"], "Should ＋ 主語 ＋ もとの形?", "Should I wait here? です。", RS);
+  ch("mdQues-retention-7", "mdQues", "retention", "「エマは明日、早く来なければなりませんか。」を英語にすると？", ["Does Emma have to come early tomorrow?", "Do Emma have to come early tomorrow?", "Does Emma has to come early tomorrow?", "Is Emma have to come early tomorrow?"], "Does ＋ 主語 ＋ have to?", "Does Emma have to come early tomorrow? です。", RB);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

@@ -42,7 +42,8 @@
       "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。",
       "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。",
       "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。",
-      "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。"
+      "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。",
+      "助動詞": "must・have to（〜しなければならない）、must not（〜してはいけない）、don't have to（〜しなくてもよい）、may（〜してもよい・〜かもしれない）、should（〜すべき）を使う単元です。助動詞のあとは動詞のもとの形。must not と don't have to は意味がちがうので気をつけます。"
     },
     skills: {
       // --- 正負の数 ---
@@ -248,6 +249,12 @@
       ftGoing: { point: "be going to ＋ もとの形で「〜するつもり・〜する予定」。be動詞は主語に合わせて am・are・is にします。", example: "I'm going to play tennis tomorrow.", trap: "be動詞をぬかしたり（I going to）、to をぬかしたり（going play）しないようにします。" },
       ftGoingNQ: { point: "be going to の否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。答えも be動詞で答えます。", example: "Are you going to visit Kyoto? — Yes, I am.", trap: "Do you going to 〜? とはしません。" },
       ftWhat: { point: "疑問詞のあとに will ＋ 主語 ＋ もとの形?、または be動詞 ＋ 主語 ＋ going to 〜? を続けます。Who が主語なら Who will 〜?。", example: "What are you going to do tomorrow? — I'm going to visit my aunt.", trap: "What you are going to do? のように語順をそのままにしないようにします。" },
+      // --- 助動詞（英語） ---
+      mdMust: { point: "must ＋ 動詞のもとの形で「〜しなければならない」。主語がだれでも must の形はかわりません。", example: "I must do my homework.", trap: "must to do・must does としないようにします。be動詞は must be になります。" },
+      mdHave: { point: "have to ＋ もとの形も「〜しなければならない」。主語が he・she・it や1人の人なら has to にします。", example: "She has to help her mother.", trap: "has to のあとの動詞に s はつけません（has to helps は×）。" },
+      mdNeg: { point: "must not（mustn't）は「〜してはいけない」、don't have to は「〜しなくてもよい」。形は似ていますが意味がちがいます。", example: "You must not swim here. ／ You don't have to hurry.", trap: "「しなくてもよい」を must not にしないようにします。主語が he・she なら doesn't have to。" },
+      mdMay: { point: "may ＋ もとの形は「〜してもよい」「〜かもしれない」。should ＋ もとの形は「〜すべき・〜したほうがよい」。", example: "May I come in? ／ You should rest at home.", trap: "「〜すべきではない」は shouldn't。don't should とはしません。" },
+      mdQues: { point: "Must I 〜?・Should I 〜? は助動詞を前に。have to は Do・Does ＋ 主語 ＋ have to 〜? にします。", example: "Do I have to bring lunch? — Yes, you do.", trap: "Must I 〜? に「その必要はない」と答えるときは No, you don't have to. です（must not ではない）。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },
