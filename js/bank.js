@@ -10527,6 +10527,236 @@
   ch("psBe-retention-5", "psBe", "retention", "「昨日の天気はどうでしたか。」を英語にすると？", ["How was the weather yesterday?", "How were the weather yesterday?", "How did the weather yesterday?", "How the weather was yesterday?"], "How ＋ was ＋ 主語?", "How was the weather yesterday? です。", RS);
 
   // =====================================================================
+  // 中2 英語「未来形」（will・won't／Will 〜?・be going to・その否定文と疑問文・What will／What are you going to 〜?）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-future.test.js が文の形と答えの合い方を確かめる）
+  // =====================================================================
+
+  // --- will ＋ もとの形 ---
+  ch("ftWill-basic-1", "ftWill", "basic", "「わたしは明日、祖母を訪ねます。」を英語にすると？", ["I will visit my grandmother tomorrow.", "I will visits my grandmother tomorrow.", "I will visited my grandmother tomorrow.", "I will to visit my grandmother tomorrow."], "will ＋ 動詞のもとの形。", "I will visit my grandmother tomorrow. です。", { usage: "diagnosis" });
+  ch("ftWill-basic-2", "ftWill", "basic", "「〜するでしょう・〜します」と、これからのことを表す語は？", ["will", "did", "was", "does"], "未来を表す助動詞。", "will です。");
+  ch("ftWill-basic-3", "ftWill", "basic", "「ケンは明日、テニスをするでしょう。」Ken will （ ） tennis tomorrow. の（ ）は？", ["play", "plays", "played", "playing"], "will のあとはもとの形。", "play です。");
+  ch("ftWill-basic-4", "ftWill", "basic", "「明日は雨がふるでしょう。」It （ ） rain tomorrow. の（ ）は？", ["will", "is", "does", "did"], "これからのこと → will。", "will です。");
+  ch("ftWill-basic-5", "ftWill", "basic", "「わたしは今夜、母を手伝います。」を英語にすると？", ["I will help my mother tonight.", "I will helps my mother tonight.", "I will helped my mother tonight.", "I helping my mother tonight."], "will ＋ help。", "I will help my mother tonight. です。");
+  ch("ftWill-basic-6", "ftWill", "basic", "「彼女は来年、15歳になります。」She will （ ） fifteen next year. の（ ）は？", ["be", "is", "are", "being"], "will のあとの be動詞は be。", "be です。");
+  ch("ftWill-basic-7", "ftWill", "basic", "「明日は晴れるでしょう。」を英語にすると？", ["It will be sunny tomorrow.", "It will is sunny tomorrow.", "It will sunny tomorrow.", "It wills be sunny tomorrow."], "will ＋ be ＋ ようすの語。", "It will be sunny tomorrow. です。");
+  ch("ftWill-standard-1", "ftWill", "standard", "「わたしたちは来週、京都に行きます。」を英語にすると？", ["We will go to Kyoto next week.", "We will goes to Kyoto next week.", "We will went to Kyoto next week.", "We go will to Kyoto next week."], "will は動詞の前。", "We will go to Kyoto next week. です。");
+  ch("ftWill-standard-2", "ftWill", "standard", "「父は今夜、夕食を作るでしょう。」My father （ ） dinner tonight. の（ ）は？", ["will cook", "will cooks", "wills cook", "cooks will"], "主語が1人でも will の形はかわらない。", "will cook です。");
+  ch("ftWill-standard-3", "ftWill", "standard", "「わたしは明日、7時に起きます。」I will （ ） up at seven tomorrow. の（ ）は？", ["get", "got", "gets", "getting"], "will のあとはもとの形。", "get です。");
+  ch("ftWill-standard-4", "ftWill", "standard", "「あとであなたに電話します。」を英語にすると？", ["I will call you later.", "I will called you later.", "I will calls you later.", "I call will you later."], "will ＋ call。", "I will call you later. です。");
+  ch("ftWill-standard-5", "ftWill", "standard", "「今週末は寒くなるでしょう。」It （ ） cold this weekend. の（ ）は？", ["will be", "will is", "is will", "will"], "ようすは will be ＋ 形容詞。", "will be です。");
+  ch("ftWill-standard-6", "ftWill", "standard", "「ユミとサキは明日、図書館で勉強します。」を英語にすると？", ["Yumi and Saki will study in the library tomorrow.", "Yumi and Saki will studies in the library tomorrow.", "Yumi and Saki wills study in the library tomorrow.", "Yumi and Saki will studied in the library tomorrow."], "will ＋ study。", "Yumi and Saki will study in the library tomorrow. です。");
+  sp("ftWill-application-1", "ftWill", "週末の予定を話します。", [
+    sc("s1", "ftWill", "「土曜日、わたしは映画を見ます。」を英語にすると？", ["I will watch a movie on Saturday.", "I will watches a movie on Saturday.", "I will watched a movie on Saturday.", "I will watching a movie on Saturday."], "will ＋ もとの形。", "I will watch a movie on Saturday. です。"),
+    sc("s2", "ftWill", "「日曜日、兄が昼食を作ります。」My brother （ ） lunch on Sunday. の（ ）は？", ["will make", "will makes", "will made", "make will"], "will ＋ make。", "will make です。"),
+    sc("s3", "ftWill", "「わたしたちは公園でサッカーをします。」We will （ ） soccer in the park. の（ ）は？", ["play", "plays", "played", "to play"], "will のあとはもとの形。", "play です。")
+  ], ["ftWill"], "これからの予定を will ＋ もとの形で言う。", "I will watch a movie on Saturday.、will make、play です。");
+  sp("ftWill-application-2", "ftWill", "天気予報を伝えます。", [
+    sc("s1", "ftWill", "「明日は雨でしょう。」を英語にすると？", ["It will be rainy tomorrow.", "It will rainy tomorrow.", "It will is rainy tomorrow.", "It is will rainy tomorrow."], "will be ＋ rainy。", "It will be rainy tomorrow. です。"),
+    sc("s2", "ftWill", "「あさっては晴れるでしょう。」It will （ ） sunny the day after tomorrow. の（ ）は？", ["be", "is", "was", "being"], "will のあとは be。", "be です。"),
+    sc("s3", "ftWill", "「夜には雪がふるでしょう。」It will （ ） at night. の（ ）は？", ["snow", "snows", "snowed", "snowing"], "will のあとはもとの形。", "snow です。")
+  ], ["ftWill"], "天気の予想は It will 〜.", "It will be rainy tomorrow.、be、snow です。");
+  sp("ftWill-application-3", "ftWill", "家族の予定を伝えます。", [
+    sc("s1", "ftWill", "「母は明日、東京に行きます。」を英語にすると？", ["My mother will go to Tokyo tomorrow.", "My mother will goes to Tokyo tomorrow.", "My mother wills go to Tokyo tomorrow.", "My mother will went to Tokyo tomorrow."], "will ＋ go。", "My mother will go to Tokyo tomorrow. です。"),
+    sc("s2", "ftWill", "「父は駅で母に会います。」My father will （ ） her at the station. の（ ）は？", ["meet", "meets", "met", "meeting"], "will のあとはもとの形。", "meet です。"),
+    sc("s3", "ftWill", "「わたしは家にいます。」I （ ） at home. の（ ）は？", ["will stay", "will stays", "stay will", "will stayed"], "will ＋ stay。", "will stay です。")
+  ], ["ftWill"], "だれの予定でも will ＋ もとの形。", "My mother will go to Tokyo tomorrow.、meet、will stay です。");
+  sp("ftWill-application-4", "ftWill", "部活の予定です。", [
+    sc("s1", "ftWill", "「わたしたちは来月、試合があります。」を英語にすると？", ["We will have a game next month.", "We will has a game next month.", "We will had a game next month.", "We will having a game next month."], "will ＋ have。", "We will have a game next month. です。"),
+    sc("s2", "ftWill", "「コーチは新しい選手をえらぶでしょう。」Our coach will （ ） new players. の（ ）は？", ["choose", "chooses", "chose", "choosing"], "will のあとはもとの形。", "choose です。"),
+    sc("s3", "ftWill", "「わたしは一生けんめい練習します。」I will （ ） hard. の（ ）は？", ["practice", "practices", "practiced", "practicing"], "will のあとはもとの形。", "practice です。")
+  ], ["ftWill"], "これからのことは will ＋ もとの形。", "We will have a game next month.、choose、practice です。");
+  sp("ftWill-application-5", "ftWill", "旅行の計画です。", [
+    sc("s1", "ftWill", "「わたしたちは北海道を訪れます。」を英語にすると？", ["We will visit Hokkaido.", "We will visits Hokkaido.", "We will visited Hokkaido.", "We visit will Hokkaido."], "will ＋ visit。", "We will visit Hokkaido. です。"),
+    sc("s2", "ftWill", "「そこで写真をたくさんとります。」We will （ ） a lot of pictures there. の（ ）は？", ["take", "takes", "took", "taking"], "will のあとはもとの形。", "take です。"),
+    sc("s3", "ftWill", "「旅行は楽しいでしょう。」The trip （ ） fun. の（ ）は？", ["will be", "will is", "is will", "wills be"], "will be ＋ ようす。", "will be です。")
+  ], ["ftWill"], "予定も予想も will で言える。", "We will visit Hokkaido.、take、will be です。");
+  ch("ftWill-retention-1", "ftWill", "retention", "「わたしは明日、ケンに会います。」を英語にすると？", ["I will meet Ken tomorrow.", "I will meets Ken tomorrow.", "I will met Ken tomorrow.", "I will to meet Ken tomorrow."], "will ＋ もとの形。", "I will meet Ken tomorrow. です。", RB);
+  ch("ftWill-retention-2", "ftWill", "retention", "「明日は暑くなるでしょう。」を英語にすると？", ["It will be hot tomorrow.", "It will hot tomorrow.", "It will is hot tomorrow.", "It wills be hot tomorrow."], "will ＋ be ＋ ようすの語。", "It will be hot tomorrow. です。", RB);
+  ch("ftWill-retention-3", "ftWill", "retention", "「彼は来週、ロンドンを訪れます。」を英語にすると？", ["He will visit London next week.", "He will visits London next week.", "He wills visit London next week.", "He will visited London next week."], "he でも will ＋ もとの形。", "He will visit London next week. です。", RB);
+  ch("ftWill-retention-4", "ftWill", "retention", "「わたしたちは今夜、テレビを見ます。」を英語にすると？", ["We will watch TV tonight.", "We will watches TV tonight.", "We will watched TV tonight.", "We will watching TV tonight."], "will ＋ watch。", "We will watch TV tonight. です。", RS);
+  ch("ftWill-retention-5", "ftWill", "retention", "「姉は明日、ケーキを作ります。」を英語にすると？", ["My sister will make a cake tomorrow.", "My sister will makes a cake tomorrow.", "My sister will made a cake tomorrow.", "My sister wills make a cake tomorrow."], "will ＋ make。", "My sister will make a cake tomorrow. です。", RS);
+
+  // --- will の否定文・疑問文 ---
+  ch("ftWillNQ-basic-1", "ftWillNQ", "basic", "「わたしは明日、学校へ行きません。」を英語にすると？", ["I won't go to school tomorrow.", "I won't goes to school tomorrow.", "I don't will go to school tomorrow.", "I will don't go to school tomorrow."], "will not（won't）＋ もとの形。", "I won't go to school tomorrow. です。", { usage: "diagnosis" });
+  ch("ftWillNQ-basic-2", "ftWillNQ", "basic", "will not の短い形は？", ["won't", "willn't", "don't", "isn't"], "つづりがかわる。", "won't です。");
+  ch("ftWillNQ-basic-3", "ftWillNQ", "basic", "「ケンは明日、来ないでしょう。」Ken （ ） come tomorrow. の（ ）は？", ["won't", "doesn't", "isn't", "didn't"], "未来の否定 → won't。", "won't です。");
+  ch("ftWillNQ-basic-4", "ftWillNQ", "basic", "「あなたは明日、ひまですか。」を英語にすると？", ["Will you be free tomorrow?", "Will you are free tomorrow?", "Do you will be free tomorrow?", "You will be free tomorrow?"], "Will を主語の前に。be動詞は be。", "Will you be free tomorrow? です。");
+  ch("ftWillNQ-basic-5", "ftWillNQ", "basic", "Will it rain tomorrow? — No, （ ）. の（ ）は？", ["it won't", "it doesn't", "it isn't", "it will"], "Will 〜? には will・won't で答える。", "it won't です。");
+  ch("ftWillNQ-basic-6", "ftWillNQ", "basic", "「彼女は明日のパーティーに来るでしょうか。」（ ） she come to the party tomorrow? の（ ）は？", ["Will", "Does", "Is", "Did"], "未来の疑問文は Will。", "Will です。");
+  ch("ftWillNQ-basic-7", "ftWillNQ", "basic", "Will you help me? の答えとして正しいものは？", ["Yes, I will.", "Yes, I do.", "Yes, you will.", "Yes, I am."], "Will you 〜? → Yes, I will.", "Yes, I will. です。");
+  ch("ftWillNQ-standard-1", "ftWillNQ", "standard", "「わたしたちは今夜、外出しません。」を英語にすると？", ["We won't go out tonight.", "We won't went out tonight.", "We don't will go out tonight.", "We willn't go out tonight."], "won't ＋ もとの形。", "We won't go out tonight. です。");
+  ch("ftWillNQ-standard-2", "ftWillNQ", "standard", "Will your father cook dinner tonight? — Yes, （ ）. の（ ）は？", ["he will", "he does", "she will", "he is"], "your father → he will。", "he will です。");
+  ch("ftWillNQ-standard-3", "ftWillNQ", "standard", "「あなたは明日、何時に起きますか。」What time （ ） you get up tomorrow? の（ ）は？", ["will", "does", "are", "is"], "未来のことをたずねる → will。", "will です。");
+  ch("ftWillNQ-standard-4", "ftWillNQ", "standard", "「父は来週、車を使わないでしょう。」My father （ ） the car next week. の（ ）は？", ["won't use", "won't uses", "doesn't will use", "willn't use"], "won't ＋ もとの形。", "won't use です。");
+  ch("ftWillNQ-standard-5", "ftWillNQ", "standard", "Will Yumi and Saki come tomorrow? の答えとして正しいものは？", ["No, they won't.", "No, they don't.", "No, she won't.", "No, they aren't."], "2人 → they won't。", "No, they won't. です。");
+  ch("ftWillNQ-standard-6", "ftWillNQ", "standard", "「明日は寒くないでしょう。」を英語にすると？", ["It won't be cold tomorrow.", "It won't is cold tomorrow.", "It isn't will cold tomorrow.", "It won't cold tomorrow."], "won't ＋ be ＋ ようすの語。", "It won't be cold tomorrow. です。");
+  sp("ftWillNQ-application-1", "ftWillNQ", "友だちを遊びにさそいます。", [
+    sc("s1", "ftWillNQ", "「明日、あなたは家にいますか。」を英語にすると？", ["Will you be at home tomorrow?", "Will you are at home tomorrow?", "Are you will be at home tomorrow?", "Do you will be at home tomorrow?"], "Will ＋ 主語 ＋ be 〜?", "Will you be at home tomorrow? です。"),
+    sc("s2", "ftWillNQ", "Will you be at home tomorrow? — Yes, （ ）. の（ ）は？", ["I will", "I am", "I do", "you will"], "Will you 〜? → I will。", "I will です。"),
+    sc("s3", "ftWillNQ", "「弟は家にいないでしょう。」My brother （ ） at home. の（ ）は？", ["won't be", "won't is", "isn't will", "doesn't be"], "won't ＋ be。", "won't be です。")
+  ], ["ftWillNQ"], "Will 〜? と won't の使い方。", "Will you be at home tomorrow?、I will、won't be です。");
+  sp("ftWillNQ-application-2", "ftWillNQ", "天気について話します。", [
+    sc("s1", "ftWillNQ", "「明日は雪がふるでしょうか。」（ ） it snow tomorrow? の（ ）は？", ["Will", "Does", "Is", "Did"], "未来の疑問文は Will。", "Will です。"),
+    sc("s2", "ftWillNQ", "Will it snow tomorrow? の答えとして正しいものは？", ["No, it won't.", "No, it doesn't.", "No, it isn't.", "No, it will."], "No なら it won't。", "No, it won't. です。"),
+    sc("s3", "ftWillNQ", "「でも、とても寒いでしょう。」But it （ ） very cold. の（ ）は？", ["will be", "will is", "is will", "won't is"], "will be ＋ ようす。", "will be です。")
+  ], ["ftWillNQ"], "天気の予想をたずね、will・won't で答える。", "Will、No, it won't.、will be です。");
+  sp("ftWillNQ-application-3", "ftWillNQ", "クラスの予定を確認します。", [
+    sc("s1", "ftWillNQ", "「先生は明日、来ないでしょう。」を英語にすると？", ["Our teacher won't come tomorrow.", "Our teacher won't comes tomorrow.", "Our teacher doesn't will come tomorrow.", "Our teacher will don't come tomorrow."], "won't ＋ もとの形。", "Our teacher won't come tomorrow. です。"),
+    sc("s2", "ftWillNQ", "「わたしたちはテストを受けますか。」Will we （ ） a test? の（ ）は？", ["take", "takes", "took", "taking"], "Will ＋ 主語 ＋ もとの形?", "take です。"),
+    sc("s3", "ftWillNQ", "Will Ken take a test? — No, （ ）. の（ ）は？", ["he won't", "he doesn't", "he isn't", "they won't"], "ケン → he won't。", "he won't です。")
+  ], ["ftWillNQ"], "予定を Will 〜? でたしかめる。", "Our teacher won't come tomorrow.、take、he won't です。");
+  sp("ftWillNQ-application-4", "ftWillNQ", "お店の人と話します。", [
+    sc("s1", "ftWillNQ", "「そのお店は明日、開いているでしょうか。」を英語にすると？", ["Will the shop be open tomorrow?", "Will the shop is open tomorrow?", "Does the shop will be open tomorrow?", "Will be the shop open tomorrow?"], "Will ＋ 主語 ＋ be 〜?", "Will the shop be open tomorrow? です。"),
+    sc("s2", "ftWillNQ", "Will the shop be open tomorrow? — Yes, （ ）. の（ ）は？", ["it will", "it does", "it is", "they will"], "the shop → it will。", "it will です。"),
+    sc("s3", "ftWillNQ", "「でも、日曜日は開いていないでしょう。」But it （ ） open on Sunday. の（ ）は？", ["won't be", "won't is", "doesn't be", "isn't will"], "won't ＋ be。", "won't be です。")
+  ], ["ftWillNQ"], "Will 〜 be 〜? と won't be 〜.", "Will the shop be open tomorrow?、it will、won't be です。");
+  sp("ftWillNQ-application-5", "ftWillNQ", "家族の予定をたずねます。", [
+    sc("s1", "ftWillNQ", "「お母さんは今夜、夕食を作りますか。」を英語にすると？", ["Will your mother cook dinner tonight?", "Will your mother cooks dinner tonight?", "Does your mother will cook dinner tonight?", "Will cook your mother dinner tonight?"], "Will ＋ 主語 ＋ もとの形?", "Will your mother cook dinner tonight? です。"),
+    sc("s2", "ftWillNQ", "Will your mother cook dinner tonight? — No, （ ）. の（ ）は？", ["she won't", "she doesn't", "he won't", "she isn't"], "your mother → she won't。", "she won't です。"),
+    sc("s3", "ftWillNQ", "「父が作るでしょう。」My father （ ） it. の（ ）は？", ["will cook", "will cooks", "cooks will", "won't cooks"], "will ＋ cook。", "will cook です。")
+  ], ["ftWillNQ"], "Will 〜? とその答え方。", "Will your mother cook dinner tonight?、she won't、will cook です。");
+  ch("ftWillNQ-retention-1", "ftWillNQ", "retention", "「わたしは明日、テニスをしません。」を英語にすると？", ["I won't play tennis tomorrow.", "I won't plays tennis tomorrow.", "I don't will play tennis tomorrow.", "I will don't play tennis tomorrow."], "won't ＋ もとの形。", "I won't play tennis tomorrow. です。", RB);
+  ch("ftWillNQ-retention-2", "ftWillNQ", "retention", "「あなたは明日、来ますか。」を英語にすると？", ["Will you come tomorrow?", "Will you comes tomorrow?", "Do you will come tomorrow?", "You will come tomorrow?"], "Will ＋ 主語 ＋ もとの形?", "Will you come tomorrow? です。", RB);
+  ch("ftWillNQ-retention-3", "ftWillNQ", "retention", "「ケンは明日、図書館へ行くでしょうか。」に「いいえ」と答えると？", ["No, he won't.", "No, he doesn't.", "No, he isn't.", "No, she won't."], "ケン → he won't。", "No, he won't. です。", RB);
+  ch("ftWillNQ-retention-4", "ftWillNQ", "retention", "「明日は雨がふらないでしょう。」を英語にすると？", ["It won't rain tomorrow.", "It won't rains tomorrow.", "It doesn't will rain tomorrow.", "It willn't rain tomorrow."], "won't ＋ rain。", "It won't rain tomorrow. です。", RS);
+  ch("ftWillNQ-retention-5", "ftWillNQ", "retention", "「彼らは来週、ここに来るでしょうか。」を英語にすると？", ["Will they come here next week?", "Will they came here next week?", "Do they will come here next week?", "Will they comes here next week?"], "Will ＋ 主語 ＋ もとの形?", "Will they come here next week? です。", RS);
+
+  // --- be going to ＋ もとの形 ---
+  ch("ftGoing-basic-1", "ftGoing", "basic", "「わたしは明日、テニスをするつもりです。」を英語にすると？", ["I'm going to play tennis tomorrow.", "I'm going to plays tennis tomorrow.", "I going to play tennis tomorrow.", "I'm going play tennis tomorrow."], "be going to ＋ もとの形。", "I'm going to play tennis tomorrow. です。", { usage: "diagnosis" });
+  ch("ftGoing-basic-2", "ftGoing", "basic", "「〜するつもりです・〜する予定です」を表す形は？", ["be going to ＋ もとの形", "be ＋ 〜ing だけ", "did ＋ もとの形", "can ＋ もとの形"], "決めている予定を表す。", "be going to ＋ もとの形です。");
+  ch("ftGoing-basic-3", "ftGoing", "basic", "「ケンは明日、京都を訪れる予定です。」Ken （ ） going to visit Kyoto tomorrow. の（ ）は？", ["is", "are", "am", "does"], "ケンは1人 → is。", "is です。");
+  ch("ftGoing-basic-4", "ftGoing", "basic", "「彼らは今夜、映画を見るつもりです。」They are going to （ ） a movie tonight. の（ ）は？", ["watch", "watches", "watched", "watching"], "going to のあとはもとの形。", "watch です。");
+  ch("ftGoing-basic-5", "ftGoing", "basic", "「わたしたちは来週、海に行く予定です。」を英語にすると？", ["We are going to go to the sea next week.", "We is going to go to the sea next week.", "We are going to went to the sea next week.", "We are go to the sea next week."], "we → are going to。", "We are going to go to the sea next week. です。");
+  ch("ftGoing-basic-6", "ftGoing", "basic", "「わたしは今夜、宿題をするつもりです。」I'm going （ ） do my homework tonight. の（ ）は？", ["to", "for", "will", "be"], "going to ＋ もとの形。", "to です。");
+  ch("ftGoing-basic-7", "ftGoing", "basic", "「姉は明日、ケーキを作るつもりです。」My sister （ ） to make a cake tomorrow. の（ ）は？", ["is going", "are going", "going", "is go"], "my sister → is going。", "is going です。");
+  ch("ftGoing-standard-1", "ftGoing", "standard", "「父は来月、新しい車を買う予定です。」を英語にすると？", ["My father is going to buy a new car next month.", "My father is going to buys a new car next month.", "My father are going to buy a new car next month.", "My father is going to bought a new car next month."], "is going to ＋ もとの形。", "My father is going to buy a new car next month. です。");
+  ch("ftGoing-standard-2", "ftGoing", "standard", "「ユミとわたしは放課後、テニスをするつもりです。」Yumi and I （ ） going to play tennis after school. の（ ）は？", ["are", "is", "am", "do"], "2人 → are。", "are です。");
+  ch("ftGoing-standard-3", "ftGoing", "standard", "「わたしは来年、カナダに住む予定です。」I'm going to （ ） in Canada next year. の（ ）は？", ["live", "lives", "lived", "living"], "going to のあとはもとの形。", "live です。");
+  ch("ftGoing-standard-4", "ftGoing", "standard", "「明日は雨がふりそうです。」It's going to （ ） tomorrow. の（ ）は？", ["rain", "rains", "rained", "raining"], "going to のあとはもとの形。", "rain です。");
+  ch("ftGoing-standard-5", "ftGoing", "standard", "「彼らはパーティーで歌う予定です。」を英語にすると？", ["They are going to sing at the party.", "They are going to sang at the party.", "They is going to sing at the party.", "They are going sing at the party."], "are going to ＋ sing。", "They are going to sing at the party. です。");
+  ch("ftGoing-standard-6", "ftGoing", "standard", "「わたしは週末、祖父母を訪ねるつもりです。」I （ ） visit my grandparents on the weekend. の（ ）は？", ["am going to", "am going", "going to", "am go to"], "am going to ＋ もとの形。", "am going to です。");
+  sp("ftGoing-application-1", "ftGoing", "夏休みの計画を話します。", [
+    sc("s1", "ftGoing", "「わたしは沖縄に行く予定です。」を英語にすると？", ["I'm going to go to Okinawa.", "I'm going to went to Okinawa.", "I'm going go to Okinawa.", "I going to go to Okinawa."], "I'm going to ＋ go。", "I'm going to go to Okinawa. です。"),
+    sc("s2", "ftGoing", "「家族といっしょに泳ぐつもりです。」I'm going to （ ） with my family. の（ ）は？", ["swim", "swims", "swam", "swimming"], "going to のあとはもとの形。", "swim です。"),
+    sc("s3", "ftGoing", "「兄も来る予定です。」My brother （ ） going to come, too. の（ ）は？", ["is", "are", "am", "will"], "my brother → is。", "is です。")
+  ], ["ftGoing"], "決めている予定は be going to ＋ もとの形。", "I'm going to go to Okinawa.、swim、is です。");
+  sp("ftGoing-application-2", "ftGoing", "誕生日の準備です。", [
+    sc("s1", "ftGoing", "「母はケーキを作る予定です。」を英語にすると？", ["My mother is going to make a cake.", "My mother is going to makes a cake.", "My mother are going to make a cake.", "My mother going to make a cake."], "is going to ＋ make。", "My mother is going to make a cake. です。"),
+    sc("s2", "ftGoing", "「わたしたちはへやをかざりつけるつもりです。」We are going to （ ） the room. の（ ）は？", ["decorate", "decorates", "decorated", "decorating"], "going to のあとはもとの形。", "decorate です。"),
+    sc("s3", "ftGoing", "「友だちが5人来る予定です。」Five friends （ ） going to come. の（ ）は？", ["are", "is", "am", "does"], "5人 → are。", "are です。")
+  ], ["ftGoing"], "主語に合わせて am・are・is ＋ going to。", "My mother is going to make a cake.、decorate、are です。");
+  sp("ftGoing-application-3", "ftGoing", "放課後の予定を伝えます。", [
+    sc("s1", "ftGoing", "「わたしは図書館で勉強するつもりです。」を英語にすると？", ["I'm going to study in the library.", "I'm going to studied in the library.", "I'm going studying in the library.", "I'm going to studies in the library."], "going to ＋ study。", "I'm going to study in the library. です。"),
+    sc("s2", "ftGoing", "「サキはピアノを練習する予定です。」Saki is going to （ ） the piano. の（ ）は？", ["practice", "practices", "practiced", "practicing"], "going to のあとはもとの形。", "practice です。"),
+    sc("s3", "ftGoing", "「リクとケンはサッカーをする予定です。」Riku and Ken （ ） going to play soccer. の（ ）は？", ["are", "is", "am", "do"], "2人 → are。", "are です。")
+  ], ["ftGoing"], "be going to で放課後の予定を言う。", "I'm going to study in the library.、practice、are です。");
+  sp("ftGoing-application-4", "ftGoing", "家族旅行の予定です。", [
+    sc("s1", "ftGoing", "「わたしたちは来週、京都に泊まる予定です。」を英語にすると？", ["We are going to stay in Kyoto next week.", "We are going to stayed in Kyoto next week.", "We is going to stay in Kyoto next week.", "We are going stay in Kyoto next week."], "are going to ＋ stay。", "We are going to stay in Kyoto next week. です。"),
+    sc("s2", "ftGoing", "「父が車を運転する予定です。」My father is going to （ ） the car. の（ ）は？", ["drive", "drives", "drove", "driving"], "going to のあとはもとの形。", "drive です。"),
+    sc("s3", "ftGoing", "「わたしはたくさん写真をとるつもりです。」I （ ） take a lot of pictures. の（ ）は？", ["am going to", "is going to", "am going", "going to"], "I → am going to。", "am going to です。")
+  ], ["ftGoing"], "be going to の be動詞は主語に合わせる。", "We are going to stay in Kyoto next week.、drive、am going to です。");
+  sp("ftGoing-application-5", "ftGoing", "クラスの出し物の計画です。", [
+    sc("s1", "ftGoing", "「わたしたちは歌を歌う予定です。」を英語にすると？", ["We are going to sing a song.", "We are going to sang a song.", "We are going sing a song.", "We going to sing a song."], "are going to ＋ sing。", "We are going to sing a song. です。"),
+    sc("s2", "ftGoing", "「エマはギターをひく予定です。」Emma is going to （ ） the guitar. の（ ）は？", ["play", "plays", "played", "playing"], "going to のあとはもとの形。", "play です。"),
+    sc("s3", "ftGoing", "「先生がわたしたちを手伝ってくれる予定です。」Our teacher （ ） going to help us. の（ ）は？", ["is", "are", "am", "will"], "our teacher → is。", "is です。")
+  ], ["ftGoing"], "予定を be going to ＋ もとの形で伝える。", "We are going to sing a song.、play、is です。");
+  ch("ftGoing-retention-1", "ftGoing", "retention", "「わたしは明日、公園に行くつもりです。」を英語にすると？", ["I'm going to go to the park tomorrow.", "I'm going to went to the park tomorrow.", "I'm going go to the park tomorrow.", "I going to go to the park tomorrow."], "I'm going to ＋ もとの形。", "I'm going to go to the park tomorrow. です。", RB);
+  ch("ftGoing-retention-2", "ftGoing", "retention", "「ケンは今夜、本を読むつもりです。」を英語にすると？", ["Ken is going to read a book tonight.", "Ken are going to read a book tonight.", "Ken is going to reads a book tonight.", "Ken is going read a book tonight."], "is going to ＋ もとの形。", "Ken is going to read a book tonight. です。", RB);
+  ch("ftGoing-retention-3", "ftGoing", "retention", "「彼らは来週、東京を訪れる予定です。」を英語にすると？", ["They are going to visit Tokyo next week.", "They is going to visit Tokyo next week.", "They are going to visited Tokyo next week.", "They are going visit Tokyo next week."], "are going to ＋ もとの形。", "They are going to visit Tokyo next week. です。", RB);
+  ch("ftGoing-retention-4", "ftGoing", "retention", "「わたしたちは明日、夕食を作るつもりです。」を英語にすると？", ["We are going to cook dinner tomorrow.", "We are going to cooks dinner tomorrow.", "We is going to cook dinner tomorrow.", "We going to cook dinner tomorrow."], "are going to ＋ cook。", "We are going to cook dinner tomorrow. です。", RS);
+  ch("ftGoing-retention-5", "ftGoing", "retention", "「姉は来年、大学で勉強する予定です。」を英語にすると？", ["My sister is going to study at college next year.", "My sister is going to studies at college next year.", "My sister are going to study at college next year.", "My sister is going study at college next year."], "is going to ＋ study。", "My sister is going to study at college next year. です。", RS);
+
+  // --- be going to の否定文・疑問文 ---
+  ch("ftGoingNQ-basic-1", "ftGoingNQ", "basic", "「わたしは明日、出かけるつもりはありません。」を英語にすると？", ["I'm not going to go out tomorrow.", "I'm going not to go out tomorrow.", "I don't going to go out tomorrow.", "I'm not going to went out tomorrow."], "be動詞のあとに not。", "I'm not going to go out tomorrow. です。", { usage: "diagnosis" });
+  ch("ftGoingNQ-basic-2", "ftGoingNQ", "basic", "「あなたは明日、テニスをする予定ですか。」を英語にすると？", ["Are you going to play tennis tomorrow?", "Do you going to play tennis tomorrow?", "Are you going to played tennis tomorrow?", "You are going to play tennis tomorrow?"], "be動詞を主語の前に。", "Are you going to play tennis tomorrow? です。");
+  ch("ftGoingNQ-basic-3", "ftGoingNQ", "basic", "「ケンは今夜、勉強するつもりはありません。」Ken （ ） going to study tonight. の（ ）は？", ["isn't", "doesn't", "aren't", "won't"], "ケン → isn't。", "isn't です。");
+  ch("ftGoingNQ-basic-4", "ftGoingNQ", "basic", "Are you going to visit Kyoto? — Yes, （ ）. の（ ）は？", ["I am", "I do", "I going", "you are"], "Are you 〜? → I am。", "I am です。");
+  ch("ftGoingNQ-basic-5", "ftGoingNQ", "basic", "「彼らは明日、来る予定ですか。」（ ） they going to come tomorrow? の（ ）は？", ["Are", "Is", "Do", "Will"], "they → Are。", "Are です。");
+  ch("ftGoingNQ-basic-6", "ftGoingNQ", "basic", "Is Yumi going to cook dinner? — No, （ ）. の（ ）は？", ["she isn't", "she doesn't", "she won't", "he isn't"], "Is 〜? → she isn't。", "she isn't です。");
+  ch("ftGoingNQ-basic-7", "ftGoingNQ", "basic", "「わたしたちはバスに乗るつもりはありません。」We （ ） going to take the bus. の（ ）は？", ["aren't", "isn't", "don't", "not"], "we → aren't。", "aren't です。");
+  ch("ftGoingNQ-standard-1", "ftGoingNQ", "standard", "「お父さんは今週末、ゴルフをする予定ですか。」を英語にすると？", ["Is your father going to play golf this weekend?", "Does your father going to play golf this weekend?", "Is your father going to plays golf this weekend?", "Are your father going to play golf this weekend?"], "Is ＋ 主語 ＋ going to ＋ もとの形?", "Is your father going to play golf this weekend? です。");
+  ch("ftGoingNQ-standard-2", "ftGoingNQ", "standard", "Are your parents going to come? の答えとして正しいものは？", ["Yes, they are.", "Yes, they do.", "Yes, they will.", "Yes, he is."], "your parents → they are。", "Yes, they are. です。");
+  ch("ftGoingNQ-standard-3", "ftGoingNQ", "standard", "「サキは明日、ピアノを練習するつもりはありません。」を英語にすると？", ["Saki isn't going to practice the piano tomorrow.", "Saki doesn't going to practice the piano tomorrow.", "Saki isn't going to practiced the piano tomorrow.", "Saki not going to practice the piano tomorrow."], "isn't going to ＋ もとの形。", "Saki isn't going to practice the piano tomorrow. です。");
+  ch("ftGoingNQ-standard-4", "ftGoingNQ", "standard", "Is it going to rain tomorrow? — No, （ ）. の（ ）は？", ["it isn't", "it doesn't", "it won't", "they aren't"], "Is 〜? → it isn't。", "it isn't です。");
+  ch("ftGoingNQ-standard-5", "ftGoingNQ", "standard", "「あなたとケンは公園に行く予定ですか。」（ ） you and Ken going to go to the park? の（ ）は？", ["Are", "Is", "Do", "Does"], "2人 → Are。", "Are です。");
+  ch("ftGoingNQ-standard-6", "ftGoingNQ", "standard", "Are you and Ken going to go to the park? — Yes, （ ）. の（ ）は？", ["we are", "we do", "they are", "I am"], "you and Ken → we are。", "we are です。");
+  sp("ftGoingNQ-application-1", "ftGoingNQ", "週末の予定を聞きます。", [
+    sc("s1", "ftGoingNQ", "「あなたは土曜日に映画を見る予定ですか。」を英語にすると？", ["Are you going to watch a movie on Saturday?", "Do you going to watch a movie on Saturday?", "Are you going to watched a movie on Saturday?", "Are you going watch a movie on Saturday?"], "Are you going to ＋ もとの形?", "Are you going to watch a movie on Saturday? です。"),
+    sc("s2", "ftGoingNQ", "Are you going to watch a movie on Saturday? — No, （ ）. の（ ）は？", ["I'm not", "I don't", "I won't", "you aren't"], "No なら I'm not。", "I'm not です。"),
+    sc("s3", "ftGoingNQ", "「わたしは家にいるつもりです。」I'm going to （ ） at home. の（ ）は？", ["stay", "stays", "stayed", "staying"], "going to のあとはもとの形。", "stay です。")
+  ], ["ftGoingNQ"], "Are you going to 〜? に be動詞で答える。", "Are you going to watch a movie on Saturday?、I'm not、stay です。");
+  sp("ftGoingNQ-application-2", "ftGoingNQ", "家族の予定を確認します。", [
+    sc("s1", "ftGoingNQ", "「お兄さんは夕食を作る予定ですか。」（ ） your brother going to cook dinner? の（ ）は？", ["Is", "Are", "Does", "Will"], "your brother → Is。", "Is です。"),
+    sc("s2", "ftGoingNQ", "Is your brother going to cook dinner? の答えとして正しいものは？", ["No, he isn't.", "No, he doesn't.", "No, he won't.", "No, she isn't."], "Is 〜? → he isn't。", "No, he isn't. です。"),
+    sc("s3", "ftGoingNQ", "「母が作る予定です。」My mother （ ） going to cook it. の（ ）は？", ["is", "are", "does", "will"], "my mother → is。", "is です。")
+  ], ["ftGoingNQ"], "Is 〜 going to 〜? と、その答え方。", "Is、No, he isn't.、is です。");
+  sp("ftGoingNQ-application-3", "ftGoingNQ", "雨の日の相談です。", [
+    sc("s1", "ftGoingNQ", "「明日は雨がふりそうですか。」を英語にすると？", ["Is it going to rain tomorrow?", "Does it going to rain tomorrow?", "Is it going to rains tomorrow?", "Is it go to rain tomorrow?"], "Is it going to ＋ rain?", "Is it going to rain tomorrow? です。"),
+    sc("s2", "ftGoingNQ", "「わたしたちはピクニックに行くつもりはありません。」We （ ） going to go on a picnic. の（ ）は？", ["aren't", "isn't", "don't", "won't"], "we → aren't。", "aren't です。"),
+    sc("s3", "ftGoingNQ", "「家でゲームをする予定です。」We're going to （ ） games at home. の（ ）は？", ["play", "plays", "played", "playing"], "going to のあとはもとの形。", "play です。")
+  ], ["ftGoingNQ"], "予定の変更を be going to で伝える。", "Is it going to rain tomorrow?、aren't、play です。");
+  sp("ftGoingNQ-application-4", "ftGoingNQ", "オンラインで友だちと話します。", [
+    sc("s1", "ftGoingNQ", "「あなたは今夜、宿題をする予定ですか。」を英語にすると？", ["Are you going to do your homework tonight?", "Do you going to do your homework tonight?", "Are you going to did your homework tonight?", "Are you going do your homework tonight?"], "Are you going to ＋ do?", "Are you going to do your homework tonight? です。"),
+    sc("s2", "ftGoingNQ", "Are you going to do your homework tonight? の答えとして正しいものは？", ["Yes, I am.", "Yes, I do.", "Yes, I going.", "Yes, you are."], "Are you 〜? → Yes, I am.", "Yes, I am. です。"),
+    sc("s3", "ftGoingNQ", "「エマはテレビを見るつもりはありません。」Emma （ ） going to watch TV. の（ ）は？", ["isn't", "doesn't", "aren't", "won't"], "エマ → isn't。", "isn't です。")
+  ], ["ftGoingNQ"], "be going to の疑問文・否定文は be動詞で作る。", "Are you going to do your homework tonight?、Yes, I am.、isn't です。");
+  sp("ftGoingNQ-application-5", "ftGoingNQ", "職場体験の前に確認します。", [
+    sc("s1", "ftGoingNQ", "「わたしたちはお店で働く予定ですか。」を英語にすると？", ["Are we going to work at the shop?", "Do we going to work at the shop?", "Are we going to worked at the shop?", "Is we going to work at the shop?"], "Are we going to ＋ もとの形?", "Are we going to work at the shop? です。"),
+    sc("s2", "ftGoingNQ", "「リクは駅で働く予定ではありません。」Riku （ ） going to work at the station. の（ ）は？", ["isn't", "doesn't", "aren't", "won't"], "リク → isn't。", "isn't です。"),
+    sc("s3", "ftGoingNQ", "Is Riku going to work at the station? — No, （ ）. の（ ）は？", ["he isn't", "he doesn't", "he won't", "she isn't"], "リク → he isn't。", "he isn't です。")
+  ], ["ftGoingNQ"], "be going to の疑問文と否定文。", "Are we going to work at the shop?、isn't、he isn't です。");
+  ch("ftGoingNQ-retention-1", "ftGoingNQ", "retention", "「あなたは明日、泳ぐ予定ですか。」を英語にすると？", ["Are you going to swim tomorrow?", "Do you going to swim tomorrow?", "Are you going to swam tomorrow?", "Are you going swim tomorrow?"], "Are you going to ＋ もとの形?", "Are you going to swim tomorrow? です。", RB);
+  ch("ftGoingNQ-retention-2", "ftGoingNQ", "retention", "「わたしは今夜、テレビを見るつもりはありません。」を英語にすると？", ["I'm not going to watch TV tonight.", "I don't going to watch TV tonight.", "I'm going not to watch TV tonight.", "I'm not going to watched TV tonight."], "I'm not going to ＋ もとの形。", "I'm not going to watch TV tonight. です。", RB);
+  ch("ftGoingNQ-retention-3", "ftGoingNQ", "retention", "「ケンは明日、来る予定ですか。」に「いいえ」と答えると？", ["No, he isn't.", "No, he doesn't.", "No, he won't.", "No, she isn't."], "Is 〜? → he isn't。", "No, he isn't. です。", RB);
+  ch("ftGoingNQ-retention-4", "ftGoingNQ", "retention", "「彼らは来週、旅行する予定ではありません。」を英語にすると？", ["They aren't going to travel next week.", "They don't going to travel next week.", "They isn't going to travel next week.", "They aren't going to traveled next week."], "aren't going to ＋ もとの形。", "They aren't going to travel next week. です。", RS);
+  ch("ftGoingNQ-retention-5", "ftGoingNQ", "retention", "「お姉さんは明日、ピアノをひく予定ですか。」を英語にすると？", ["Is your sister going to play the piano tomorrow?", "Does your sister going to play the piano tomorrow?", "Are your sister going to play the piano tomorrow?", "Is your sister going to plays the piano tomorrow?"], "Is ＋ 主語 ＋ going to ＋ もとの形?", "Is your sister going to play the piano tomorrow? です。", RS);
+
+  // --- What will 〜?・What are you going to 〜? ---
+  ch("ftWhat-basic-1", "ftWhat", "basic", "「あなたは明日、何をするつもりですか。」を英語にすると？", ["What are you going to do tomorrow?", "What are you going to doing tomorrow?", "What do you going to do tomorrow?", "What you are going to do tomorrow?"], "What ＋ are you going to ＋ do?", "What are you going to do tomorrow? です。", { usage: "diagnosis" });
+  ch("ftWhat-basic-2", "ftWhat", "basic", "What are you going to do tomorrow? の答えとして正しいものは？", ["I'm going to visit my aunt.", "Yes, I am.", "I visited my aunt.", "You're going to visit my aunt."], "予定を I'm going to 〜. で答える。", "I'm going to visit my aunt. です。");
+  ch("ftWhat-basic-3", "ftWhat", "basic", "「あなたは明日、どこへ行きますか。」（ ） will you go tomorrow? の（ ）は？", ["Where", "What", "Who", "When"], "場所をたずねる語。", "Where です。");
+  ch("ftWhat-basic-4", "ftWhat", "basic", "「ケンはいつ来るでしょうか。」When （ ） Ken come? の（ ）は？", ["will", "does", "is", "did"], "When ＋ will ＋ 主語 ＋ もとの形?", "will です。");
+  ch("ftWhat-basic-5", "ftWhat", "basic", "「だれが手伝ってくれるでしょうか。」を英語にすると？", ["Who will help us?", "Who will helps us?", "Who wills help us?", "Who does will help us?"], "Who ＋ will ＋ もとの形?", "Who will help us? です。");
+  ch("ftWhat-basic-6", "ftWhat", "basic", "Where will you go this summer? の答えとして正しいものは？", ["I will go to Hokkaido.", "Yes, I will.", "I went to Hokkaido.", "You will go to Hokkaido."], "will ＋ もとの形で答える。", "I will go to Hokkaido. です。");
+  ch("ftWhat-basic-7", "ftWhat", "basic", "「彼らは何を食べる予定ですか。」What are they going to （ ）? の（ ）は？", ["eat", "eats", "ate", "eating"], "going to のあとはもとの形。", "eat です。");
+  ch("ftWhat-standard-1", "ftWhat", "standard", "「あなたは明日、何時に起きるつもりですか。」を英語にすると？", ["What time are you going to get up tomorrow?", "What time do you going to get up tomorrow?", "What time are you going to got up tomorrow?", "What time you are going to get up tomorrow?"], "What time ＋ are you going to 〜?", "What time are you going to get up tomorrow? です。");
+  ch("ftWhat-standard-2", "ftWhat", "standard", "What will Yumi buy? の答えとして正しいものは？", ["She will buy a new bag.", "He will buy a new bag.", "Yes, she will.", "She bought a new bag."], "ユミ → she will 〜.", "She will buy a new bag. です。");
+  ch("ftWhat-standard-3", "ftWhat", "standard", "「あなたはどこに泊まる予定ですか。」Where （ ） you going to stay? の（ ）は？", ["are", "do", "will", "is"], "you → are going to。", "are です。");
+  ch("ftWhat-standard-4", "ftWhat", "standard", "「だれがパーティーに来る予定ですか。」（ ） is going to come to the party? の（ ）は？", ["Who", "What", "Where", "When"], "人をたずねる語。", "Who です。");
+  ch("ftWhat-standard-5", "ftWhat", "standard", "What is your brother going to do this weekend? の答えとして正しいものは？", ["He's going to clean his room.", "She's going to clean his room.", "Yes, he is.", "He cleaned his room."], "your brother → he。", "He's going to clean his room. です。");
+  ch("ftWhat-standard-6", "ftWhat", "standard", "「あなたはいつ京都を訪れるつもりですか。」を英語にすると？", ["When are you going to visit Kyoto?", "When do you going to visit Kyoto?", "When are you going to visited Kyoto?", "When you are going to visit Kyoto?"], "When ＋ are you going to ＋ もとの形?", "When are you going to visit Kyoto? です。");
+  sp("ftWhat-application-1", "ftWhat", "冬休みの予定を聞きます。", [
+    sc("s1", "ftWhat", "「あなたは冬休みに何をしますか。」を英語にすると？", ["What will you do during the winter vacation?", "What will you did during the winter vacation?", "What do you will do during the winter vacation?", "What you will do during the winter vacation?"], "What ＋ will ＋ 主語 ＋ もとの形?", "What will you do during the winter vacation? です。"),
+    sc("s2", "ftWhat", "What will you do during the winter vacation? の答えとして正しいものは？", ["I will ski with my family.", "Yes, I will.", "I skied with my family.", "You will ski with my family."], "I will 〜. で答える。", "I will ski with my family. です。"),
+    sc("s3", "ftWhat", "「どこでスキーをしますか。」Where will you （ ）? の（ ）は？", ["ski", "skis", "skied", "skiing"], "will のあとはもとの形。", "ski です。")
+  ], ["ftWhat"], "疑問詞 ＋ will ＋ 主語 ＋ もとの形?", "What will you do during the winter vacation?、I will ski with my family.、ski です。");
+  sp("ftWhat-application-2", "ftWhat", "遠足の予定を確認します。", [
+    sc("s1", "ftWhat", "「わたしたちは何時に出発する予定ですか。」What time （ ） we going to leave? の（ ）は？", ["are", "do", "will", "is"], "we → are going to。", "are です。"),
+    sc("s2", "ftWhat", "「だれがお弁当を持ってくるのですか。」を英語にすると？", ["Who will bring lunch?", "Who will brings lunch?", "Who will brought lunch?", "Who does will bring lunch?"], "Who ＋ will ＋ もとの形?", "Who will bring lunch? です。"),
+    sc("s3", "ftWhat", "「どこでお昼を食べますか。」Where will we （ ） lunch? の（ ）は？", ["eat", "eats", "ate", "eating"], "will のあとはもとの形。", "eat です。")
+  ], ["ftWhat"], "疑問詞のあとは will・be going to の疑問文の形。", "are、Who will bring lunch?、eat です。");
+  sp("ftWhat-application-3", "ftWhat", "家族に聞きます。", [
+    sc("s1", "ftWhat", "「お父さんは今夜、何を作る予定ですか。」を英語にすると？", ["What is Dad going to make tonight?", "What does Dad going to make tonight?", "What is Dad going to made tonight?", "What Dad is going to make tonight?"], "What ＋ is ＋ 主語 ＋ going to 〜?", "What is Dad going to make tonight? です。"),
+    sc("s2", "ftWhat", "What is Dad going to make tonight? の答えとして正しいものは？", ["He's going to make curry.", "She's going to make curry.", "Yes, he is.", "He made curry."], "Dad → he。", "He's going to make curry. です。"),
+    sc("s3", "ftWhat", "「お母さんはいつ帰ってきますか。」When will Mom （ ） home? の（ ）は？", ["come", "comes", "came", "coming"], "will のあとはもとの形。", "come です。")
+  ], ["ftWhat"], "家族の予定を疑問詞でたずねる。", "What is Dad going to make tonight?、He's going to make curry.、come です。");
+  sp("ftWhat-application-4", "ftWhat", "旅行の計画を聞きます。", [
+    sc("s1", "ftWhat", "「あなたはどこへ行く予定ですか。」を英語にすると？", ["Where are you going to go?", "Where do you going to go?", "Where are you going to went?", "Where you are going to go?"], "Where ＋ are you going to ＋ go?", "Where are you going to go? です。"),
+    sc("s2", "ftWhat", "Where are you going to go? の答えとして正しいものは？", ["I'm going to go to Nara.", "Yes, I am.", "I went to Nara.", "You're going to go to Nara."], "I'm going to 〜. で答える。", "I'm going to go to Nara. です。"),
+    sc("s3", "ftWhat", "「そこで何を見る予定ですか。」What are you going to （ ） there? の（ ）は？", ["see", "sees", "saw", "seeing"], "going to のあとはもとの形。", "see です。")
+  ], ["ftWhat"], "Where・What ＋ be going to の疑問文。", "Where are you going to go?、I'm going to go to Nara.、see です。");
+  sp("ftWhat-application-5", "ftWhat", "クラス会の準備です。", [
+    sc("s1", "ftWhat", "「だれがスピーチをするでしょうか。」を英語にすると？", ["Who will make a speech?", "Who will makes a speech?", "Who wills make a speech?", "Who does will make a speech?"], "Who ＋ will ＋ もとの形?", "Who will make a speech? です。"),
+    sc("s2", "ftWhat", "「サキは何を歌う予定ですか。」What （ ） Saki going to sing? の（ ）は？", ["is", "are", "does", "will"], "サキ → is。", "is です。"),
+    sc("s3", "ftWhat", "What is Saki going to sing? の答えとして正しいものは？", ["She's going to sing a Japanese song.", "He's going to sing a Japanese song.", "Yes, she is.", "She sang a Japanese song."], "サキ → she。", "She's going to sing a Japanese song. です。")
+  ], ["ftWhat"], "Who will 〜? と What is 〜 going to 〜?", "Who will make a speech?、is、She's going to sing a Japanese song. です。");
+  ch("ftWhat-retention-1", "ftWhat", "retention", "「あなたは今週末、何をする予定ですか。」を英語にすると？", ["What are you going to do this weekend?", "What do you going to do this weekend?", "What are you going to did this weekend?", "What you are going to do this weekend?"], "What ＋ are you going to ＋ do?", "What are you going to do this weekend? です。", RB);
+  ch("ftWhat-retention-2", "ftWhat", "retention", "「あなたは明日、どこへ行きますか。」を英語にすると？", ["Where will you go tomorrow?", "Where will you went tomorrow?", "Where do you will go tomorrow?", "Where you will go tomorrow?"], "Where ＋ will ＋ 主語 ＋ もとの形?", "Where will you go tomorrow? です。", RB);
+  ch("ftWhat-retention-3", "ftWhat", "retention", "「だれが窓をそうじするでしょうか。」を英語にすると？", ["Who will clean the windows?", "Who will cleans the windows?", "Who wills clean the windows?", "Who does will clean the windows?"], "Who ＋ will ＋ もとの形?", "Who will clean the windows? です。", RB);
+  ch("ftWhat-retention-4", "ftWhat", "retention", "「ケンはいつ大阪を訪れる予定ですか。」を英語にすると？", ["When is Ken going to visit Osaka?", "When does Ken going to visit Osaka?", "When is Ken going to visited Osaka?", "When Ken is going to visit Osaka?"], "When ＋ is ＋ 主語 ＋ going to 〜?", "When is Ken going to visit Osaka? です。", RS);
+  ch("ftWhat-retention-5", "ftWhat", "retention", "「何をするつもり？」に「祖母を訪ねるつもり」と答えると？", ["I'm going to visit my grandmother.", "I visited my grandmother.", "Yes, I am.", "I going to visit my grandmother."], "I'm going to 〜. で答える。", "I'm going to visit my grandmother. です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

@@ -41,7 +41,8 @@
       "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。",
       "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。",
       "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。",
-      "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。"
+      "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。",
+      "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。"
     },
     skills: {
       // --- 正負の数 ---
@@ -241,6 +242,12 @@
       psNeg: { point: "過去の否定文は didn't ＋ 動詞のもとの形。主語がだれでも didn't です。", example: "I didn't watch TV yesterday.", trap: "didn't watched のように過去形を重ねないようにします。" },
       psQues: { point: "過去の疑問文は Did ＋ 主語 ＋ もとの形?。答えは Yes, 〜 did.／No, 〜 didn't.。疑問詞は文の最初に置きます。", example: "What did you do yesterday? — I went to the zoo.", trap: "Did you went 〜? としないようにします。Who が主語なら Who made 〜? と過去形を使います。" },
       psBe: { point: "be動詞の過去形は am・is → was、are → were。否定は wasn't・weren't、疑問文は Was・Were を前に出します。", example: "Were you busy yesterday? — Yes, I was.", trap: "be動詞の文に did は使いません（Did you busy? は×）。" },
+      // --- 未来形（英語） ---
+      ftWill: { point: "will ＋ 動詞のもとの形で「〜するでしょう・〜します」。主語がだれでも will の形はかわりません。", example: "It will be sunny tomorrow.", trap: "will visits・will to visit としないようにします。be動詞は will be になります。" },
+      ftWillNQ: { point: "否定文は won't（will not）＋ もとの形。疑問文は Will を主語の前に出し、Yes, 〜 will.／No, 〜 won't. で答えます。", example: "Will you be free tomorrow? — Yes, I will.", trap: "don't will・Do you will 〜? とはしません。" },
+      ftGoing: { point: "be going to ＋ もとの形で「〜するつもり・〜する予定」。be動詞は主語に合わせて am・are・is にします。", example: "I'm going to play tennis tomorrow.", trap: "be動詞をぬかしたり（I going to）、to をぬかしたり（going play）しないようにします。" },
+      ftGoingNQ: { point: "be going to の否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。答えも be動詞で答えます。", example: "Are you going to visit Kyoto? — Yes, I am.", trap: "Do you going to 〜? とはしません。" },
+      ftWhat: { point: "疑問詞のあとに will ＋ 主語 ＋ もとの形?、または be動詞 ＋ 主語 ＋ going to 〜? を続けます。Who が主語なら Who will 〜?。", example: "What are you going to do tomorrow? — I'm going to visit my aunt.", trap: "What you are going to do? のように語順をそのままにしないようにします。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

@@ -115,13 +115,16 @@ test("What・Who の答え：もの → It's、人 → He's・She's、2つ以上
   assert.ok(n >= 12, "What・Who の答え " + n);
 });
 
-test("教科の切りかえ：英語は中学1年だけ。数学にもどすと元の単元", () => {
+test("教科の切りかえ：英語は中学1年と中学2年。学年に単元があればそのまま、数学にもどすと元の単元", () => {
   const g = E.grade(), list = E.SELECTABLE_UNITS.slice();
   assert.equal(E.setSubject("英語"), "英語");
-  assert.equal(E.grade(), "中学1年");
+  assert.equal(E.grade(), g);
+  assert.equal(E.setGrade("中学1年"), "中学1年");
   assert.deepEqual(E.SELECTABLE_UNITS, [U, "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形", "過去形"]);
-  assert.equal(E.setGrade("中学2年"), "中学1年");
-  assert.ok(!E.gradeHasUnits("英語", "中学2年") && E.gradeHasUnits("英語", "中学1年"));
+  assert.equal(E.setGrade("中学2年"), "中学2年");
+  assert.deepEqual(E.SELECTABLE_UNITS, ["未来形"]);
+  assert.equal(E.setGrade("中学3年"), "中学2年");
+  assert.ok(!E.gradeHasUnits("英語", "中学3年") && E.gradeHasUnits("英語", "中学2年") && E.gradeHasUnits("英語", "中学1年"));
   assert.equal(E.setSubject("国語"), "英語");
   E.setSubject("数学"); E.setGrade(g);
   assert.deepEqual(E.SELECTABLE_UNITS, list);
