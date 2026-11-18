@@ -275,7 +275,13 @@
     pgSpell:        { label: "ing のつけ方", unit: "現在進行形", grade: "中1", subject: "英語", prerequisites: ["pgForm", "tsSpell"] },
     pgNeg:          { label: "現在進行形の否定文", unit: "現在進行形", grade: "中1", subject: "英語", prerequisites: ["pgForm", "beNeg"] },
     pgQues:         { label: "Are you 〜ing? と答え方", unit: "現在進行形", grade: "中1", subject: "英語", prerequisites: ["pgNeg", "beQues"] },
-    pgWhat:         { label: "What are you doing?（疑問詞の進行形）", unit: "現在進行形", grade: "中1", subject: "英語", prerequisites: ["pgQues", "qwWhere"] }
+    pgWhat:         { label: "What are you doing?（疑問詞の進行形）", unit: "現在進行形", grade: "中1", subject: "英語", prerequisites: ["pgQues", "qwWhere"] },
+    // --- 中1 英語 過去形 ---（規則動詞・不規則動詞・didn't・Did 〜?／What did 〜?・was／were）
+    psReg:          { label: "過去形（規則動詞 -ed）", unit: "過去形", grade: "中1", subject: "英語", prerequisites: ["gvSent", "tsSpell"] },
+    psIrr:          { label: "不規則動詞の過去形", unit: "過去形", grade: "中1", subject: "英語", prerequisites: ["psReg"] },
+    psNeg:          { label: "didn't の否定文", unit: "過去形", grade: "中1", subject: "英語", prerequisites: ["psIrr", "gvNeg"] },
+    psQues:         { label: "Did 〜?・What did 〜? と答え方", unit: "過去形", grade: "中1", subject: "英語", prerequisites: ["psNeg", "gvWhat"] },
+    psBe:           { label: "was・were（be動詞の過去形）", unit: "過去形", grade: "中1", subject: "英語", prerequisites: ["psQues", "beQues"] }
   };
   // 図形のスキルは concept ＋ calc を prerequisites にまとめる
   Object.keys(SKILLS).forEach(function (k) {
@@ -315,7 +321,8 @@
     "imForm", "imBe", "imNeg", "imLet", "imPlease",
     "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq",
     "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow",
-    "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat"];
+    "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat",
+    "psReg", "psIrr", "psNeg", "psQues", "psBe"];
   // 前提に近い順（原因さがし・今日の学習・テスト対策で「根元から」並べるときに使う）
   var ROOT_ORDER = ["negMeaning", "negAddSub", "negMulDiv", "negPower", "negUse", "litExpr", "litValue", "litCalc", "litWord", "litRel", "signed", "algebra", "likeTerms", "distrib", "coord", "proportion", "prFunc", "prDirect", "prGraph", "prInverse", "prUse", "angleBasics", "plLine", "plMove", "plConstruct", "plCircle", "plSector", "spSolid", "spPosition", "spNet", "spArea", "spVolume", "dsFreq", "dsRel", "dsHist", "dsRep", "dsProb",
     "eqMeaning", "eqProperty", "transpose", "eqParen", "eqFraction", "eqWord",
@@ -342,7 +349,8 @@
     "imForm", "imBe", "imNeg", "imLet", "imPlease",
     "cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq",
     "qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow",
-    "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat"];
+    "pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat",
+    "psReg", "psIrr", "psNeg", "psQues", "psBe"];
   // 単元ごとのスキル（学校で「いま学習中」の単元を選ぶと、ここが今日の学習・テスト範囲の候補になる）
   var UNITS = {
     "式の計算": ["polyAddSub", "polyMixed", "monoMulDiv", "eqTransform"],
@@ -377,7 +385,8 @@
     "命令文": ["imForm", "imBe", "imNeg", "imLet", "imPlease"],
     "can": ["cnForm", "cnNeg", "cnQues", "cnWhat", "cnReq"],
     "疑問詞": ["qwWhere", "qwWhen", "qwWhich", "qwWhose", "qwHow"],
-    "現在進行形": ["pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat"]
+    "現在進行形": ["pgForm", "pgSpell", "pgNeg", "pgQues", "pgWhat"],
+    "過去形": ["psReg", "psIrr", "psNeg", "psQues", "psBe"]
   };
   // 中2で選べる単元（学校の進む順）
   var SELECTABLE_UNITS = ["式の計算", "連立方程式", "一次関数", "図形の角", "合同と証明", "三角形と四角形", "確率", "データの活用"];
@@ -385,7 +394,7 @@
   // （ほかのファイルが同じ配列を持っているので、配列そのものは取りかえない）。単元がまだない学年には変えない
   var GRADE_UNITS = { "中学1年": ["正負の数", "文字と式", "一次方程式", "比例と反比例", "平面図形", "空間図形", "データの分布"], "中学2年": SELECTABLE_UNITS.slice(), "中学3年": ["多項式", "平方根", "二次方程式", "関数 y＝ax²", "相似", "円", "三平方の定理", "標本調査"] };
   // 数学以外の教科。学年ごとの単元（まだない学年は空）。GRADE_UNITS は数学のまま
-  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形"], "中学2年": [], "中学3年": [] } };
+  var SUBJECT_UNITS = { "英語": { "中学1年": ["be動詞", "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形", "過去形"], "中学2年": [], "中学3年": [] } };
   var SUBJECTS = ["数学", "英語"];
   var ALL_UNITS = GRADE_UNITS["中学1年"].concat(GRADE_UNITS["中学2年"], GRADE_UNITS["中学3年"], SUBJECT_UNITS["英語"]["中学1年"], SUBJECT_UNITS["英語"]["中学2年"], SUBJECT_UNITS["英語"]["中学3年"]);
   var currentGrade = "中学2年", currentSubject = "数学";
@@ -749,6 +758,7 @@
     ciCentral: "review_inscribed_central", ciSameArc: "review_same_arc", ciSemicircle: "review_diameter_angle", ciConverse: "review_inscribed_converse", ciSimilar: "practice_circle_similarity",
     ptBasic: "review_pythagoras", ptConverse: "review_pythagoras_converse", ptSpecial: "review_special_right_triangles", ptPlane: "practice_pythagoras_plane", ptSolid: "practice_pythagoras_solid",
     suMeaning: "review_sampling_meaning", suRandom: "review_random_sampling", suRatio: "practice_sample_ratio", suCount: "practice_capture_recapture", suMean: "practice_sample_mean",
+    psReg: "practice_past_regular", psIrr: "practice_past_irregular", psNeg: "practice_past_negative", psQues: "practice_past_question", psBe: "practice_was_were",
     pgForm: "practice_progressive_form", pgSpell: "practice_ing_spelling", pgNeg: "practice_progressive_negative", pgQues: "practice_progressive_question", pgWhat: "practice_what_doing",
     qwWhere: "practice_where", qwWhen: "practice_when_what_time", qwWhich: "practice_which", qwWhose: "practice_whose", qwHow: "practice_how",
     cnForm: "review_can_form", cnNeg: "practice_cant", cnQues: "practice_can_question", cnWhat: "practice_what_can", cnReq: "practice_can_request",

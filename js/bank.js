@@ -10297,6 +10297,236 @@
   ch("pgWhat-retention-5", "pgWhat", "retention", "「何をしているの？」に「本を読んでいるよ」と答えると？", ["I'm reading a book.", "I read a book.", "Yes, I am.", "I reading a book."], "I'm 〜ing. で答える。", "I'm reading a book. です。", RS);
 
   // =====================================================================
+  // 中1 英語「過去形」（規則動詞 -ed・不規則動詞・didn't・Did 〜?／What did 〜?・was／were）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-past.test.js が文の形と答えの合い方を確かめる）
+  // =====================================================================
+
+  // --- 規則動詞の過去形 ---
+  ch("psReg-basic-1", "psReg", "basic", "「わたしは昨日、テニスをしました。」を英語にすると？", ["I played tennis yesterday.", "I play tennis yesterday.", "I playing tennis yesterday.", "I plaied tennis yesterday."], "過去のことは動詞を過去形（-ed）に。", "I played tennis yesterday. です。", { usage: "diagnosis" });
+  ch("psReg-basic-2", "psReg", "basic", "「昨日〜した」のように過去のことを言うとき、動詞はどの形にする？", ["過去形", "もとの形", "〜ing の形", "s のついた形"], "yesterday・last 〜 などは過去のしるし。", "過去形です。");
+  ch("psReg-basic-3", "psReg", "basic", "watch の過去形は？", ["watched", "watchd", "watchied", "watches"], "ふつうは ed をつける。", "watched です。");
+  ch("psReg-basic-4", "psReg", "basic", "「ケンは昨日、部屋をそうじしました。」Ken （ ） his room yesterday. の（ ）は？", ["cleaned", "cleans", "clean", "cleanned"], "clean ＋ ed。", "cleaned です。");
+  ch("psReg-basic-5", "psReg", "basic", "「わたしたちは先週、京都を訪れました。」を英語にすると？", ["We visited Kyoto last week.", "We visit Kyoto last week.", "We visitted Kyoto last week.", "We are visited Kyoto last week."], "visit ＋ ed。t は重ねない。", "We visited Kyoto last week. です。");
+  ch("psReg-basic-6", "psReg", "basic", "live の過去形は？", ["lived", "liveed", "livd", "lives"], "e で終わる語は d だけつける。", "lived です。");
+  ch("psReg-basic-7", "psReg", "basic", "「わたしは昨夜、音楽を聞きました。」I （ ） to music last night. の（ ）は？", ["listened", "listen", "listens", "listenned"], "listen ＋ ed。", "listened です。");
+  ch("psReg-standard-1", "psReg", "standard", "study の過去形は？", ["studied", "studyed", "studid", "studies"], "子音字 ＋ y → y を i にかえて ed。", "studied です。");
+  ch("psReg-standard-2", "psReg", "standard", "「母は昨日、夕食を料理しました。」My mother （ ） dinner yesterday. の（ ）は？", ["cooked", "cooks", "cook", "cookd"], "cook ＋ ed。主語が1人でも過去形は同じ。", "cooked です。");
+  ch("psReg-standard-3", "psReg", "standard", "stop の過去形は？", ["stopped", "stoped", "stopt", "stops"], "短い音 ＋ p → p を重ねて ed。", "stopped です。");
+  ch("psReg-standard-4", "psReg", "standard", "「ユミは3年前、大阪に住んでいました。」を英語にすると？", ["Yumi lived in Osaka three years ago.", "Yumi lives in Osaka three years ago.", "Yumi liveed in Osaka three years ago.", "Yumi was live in Osaka three years ago."], "〜 ago は過去。live → lived。", "Yumi lived in Osaka three years ago. です。");
+  ch("psReg-standard-5", "psReg", "standard", "「彼らは昨日、サッカーを練習しました。」They （ ） soccer yesterday. の（ ）は？", ["practiced", "practice", "practices", "practiceed"], "e で終わる → d だけ。", "practiced です。");
+  ch("psReg-standard-6", "psReg", "standard", "「わたしは昨日、祖母を手伝いました。」を英語にすると？", ["I helped my grandmother yesterday.", "I help my grandmother yesterday.", "I helpped my grandmother yesterday.", "I helps my grandmother yesterday."], "help ＋ ed。p は重ねない。", "I helped my grandmother yesterday. です。");
+  sp("psReg-application-1", "psReg", "週末の日記を書きます。", [
+    sc("s1", "psReg", "「土曜日、わたしは公園を歩きました。」を英語にすると？", ["I walked in the park on Saturday.", "I walk in the park on Saturday.", "I walkked in the park on Saturday.", "I walking in the park on Saturday."], "walk ＋ ed。", "I walked in the park on Saturday. です。"),
+    sc("s2", "psReg", "「日曜日、兄と映画を見ました。」I （ ） a movie with my brother on Sunday. の（ ）は？", ["watched", "watch", "watches", "watchd"], "watch ＋ ed。", "watched です。"),
+    sc("s3", "psReg", "try の過去形は？", ["tried", "tryed", "tryd", "tries"], "子音字 ＋ y → ied。", "tried です。")
+  ], ["psReg"], "日記は過去のこと。動詞に ed をつける。", "I walked in the park on Saturday.、watched、tried です。");
+  sp("psReg-application-2", "psReg", "昨日の放課後について話します。", [
+    sc("s1", "psReg", "「わたしたちは教室をそうじしました。」We （ ） the classroom. の（ ）は？", ["cleaned", "clean", "cleans", "cleanned"], "clean ＋ ed。", "cleaned です。"),
+    sc("s2", "psReg", "「サキはピアノを練習しました。」を英語にすると？", ["Saki practiced the piano.", "Saki practices the piano.", "Saki practiceed the piano.", "Saki practicing the piano."], "practice → practiced。", "Saki practiced the piano. です。"),
+    sc("s3", "psReg", "「わたしは友だちと話しました。」I （ ） with my friends. の（ ）は？", ["talked", "talk", "talks", "talkked"], "talk ＋ ed。", "talked です。")
+  ], ["psReg"], "したことは過去形で話す。", "cleaned、Saki practiced the piano.、talked です。");
+  sp("psReg-application-3", "psReg", "旅行の思い出を話します。", [
+    sc("s1", "psReg", "「わたしたちは去年の夏、沖縄を訪れました。」を英語にすると？", ["We visited Okinawa last summer.", "We visit Okinawa last summer.", "We visitted Okinawa last summer.", "We visiting Okinawa last summer."], "last 〜 は過去。visit ＋ ed。", "We visited Okinawa last summer. です。"),
+    sc("s2", "psReg", "「姉は浜辺でおどりました。」My sister （ ） on the beach. の（ ）は？", ["danced", "danceed", "dance", "dances"], "e で終わる → d だけ。", "danced です。"),
+    sc("s3", "psReg", "「わたしたちは祖父母に電話しました。」We （ ） our grandparents. の（ ）は？", ["called", "call", "calls", "calld"], "call ＋ ed。", "called です。")
+  ], ["psReg"], "ed・d・ied のつけ方を見分ける。", "We visited Okinawa last summer.、danced、called です。");
+  sp("psReg-application-4", "psReg", "家のお手伝いの記録です。", [
+    sc("s1", "psReg", "「わたしは皿を洗いました。」I （ ） the dishes. の（ ）は？", ["washed", "wash", "washes", "washd"], "wash ＋ ed。", "washed です。"),
+    sc("s2", "psReg", "「弟は箱を運びました。」My brother （ ） the boxes. の（ ）は？", ["carried", "carryed", "carries", "carry"], "carry → carried。", "carried です。"),
+    sc("s3", "psReg", "「母はわたしを手伝ってくれました。」を英語にすると？", ["My mother helped me.", "My mother helps me.", "My mother helpped me.", "My mother help me."], "help ＋ ed。", "My mother helped me. です。")
+  ], ["psReg"], "したことを過去形で記録する。", "washed、carried、My mother helped me. です。");
+  sp("psReg-application-5", "psReg", "英語の授業のふり返りです。", [
+    sc("s1", "psReg", "「わたしたちは英語の歌を聞きました。」We （ ） to an English song. の（ ）は？", ["listened", "listen", "listens", "listenned"], "listen ＋ ed。", "listened です。"),
+    sc("s2", "psReg", "「先生は9時に授業を始めました。」Our teacher （ ） the class at nine. の（ ）は？", ["started", "start", "starts", "startted"], "start ＋ ed。", "started です。"),
+    sc("s3", "psReg", "「わたしはその単語を使いました。」I （ ） the word. の（ ）は？", ["used", "useed", "use", "uses"], "e で終わる → d だけ。", "used です。")
+  ], ["psReg"], "授業でしたことを過去形でふり返る。", "listened、started、used です。");
+  ch("psReg-retention-1", "psReg", "retention", "「わたしは昨日、サッカーをしました。」を英語にすると？", ["I played soccer yesterday.", "I play soccer yesterday.", "I plaied soccer yesterday.", "I playing soccer yesterday."], "play ＋ ed。", "I played soccer yesterday. です。", RB);
+  ch("psReg-retention-2", "psReg", "retention", "「彼は昨夜、テレビを見ました。」を英語にすると？", ["He watched TV last night.", "He watches TV last night.", "He watch TV last night.", "He watchd TV last night."], "watch ＋ ed。", "He watched TV last night. です。", RB);
+  ch("psReg-retention-3", "psReg", "retention", "「わたしたちは昨日、英語を勉強しました。」を英語にすると？", ["We studied English yesterday.", "We studyed English yesterday.", "We study English yesterday.", "We studies English yesterday."], "study → studied。", "We studied English yesterday. です。", RB);
+  ch("psReg-retention-4", "psReg", "retention", "「ケンは去年、カナダを訪れました。」を英語にすると？", ["Ken visited Canada last year.", "Ken visits Canada last year.", "Ken visitted Canada last year.", "Ken visit Canada last year."], "visit ＋ ed。", "Ken visited Canada last year. です。", RS);
+  ch("psReg-retention-5", "psReg", "retention", "「バスは駅で止まりました。」を英語にすると？", ["The bus stopped at the station.", "The bus stoped at the station.", "The bus stops at the station.", "The bus stop at the station."], "stop は p を重ねて ed。", "The bus stopped at the station. です。", RS);
+
+  // --- 不規則動詞の過去形 ---
+  ch("psIrr-basic-1", "psIrr", "basic", "「わたしは昨日、公園へ行きました。」を英語にすると？", ["I went to the park yesterday.", "I goed to the park yesterday.", "I go to the park yesterday.", "I wented to the park yesterday."], "go の過去形は went。", "I went to the park yesterday. です。", { usage: "diagnosis" });
+  ch("psIrr-basic-2", "psIrr", "basic", "go の過去形は？", ["went", "goed", "goes", "wented"], "形がかわる動詞。", "went です。");
+  ch("psIrr-basic-3", "psIrr", "basic", "eat の過去形は？", ["ate", "eated", "eats", "eaten"], "形がかわる動詞。", "ate です。");
+  ch("psIrr-basic-4", "psIrr", "basic", "「ユミは昨日、ケーキを作りました。」Yumi （ ） a cake yesterday. の（ ）は？", ["made", "maked", "makes", "make"], "make の過去形は made。", "made です。");
+  ch("psIrr-basic-5", "psIrr", "basic", "「わたしは昨日、ケンに会いました。」を英語にすると？", ["I met Ken yesterday.", "I meeted Ken yesterday.", "I meet Ken yesterday.", "I meets Ken yesterday."], "meet の過去形は met。", "I met Ken yesterday. です。");
+  ch("psIrr-basic-6", "psIrr", "basic", "have の過去形は？", ["had", "haved", "has", "haded"], "形がかわる動詞。", "had です。");
+  ch("psIrr-basic-7", "psIrr", "basic", "「わたしたちは昨夜、歌を歌いました。」We （ ） songs last night. の（ ）は？", ["sang", "singed", "sing", "sings"], "sing の過去形は sang。", "sang です。");
+  ch("psIrr-standard-1", "psIrr", "standard", "「父は昨日、新しい車を買いました。」を英語にすると？", ["My father bought a new car yesterday.", "My father buyed a new car yesterday.", "My father buys a new car yesterday.", "My father buy a new car yesterday."], "buy の過去形は bought。", "My father bought a new car yesterday. です。");
+  ch("psIrr-standard-2", "psIrr", "standard", "「わたしは今朝、6時に起きました。」I （ ） up at six this morning. の（ ）は？", ["got", "getted", "get", "gets"], "get の過去形は got。", "got です。");
+  ch("psIrr-standard-3", "psIrr", "standard", "write の過去形は？", ["wrote", "writed", "writes", "writted"], "形がかわる動詞。", "wrote です。");
+  ch("psIrr-standard-4", "psIrr", "standard", "「ケンは先週、本を3冊読みました。」Ken （ ） three books last week. の（ ）は？", ["read", "reads", "readed", "reading"], "read の過去形はつづりが同じ read。", "read です。");
+  ch("psIrr-standard-5", "psIrr", "standard", "「彼らは昨日、学校に来ました。」を英語にすると？", ["They came to school yesterday.", "They comed to school yesterday.", "They come to school yesterday.", "They camed to school yesterday."], "come の過去形は came。", "They came to school yesterday. です。");
+  ch("psIrr-standard-6", "psIrr", "standard", "「わたしは昨日、川で泳ぎました。」I （ ） in the river yesterday. の（ ）は？", ["swam", "swimmed", "swim", "swims"], "swim の過去形は swam。", "swam です。");
+  sp("psIrr-application-1", "psIrr", "夏休みの思い出です。", [
+    sc("s1", "psIrr", "「わたしは家族と海へ行きました。」を英語にすると？", ["I went to the sea with my family.", "I goed to the sea with my family.", "I go to the sea with my family.", "I going to the sea with my family."], "go → went。", "I went to the sea with my family. です。"),
+    sc("s2", "psIrr", "「わたしたちはそこで泳ぎました。」We （ ） there. の（ ）は？", ["swam", "swimmed", "swim", "swims"], "swim → swam。", "swam です。"),
+    sc("s3", "psIrr", "「わたしは貝がらをたくさん見つけました。」I （ ） a lot of shells. の（ ）は？", ["found", "finded", "find", "finds"], "find → found。", "found です。")
+  ], ["psIrr"], "形がかわる動詞の過去形を使う。", "I went to the sea with my family.、swam、found です。");
+  sp("psIrr-application-2", "psIrr", "誕生日パーティーの話です。", [
+    sc("s1", "psIrr", "「母は大きなケーキを作りました。」を英語にすると？", ["My mother made a big cake.", "My mother maked a big cake.", "My mother makes a big cake.", "My mother make a big cake."], "make → made。", "My mother made a big cake. です。"),
+    sc("s2", "psIrr", "「友だちがプレゼントをくれました。」My friends （ ） me a present. の（ ）は？", ["gave", "gived", "give", "gives"], "give → gave。", "gave です。"),
+    sc("s3", "psIrr", "「わたしたちはピザを食べました。」We （ ） pizza. の（ ）は？", ["ate", "eated", "eat", "eats"], "eat → ate。", "ate です。")
+  ], ["psIrr"], "made・gave・ate は形がかわる過去形。", "My mother made a big cake.、gave、ate です。");
+  sp("psIrr-application-3", "psIrr", "昨日の一日をふり返ります。", [
+    sc("s1", "psIrr", "「わたしは7時に家を出ました。」I （ ） home at seven. の（ ）は？", ["left", "leaved", "leave", "leaves"], "leave → left。", "left です。"),
+    sc("s2", "psIrr", "「わたしは駅でサキに会いました。」を英語にすると？", ["I met Saki at the station.", "I meeted Saki at the station.", "I meet Saki at the station.", "I meets Saki at the station."], "meet → met。", "I met Saki at the station. です。"),
+    sc("s3", "psIrr", "「夜、わたしは日記を書きました。」I （ ） in my diary at night. の（ ）は？", ["wrote", "writed", "write", "writes"], "write → wrote。", "wrote です。")
+  ], ["psIrr"], "一日のできごとを過去形でつなげる。", "left、I met Saki at the station.、wrote です。");
+  sp("psIrr-application-4", "psIrr", "買い物の話です。", [
+    sc("s1", "psIrr", "「姉は新しいかばんを買いました。」を英語にすると？", ["My sister bought a new bag.", "My sister buyed a new bag.", "My sister buys a new bag.", "My sister buy a new bag."], "buy → bought。", "My sister bought a new bag. です。"),
+    sc("s2", "psIrr", "「わたしたちはバスで帰ってきました。」We （ ） home by bus. の（ ）は？", ["came", "comed", "come", "comes"], "come → came。", "came です。"),
+    sc("s3", "psIrr", "「父がお金をはらいました。」My father （ ） the money. の（ ）は？", ["paid", "payed", "pays", "pay"], "pay → paid。", "paid です。")
+  ], ["psIrr"], "bought・came・paid は形がかわる過去形。", "My sister bought a new bag.、came、paid です。");
+  sp("psIrr-application-5", "psIrr", "部活の報告です。", [
+    sc("s1", "psIrr", "「わたしたちは試合に勝ちました。」We （ ） the game. の（ ）は？", ["won", "winned", "win", "wins"], "win → won。", "won です。"),
+    sc("s2", "psIrr", "「わたしたちは昼食にサンドイッチを持っていきました。」We （ ） sandwiches for lunch. の（ ）は？", ["took", "taked", "take", "takes"], "take → took。", "took です。"),
+    sc("s3", "psIrr", "「わたしは家でよくねむりました。」を英語にすると？", ["I slept well at home.", "I sleeped well at home.", "I sleep well at home.", "I sleeps well at home."], "sleep → slept。", "I slept well at home. です。")
+  ], ["psIrr"], "won・took・slept は形がかわる過去形。", "won、took、I slept well at home. です。");
+  ch("psIrr-retention-1", "psIrr", "retention", "「わたしは昨日、図書館へ行きました。」を英語にすると？", ["I went to the library yesterday.", "I goed to the library yesterday.", "I go to the library yesterday.", "I wented to the library yesterday."], "go → went。", "I went to the library yesterday. です。", RB);
+  ch("psIrr-retention-2", "psIrr", "retention", "「彼女は今朝、朝食を食べました。」を英語にすると？", ["She ate breakfast this morning.", "She eated breakfast this morning.", "She eats breakfast this morning.", "She eat breakfast this morning."], "eat → ate。", "She ate breakfast this morning. です。", RB);
+  ch("psIrr-retention-3", "psIrr", "retention", "「ケンは昨日、手紙を書きました。」を英語にすると？", ["Ken wrote a letter yesterday.", "Ken writed a letter yesterday.", "Ken writes a letter yesterday.", "Ken write a letter yesterday."], "write → wrote。", "Ken wrote a letter yesterday. です。", RB);
+  ch("psIrr-retention-4", "psIrr", "retention", "「わたしたちは先週、新しい友だちに会いました。」を英語にすると？", ["We met a new friend last week.", "We meeted a new friend last week.", "We meet a new friend last week.", "We meets a new friend last week."], "meet → met。", "We met a new friend last week. です。", RS);
+  ch("psIrr-retention-5", "psIrr", "retention", "「父は昨日、本を買いました。」を英語にすると？", ["My father bought a book yesterday.", "My father buyed a book yesterday.", "My father buys a book yesterday.", "My father buy a book yesterday."], "buy → bought。", "My father bought a book yesterday. です。", RS);
+
+  // --- didn't の否定文 ---
+  ch("psNeg-basic-1", "psNeg", "basic", "「わたしは昨日、テレビを見ませんでした。」を英語にすると？", ["I didn't watch TV yesterday.", "I didn't watched TV yesterday.", "I don't watch TV yesterday.", "I not watched TV yesterday."], "didn't ＋ もとの形。", "I didn't watch TV yesterday. です。", { usage: "diagnosis" });
+  ch("psNeg-basic-2", "psNeg", "basic", "過去の否定文（一般動詞）で使う語は？", ["didn't", "don't", "doesn't", "isn't"], "主語がだれでも同じ語。", "didn't です。");
+  ch("psNeg-basic-3", "psNeg", "basic", "「ケンは昨日、学校へ行きませんでした。」Ken （ ） go to school yesterday. の（ ）は？", ["didn't", "doesn't", "don't", "wasn't"], "過去の否定は didn't。", "didn't です。");
+  ch("psNeg-basic-4", "psNeg", "basic", "「わたしは昨夜、宿題をしませんでした。」I didn't （ ） my homework last night. の（ ）は？", ["do", "did", "does", "doing"], "didn't のあとはもとの形。", "do です。");
+  ch("psNeg-basic-5", "psNeg", "basic", "「彼らは昨日、サッカーをしませんでした。」を英語にすると？", ["They didn't play soccer yesterday.", "They don't play soccer yesterday.", "They didn't played soccer yesterday.", "They didn't playing soccer yesterday."], "didn't ＋ もとの形。", "They didn't play soccer yesterday. です。");
+  ch("psNeg-basic-6", "psNeg", "basic", "「ユミは今朝、朝食を食べませんでした。」Yumi didn't （ ） breakfast this morning. の（ ）は？", ["eat", "ate", "eats", "eating"], "didn't のあとはもとの形。", "eat です。");
+  ch("psNeg-basic-7", "psNeg", "basic", "「わたしたちは先週、京都へ行きませんでした。」We （ ） to Kyoto last week. の（ ）は？", ["didn't go", "didn't went", "don't go", "not went"], "didn't ＋ go。", "didn't go です。");
+  ch("psNeg-standard-1", "psNeg", "standard", "「父は昨日、車を洗いませんでした。」を英語にすると？", ["My father didn't wash the car yesterday.", "My father doesn't wash the car yesterday.", "My father didn't washed the car yesterday.", "My father not washed the car yesterday."], "主語が1人でも didn't。", "My father didn't wash the car yesterday. です。");
+  ch("psNeg-standard-2", "psNeg", "standard", "「わたしは昨日、ケンに会いませんでした。」I （ ） Ken yesterday. の（ ）は？", ["didn't meet", "didn't met", "don't meet", "not met"], "didn't ＋ もとの形。", "didn't meet です。");
+  ch("psNeg-standard-3", "psNeg", "standard", "「サキは手紙を書きませんでした。」Saki （ ） a letter. の（ ）は？", ["didn't write", "didn't wrote", "doesn't write", "not wrote"], "didn't ＋ write。", "didn't write です。");
+  ch("psNeg-standard-4", "psNeg", "standard", "「わたしの兄は昨日、勉強しませんでした。」を英語にすると？", ["My brother didn't study yesterday.", "My brother didn't studied yesterday.", "My brother doesn't study yesterday.", "My brother not studied yesterday."], "didn't ＋ study。", "My brother didn't study yesterday. です。");
+  ch("psNeg-standard-5", "psNeg", "standard", "「わたしたちはそのとき、何も買いませんでした。」We didn't （ ） anything then. の（ ）は？", ["buy", "bought", "buys", "buying"], "didn't のあとはもとの形。", "buy です。");
+  ch("psNeg-standard-6", "psNeg", "standard", "「子どもたちは昨夜、早くねませんでした。」を英語にすると？", ["The children didn't go to bed early last night.", "The children didn't went to bed early last night.", "The children don't go to bed early last night.", "The children not went to bed early last night."], "didn't ＋ go。", "The children didn't go to bed early last night. です。");
+  sp("psNeg-application-1", "psNeg", "昨日できなかったことを話します。", [
+    sc("s1", "psNeg", "「わたしは昨日、ピアノを練習しませんでした。」を英語にすると？", ["I didn't practice the piano yesterday.", "I didn't practiced the piano yesterday.", "I don't practice the piano yesterday.", "I not practiced the piano yesterday."], "didn't ＋ もとの形。", "I didn't practice the piano yesterday. です。"),
+    sc("s2", "psNeg", "「でも、本は読みました。」But I （ ） a book. の（ ）は？", ["read", "readed", "reads", "reading"], "read の過去形は read。", "read です。"),
+    sc("s3", "psNeg", "「わたしは宿題をしませんでした。」I （ ） my homework. の（ ）は？", ["didn't do", "didn't did", "don't do", "not did"], "didn't ＋ do。", "didn't do です。")
+  ], ["psNeg"], "しなかったことは didn't ＋ もとの形、したことは過去形。", "I didn't practice the piano yesterday.、read、didn't do です。");
+  sp("psNeg-application-2", "psNeg", "日曜日の過ごし方です。", [
+    sc("s1", "psNeg", "「わたしたちは出かけませんでした。」We （ ） out. の（ ）は？", ["didn't go", "didn't went", "don't go", "not went"], "didn't ＋ go。", "didn't go です。"),
+    sc("s2", "psNeg", "「わたしたちは家で映画を見ました。」を英語にすると？", ["We watched a movie at home.", "We watch a movie at home.", "We watchd a movie at home.", "We didn't watched a movie at home."], "watch ＋ ed。", "We watched a movie at home. です。"),
+    sc("s3", "psNeg", "「弟は昼食を食べませんでした。」My brother （ ） lunch. の（ ）は？", ["didn't eat", "didn't ate", "doesn't eat", "not ate"], "didn't ＋ eat。", "didn't eat です。")
+  ], ["psNeg"], "しなかったことは didn't、したことは過去形。", "didn't go、We watched a movie at home.、didn't eat です。");
+  sp("psNeg-application-3", "psNeg", "なくし物の話です。", [
+    sc("s1", "psNeg", "「わたしはかぎを見つけませんでした。」I （ ） my key. の（ ）は？", ["didn't find", "didn't found", "don't find", "not found"], "didn't ＋ find。", "didn't find です。"),
+    sc("s2", "psNeg", "「母も見つけませんでした。」を英語にすると？", ["My mother didn't find it.", "My mother didn't found it.", "My mother doesn't find it.", "My mother not found it."], "didn't ＋ もとの形。", "My mother didn't find it. です。"),
+    sc("s3", "psNeg", "「でも、父がわたしのかばんの中で見つけました。」But my father （ ） it in my bag. の（ ）は？", ["found", "finded", "find", "finds"], "find → found。", "found です。")
+  ], ["psNeg"], "didn't のあとはもとの形。肯定の文は過去形。", "didn't find、My mother didn't find it.、found です。");
+  sp("psNeg-application-4", "psNeg", "旅行の話です。", [
+    sc("s1", "psNeg", "「わたしたちは富士山に登りませんでした。」We （ ） Mt. Fuji. の（ ）は？", ["didn't climb", "didn't climbed", "don't climb", "not climbed"], "didn't ＋ climb。", "didn't climb です。"),
+    sc("s2", "psNeg", "「わたしたちはホテルにいました（とどまりました）。」We （ ） at the hotel. の（ ）は？", ["stayed", "staied", "stay", "stays"], "母音 ＋ y はそのまま ed。", "stayed です。"),
+    sc("s3", "psNeg", "「姉は写真をとりませんでした。」を英語にすると？", ["My sister didn't take pictures.", "My sister didn't took pictures.", "My sister doesn't take pictures.", "My sister not took pictures."], "didn't ＋ take。", "My sister didn't take pictures. です。")
+  ], ["psNeg"], "しなかったことは didn't ＋ もとの形。", "didn't climb、stayed、My sister didn't take pictures. です。");
+  sp("psNeg-application-5", "psNeg", "テストのふり返りです。", [
+    sc("s1", "psNeg", "「わたしは昨夜、数学を勉強しませんでした。」を英語にすると？", ["I didn't study math last night.", "I didn't studied math last night.", "I don't study math last night.", "I not studied math last night."], "didn't ＋ study。", "I didn't study math last night. です。"),
+    sc("s2", "psNeg", "「わたしは早くねました。」I （ ） to bed early. の（ ）は？", ["went", "goed", "go", "didn't went"], "go → went。", "went です。"),
+    sc("s3", "psNeg", "「リクも勉強しませんでした。」Riku （ ） study, too. の（ ）は？", ["didn't", "doesn't", "don't", "wasn't"], "過去の否定は didn't。", "didn't です。")
+  ], ["psNeg"], "過去の否定は主語に関係なく didn't。", "I didn't study math last night.、went、didn't です。");
+  ch("psNeg-retention-1", "psNeg", "retention", "「わたしは昨日、テニスをしませんでした。」を英語にすると？", ["I didn't play tennis yesterday.", "I didn't played tennis yesterday.", "I don't play tennis yesterday.", "I not played tennis yesterday."], "didn't ＋ もとの形。", "I didn't play tennis yesterday. です。", RB);
+  ch("psNeg-retention-2", "psNeg", "retention", "「ケンは今朝、朝食を食べませんでした。」を英語にすると？", ["Ken didn't eat breakfast this morning.", "Ken didn't ate breakfast this morning.", "Ken doesn't eat breakfast this morning.", "Ken not ate breakfast this morning."], "didn't ＋ eat。", "Ken didn't eat breakfast this morning. です。", RB);
+  ch("psNeg-retention-3", "psNeg", "retention", "「彼らは昨日、公園へ行きませんでした。」を英語にすると？", ["They didn't go to the park yesterday.", "They didn't went to the park yesterday.", "They don't go to the park yesterday.", "They not went to the park yesterday."], "didn't ＋ go。", "They didn't go to the park yesterday. です。", RB);
+  ch("psNeg-retention-4", "psNeg", "retention", "「わたしの姉は昨夜、テレビを見ませんでした。」を英語にすると？", ["My sister didn't watch TV last night.", "My sister didn't watched TV last night.", "My sister doesn't watch TV last night.", "My sister not watched TV last night."], "didn't ＋ watch。", "My sister didn't watch TV last night. です。", RS);
+  ch("psNeg-retention-5", "psNeg", "retention", "「わたしたちは先週、その本を読みませんでした。」を英語にすると？", ["We didn't read the book last week.", "We didn't reads the book last week.", "We don't read the book last week.", "We not read the book last week."], "didn't ＋ read。", "We didn't read the book last week. です。", RS);
+
+  // --- Did 〜? と What did 〜? ---
+  ch("psQues-basic-1", "psQues", "basic", "「あなたは昨日、テニスをしましたか。」を英語にすると？", ["Did you play tennis yesterday?", "Did you played tennis yesterday?", "Do you play tennis yesterday?", "You did play tennis yesterday?"], "Did ＋ 主語 ＋ もとの形?", "Did you play tennis yesterday? です。", { usage: "diagnosis" });
+  ch("psQues-basic-2", "psQues", "basic", "Did you watch TV last night? — Yes, （ ）. の（ ）は？", ["I did", "I do", "I watched", "you did"], "Did 〜? には did で答える。", "I did です。");
+  ch("psQues-basic-3", "psQues", "basic", "「ケンは昨日、学校へ来ましたか。」（ ） Ken come to school yesterday? の（ ）は？", ["Did", "Does", "Was", "Do"], "過去の疑問文は Did。", "Did です。");
+  ch("psQues-basic-4", "psQues", "basic", "Did Yumi make this cake? — No, （ ）. の（ ）は？", ["she didn't", "she doesn't", "she did", "he didn't"], "ユミ → she。No なら didn't。", "she didn't です。");
+  ch("psQues-basic-5", "psQues", "basic", "「あなたは昨日、何をしましたか。」を英語にすると？", ["What did you do yesterday?", "What did you did yesterday?", "What do you did yesterday?", "What you did yesterday?"], "What ＋ did ＋ 主語 ＋ もとの形?", "What did you do yesterday? です。");
+  ch("psQues-basic-6", "psQues", "basic", "What did you do last Sunday? の答えとして正しいものは？", ["I went to the zoo.", "Yes, I did.", "I go to the zoo.", "You went to the zoo."], "したことを過去形で答える。", "I went to the zoo. です。");
+  ch("psQues-basic-7", "psQues", "basic", "「あなたはどこへ行きましたか。」（ ） did you go? の（ ）は？", ["Where", "What", "Who", "When"], "場所をたずねる語。", "Where です。");
+  ch("psQues-standard-1", "psQues", "standard", "「あなたのお兄さんは昨夜、勉強しましたか。」を英語にすると？", ["Did your brother study last night?", "Did your brother studied last night?", "Does your brother study last night?", "Was your brother study last night?"], "Did ＋ 主語 ＋ もとの形?", "Did your brother study last night? です。");
+  ch("psQues-standard-2", "psQues", "standard", "Did you and Ken play soccer yesterday? — Yes, （ ）. の（ ）は？", ["we did", "we do", "they did", "I did"], "you and Ken → we。", "we did です。");
+  ch("psQues-standard-3", "psQues", "standard", "「あなたはいつ京都を訪れましたか。」（ ） did you visit Kyoto? の（ ）は？", ["When", "Where", "What", "Who"], "時をたずねる語。", "When です。");
+  ch("psQues-standard-4", "psQues", "standard", "When did you visit Kyoto? の答えとして正しいものは？", ["I visited Kyoto last spring.", "Yes, I did.", "I visit Kyoto last spring.", "You visited Kyoto last spring."], "時を入れて過去形で答える。", "I visited Kyoto last spring. です。");
+  ch("psQues-standard-5", "psQues", "standard", "「サキは何を買いましたか。」What （ ） Saki buy? の（ ）は？", ["did", "does", "was", "do"], "過去 → did。", "did です。");
+  ch("psQues-standard-6", "psQues", "standard", "「だれがこの絵をかきましたか。」を英語にすると？", ["Who drew this picture?", "Who drawed this picture?", "Who did draw this picture?", "Who draws this picture?"], "Who が主語 → Who ＋ 過去形?", "Who drew this picture? です。");
+  sp("psQues-application-1", "psQues", "週末のことをたずねます。", [
+    sc("s1", "psQues", "「あなたは週末に何をしましたか。」を英語にすると？", ["What did you do on the weekend?", "What do you did on the weekend?", "What did you did on the weekend?", "What you did on the weekend?"], "What did you ＋ もとの形?", "What did you do on the weekend? です。"),
+    sc("s2", "psQues", "What did you do on the weekend? の答えとして正しいものは？", ["I cleaned my room.", "Yes, I did.", "I clean my room.", "You cleaned my room."], "過去形で答える。", "I cleaned my room. です。"),
+    sc("s3", "psQues", "Did you go out with your father? — No, （ ）. の（ ）は？", ["I didn't", "I don't", "you didn't", "I did"], "No なら I didn't。", "I didn't です。")
+  ], ["psQues"], "Did・What did 〜? と、その答え方。", "What did you do on the weekend?、I cleaned my room.、I didn't です。");
+  sp("psQues-application-2", "psQues", "旅行から帰った友だちに聞きます。", [
+    sc("s1", "psQues", "「あなたはどこへ行きましたか。」を英語にすると？", ["Where did you go?", "Where did you went?", "Where do you went?", "Where you went?"], "Where ＋ did you ＋ もとの形?", "Where did you go? です。"),
+    sc("s2", "psQues", "Where did you go? の答えとして正しいものは？", ["I went to Hokkaido.", "I go to Hokkaido.", "Yes, I did.", "You went to Hokkaido."], "went で答える。", "I went to Hokkaido. です。"),
+    sc("s3", "psQues", "「そこで何を食べましたか。」What did you （ ） there? の（ ）は？", ["eat", "ate", "eats", "eating"], "did のあとはもとの形。", "eat です。")
+  ], ["psQues"], "疑問詞 ＋ did ＋ 主語 ＋ もとの形?", "Where did you go?、I went to Hokkaido.、eat です。");
+  sp("psQues-application-3", "psQues", "クラスで聞き取りをします。", [
+    sc("s1", "psQues", "「リクは昨日、本を読みましたか。」（ ） Riku read a book yesterday? の（ ）は？", ["Did", "Does", "Was", "Is"], "過去の疑問文は Did。", "Did です。"),
+    sc("s2", "psQues", "Did Riku read a book yesterday? — Yes, （ ）. の（ ）は？", ["he did", "he does", "she did", "he read"], "リク → he did。", "he did です。"),
+    sc("s3", "psQues", "「彼は何時にねましたか。」What time did he （ ） to bed? の（ ）は？", ["go", "went", "goes", "going"], "did のあとはもとの形。", "go です。")
+  ], ["psQues"], "Did 〜? には did で答える。", "Did、he did、go です。");
+  sp("psQues-application-4", "psQues", "家族に聞きます。", [
+    sc("s1", "psQues", "「お母さんはそのケーキを作りましたか。」を英語にすると？", ["Did your mother make the cake?", "Did your mother made the cake?", "Does your mother make the cake?", "Did your mother makes the cake?"], "Did ＋ 主語 ＋ もとの形?", "Did your mother make the cake? です。"),
+    sc("s2", "psQues", "Did your mother make the cake? の答えとして正しいものは？", ["No, she didn't.", "No, she doesn't.", "No, he didn't.", "No, she did."], "your mother → she。", "No, she didn't. です。"),
+    sc("s3", "psQues", "「だれが作りましたか。」Who （ ） it? の（ ）は？", ["made", "maked", "did make", "makes"], "Who が主語 → 過去形。", "made です。")
+  ], ["psQues"], "Did 〜? と、Who が主語の過去の疑問文。", "Did your mother make the cake?、No, she didn't.、made です。");
+  sp("psQues-application-5", "psQues", "先生が宿題についてたずねます。", [
+    sc("s1", "psQues", "「あなたたちは宿題をしましたか。」を英語にすると？", ["Did you do your homework?", "Did you did your homework?", "Do you did your homework?", "You did your homework?"], "Did you ＋ do?", "Did you do your homework? です。"),
+    sc("s2", "psQues", "Did Ken and Mai do their homework? — Yes, （ ）. の（ ）は？", ["they did", "they do", "we did", "he did"], "Ken and Mai → they。", "they did です。"),
+    sc("s3", "psQues", "「いつ終わらせましたか。」When did you （ ） it? の（ ）は？", ["finish", "finished", "finishes", "finishing"], "did のあとはもとの形。", "finish です。")
+  ], ["psQues"], "Did のあとの動詞はもとの形。", "Did you do your homework?、they did、finish です。");
+  ch("psQues-retention-1", "psQues", "retention", "「あなたは昨日、図書館へ行きましたか。」を英語にすると？", ["Did you go to the library yesterday?", "Did you went to the library yesterday?", "Do you go to the library yesterday?", "Did you goes to the library yesterday?"], "Did ＋ 主語 ＋ もとの形?", "Did you go to the library yesterday? です。", RB);
+  ch("psQues-retention-2", "psQues", "retention", "「あなたは昨夜、何を食べましたか。」を英語にすると？", ["What did you eat last night?", "What did you ate last night?", "What do you ate last night?", "What you ate last night?"], "What ＋ did ＋ 主語 ＋ もとの形?", "What did you eat last night? です。", RB);
+  ch("psQues-retention-3", "psQues", "retention", "「ユミは先週、京都を訪れましたか。」に「はい」と答えると？", ["Yes, she did.", "Yes, she does.", "Yes, he did.", "Yes, she visited."], "ユミ → she did。", "Yes, she did. です。", RB);
+  ch("psQues-retention-4", "psQues", "retention", "「あなたはどこでそのかばんを買いましたか。」を英語にすると？", ["Where did you buy the bag?", "Where did you bought the bag?", "Where do you bought the bag?", "Where you bought the bag?"], "Where ＋ did ＋ 主語 ＋ もとの形?", "Where did you buy the bag? です。", RS);
+  ch("psQues-retention-5", "psQues", "retention", "「だれがこの手紙を書きましたか。」を英語にすると？", ["Who wrote this letter?", "Who writed this letter?", "Who did write this letter?", "Who writes this letter?"], "Who が主語 → Who ＋ 過去形?", "Who wrote this letter? です。", RS);
+
+  // --- was・were ---
+  ch("psBe-basic-1", "psBe", "basic", "「わたしは昨日、いそがしかったです。」を英語にすると？", ["I was busy yesterday.", "I were busy yesterday.", "I am busy yesterday.", "I busy yesterday."], "am・is の過去形は was。", "I was busy yesterday. です。", { usage: "diagnosis" });
+  ch("psBe-basic-2", "psBe", "basic", "is の過去形は？", ["was", "were", "did", "been"], "am・is → was。", "was です。");
+  ch("psBe-basic-3", "psBe", "basic", "「彼らは昨日、家にいました。」They （ ） at home yesterday. の（ ）は？", ["were", "was", "are", "did"], "are の過去形は were。", "were です。");
+  ch("psBe-basic-4", "psBe", "basic", "are の過去形は？", ["were", "was", "did", "been"], "are → were。", "were です。");
+  ch("psBe-basic-5", "psBe", "basic", "「ケンはそのとき、つかれていました。」Ken （ ） tired then. の（ ）は？", ["was", "were", "is", "did"], "ケンは1人 → was。", "was です。");
+  ch("psBe-basic-6", "psBe", "basic", "「その映画はおもしろかったです。」を英語にすると？", ["The movie was interesting.", "The movie were interesting.", "The movie is interesting.", "The movie did interesting."], "the movie → was。", "The movie was interesting. です。");
+  ch("psBe-basic-7", "psBe", "basic", "「わたしたちは昨年、同じクラスでした。」We （ ） in the same class last year. の（ ）は？", ["were", "was", "are", "did"], "we → were。", "were です。");
+  ch("psBe-standard-1", "psBe", "standard", "「わたしは昨日、家にいませんでした。」を英語にすると？", ["I wasn't at home yesterday.", "I weren't at home yesterday.", "I didn't at home yesterday.", "I wasn't be at home yesterday."], "was ＋ not。", "I wasn't at home yesterday. です。");
+  ch("psBe-standard-2", "psBe", "standard", "「あなたは昨日、いそがしかったですか。」を英語にすると？", ["Were you busy yesterday?", "Was you busy yesterday?", "Did you busy yesterday?", "Were you was busy yesterday?"], "you → Were を前に。", "Were you busy yesterday? です。");
+  ch("psBe-standard-3", "psBe", "standard", "Was the test easy? — No, （ ）. の（ ）は？", ["it wasn't", "it didn't", "it isn't", "they weren't"], "the test → it。", "it wasn't です。");
+  ch("psBe-standard-4", "psBe", "standard", "「天気はどうでしたか。」How （ ） the weather? の（ ）は？", ["was", "were", "did", "is"], "the weather → was。", "was です。");
+  ch("psBe-standard-5", "psBe", "standard", "「あなたは昨日の夜、どこにいましたか。」を英語にすると？", ["Where were you last night?", "Where was you last night?", "Where did you last night?", "Where you were last night?"], "Where ＋ were ＋ you?", "Where were you last night? です。");
+  ch("psBe-standard-6", "psBe", "standard", "Were your parents at home? — Yes, （ ）. の（ ）は？", ["they were", "they was", "they did", "we were"], "your parents → they were。", "they were です。");
+  sp("psBe-application-1", "psBe", "旅行の感想を話します。", [
+    sc("s1", "psBe", "「旅行はどうでしたか。」を英語にすると？", ["How was your trip?", "How were your trip?", "How did your trip?", "How your trip was?"], "How ＋ was ＋ 主語?", "How was your trip? です。"),
+    sc("s2", "psBe", "How was your trip? の答えとして正しいものは？", ["It was great.", "Yes, it was.", "It is great.", "They were great."], "your trip → it。", "It was great. です。"),
+    sc("s3", "psBe", "「天気がよかったです。」The weather （ ） nice. の（ ）は？", ["was", "were", "is", "did"], "the weather → was。", "was です。")
+  ], ["psBe"], "ようすをたずねる・答えるのも was・were。", "How was your trip?、It was great.、was です。");
+  sp("psBe-application-2", "psBe", "昨日休んだ友だちに聞きます。", [
+    sc("s1", "psBe", "「あなたは昨日、具合が悪かったのですか。」を英語にすると？", ["Were you sick yesterday?", "Was you sick yesterday?", "Did you sick yesterday?", "Are you sick yesterday?"], "you → Were。", "Were you sick yesterday? です。"),
+    sc("s2", "psBe", "Were you sick yesterday? — Yes, （ ）. の（ ）は？", ["I was", "I were", "I did", "you were"], "I → was。", "I was です。"),
+    sc("s3", "psBe", "「お母さんは家にいましたか。」（ ） your mother at home? の（ ）は？", ["Was", "Were", "Did", "Is"], "your mother → Was。", "Was です。")
+  ], ["psBe"], "主語で was・were を使い分ける。", "Were you sick yesterday?、I was、Was です。");
+  sp("psBe-application-3", "psBe", "昔の写真を見ています。", [
+    sc("s1", "psBe", "「父はサッカー選手でした。」を英語にすると？", ["My father was a soccer player.", "My father were a soccer player.", "My father did a soccer player.", "My father a soccer player."], "my father → was。", "My father was a soccer player. です。"),
+    sc("s2", "psBe", "「祖父母は農家でした。」My grandparents （ ） farmers. の（ ）は？", ["were", "was", "did", "are"], "grandparents は複数 → were。", "were です。"),
+    sc("s3", "psBe", "「この犬はそのころ小さかったです。」This dog （ ） small then. の（ ）は？", ["was", "were", "is", "did"], "this dog → was。", "was です。")
+  ], ["psBe"], "昔のことは was・were で言う。", "My father was a soccer player.、were、was です。");
+  sp("psBe-application-4", "psBe", "テストの話です。", [
+    sc("s1", "psBe", "「テストはむずかしかったですか。」を英語にすると？", ["Was the test difficult?", "Were the test difficult?", "Did the test difficult?", "Is the test difficult yesterday?"], "the test → Was。", "Was the test difficult? です。"),
+    sc("s2", "psBe", "Was the test difficult? の答えとして正しいものは？", ["No, it wasn't.", "No, it didn't.", "No, it isn't.", "No, they weren't."], "the test → it wasn't。", "No, it wasn't. です。"),
+    sc("s3", "psBe", "「数学のテストは簡単でした。」The math test （ ） easy. の（ ）は？", ["was", "were", "did", "is"], "the math test → was。", "was です。")
+  ], ["psBe"], "Was 〜? には was・wasn't で答える。", "Was the test difficult?、No, it wasn't.、was です。");
+  sp("psBe-application-5", "psBe", "週末の天気の話です。", [
+    sc("s1", "psBe", "「土曜日は晴れでした。」It （ ） sunny on Saturday. の（ ）は？", ["was", "were", "did", "is"], "it → was。", "was です。"),
+    sc("s2", "psBe", "「日曜日は雨でしたか。」を英語にすると？", ["Was it rainy on Sunday?", "Were it rainy on Sunday?", "Did it rainy on Sunday?", "Is it rainy on Sunday?"], "it → Was を前に。", "Was it rainy on Sunday? です。"),
+    sc("s3", "psBe", "Was it rainy on Sunday? — Yes, （ ）. の（ ）は？", ["it was", "it were", "it did", "it is"], "Was 〜? → it was。", "it was です。")
+  ], ["psBe"], "過去の天気は It was 〜.", "was、Was it rainy on Sunday?、it was です。");
+  ch("psBe-retention-1", "psBe", "retention", "「わたしは昨日、つかれていました。」を英語にすると？", ["I was tired yesterday.", "I were tired yesterday.", "I am tired yesterday.", "I did tired yesterday."], "I → was。", "I was tired yesterday. です。", RB);
+  ch("psBe-retention-2", "psBe", "retention", "「彼らはそのとき、公園にいました。」を英語にすると？", ["They were in the park then.", "They was in the park then.", "They are in the park then.", "They did in the park then."], "they → were。", "They were in the park then. です。", RB);
+  ch("psBe-retention-3", "psBe", "retention", "「あなたは昨日、ひまでしたか。」を英語にすると？", ["Were you free yesterday?", "Was you free yesterday?", "Did you free yesterday?", "Are you free yesterday?"], "you → Were を前に。", "Were you free yesterday? です。", RB);
+  ch("psBe-retention-4", "psBe", "retention", "「その本はおもしろくなかったです。」を英語にすると？", ["The book wasn't interesting.", "The book weren't interesting.", "The book didn't interesting.", "The book not was interesting."], "was ＋ not。", "The book wasn't interesting. です。", RS);
+  ch("psBe-retention-5", "psBe", "retention", "「昨日の天気はどうでしたか。」を英語にすると？", ["How was the weather yesterday?", "How were the weather yesterday?", "How did the weather yesterday?", "How the weather was yesterday?"], "How ＋ was ＋ 主語?", "How was the weather yesterday? です。", RS);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;

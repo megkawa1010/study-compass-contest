@@ -40,7 +40,8 @@
       "命令文": "「〜しなさい」と相手に言う文（命令文）の単元です。主語を言わずに動詞のもとの形で始め、様子を表す語なら Be、「〜してはいけない」は Don't、「〜しましょう」は Let's を使います。",
       "can": "「〜できる」を表す can の単元です。can ＋ 動詞のもとの形で、主語が he・she でも形はかわりません。否定は can't、疑問文は Can 〜? で、Can you 〜?（〜してくれる？）・Can I 〜?（〜してもいい？）のお願いにも使います。",
       "疑問詞": "Where（どこ）・When／What time（いつ・何時）・Which（どちら）・Whose（だれの）・How（どうやって・何歳・天気）でたずねる単元です。疑問詞のあとはふつうの疑問文の語順にし、たずねられた内容で答えます。",
-      "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。"
+      "現在進行形": "「今〜しているところ」を be動詞 ＋ 〜ing で表す単元です。主語で am・are・is を使い分け、否定文は be動詞のあとに not、疑問文は be動詞を主語の前に出します。swimming・making のような ing のつづりにも気をつけます。",
+      "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。"
     },
     skills: {
       // --- 正負の数 ---
@@ -234,6 +235,12 @@
       pgNeg: { point: "否定文は be動詞のあとに not。isn't・aren't・I'm not を使います。", example: "I'm not watching TV now.", trap: "don't・doesn't は使いません（I don't watching は×）。" },
       pgQues: { point: "疑問文は be動詞を主語の前に出し、Is・Are ＋ 主語 ＋ 〜ing? にします。答えも be動詞で答えます。", example: "Are you studying now? — Yes, I am.", trap: "Do you 〜ing? とはしません。Yes, I do. と答えないようにします。" },
       pgWhat: { point: "What・Where のあとに be動詞 ＋ 主語 ＋ 〜ing? を続けます。Who が主語なら Who is 〜ing?。", example: "What are you doing? — I'm reading a book.", trap: "What you are doing? のように語順をそのままにしないようにします。" },
+      // --- 過去形（英語） ---
+      psReg: { point: "過去のことは動詞に ed をつけます。e で終わる語は d だけ、子音字 ＋ y は ied、stop のような語は最後の字を重ねます。", example: "I played tennis yesterday.", trap: "yesterday があるのに play のままにしないようにします。studyed・stoped のつづりにも注意します。" },
+      psIrr: { point: "go → went、eat → ate、make → made のように形がかわる動詞は、1つずつ覚えます。", example: "I went to the park yesterday.", trap: "goed・eated のように ed をつけないようにします。read は形が同じで読み方がかわります。" },
+      psNeg: { point: "過去の否定文は didn't ＋ 動詞のもとの形。主語がだれでも didn't です。", example: "I didn't watch TV yesterday.", trap: "didn't watched のように過去形を重ねないようにします。" },
+      psQues: { point: "過去の疑問文は Did ＋ 主語 ＋ もとの形?。答えは Yes, 〜 did.／No, 〜 didn't.。疑問詞は文の最初に置きます。", example: "What did you do yesterday? — I went to the zoo.", trap: "Did you went 〜? としないようにします。Who が主語なら Who made 〜? と過去形を使います。" },
+      psBe: { point: "be動詞の過去形は am・is → was、are → were。否定は wasn't・weren't、疑問文は Was・Were を前に出します。", example: "Were you busy yesterday? — Yes, I was.", trap: "be動詞の文に did は使いません（Did you busy? は×）。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },
