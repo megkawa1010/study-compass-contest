@@ -44,7 +44,8 @@
       "過去形": "過去のことを言う単元です。一般動詞は played のように ed をつけるもの（規則動詞）と went のように形がかわるもの（不規則動詞）があります。否定文は didn't ＋ もとの形、疑問文は Did ＋ 主語 ＋ もとの形?。be動詞は am・is → was、are → were になります。",
       "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。",
       "助動詞": "must・have to（〜しなければならない）、must not（〜してはいけない）、don't have to（〜しなくてもよい）、may（〜してもよい・〜かもしれない）、should（〜すべき）を使う単元です。助動詞のあとは動詞のもとの形。must not と don't have to は意味がちがうので気をつけます。",
-      "不定詞": "to ＋ 動詞のもとの形（不定詞）を使う単元です。「〜すること」（want to 〜）、「〜するために・〜して」（went there to 〜・glad to 〜）、「〜するための」（something to drink）、Why 〜? への To 〜. の答え方、It is 〜 (for 人) to …. を学びます。to のあとはいつも動詞のもとの形です。"
+      "不定詞": "to ＋ 動詞のもとの形（不定詞）を使う単元です。「〜すること」（want to 〜）、「〜するために・〜して」（went there to 〜・glad to 〜）、「〜するための」（something to drink）、Why 〜? への To 〜. の答え方、It is 〜 (for 人) to …. を学びます。to のあとはいつも動詞のもとの形です。",
+      "動名詞": "動詞の ing 形（動名詞）で「〜すること」を表す単元です。enjoy・finish・stop のあと、at・for・in・about などの前置詞のあとは 〜ing。〜ing は主語（Playing soccer is fun.）にもなります。want・hope・decide のあとは to ＋ もとの形なので、使い分けに気をつけます。"
     },
     skills: {
       // --- 正負の数 ---
@@ -262,6 +263,12 @@
       inAdj: { point: "名詞のすぐあとに to ＋ もとの形を置くと「〜するための・〜すべき」。something to drink、homework to do のように使います。", example: "I want something to drink.", trap: "to は説明する名詞のあとに置きます（to something drink は×）。" },
       inWhy: { point: "Why ＋ do・does・did ＋ 主語 ＋ もとの形? で理由をたずね、目的は To ＋ もとの形. で短く答えられます。", example: "Why did you go to the library? — To study for the test.", trap: "Why did you went としないようにします。Yes・No では答えません。" },
       inIt: { point: "It is 〜 to …. で「…することは〜だ」。だれにとってかは for ＋ 人（me・him・her・us）を to の前に入れます。", example: "It is easy for me to swim.", trap: "for I・for we としないようにします。to me ではなく for me です。" },
+      // --- 動名詞（英語） ---
+      grObj: { point: "enjoy・finish・stop のあとに動詞を続けるときは 〜ing にします。", example: "I enjoyed playing tennis.", trap: "enjoy to play・finish do としないようにします。swim → swimming、write → writing のつづりにも注意。" },
+      grSubj: { point: "〜ing は「〜すること」として主語にも、is のあと（補語）にもなります。主語のときは1つのことなので is。", example: "Playing soccer is fun. ／ My hobby is reading books.", trap: "Play soccer is fun.（もとの形のまま）や Playing soccer are fun. にしないようにします。" },
+      grPrep: { point: "at・for・in・about・before・after・without などの前置詞のあとに動詞を続けるときは 〜ing。", example: "I am good at swimming. ／ Thank you for helping me.", trap: "good at to swim・How about go としないようにします。" },
+      grVsTo: { point: "want・hope・decide は to ＋ もとの形、enjoy・finish・stop は 〜ing。like・start・begin はどちらも使えます。", example: "I want to swim. ／ I enjoyed swimming.", trap: "I want swimming.・I enjoyed to swim. はまちがいです。" },
+      grQues: { point: "否定文・疑問文でも 〜ing の部分は同じ。Did you enjoy 〜ing? ／ I don't like 〜ing. の形です。", example: "Did you finish doing your homework?", trap: "Did you enjoyed 〜? としないようにします（did のあとはもとの形）。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

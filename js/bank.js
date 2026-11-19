@@ -11229,6 +11229,248 @@
   ch("inIt-retention-5", "inIt", "retention", "「毎日運動することはよいことです。」を英語にすると？", ["It is good to exercise every day.", "It is good exercise every day.", "It is good to exercises every day.", "It is good for exercise every day."], "It is 〜 to ＋ もとの形。", "It is good to exercise every day. です。", RS);
 
   // =====================================================================
+  // 中2 英語「動名詞」（enjoy・finish・stop ＋ 〜ing・〜ing が主語／補語・前置詞 ＋ 〜ing・to と 〜ing の使い分け・否定文と疑問文）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-gerund.test.js が 〜ing と to の使い分けと文の形を確かめる）
+  // =====================================================================
+
+  // --- enjoy・finish・stop ＋ 〜ing ---
+  ch("grObj-basic-1", "grObj", "basic", "「わたしはテニスをすることを楽しみました。」を英語にすると？", ["I enjoyed playing tennis.", "I enjoyed to play tennis.", "I enjoyed play tennis.", "I enjoyed played tennis."], "enjoy のあとは 〜ing。", "I enjoyed playing tennis. です。", { usage: "diagnosis" });
+  ch("grObj-basic-2", "grObj", "basic", "「わたしは宿題をし終えました。」I finished （ ） my homework. の（ ）は？", ["doing", "to do", "do", "did"], "finish のあとは 〜ing。", "doing です。");
+  ch("grObj-basic-3", "grObj", "basic", "動名詞の形は？", ["動詞の ing 形（〜すること）", "to ＋ 動詞のもとの形", "動詞の過去形", "動詞に s がついた形"], "「〜すること」を ing 形で表す。", "動詞の ing 形です。");
+  ch("grObj-basic-4", "grObj", "basic", "enjoy のあとに動詞を続けるときの形は？", ["〜ing", "to ＋ もとの形", "もとの形", "過去形"], "enjoy 〜ing で「〜して楽しむ」。", "〜ing です。");
+  ch("grObj-basic-5", "grObj", "basic", "「雨がやみました。」It stopped （ ）. の（ ）は？", ["raining", "rain", "rained", "rains"], "stop 〜ing で「〜するのをやめる」。", "raining です。");
+  ch("grObj-basic-6", "grObj", "basic", "「ケンは毎日ギターをひくことを楽しんでいます。」Ken enjoys （ ） the guitar every day. の（ ）は？", ["playing", "to play", "play", "plays"], "enjoys のあとは 〜ing。", "playing です。");
+  ch("grObj-basic-7", "grObj", "basic", "「わたしは手紙を書き終えました。」を英語にすると？", ["I finished writing the letter.", "I finished to write the letter.", "I finished write the letter.", "I finished writeing the letter."], "write の ing 形は e をとって writing。", "I finished writing the letter. です。");
+  ch("grObj-standard-1", "grObj", "standard", "「彼らはおしゃべりをやめました。」They stopped （ ）. の（ ）は？", ["talking", "talk", "talked", "talks"], "stop 〜ing。", "talking です。");
+  ch("grObj-standard-2", "grObj", "standard", "「母は料理をすることを楽しみます。」を英語にすると？", ["My mother enjoys cooking.", "My mother enjoys to cook.", "My mother enjoy cooking.", "My mother enjoys cook."], "my mother → enjoys。そのあとは 〜ing。", "My mother enjoys cooking. です。");
+  ch("grObj-standard-3", "grObj", "standard", "「わたしたちは海で泳ぐのを楽しみました。」We enjoyed （ ） in the sea. の（ ）は？", ["swimming", "swiming", "to swim", "swim"], "swim の ing 形は m を重ねる。", "swimming です。");
+  ch("grObj-standard-4", "grObj", "standard", "「サキは部屋のそうじを終えました。」Saki finished （ ） her room. の（ ）は？", ["cleaning", "to clean", "clean", "cleans"], "finish 〜ing。", "cleaning です。");
+  ch("grObj-standard-5", "grObj", "standard", "「弟はゲームをするのをやめました。」を英語にすると？", ["My brother stopped playing games.", "My brother stopped play games.", "My brother stopped played games.", "My brother stop playing games."], "stopped ＋ 〜ing。", "My brother stopped playing games. です。");
+  ch("grObj-standard-6", "grObj", "standard", "「わたしたちはいっしょに歌うのを楽しみました。」を英語にすると？", ["We enjoyed singing together.", "We enjoyed to sing together.", "We enjoyed sing together.", "We enjoyed sang together."], "enjoyed ＋ 〜ing。", "We enjoyed singing together. です。");
+  sp("grObj-application-1", "grObj", "キャンプの思い出です。", [
+    sc("s1", "grObj", "「わたしたちは星を見ることを楽しみました。」を英語にすると？", ["We enjoyed watching the stars.", "We enjoyed to watch the stars.", "We enjoyed watch the stars.", "We enjoyed watched the stars."], "enjoyed ＋ 〜ing。", "We enjoyed watching the stars. です。"),
+    sc("s2", "grObj", "「父は夕食を作り終えました。」My father finished （ ） dinner. の（ ）は？", ["making", "to make", "make", "makeing"], "make の ing 形は e をとる。", "making です。"),
+    sc("s3", "grObj", "「風がやみました。」The wind stopped （ ）. の（ ）は？", ["blowing", "blow", "blew", "blows"], "stop 〜ing。", "blowing です。")
+  ], ["grObj"], "enjoy・finish・stop のあとは 〜ing。", "We enjoyed watching the stars.、making、blowing です。");
+  sp("grObj-application-2", "grObj", "放課後の話です。", [
+    sc("s1", "grObj", "「わたしは数学の宿題をし終えました。」を英語にすると？", ["I finished doing my math homework.", "I finished to do my math homework.", "I finished do my math homework.", "I finished did my math homework."], "finished ＋ 〜ing。", "I finished doing my math homework. です。"),
+    sc("s2", "grObj", "「それから友だちと話すのを楽しみました。」Then I enjoyed （ ） with my friends. の（ ）は？", ["talking", "to talk", "talk", "talked"], "enjoyed ＋ 〜ing。", "talking です。"),
+    sc("s3", "grObj", "「6時に、わたしたちは話すのをやめました。」We stopped （ ） at six. の（ ）は？", ["talking", "talk", "talked", "talks"], "stopped ＋ 〜ing。", "talking です。")
+  ], ["grObj"], "放課後のことを 〜ing で言う。", "I finished doing my math homework.、talking、talking です。");
+  sp("grObj-application-3", "grObj", "部活の話です。", [
+    sc("s1", "grObj", "「わたしたちは毎朝走ることを楽しんでいます。」を英語にすると？", ["We enjoy running every morning.", "We enjoy to run every morning.", "We enjoy run every morning.", "We enjoy runing every morning."], "run の ing 形は n を重ねる。", "We enjoy running every morning. です。"),
+    sc("s2", "grObj", "「わたしたちは5時に練習を終えました。」We finished （ ） at five. の（ ）は？", ["practicing", "to practice", "practice", "practiced"], "finish 〜ing。", "practicing です。"),
+    sc("s3", "grObj", "「リクはボールをけるのを楽しみました。」Riku enjoyed （ ） the ball. の（ ）は？", ["kicking", "to kick", "kick", "kicks"], "enjoy 〜ing。", "kicking です。")
+  ], ["grObj"], "enjoy・finish のあとは 〜ing。", "We enjoy running every morning.、practicing、kicking です。");
+  sp("grObj-application-4", "grObj", "家での一日です。", [
+    sc("s1", "grObj", "「姉は本を読むのを楽しみました。」を英語にすると？", ["My sister enjoyed reading a book.", "My sister enjoyed to read a book.", "My sister enjoyed read a book.", "My sister enjoy reading a book."], "enjoyed ＋ 〜ing。", "My sister enjoyed reading a book. です。"),
+    sc("s2", "grObj", "「母は皿を洗い終えました。」My mother finished （ ） the dishes. の（ ）は？", ["washing", "to wash", "wash", "washes"], "finish 〜ing。", "washing です。"),
+    sc("s3", "grObj", "「赤ちゃんが泣きやみました。」The baby stopped （ ）. の（ ）は？", ["crying", "cry", "cried", "cries"], "stop 〜ing。", "crying です。")
+  ], ["grObj"], "家族のしたことを 〜ing で言う。", "My sister enjoyed reading a book.、washing、crying です。");
+  sp("grObj-application-5", "grObj", "家族旅行の話です。", [
+    sc("s1", "grObj", "「わたしたちは古い町を歩くのを楽しみました。」を英語にすると？", ["We enjoyed walking in the old town.", "We enjoyed to walk in the old town.", "We enjoyed walk in the old town.", "We enjoyed walked in the old town."], "enjoyed ＋ 〜ing。", "We enjoyed walking in the old town. です。"),
+    sc("s2", "grObj", "「父は1時間後に運転するのをやめました。」My father stopped （ ） after an hour. の（ ）は？", ["driving", "drive", "drove", "driveing"], "drive の ing 形は e をとる。", "driving です。"),
+    sc("s3", "grObj", "「わたしは日記を書き終えました。」I finished （ ） my diary. の（ ）は？", ["writing", "to write", "write", "wrote"], "finish 〜ing。", "writing です。")
+  ], ["grObj"], "旅行のことを enjoy・stop・finish ＋ 〜ing で言う。", "We enjoyed walking in the old town.、driving、writing です。");
+  ch("grObj-retention-1", "grObj", "retention", "「わたしは音楽を聞くのを楽しみました。」を英語にすると？", ["I enjoyed listening to music.", "I enjoyed to listen to music.", "I enjoyed listen to music.", "I enjoyed listened to music."], "enjoyed ＋ 〜ing。", "I enjoyed listening to music. です。", RB);
+  ch("grObj-retention-2", "grObj", "retention", "「ケンは昼食を食べ終えました。」を英語にすると？", ["Ken finished eating lunch.", "Ken finished to eat lunch.", "Ken finished eat lunch.", "Ken finished ate lunch."], "finished ＋ 〜ing。", "Ken finished eating lunch. です。", RB);
+  ch("grObj-retention-3", "grObj", "retention", "「雪がやみました。」を英語にすると？", ["It stopped snowing.", "It stopped snow.", "It stopped snowed.", "It stopped snows."], "stopped ＋ 〜ing。", "It stopped snowing. です。", RB);
+  ch("grObj-retention-4", "grObj", "retention", "「彼女は絵をかくのを楽しんでいます。」を英語にすると？", ["She enjoys drawing pictures.", "She enjoys to draw pictures.", "She enjoy drawing pictures.", "She enjoys draw pictures."], "she → enjoys ＋ 〜ing。", "She enjoys drawing pictures. です。", RS);
+  ch("grObj-retention-5", "grObj", "retention", "「わたしたちは部屋のそうじをし終えました。」を英語にすると？", ["We finished cleaning the room.", "We finished to clean the room.", "We finished clean the room.", "We finished cleaned the room."], "finished ＋ 〜ing。", "We finished cleaning the room. です。", RS);
+
+  // --- 〜ing が主語・補語 ---
+  ch("grSubj-basic-1", "grSubj", "basic", "「サッカーをすることは楽しいです。」を英語にすると？", ["Playing soccer is fun.", "Play soccer is fun.", "Playing soccer are fun.", "Played soccer is fun."], "〜ing が主語。1つのことなので is。", "Playing soccer is fun. です。", { usage: "diagnosis" });
+  ch("grSubj-basic-2", "grSubj", "basic", "「本を読むことはおもしろいです。」（ ） books is interesting. の（ ）は？", ["Reading", "Read", "Reads", "Readed"], "主語の「〜すること」は 〜ing。", "Reading です。");
+  ch("grSubj-basic-3", "grSubj", "basic", "〜ing（〜すること）が主語のとき、現在の be動詞は？", ["is（1つのこととして考える）", "are", "am", "be"], "Playing soccer is fun. のように is。", "is です。");
+  ch("grSubj-basic-4", "grSubj", "basic", "「わたしの趣味は写真をとることです。」My hobby is （ ） pictures. の（ ）は？", ["taking", "take", "took", "takes"], "is のあとに 〜ing（〜すること）。", "taking です。");
+  ch("grSubj-basic-5", "grSubj", "basic", "「早く起きることは大切です。」を英語にすると？", ["Getting up early is important.", "Get up early is important.", "Getting up early are important.", "Got up early is important."], "Getting up early が主語。is。", "Getting up early is important. です。");
+  ch("grSubj-basic-6", "grSubj", "basic", "「わたしの仕事は犬を散歩させることです。」My job is （ ） the dog. の（ ）は？", ["walking", "walk", "walked", "walks"], "is のあとに 〜ing。", "walking です。");
+  ch("grSubj-basic-7", "grSubj", "basic", "「英語を話すことはむずかしいです。」（ ） English is difficult. の（ ）は？", ["Speaking", "Speak", "Spoke", "Speaks"], "主語の「〜すること」は 〜ing。", "Speaking です。");
+  ch("grSubj-standard-1", "grSubj", "standard", "「友だちと話すことは楽しいです。」を英語にすると？", ["Talking with friends is fun.", "Talk with friends is fun.", "Talking with friends are fun.", "Talked with friends is fun."], "Talking with friends が主語。is。", "Talking with friends is fun. です。");
+  ch("grSubj-standard-2", "grSubj", "standard", "「わたしの夢は世界中を旅することです。」My dream is （ ） around the world. の（ ）は？", ["traveling", "travel", "traveled", "travels"], "is のあとに 〜ing。", "traveling です。");
+  ch("grSubj-standard-3", "grSubj", "standard", "「毎日走ることは健康によいです。」を英語にすると？", ["Running every day is good for your health.", "Run every day is good for your health.", "Running every day are good for your health.", "Runing every day is good for your health."], "run の ing 形は running。is。", "Running every day is good for your health. です。");
+  ch("grSubj-standard-4", "grSubj", "standard", "「料理をすることはわたしにとって楽しいです。」（ ） is fun for me. の（ ）は？", ["Cooking", "Cook", "Cooked", "Cooks"], "主語の「〜すること」は 〜ing。", "Cooking です。");
+  ch("grSubj-standard-5", "grSubj", "standard", "「彼女の趣味はケーキを作ることです。」を英語にすると？", ["Her hobby is making cakes.", "Her hobby is make cakes.", "Her hobby is makeing cakes.", "Her hobby are making cakes."], "is ＋ making 〜。", "Her hobby is making cakes. です。");
+  ch("grSubj-standard-6", "grSubj", "standard", "「ピアノをひくことはわたしにとって簡単ではありません。」を英語にすると？", ["Playing the piano is not easy for me.", "Play the piano is not easy for me.", "Playing the piano are not easy for me.", "Playing the piano not is easy for me."], "Playing the piano が主語。is not。", "Playing the piano is not easy for me. です。");
+  sp("grSubj-application-1", "grSubj", "自己紹介をします。", [
+    sc("s1", "grSubj", "「わたしの趣味は本を読むことです。」を英語にすると？", ["My hobby is reading books.", "My hobby is read books.", "My hobby are reading books.", "My hobby is reads books."], "is ＋ reading 〜。", "My hobby is reading books. です。"),
+    sc("s2", "grSubj", "「新しいことを学ぶのは楽しいです。」（ ） new things is fun. の（ ）は？", ["Learning", "Learn", "Learned", "Learns"], "主語の「〜すること」は 〜ing。", "Learning です。"),
+    sc("s3", "grSubj", "「わたしの夢は作家になることです。」My dream is （ ） a writer. の（ ）は？", ["becoming", "become", "became", "becomes"], "is のあとに 〜ing。", "becoming です。")
+  ], ["grSubj"], "趣味や夢を 〜ing で言う。", "My hobby is reading books.、Learning、becoming です。");
+  sp("grSubj-application-2", "grSubj", "部活を紹介します。", [
+    sc("s1", "grSubj", "「テニスをすることはわくわくします。」を英語にすると？", ["Playing tennis is exciting.", "Play tennis is exciting.", "Playing tennis are exciting.", "Played tennis is exciting."], "Playing tennis が主語。is。", "Playing tennis is exciting. です。"),
+    sc("s2", "grSubj", "「毎日練習することはたいへんです。」（ ） every day is hard. の（ ）は？", ["Practicing", "Practice", "Practiced", "Practices"], "主語の「〜すること」は 〜ing。", "Practicing です。"),
+    sc("s3", "grSubj", "「わたしたちの目標は試合に勝つことです。」Our goal is （ ） the game. の（ ）は？", ["winning", "win", "won", "wins"], "win の ing 形は n を重ねる。", "winning です。")
+  ], ["grSubj"], "部活のことを 〜ing を主語・補語にして言う。", "Playing tennis is exciting.、Practicing、winning です。");
+  sp("grSubj-application-3", "grSubj", "英語の授業の感想です。", [
+    sc("s1", "grSubj", "「英語の歌を歌うことは楽しいです。」を英語にすると？", ["Singing English songs is fun.", "Sing English songs is fun.", "Singing English songs are fun.", "Sang English songs is fun."], "Singing 〜 が主語。is。", "Singing English songs is fun. です。"),
+    sc("s2", "grSubj", "「英語で日記を書くことは役に立ちます。」（ ） a diary in English is useful. の（ ）は？", ["Writing", "Write", "Wrote", "Writes"], "主語の「〜すること」は 〜ing。", "Writing です。"),
+    sc("s3", "grSubj", "「わたしの目標は英語を上手に話すことです。」My goal is （ ） English well. の（ ）は？", ["speaking", "speak", "spoke", "speaks"], "is のあとに 〜ing。", "speaking です。")
+  ], ["grSubj"], "授業の感想や目標を 〜ing で言う。", "Singing English songs is fun.、Writing、speaking です。");
+  sp("grSubj-application-4", "grSubj", "家族を紹介します。", [
+    sc("s1", "grSubj", "「父の趣味はつりをすることです。」を英語にすると？", ["My father's hobby is fishing.", "My father's hobby is fish.", "My father's hobby are fishing.", "My father's hobby is fished."], "is ＋ fishing。", "My father's hobby is fishing. です。"),
+    sc("s2", "grSubj", "「母の仕事は子どもたちに教えることです。」My mother's job is （ ） children. の（ ）は？", ["teaching", "teach", "taught", "teaches"], "is のあとに 〜ing。", "teaching です。"),
+    sc("s3", "grSubj", "「家族と料理をすることは楽しいです。」（ ） with my family is fun. の（ ）は？", ["Cooking", "Cook", "Cooked", "Cooks"], "主語の「〜すること」は 〜ing。", "Cooking です。")
+  ], ["grSubj"], "家族の趣味や仕事を 〜ing で言う。", "My father's hobby is fishing.、teaching、Cooking です。");
+  sp("grSubj-application-5", "grSubj", "健康の話です。", [
+    sc("s1", "grSubj", "「早く寝ることは大切です。」を英語にすると？", ["Going to bed early is important.", "Go to bed early is important.", "Going to bed early are important.", "Went to bed early is important."], "Going to bed early が主語。is。", "Going to bed early is important. です。"),
+    sc("s2", "grSubj", "「毎朝歩くことは体によいです。」（ ） every morning is good for your body. の（ ）は？", ["Walking", "Walk", "Walked", "Walks"], "主語の「〜すること」は 〜ing。", "Walking です。"),
+    sc("s3", "grSubj", "「わたしの習慣は毎晩ストレッチをすることです。」My habit is （ ） every night. の（ ）は？", ["stretching", "stretch", "stretched", "stretches"], "is のあとに 〜ing。", "stretching です。")
+  ], ["grSubj"], "体によいことを 〜ing で言う。", "Going to bed early is important.、Walking、stretching です。");
+  ch("grSubj-retention-1", "grSubj", "retention", "「テレビを見ることは楽しいです。」を英語にすると？", ["Watching TV is fun.", "Watch TV is fun.", "Watching TV are fun.", "Watched TV is fun."], "Watching TV が主語。is。", "Watching TV is fun. です。", RB);
+  ch("grSubj-retention-2", "grSubj", "retention", "「わたしの趣味は音楽を聞くことです。」を英語にすると？", ["My hobby is listening to music.", "My hobby is listen to music.", "My hobby are listening to music.", "My hobby is listened to music."], "is ＋ listening 〜。", "My hobby is listening to music. です。", RB);
+  ch("grSubj-retention-3", "grSubj", "retention", "「外国語を学ぶことはおもしろいです。」を英語にすると？", ["Learning foreign languages is interesting.", "Learn foreign languages is interesting.", "Learning foreign languages are interesting.", "Learned foreign languages is interesting."], "Learning 〜 が主語。is。", "Learning foreign languages is interesting. です。", RB);
+  ch("grSubj-retention-4", "grSubj", "retention", "「彼の仕事は車を売ることです。」を英語にすると？", ["His job is selling cars.", "His job is sell cars.", "His job are selling cars.", "His job is sold cars."], "is ＋ selling 〜。", "His job is selling cars. です。", RS);
+  ch("grSubj-retention-5", "grSubj", "retention", "「泳ぐことはわたしにとって簡単です。」を英語にすると？", ["Swimming is easy for me.", "Swim is easy for me.", "Swiming is easy for me.", "Swimming are easy for me."], "swim の ing 形は swimming。is。", "Swimming is easy for me. です。", RS);
+
+  // --- 前置詞 ＋ 〜ing ---
+  ch("grPrep-basic-1", "grPrep", "basic", "「わたしは泳ぐことが得意です。」を英語にすると？", ["I am good at swimming.", "I am good at swim.", "I am good at to swim.", "I am good at swam."], "at のあとは 〜ing。", "I am good at swimming. です。", { usage: "diagnosis" });
+  ch("grPrep-basic-2", "grPrep", "basic", "「手伝ってくれてありがとう。」Thank you for （ ） me. の（ ）は？", ["helping", "help", "to help", "helped"], "for のあとは 〜ing。", "helping です。");
+  ch("grPrep-basic-3", "grPrep", "basic", "at・for・in・about などのあとに動詞を続けるときの形は？", ["〜ing", "to ＋ もとの形", "もとの形", "過去形"], "前置詞のあとは 〜ing。", "〜ing です。");
+  ch("grPrep-basic-4", "grPrep", "basic", "「公園に行くのはどうですか。」How about （ ） to the park? の（ ）は？", ["going", "go", "to go", "went"], "How about 〜ing?", "going です。");
+  ch("grPrep-basic-5", "grPrep", "basic", "「ケンは料理をすることに興味があります。」Ken is interested in （ ）. の（ ）は？", ["cooking", "cook", "to cook", "cooked"], "in のあとは 〜ing。", "cooking です。");
+  ch("grPrep-basic-6", "grPrep", "basic", "「わたしは寝る前に本を読みます。」I read a book before （ ） to bed. の（ ）は？", ["going", "go", "to go", "went"], "before のあとは 〜ing。", "going です。");
+  ch("grPrep-basic-7", "grPrep", "basic", "「来てくれてありがとう。」を英語にすると？", ["Thank you for coming.", "Thank you for come.", "Thank you for to come.", "Thank you for came."], "for のあとは 〜ing。", "Thank you for coming. です。");
+  ch("grPrep-standard-1", "grPrep", "standard", "「彼女は歌うことが得意です。」を英語にすると？", ["She is good at singing.", "She is good at sing.", "She is good at to sing.", "She are good at singing."], "is good at 〜ing。", "She is good at singing. です。");
+  ch("grPrep-standard-2", "grPrep", "standard", "「夕食を食べたあとで、わたしはテレビを見ました。」I watched TV after （ ） dinner. の（ ）は？", ["eating", "eat", "to eat", "ate"], "after のあとは 〜ing。", "eating です。");
+  ch("grPrep-standard-3", "grPrep", "standard", "「いっしょに昼ごはんを食べるのはどう？」を英語にすると？", ["How about having lunch together?", "How about have lunch together?", "How about to have lunch together?", "How about had lunch together?"], "How about 〜ing?", "How about having lunch together? です。");
+  ch("grPrep-standard-4", "grPrep", "standard", "「メールをくれてありがとう。」Thank you for （ ） me an e-mail. の（ ）は？", ["sending", "send", "to send", "sent"], "for のあとは 〜ing。", "sending です。");
+  ch("grPrep-standard-5", "grPrep", "standard", "「わたしは写真をとることに興味があります。」を英語にすると？", ["I am interested in taking pictures.", "I am interested in take pictures.", "I am interested in to take pictures.", "I am interested in took pictures."], "in のあとは 〜ing。", "I am interested in taking pictures. です。");
+  ch("grPrep-standard-6", "grPrep", "standard", "「ユミは何も言わずに出ていきました。」Yumi left without （ ） anything. の（ ）は？", ["saying", "say", "to say", "said"], "without のあとは 〜ing。", "saying です。");
+  sp("grPrep-application-1", "grPrep", "誕生日パーティーです。", [
+    sc("s1", "grPrep", "「招待してくれてありがとう。」を英語にすると？", ["Thank you for inviting me.", "Thank you for invite me.", "Thank you for to invite me.", "Thank you for invited me."], "for のあとは 〜ing。", "Thank you for inviting me. です。"),
+    sc("s2", "grPrep", "「ゲームをするのはどう？」How about （ ） a game? の（ ）は？", ["playing", "play", "to play", "played"], "How about 〜ing?", "playing です。"),
+    sc("s3", "grPrep", "「ケンはダンスが得意です。」Ken is good at （ ）. の（ ）は？", ["dancing", "dance", "to dance", "danced"], "at のあとは 〜ing。", "dancing です。")
+  ], ["grPrep"], "for・about・at のあとは 〜ing。", "Thank you for inviting me.、playing、dancing です。");
+  sp("grPrep-application-2", "grPrep", "週末の計画です。", [
+    sc("s1", "grPrep", "「映画を見に行くのはどう？」を英語にすると？", ["How about going to see a movie?", "How about go to see a movie?", "How about to go to see a movie?", "How about went to see a movie?"], "How about 〜ing?", "How about going to see a movie? です。"),
+    sc("s2", "grPrep", "「家を出る前に宿題を終えます。」I will finish my homework before （ ） home. の（ ）は？", ["leaving", "leave", "to leave", "left"], "before のあとは 〜ing。", "leaving です。"),
+    sc("s3", "grPrep", "「サキは絵をかくことに興味があります。」Saki is interested in （ ） pictures. の（ ）は？", ["drawing", "draw", "to draw", "drew"], "in のあとは 〜ing。", "drawing です。")
+  ], ["grPrep"], "about・before・in のあとは 〜ing。", "How about going to see a movie?、leaving、drawing です。");
+  sp("grPrep-application-3", "grPrep", "お礼の手紙を書きます。", [
+    sc("s1", "grPrep", "「あなたの町を案内してくれてありがとう。」を英語にすると？", ["Thank you for showing me around your town.", "Thank you for show me around your town.", "Thank you for to show me around your town.", "Thank you for showed me around your town."], "for のあとは 〜ing。", "Thank you for showing me around your town. です。"),
+    sc("s2", "grPrep", "「京都へ行く前に、京都についてたくさん読みました。」I read a lot about Kyoto before （ ） there. の（ ）は？", ["going", "go", "to go", "went"], "before のあとは 〜ing。", "going です。"),
+    sc("s3", "grPrep", "「わたしは日本の歴史を学ぶことに興味があります。」I am interested in （ ） Japanese history. の（ ）は？", ["learning", "learn", "to learn", "learned"], "in のあとは 〜ing。", "learning です。")
+  ], ["grPrep"], "お礼や興味を 前置詞 ＋ 〜ing で伝える。", "Thank you for showing me around your town.、going、learning です。");
+  sp("grPrep-application-4", "grPrep", "部活の相談です。", [
+    sc("s1", "grPrep", "「わたしは速く走ることが得意ではありません。」を英語にすると？", ["I am not good at running fast.", "I am not good at run fast.", "I am not good at to run fast.", "I not am good at running fast."], "am not good at 〜ing。", "I am not good at running fast. です。"),
+    sc("s2", "grPrep", "「毎朝走るのはどう？」How about （ ） every morning? の（ ）は？", ["running", "run", "to run", "ran"], "How about 〜ing?", "running です。"),
+    sc("s3", "grPrep", "「アドバイスをくれてありがとう。」Thank you for （ ） me advice. の（ ）は？", ["giving", "give", "to give", "gave"], "for のあとは 〜ing。", "giving です。")
+  ], ["grPrep"], "相談とお礼を 前置詞 ＋ 〜ing で言う。", "I am not good at running fast.、running、giving です。");
+  sp("grPrep-application-5", "grPrep", "料理クラブの活動です。", [
+    sc("s1", "grPrep", "「わたしたちは手を洗ったあとで料理を始めました。」を英語にすると？", ["We started cooking after washing our hands.", "We started cooking after wash our hands.", "We started cooking after to wash our hands.", "We started cooking after washed our hands."], "after のあとは 〜ing。", "We started cooking after washing our hands. です。"),
+    sc("s2", "grPrep", "「リクはケーキを焼くことが得意です。」Riku is good at （ ） cakes. の（ ）は？", ["baking", "bake", "to bake", "baked"], "at のあとは 〜ing。", "baking です。"),
+    sc("s3", "grPrep", "「いっしょにクッキーを作るのはどう？」How about （ ） cookies together? の（ ）は？", ["making", "make", "to make", "made"], "How about 〜ing?", "making です。")
+  ], ["grPrep"], "after・at・about のあとは 〜ing。", "We started cooking after washing our hands.、baking、making です。");
+  ch("grPrep-retention-1", "grPrep", "retention", "「わたしはテニスをすることが得意です。」を英語にすると？", ["I am good at playing tennis.", "I am good at play tennis.", "I am good at to play tennis.", "I am good at played tennis."], "at のあとは 〜ing。", "I am good at playing tennis. です。", RB);
+  ch("grPrep-retention-2", "grPrep", "retention", "「手紙をくれてありがとう。」を英語にすると？", ["Thank you for writing to me.", "Thank you for write to me.", "Thank you for to write to me.", "Thank you for wrote to me."], "for のあとは 〜ing。", "Thank you for writing to me. です。", RB);
+  ch("grPrep-retention-3", "grPrep", "retention", "「買い物に行くのはどう？」を英語にすると？", ["How about going shopping?", "How about go shopping?", "How about to go shopping?", "How about went shopping?"], "How about 〜ing?", "How about going shopping? です。", RB);
+  ch("grPrep-retention-4", "grPrep", "retention", "「彼は音楽を聞くことに興味があります。」を英語にすると？", ["He is interested in listening to music.", "He is interested in listen to music.", "He is interested in to listen to music.", "He are interested in listening to music."], "in のあとは 〜ing。", "He is interested in listening to music. です。", RS);
+  ch("grPrep-retention-5", "grPrep", "retention", "「わたしは寝る前に歯をみがきます。」を英語にすると？", ["I brush my teeth before going to bed.", "I brush my teeth before go to bed.", "I brush my teeth before to go to bed.", "I brush my teeth before went to bed."], "before のあとは 〜ing。", "I brush my teeth before going to bed. です。", RS);
+
+  // --- to ＋ もとの形と 〜ing の使い分け ---
+  ch("grVsTo-basic-1", "grVsTo", "basic", "「またあなたに会えることを願っています。」I hope （ ） you again. の（ ）は？", ["to see", "seeing", "see", "saw"], "hope のあとは to ＋ もとの形。", "to see です。", { usage: "diagnosis" });
+  ch("grVsTo-basic-2", "grVsTo", "basic", "「わたしは料理をしたいです。」I want （ ）. の（ ）は？", ["to cook", "cooking", "cook", "cooked"], "want のあとは to ＋ もとの形。", "to cook です。");
+  ch("grVsTo-basic-3", "grVsTo", "basic", "want・hope・decide のあとに動詞を続けるときの形は？", ["to ＋ もとの形", "〜ing", "もとの形", "過去形"], "これから先のことを言う動詞は to。", "to ＋ もとの形です。");
+  ch("grVsTo-basic-4", "grVsTo", "basic", "like・start のあとに動詞を続けるときの形は？", ["to ＋ もとの形と 〜ing のどちらも使える", "〜ing だけ", "to ＋ もとの形だけ", "もとの形だけ"], "I like to swim. も I like swimming. も言える。", "どちらも使えます。");
+  ch("grVsTo-basic-5", "grVsTo", "basic", "「わたしたちは公園へ行くことに決めました。」We decided （ ） to the park. の（ ）は？", ["to go", "going", "go", "went"], "decide のあとは to ＋ もとの形。", "to go です。");
+  ch("grVsTo-basic-6", "grVsTo", "basic", "「わたしは本を読み終えました。」I finished （ ） the book. の（ ）は？", ["reading", "to read", "read", "reads"], "finish のあとは 〜ing。", "reading です。");
+  ch("grVsTo-basic-7", "grVsTo", "basic", "「雨がふり始めました。」It began （ ）. の（ ）は？", ["to rain", "rain", "rained", "rains"], "begin のあとは to ＋ もとの形か 〜ing。", "to rain です。");
+  ch("grVsTo-standard-1", "grVsTo", "standard", "「彼は外国で働きたいと思っています。」を英語にすると？", ["He wants to work abroad.", "He wants working abroad.", "He wants work abroad.", "He want to work abroad."], "wants to ＋ もとの形。", "He wants to work abroad. です。");
+  ch("grVsTo-standard-2", "grVsTo", "standard", "「ケンはテレビを見るのを楽しみました。」を英語にすると？", ["Ken enjoyed watching TV.", "Ken enjoyed to watch TV.", "Ken enjoyed watch TV.", "Ken enjoyed watches TV."], "enjoy は 〜ing。", "Ken enjoyed watching TV. です。");
+  ch("grVsTo-standard-3", "grVsTo", "standard", "「サキは将来、先生になることを望んでいます。」Saki hopes （ ） a teacher in the future. の（ ）は？", ["to become", "becoming", "become", "became"], "hope は to ＋ もとの形。", "to become です。");
+  ch("grVsTo-standard-4", "grVsTo", "standard", "「わたしは宿題をし終えたいです。」I want to finish （ ） my homework. の（ ）は？", ["doing", "to do", "do", "did"], "want to finish のあとは 〜ing。", "doing です。");
+  ch("grVsTo-standard-5", "grVsTo", "standard", "「わたしたちは京都を訪れることに決めました。」を英語にすると？", ["We decided to visit Kyoto.", "We decided visiting Kyoto.", "We decided visit Kyoto.", "We decided to visiting Kyoto."], "decide は to ＋ もとの形。", "We decided to visit Kyoto. です。");
+  ch("grVsTo-standard-6", "grVsTo", "standard", "「父は新聞を読むのをやめました。」を英語にすると？", ["My father stopped reading the newspaper.", "My father stopped to reading the newspaper.", "My father stopped read the newspaper.", "My father stop reading the newspaper."], "stop は 〜ing。", "My father stopped reading the newspaper. です。");
+  sp("grVsTo-application-1", "grVsTo", "夏休みの計画です。", [
+    sc("s1", "grVsTo", "「わたしは海で泳ぎたいです。」I want （ ） in the sea. の（ ）は？", ["to swim", "swimming", "swim", "swam"], "want は to ＋ もとの形。", "to swim です。"),
+    sc("s2", "grVsTo", "「去年は海で泳ぐのを楽しみました。」I enjoyed （ ） in the sea last year. の（ ）は？", ["swimming", "to swim", "swim", "swam"], "enjoy は 〜ing。", "swimming です。"),
+    sc("s3", "grVsTo", "「今年は沖縄に行くことに決めました。」We decided （ ） to Okinawa this year. の（ ）は？", ["to go", "going", "go", "went"], "decide は to ＋ もとの形。", "to go です。")
+  ], ["grVsTo"], "want・decide は to、enjoy は 〜ing。", "to swim、swimming、to go です。");
+  sp("grVsTo-application-2", "grVsTo", "宿題の話です。", [
+    sc("s1", "grVsTo", "「わたしは英語の宿題をし終えました。」I finished （ ） my English homework. の（ ）は？", ["doing", "to do", "do", "did"], "finish は 〜ing。", "doing です。"),
+    sc("s2", "grVsTo", "「次に、理科の勉強を始めたいです。」I want to start （ ） science. の（ ）は？", ["studying", "study", "studied", "studies"], "start のあとは 〜ing（to ＋ もとの形も可）。", "studying です。"),
+    sc("s3", "grVsTo", "「11時に勉強をやめました。」I stopped （ ） at eleven. の（ ）は？", ["studying", "study", "studied", "studies"], "stop は 〜ing。", "studying です。")
+  ], ["grVsTo"], "finish・stop は 〜ing、want は to。", "doing、studying、studying です。");
+  sp("grVsTo-application-3", "grVsTo", "将来の夢を話します。", [
+    sc("s1", "grVsTo", "「わたしは看護師になりたいです。」を英語にすると？", ["I want to become a nurse.", "I want becoming a nurse.", "I want become a nurse.", "I want to becoming a nurse."], "want は to ＋ もとの形。", "I want to become a nurse. です。"),
+    sc("s2", "grVsTo", "「わたしは人を助けることを楽しんでいます。」I enjoy （ ） people. の（ ）は？", ["helping", "to help", "help", "helped"], "enjoy は 〜ing。", "helping です。"),
+    sc("s3", "grVsTo", "「わたしは毎日勉強することに決めました。」I decided （ ） every day. の（ ）は？", ["to study", "studying", "study", "studied"], "decide は to ＋ もとの形。", "to study です。")
+  ], ["grVsTo"], "want・decide は to、enjoy は 〜ing。", "I want to become a nurse.、helping、to study です。");
+  sp("grVsTo-application-4", "grVsTo", "雨の日の話です。", [
+    sc("s1", "grVsTo", "「わたしたちはテニスをするのをやめました。」を英語にすると？", ["We stopped playing tennis.", "We stopped play tennis.", "We stopped played tennis.", "We stops playing tennis."], "stop は 〜ing。", "We stopped playing tennis. です。"),
+    sc("s2", "grVsTo", "「家でゲームをすることに決めました。」We decided （ ） a game at home. の（ ）は？", ["to play", "playing", "play", "played"], "decide は to ＋ もとの形。", "to play です。"),
+    sc("s3", "grVsTo", "「わたしたちはゲームをするのを楽しみました。」We enjoyed （ ） the game. の（ ）は？", ["playing", "to play", "play", "plays"], "enjoy は 〜ing。", "playing です。")
+  ], ["grVsTo"], "stop・enjoy は 〜ing、decide は to。", "We stopped playing tennis.、to play、playing です。");
+  sp("grVsTo-application-5", "grVsTo", "引っこす友だちへの手紙です。", [
+    sc("s1", "grVsTo", "「わたしはまたあなたに会いたいです。」を英語にすると？", ["I want to see you again.", "I want seeing you again.", "I want see you again.", "I want to saw you again."], "want は to ＋ もとの形。", "I want to see you again. です。"),
+    sc("s2", "grVsTo", "「あなたと話すのを楽しみました。」I enjoyed （ ） with you. の（ ）は？", ["talking", "to talk", "talk", "talked"], "enjoy は 〜ing。", "talking です。"),
+    sc("s3", "grVsTo", "「わたしは毎週あなたに手紙を書くことに決めました。」I decided （ ） to you every week. の（ ）は？", ["to write", "writing", "write", "wrote"], "decide は to ＋ もとの形。", "to write です。")
+  ], ["grVsTo"], "気持ちを伝えるときも to と 〜ing を使い分ける。", "I want to see you again.、talking、to write です。");
+  ch("grVsTo-retention-1", "grVsTo", "retention", "「わたしは新しい自転車を買いたいです。」を英語にすると？", ["I want to buy a new bike.", "I want buying a new bike.", "I want buy a new bike.", "I want to bought a new bike."], "want は to ＋ もとの形。", "I want to buy a new bike. です。", RB);
+  ch("grVsTo-retention-2", "grVsTo", "retention", "「彼はサッカーをするのを楽しみました。」を英語にすると？", ["He enjoyed playing soccer.", "He enjoyed to play soccer.", "He enjoyed play soccer.", "He enjoyed played soccer."], "enjoy は 〜ing。", "He enjoyed playing soccer. です。", RB);
+  ch("grVsTo-retention-3", "grVsTo", "retention", "「わたしたちは公園でお昼を食べることに決めました。」を英語にすると？", ["We decided to eat lunch in the park.", "We decided eating lunch in the park.", "We decided eat lunch in the park.", "We decided to ate lunch in the park."], "decide は to ＋ もとの形。", "We decided to eat lunch in the park. です。", RB);
+  ch("grVsTo-retention-4", "grVsTo", "retention", "「姉は宿題をし終えました。」を英語にすると？", ["My sister finished doing her homework.", "My sister finished to do her homework.", "My sister finished do her homework.", "My sister finish doing her homework."], "finish は 〜ing。", "My sister finished doing her homework. です。", RS);
+  ch("grVsTo-retention-5", "grVsTo", "retention", "「わたしはまたここに来ることを願っています。」を英語にすると？", ["I hope to come here again.", "I hope coming here again.", "I hope come here again.", "I hope to came here again."], "hope は to ＋ もとの形。", "I hope to come here again. です。", RS);
+
+  // --- 動名詞の否定文・疑問文 ---
+  ch("grQues-basic-1", "grQues", "basic", "「あなたは料理をすることを楽しみましたか。」を英語にすると？", ["Did you enjoy cooking?", "Did you enjoy to cook?", "Did you enjoyed cooking?", "Do you enjoyed cooking?"], "Did ＋ 主語 ＋ enjoy 〜ing?", "Did you enjoy cooking? です。", { usage: "diagnosis" });
+  ch("grQues-basic-2", "grQues", "basic", "「わたしは泳ぐことが好きではありません。」I don't like （ ）. の（ ）は？", ["swimming", "swim", "swam", "swims"], "don't like 〜ing。", "swimming です。");
+  ch("grQues-basic-3", "grQues", "basic", "「わたしは泳ぐことが好きではありません」の not を置く場所は？", ["do・does・did のあと（I don't like swimming.）", "〜ing の前（I like not swimming.）", "文の最後", "主語の前"], "否定文は don't ＋ 動詞のもとの形 ＋ 〜ing。", "do・does・did のあとです。");
+  ch("grQues-basic-4", "grQues", "basic", "「あなたは宿題をし終えましたか。」Did you finish （ ） your homework? の（ ）は？", ["doing", "to do", "do", "did"], "finish のあとは 〜ing。", "doing です。");
+  ch("grQues-basic-5", "grQues", "basic", "「あなたは何をするのが好きですか。」What do you like （ ）? の（ ）は？", ["doing", "do", "did", "does"], "like のあとに 〜ing。", "doing です。");
+  ch("grQues-basic-6", "grQues", "basic", "「ケンは歌うことが得意ですか。」を英語にすると？", ["Is Ken good at singing?", "Is Ken good at sing?", "Does Ken good at singing?", "Is Ken good at to sing?"], "Is ＋ 主語 ＋ good at 〜ing?", "Is Ken good at singing? です。");
+  ch("grQues-basic-7", "grQues", "basic", "「彼女はその本を読むのを楽しみませんでした。」She didn't enjoy （ ） the book. の（ ）は？", ["reading", "to read", "read", "reads"], "didn't enjoy 〜ing。", "reading です。");
+  ch("grQues-standard-1", "grQues", "standard", "「あなたは何をして楽しみましたか。」What did you enjoy （ ）? の（ ）は？", ["doing", "to do", "do", "did"], "enjoy のあとは 〜ing。", "doing です。");
+  ch("grQues-standard-2", "grQues", "standard", "「わたしはその本を読み終えませんでした。」を英語にすると？", ["I didn't finish reading the book.", "I didn't finish to read the book.", "I didn't finished reading the book.", "I don't finished reading the book."], "didn't ＋ もとの形 ＋ 〜ing。", "I didn't finish reading the book. です。");
+  ch("grQues-standard-3", "grQues", "standard", "「あなたはテニスをすることに興味がありますか。」を英語にすると？", ["Are you interested in playing tennis?", "Are you interested in play tennis?", "Do you interested in playing tennis?", "Are you interested in to play tennis?"], "Are you interested in 〜ing?", "Are you interested in playing tennis? です。");
+  ch("grQues-standard-4", "grQues", "standard", "「ユミは料理をするのを楽しみますか。」Does Yumi enjoy （ ）? の（ ）は？", ["cooking", "to cook", "cook", "cooks"], "enjoy のあとは 〜ing。", "cooking です。");
+  ch("grQues-standard-5", "grQues", "standard", "「彼は話すのをやめませんでした。」He didn't stop （ ）. の（ ）は？", ["talking", "talk", "talked", "talks"], "stop のあとは 〜ing。", "talking です。");
+  ch("grQues-standard-6", "grQues", "standard", "「サキは何をすることが得意ですか。」What is Saki good at （ ）? の（ ）は？", ["doing", "do", "did", "does"], "at のあとは 〜ing。", "doing です。");
+  sp("grQues-application-1", "grQues", "友だちにインタビューします。", [
+    sc("s1", "grQues", "「あなたは何をして楽しんでいますか。」を英語にすると？", ["What do you enjoy doing?", "What do you enjoy do?", "What do you enjoys doing?", "What does you enjoy doing?"], "What do you enjoy 〜ing?", "What do you enjoy doing? です。"),
+    sc("s2", "grQues", "What do you enjoy doing? の答えとして正しいものは？", ["I enjoy reading books.", "I enjoy to read books.", "I enjoy read books.", "Yes, I do."], "enjoy 〜ing で答える。", "I enjoy reading books. です。"),
+    sc("s3", "grQues", "「あなたは料理をすることが得意ですか。」（ ） you good at cooking? の（ ）は？", ["Are", "Do", "Is", "Does"], "be good at → Are you 〜?", "Are です。")
+  ], ["grQues"], "好きなことを 〜ing でたずねて答える。", "What do you enjoy doing?、I enjoy reading books.、Are です。");
+  sp("grQues-application-2", "grQues", "放課後の会話です。", [
+    sc("s1", "grQues", "「あなたは部屋のそうじをし終えましたか。」を英語にすると？", ["Did you finish cleaning your room?", "Did you finish to clean your room?", "Did you finished cleaning your room?", "Do you finished cleaning your room?"], "Did you finish 〜ing?", "Did you finish cleaning your room? です。"),
+    sc("s2", "grQues", "「わたしはそうじをするのが好きではありません。」I don't like （ ） my room. の（ ）は？", ["cleaning", "clean", "cleaned", "cleans"], "don't like 〜ing。", "cleaning です。"),
+    sc("s3", "grQues", "「あなたはゲームをするのをやめましたか。」Did you stop （ ） games? の（ ）は？", ["playing", "play", "played", "plays"], "stop のあとは 〜ing。", "playing です。")
+  ], ["grQues"], "疑問文・否定文でも 〜ing の形はかわらない。", "Did you finish cleaning your room?、cleaning、playing です。");
+  sp("grQues-application-3", "grQues", "クラブ見学で話します。", [
+    sc("s1", "grQues", "「あなたは走ることが得意ですか。」を英語にすると？", ["Are you good at running?", "Are you good at run?", "Do you good at running?", "Are you good at to run?"], "Are you good at 〜ing?", "Are you good at running? です。"),
+    sc("s2", "grQues", "「あなたは何をすることに興味がありますか。」What are you interested in （ ）? の（ ）は？", ["doing", "do", "to do", "did"], "in のあとは 〜ing。", "doing です。"),
+    sc("s3", "grQues", "「わたしは絵をかくことが得意ではありません。」I'm not good at （ ） pictures. の（ ）は？", ["drawing", "draw", "to draw", "drew"], "at のあとは 〜ing。", "drawing です。")
+  ], ["grQues"], "得意なこと・興味のあることを 〜ing でたずねる。", "Are you good at running?、doing、drawing です。");
+  sp("grQues-application-4", "grQues", "旅行のあとの会話です。", [
+    sc("s1", "grQues", "「あなたは山にのぼるのを楽しみましたか。」を英語にすると？", ["Did you enjoy climbing the mountain?", "Did you enjoy to climb the mountain?", "Did you enjoyed climbing the mountain?", "Did you enjoy climb the mountain?"], "Did you enjoy 〜ing?", "Did you enjoy climbing the mountain? です。"),
+    sc("s2", "grQues", "「わたしはたくさん歩くのが好きではありません。」I don't like （ ） a lot. の（ ）は？", ["walking", "walk", "walked", "walks"], "don't like 〜ing。", "walking です。"),
+    sc("s3", "grQues", "「お兄さんは写真をとるのを楽しみましたか。」Did your brother enjoy （ ） pictures? の（ ）は？", ["taking", "to take", "take", "took"], "enjoy のあとは 〜ing。", "taking です。")
+  ], ["grQues"], "旅行の感想を 〜ing でたずねる・答える。", "Did you enjoy climbing the mountain?、walking、taking です。");
+  sp("grQues-application-5", "grQues", "家族で買い物に行きます。", [
+    sc("s1", "grQues", "「あなたは買い物をするのが好きですか。」を英語にすると？", ["Do you like shopping?", "Do you likes shopping?", "Does you like shopping?", "Do you liked shopping?"], "Do you like 〜ing?", "Do you like shopping? です。"),
+    sc("s2", "grQues", "「母は服を選ぶのを楽しみませんでした。」My mother didn't enjoy （ ） clothes. の（ ）は？", ["choosing", "to choose", "choose", "chose"], "enjoy のあとは 〜ing。", "choosing です。"),
+    sc("s3", "grQues", "「父は待つのをやめませんでした。」My father didn't stop （ ）. の（ ）は？", ["waiting", "wait", "waited", "waits"], "stop のあとは 〜ing。", "waiting です。")
+  ], ["grQues"], "否定文・疑問文でも enjoy・stop のあとは 〜ing。", "Do you like shopping?、choosing、waiting です。");
+  ch("grQues-retention-1", "grQues", "retention", "「あなたは泳ぐことを楽しみましたか。」を英語にすると？", ["Did you enjoy swimming?", "Did you enjoy to swim?", "Did you enjoyed swimming?", "Do you enjoyed swimming?"], "Did you enjoy 〜ing?", "Did you enjoy swimming? です。", RB);
+  ch("grQues-retention-2", "grQues", "retention", "「わたしは料理をするのが好きではありません。」を英語にすると？", ["I don't like cooking.", "I don't like cook.", "I don't likes cooking.", "I doesn't like cooking."], "don't like 〜ing。", "I don't like cooking. です。", RB);
+  ch("grQues-retention-3", "grQues", "retention", "「あなたは歌うことが得意ですか。」を英語にすると？", ["Are you good at singing?", "Are you good at sing?", "Do you good at singing?", "Are you good at to sing?"], "Are you good at 〜ing?", "Are you good at singing? です。", RB);
+  ch("grQues-retention-4", "grQues", "retention", "「彼はその本を読み終えましたか。」を英語にすると？", ["Did he finish reading the book?", "Did he finish to read the book?", "Did he finished reading the book?", "Does he finished reading the book?"], "Did ＋ 主語 ＋ finish 〜ing?", "Did he finish reading the book? です。", RS);
+  ch("grQues-retention-5", "grQues", "retention", "「あなたは何をするのが得意ですか。」を英語にすると？", ["What are you good at doing?", "What are you good at do?", "What do you good at doing?", "What are you good at to do?"], "What are you good at 〜ing?", "What are you good at doing? です。", RS);
+  sp("grQues-application-6", "grQues", "休み時間に話します。", [
+    sc("s1", "grQues", "「あなたは絵をかくのが好きですか。」を英語にすると？", ["Do you like drawing pictures?", "Do you like draw pictures?", "Does you like drawing pictures?", "Do you likes drawing pictures?"], "Do you like 〜ing?", "Do you like drawing pictures? です。"),
+    sc("s2", "grQues", "「わたしは歌うことが得意ではありません。」I'm not good at （ ）. の（ ）は？", ["singing", "sing", "to sing", "sang"], "at のあとは 〜ing。", "singing です。"),
+    sc("s3", "grQues", "「リクはダンスを楽しみましたか。」Did Riku enjoy （ ）? の（ ）は？", ["dancing", "to dance", "dance", "danced"], "enjoy のあとは 〜ing。", "dancing です。")
+  ], ["grQues"], "好き・得意・楽しんだことを 〜ing でたずねる。", "Do you like drawing pictures?、singing、dancing です。");
+  sp("grQues-application-7", "grQues", "家で話します。", [
+    sc("s1", "grQues", "「お母さんは皿を洗い終えましたか。」を英語にすると？", ["Did your mother finish washing the dishes?", "Did your mother finish to wash the dishes?", "Did your mother finished washing the dishes?", "Does your mother finished washing the dishes?"], "Did ＋ 主語 ＋ finish 〜ing?", "Did your mother finish washing the dishes? です。"),
+    sc("s2", "grQues", "「弟はゲームをするのをやめませんでした。」My brother didn't stop （ ） games. の（ ）は？", ["playing", "play", "played", "plays"], "stop のあとは 〜ing。", "playing です。"),
+    sc("s3", "grQues", "「あなたは何をするのが好きですか。」What do you like （ ） at home? の（ ）は？", ["doing", "do", "did", "does"], "like のあとに 〜ing。", "doing です。")
+  ], ["grQues"], "家のことを 〜ing の疑問文・否定文で言う。", "Did your mother finish washing the dishes?、playing、doing です。");
+  ch("grQues-retention-6", "grQues", "retention", "「わたしは早く起きるのが好きではありません。」を英語にすると？", ["I don't like getting up early.", "I don't like get up early.", "I don't likes getting up early.", "I doesn't like getting up early."], "don't like 〜ing。", "I don't like getting up early. です。", RS);
+  ch("grQues-retention-7", "grQues", "retention", "「ユミは料理をすることに興味がありますか。」を英語にすると？", ["Is Yumi interested in cooking?", "Is Yumi interested in cook?", "Does Yumi interested in cooking?", "Is Yumi interested in to cook?"], "Is ＋ 主語 ＋ interested in 〜ing?", "Is Yumi interested in cooking? です。", RB);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
