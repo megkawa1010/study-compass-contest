@@ -122,7 +122,7 @@ test("教科の切りかえ：英語は中学1年と中学2年。学年に単元
   assert.equal(E.setGrade("中学1年"), "中学1年");
   assert.deepEqual(E.SELECTABLE_UNITS, [U, "一般動詞", "3人称単数現在", "名詞の複数形", "命令文", "can", "疑問詞", "現在進行形", "過去形"]);
   assert.equal(E.setGrade("中学2年"), "中学2年");
-  assert.deepEqual(E.SELECTABLE_UNITS, ["未来形", "助動詞", "不定詞", "動名詞"]);
+  assert.deepEqual(E.SELECTABLE_UNITS, ["未来形", "助動詞", "不定詞", "動名詞", "比較"]);
   assert.equal(E.setGrade("中学3年"), "中学2年");
   assert.ok(!E.gradeHasUnits("英語", "中学3年") && E.gradeHasUnits("英語", "中学2年") && E.gradeHasUnits("英語", "中学1年"));
   assert.equal(E.setSubject("国語"), "英語");

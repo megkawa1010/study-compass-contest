@@ -53,7 +53,8 @@ const SCENARIOS = [
   ["未来形"], ["未来形", "ftGoingNQ"],
   ["助動詞"], ["助動詞", "mdNeg"],
   ["不定詞"], ["不定詞", "inAdv"],
-  ["動名詞"], ["動名詞", "grVsTo"]
+  ["動名詞"], ["動名詞", "grVsTo"],
+  ["比較"], ["比較", "cpMore"]
 ];
 // UNITS=単元,単元 で、その単元のシナリオだけ流す（例：UNITS=図形の角）
 const ONLY = process.env.UNITS ? process.env.UNITS.split(",") : null;

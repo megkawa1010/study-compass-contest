@@ -45,7 +45,8 @@
       "未来形": "これからのことを言う単元です。will ＋ もとの形は「〜するでしょう・〜します」、be going to ＋ もとの形は「〜するつもり・〜する予定」。will の否定は won't、疑問文は Will 〜?。be going to は be動詞で否定文・疑問文を作ります。",
       "助動詞": "must・have to（〜しなければならない）、must not（〜してはいけない）、don't have to（〜しなくてもよい）、may（〜してもよい・〜かもしれない）、should（〜すべき）を使う単元です。助動詞のあとは動詞のもとの形。must not と don't have to は意味がちがうので気をつけます。",
       "不定詞": "to ＋ 動詞のもとの形（不定詞）を使う単元です。「〜すること」（want to 〜）、「〜するために・〜して」（went there to 〜・glad to 〜）、「〜するための」（something to drink）、Why 〜? への To 〜. の答え方、It is 〜 (for 人) to …. を学びます。to のあとはいつも動詞のもとの形です。",
-      "動名詞": "動詞の ing 形（動名詞）で「〜すること」を表す単元です。enjoy・finish・stop のあと、at・for・in・about などの前置詞のあとは 〜ing。〜ing は主語（Playing soccer is fun.）にもなります。want・hope・decide のあとは to ＋ もとの形なので、使い分けに気をつけます。"
+      "動名詞": "動詞の ing 形（動名詞）で「〜すること」を表す単元です。enjoy・finish・stop のあと、at・for・in・about などの前置詞のあとは 〜ing。〜ing は主語（Playing soccer is fun.）にもなります。want・hope・decide のあとは to ＋ もとの形なので、使い分けに気をつけます。",
+      "比較": "人や物をくらべる単元です。2つなら -er ＋ than（taller than）、3つ以上の中でいちばんなら the ＋ -est（the tallest）。長い語は more・the most、同じくらいなら as 〜 as を使います。good・well は better・best と形が大きくかわります。"
     },
     skills: {
       // --- 正負の数 ---
@@ -269,6 +270,12 @@
       grPrep: { point: "at・for・in・about・before・after・without などの前置詞のあとに動詞を続けるときは 〜ing。", example: "I am good at swimming. ／ Thank you for helping me.", trap: "good at to swim・How about go としないようにします。" },
       grVsTo: { point: "want・hope・decide は to ＋ もとの形、enjoy・finish・stop は 〜ing。like・start・begin はどちらも使えます。", example: "I want to swim. ／ I enjoyed swimming.", trap: "I want swimming.・I enjoyed to swim. はまちがいです。" },
       grQues: { point: "否定文・疑問文でも 〜ing の部分は同じ。Did you enjoy 〜ing? ／ I don't like 〜ing. の形です。", example: "Did you finish doing your homework?", trap: "Did you enjoyed 〜? としないようにします（did のあとはもとの形）。" },
+      // --- 比較（英語） ---
+      cpEr: { point: "2つをくらべて「…より〜」は 形容詞・副詞の -er ＋ than。big → bigger、easy → easier のようにつづりがかわる語があります。", example: "Ken is taller than Riku.", trap: "more tall・tall than としないようにします。" },
+      cpEst: { point: "3つ以上の中で「いちばん〜」は the ＋ -est。クラス・日本など集団や場所の中は in、the three・all など数の中は of。", example: "Ken is the tallest in his class. ／ the tallest of the three", trap: "the をわすれないようにします。in と of の使い分けにも注意。" },
+      cpMore: { point: "beautiful・interesting・popular のような長い語は more ＋ もとの形（比較級）、the most ＋ もとの形（最上級）にします。", example: "This book is more interesting than that one.", trap: "interestinger・more interestinger としないようにします。" },
+      cpAs: { point: "「…と同じくらい〜」は as ＋ もとの形 ＋ as。「…ほど〜ない」は not as 〜 as。", example: "Ken is as tall as Riku. ／ I am not as tall as my brother.", trap: "as taller as・as tall than としないようにします。" },
+      cpWhich: { point: "「どちらが〜？」は Which・Who ＋ -er, A or B?。好きなものは like 〜 better・like 〜 the best。good・well は better・best。", example: "Which do you like better, tea or coffee? — I like tea better.", trap: "Who runs faster 〜? の答えは 〜 does.、Who is taller 〜? の答えは 〜 is.。" },
       // --- データの活用 ---
       dataMedian: { point: "中央値は、小さい順に並べた真ん中の値です。範囲は 最大値 − 最小値 です。", example: "2, 3, 5, 8, 9 の中央値は 5、範囲は 7", trap: "個数が偶数なら、真ん中の2つの平均です。" },
       dataQuartile: { point: "データを4等分する3つの値が四分位数です。中央値で前半・後半に分け、それぞれの中央値を求めます。", example: "第1四分位数は前半の中央値、第3四分位数は後半の中央値", trap: "個数が奇数なら、真ん中の値は前半にも後半にも入れません。" },

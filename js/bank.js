@@ -11471,6 +11471,248 @@
   ch("grQues-retention-7", "grQues", "retention", "「ユミは料理をすることに興味がありますか。」を英語にすると？", ["Is Yumi interested in cooking?", "Is Yumi interested in cook?", "Does Yumi interested in cooking?", "Is Yumi interested in to cook?"], "Is ＋ 主語 ＋ interested in 〜ing?", "Is Yumi interested in cooking? です。", RB);
 
   // =====================================================================
+  // 中2 英語「比較」（-er than・the -est・more／most・as 〜 as・Which／Who の比較の疑問文と better／best）。
+  // 選ぶ問題だけ。正解は labels の1番目（tests/english-compare.test.js が比較級・最上級の形と文の形を確かめる）
+  // =====================================================================
+
+  // --- -er than（比較級） ---
+  ch("cpEr-basic-1", "cpEr", "basic", "「ケンはリクより背が高いです。」を英語にすると？", ["Ken is taller than Riku.", "Ken is more tall than Riku.", "Ken is tallest than Riku.", "Ken is tall than Riku."], "形容詞の -er ＋ than。", "Ken is taller than Riku. です。", { usage: "diagnosis" });
+  ch("cpEr-basic-2", "cpEr", "basic", "「この犬はあの犬より大きいです。」This dog is （ ） than that one. の（ ）は？", ["bigger", "biger", "biggest", "big"], "big は g を重ねて bigger。", "bigger です。");
+  ch("cpEr-basic-3", "cpEr", "basic", "2つをくらべて「…より〜」と言うときの形は？", ["形容詞の -er ＋ than", "the ＋ 形容詞の -est", "as ＋ 形容詞 ＋ as", "more ＋ 形容詞の -er"], "taller than のように言う。", "形容詞の -er ＋ than です。");
+  ch("cpEr-basic-4", "cpEr", "basic", "「今日は昨日より暑いです。」Today is （ ） than yesterday. の（ ）は？", ["hotter", "hoter", "hottest", "hot"], "hot は t を重ねて hotter。", "hotter です。");
+  ch("cpEr-basic-5", "cpEr", "basic", "「この問題はあの問題より簡単です。」を英語にすると？", ["This question is easier than that one.", "This question is easyer than that one.", "This question is more easy than that one.", "This question is easiest than that one."], "easy は y を i にかえて easier。", "This question is easier than that one. です。");
+  ch("cpEr-basic-6", "cpEr", "basic", "「姉はわたしより早く起きます。」My sister gets up （ ） than me. の（ ）は？", ["earlier", "earlyer", "earliest", "early"], "early は y を i にかえて earlier。", "earlier です。");
+  ch("cpEr-basic-7", "cpEr", "basic", "「この川はあの川より長いです。」This river is （ ） than that river. の（ ）は？", ["longer", "longest", "more long", "long"], "long → longer。", "longer です。");
+  ch("cpEr-standard-1", "cpEr", "standard", "「ユミはサキより速く走ります。」を英語にすると？", ["Yumi runs faster than Saki.", "Yumi runs more fast than Saki.", "Yumi runs fastest than Saki.", "Yumi runs fast than Saki."], "fast → faster than。", "Yumi runs faster than Saki. です。");
+  ch("cpEr-standard-2", "cpEr", "standard", "「この箱はあの箱より重いです。」This box is （ ） than that one. の（ ）は？", ["heavier", "heavyer", "heaviest", "heavy"], "heavy は y を i にかえて heavier。", "heavier です。");
+  ch("cpEr-standard-3", "cpEr", "standard", "「東京は大阪より大きいです。」Tokyo is （ ） than Osaka. の（ ）は？", ["larger", "largeer", "largest", "large"], "e で終わる語は r だけつける。", "larger です。");
+  ch("cpEr-standard-4", "cpEr", "standard", "「今日は昨日より寒いです。」を英語にすると？", ["Today is colder than yesterday.", "Today is more cold than yesterday.", "Today is coldest than yesterday.", "Today is cold than yesterday."], "cold → colder than。", "Today is colder than yesterday. です。");
+  ch("cpEr-standard-5", "cpEr", "standard", "「わたしの父は母より若いです。」My father is （ ） than my mother. の（ ）は？", ["younger", "youngest", "more young", "young"], "young → younger。", "younger です。");
+  ch("cpEr-standard-6", "cpEr", "standard", "「ケンはリクより一生けんめい勉強します。」を英語にすると？", ["Ken studies harder than Riku.", "Ken studies more hard than Riku.", "Ken studies hardest than Riku.", "Ken studies hard than Riku."], "hard → harder than。", "Ken studies harder than Riku. です。");
+  sp("cpEr-application-1", "cpEr", "動物園で話します。", [
+    sc("s1", "cpEr", "「ゾウはキリンより重いです。」を英語にすると？", ["An elephant is heavier than a giraffe.", "An elephant is heavyer than a giraffe.", "An elephant is more heavy than a giraffe.", "An elephant is heaviest than a giraffe."], "heavy → heavier than。", "An elephant is heavier than a giraffe. です。"),
+    sc("s2", "cpEr", "「キリンはゾウより背が高いです。」A giraffe is （ ） than an elephant. の（ ）は？", ["taller", "tallest", "more tall", "tall"], "tall → taller。", "taller です。"),
+    sc("s3", "cpEr", "「チーターはライオンより速く走ります。」A cheetah runs （ ） than a lion. の（ ）は？", ["faster", "fastest", "more fast", "fast"], "fast → faster。", "faster です。")
+  ], ["cpEr"], "2つをくらべるときは -er ＋ than。", "An elephant is heavier than a giraffe.、taller、faster です。");
+  sp("cpEr-application-2", "cpEr", "兄弟の話です。", [
+    sc("s1", "cpEr", "「兄はわたしより3歳年上です。」を英語にすると？", ["My brother is three years older than me.", "My brother is three years more old than me.", "My brother is three years oldest than me.", "My brother is three years old than me."], "old → older than。", "My brother is three years older than me. です。"),
+    sc("s2", "cpEr", "「兄はわたしより背が高いです。」He is （ ） than me. の（ ）は？", ["taller", "tallest", "more tall", "tall"], "tall → taller。", "taller です。"),
+    sc("s3", "cpEr", "「でも、わたしは兄より早く起きます。」But I get up （ ） than him. の（ ）は？", ["earlier", "earliest", "more early", "early"], "early → earlier。", "earlier です。")
+  ], ["cpEr"], "兄弟をくらべて -er ＋ than で言う。", "My brother is three years older than me.、taller、earlier です。");
+  sp("cpEr-application-3", "cpEr", "天気の話です。", [
+    sc("s1", "cpEr", "「今日は昨日より暖かいです。」を英語にすると？", ["Today is warmer than yesterday.", "Today is more warm than yesterday.", "Today is warmest than yesterday.", "Today is warm than yesterday."], "warm → warmer than。", "Today is warmer than yesterday. です。"),
+    sc("s2", "cpEr", "「明日は今日より寒くなるでしょう。」Tomorrow will be （ ） than today. の（ ）は？", ["colder", "coldest", "more cold", "cold"], "cold → colder。", "colder です。"),
+    sc("s3", "cpEr", "「沖縄は北海道より暑いです。」Okinawa is （ ） than Hokkaido. の（ ）は？", ["hotter", "hottest", "more hot", "hot"], "hot → hotter。", "hotter です。")
+  ], ["cpEr"], "天気をくらべて -er ＋ than で言う。", "Today is warmer than yesterday.、colder、hotter です。");
+  sp("cpEr-application-4", "cpEr", "買い物をします。", [
+    sc("s1", "cpEr", "「このかばんはあのかばんより安いです。」を英語にすると？", ["This bag is cheaper than that one.", "This bag is more cheap than that one.", "This bag is cheapest than that one.", "This bag is cheap than that one."], "cheap → cheaper than。", "This bag is cheaper than that one. です。"),
+    sc("s2", "cpEr", "「このTシャツはあのTシャツより小さいです。」This T-shirt is （ ） than that one. の（ ）は？", ["smaller", "smallest", "more small", "small"], "small → smaller。", "smaller です。"),
+    sc("s3", "cpEr", "「この自転車はわたしのより新しいです。」This bike is （ ） than mine. の（ ）は？", ["newer", "newest", "more new", "new"], "new → newer。", "newer です。")
+  ], ["cpEr"], "品物をくらべて -er ＋ than で言う。", "This bag is cheaper than that one.、smaller、newer です。");
+  sp("cpEr-application-5", "cpEr", "運動会の話です。", [
+    sc("s1", "cpEr", "「リクはケンより速く走りました。」を英語にすると？", ["Riku ran faster than Ken.", "Riku ran more fast than Ken.", "Riku ran fastest than Ken.", "Riku ran fast than Ken."], "fast → faster than。", "Riku ran faster than Ken. です。"),
+    sc("s2", "cpEr", "「サキはユミより高くとびました。」Saki jumped （ ） than Yumi. の（ ）は？", ["higher", "highest", "more high", "high"], "high → higher。", "higher です。"),
+    sc("s3", "cpEr", "「わたしたちのチームは去年より強いです。」Our team is （ ） than last year. の（ ）は？", ["stronger", "strongest", "more strong", "strong"], "strong → stronger。", "stronger です。")
+  ], ["cpEr"], "運動会のことを -er ＋ than で言う。", "Riku ran faster than Ken.、higher、stronger です。");
+  ch("cpEr-retention-1", "cpEr", "retention", "「この山はあの山より高いです。」を英語にすると？", ["This mountain is higher than that one.", "This mountain is more high than that one.", "This mountain is highest than that one.", "This mountain is high than that one."], "high → higher than。", "This mountain is higher than that one. です。", RB);
+  ch("cpEr-retention-2", "cpEr", "retention", "「ケンはわたしより若いです。」を英語にすると？", ["Ken is younger than me.", "Ken is more young than me.", "Ken is youngest than me.", "Ken is young than me."], "young → younger than。", "Ken is younger than me. です。", RB);
+  ch("cpEr-retention-3", "cpEr", "retention", "「このえんぴつはあのえんぴつより長いです。」を英語にすると？", ["This pencil is longer than that one.", "This pencil is more long than that one.", "This pencil is longest than that one.", "This pencil is long than that one."], "long → longer than。", "This pencil is longer than that one. です。", RB);
+  ch("cpEr-retention-4", "cpEr", "retention", "「母は父より忙しいです。」を英語にすると？", ["My mother is busier than my father.", "My mother is busyer than my father.", "My mother is more busy than my father.", "My mother is busiest than my father."], "busy は y を i にかえて busier。", "My mother is busier than my father. です。", RS);
+  ch("cpEr-retention-5", "cpEr", "retention", "「この犬はあの犬より小さいです。」を英語にすると？", ["This dog is smaller than that one.", "This dog is more small than that one.", "This dog is smallest than that one.", "This dog is small than that one."], "small → smaller than。", "This dog is smaller than that one. です。", RS);
+
+  // --- the -est（最上級） ---
+  ch("cpEst-basic-1", "cpEst", "basic", "「ケンはクラスでいちばん背が高いです。」を英語にすると？", ["Ken is the tallest in his class.", "Ken is the taller in his class.", "Ken is tallest in his class.", "Ken is the tallest of his class."], "the ＋ -est。クラスの中は in。", "Ken is the tallest in his class. です。", { usage: "diagnosis" });
+  ch("cpEst-basic-2", "cpEst", "basic", "「これは3つの中でいちばん大きいです。」This is the （ ） of the three. の（ ）は？", ["biggest", "bigest", "bigger", "big"], "big は g を重ねて biggest。", "biggest です。");
+  ch("cpEst-basic-3", "cpEst", "basic", "3つ以上の中で「いちばん〜」と言うときの形は？", ["the ＋ 形容詞の -est", "形容詞の -er ＋ than", "as ＋ 形容詞 ＋ as", "形容詞の -est ＋ than"], "the tallest のように the をつける。", "the ＋ 形容詞の -est です。");
+  ch("cpEst-basic-4", "cpEst", "basic", "「クラスの中でいちばん背が高い」the tallest （ ） my class の（ ）は？", ["in", "of", "at", "on"], "場所・集団の中は in。", "in です。");
+  ch("cpEst-basic-5", "cpEst", "basic", "「富士山は日本でいちばん高い山です。」を英語にすると？", ["Mt. Fuji is the highest mountain in Japan.", "Mt. Fuji is the higher mountain in Japan.", "Mt. Fuji is highest mountain in Japan.", "Mt. Fuji is the highest mountain of Japan."], "the highest 〜 in Japan。", "Mt. Fuji is the highest mountain in Japan. です。");
+  ch("cpEst-basic-6", "cpEst", "basic", "「わたしは家族でいちばん早く起きます。」I get up the （ ） in my family. の（ ）は？", ["earliest", "earlier", "earlyest", "early"], "early → earliest。", "earliest です。");
+  ch("cpEst-basic-7", "cpEst", "basic", "「この川は世界でいちばん長いです。」This river is the （ ） in the world. の（ ）は？", ["longest", "longer", "long", "most long"], "long → longest。", "longest です。");
+  ch("cpEst-standard-1", "cpEst", "standard", "「ユミは4人の中でいちばん速く走ります。」を英語にすると？", ["Yumi runs the fastest of the four.", "Yumi runs the fastest in the four.", "Yumi runs the faster of the four.", "Yumi runs fastest than the four."], "数の中は of。", "Yumi runs the fastest of the four. です。");
+  ch("cpEst-standard-2", "cpEst", "standard", "「今日は今週いちばん暑い日です。」Today is the （ ） day this week. の（ ）は？", ["hottest", "hotest", "hotter", "hot"], "hot は t を重ねて hottest。", "hottest です。");
+  ch("cpEst-standard-3", "cpEst", "standard", "「これは店でいちばん安いかばんです。」This is the （ ） bag in the store. の（ ）は？", ["cheapest", "cheaper", "cheap", "most cheap"], "cheap → cheapest。", "cheapest です。");
+  ch("cpEst-standard-4", "cpEst", "standard", "「ケンは家族でいちばん若いです。」を英語にすると？", ["Ken is the youngest in his family.", "Ken is the younger in his family.", "Ken is youngest in his family.", "Ken is the youngest of his family."], "the youngest in 〜。", "Ken is the youngest in his family. です。");
+  ch("cpEst-standard-5", "cpEst", "standard", "「この箱は5つの中でいちばん重いです。」This box is the （ ） of the five. の（ ）は？", ["heaviest", "heavyest", "heavier", "heavy"], "heavy は y を i にかえて heaviest。", "heaviest です。");
+  ch("cpEst-standard-6", "cpEst", "standard", "「サキはチームでいちばん強い選手です。」を英語にすると？", ["Saki is the strongest player in our team.", "Saki is the stronger player in our team.", "Saki is strongest player in our team.", "Saki is the strongest player of our team."], "the strongest 〜 in our team。", "Saki is the strongest player in our team. です。");
+  sp("cpEst-application-1", "cpEst", "クラスを紹介します。", [
+    sc("s1", "cpEst", "「リクはクラスでいちばん背が高いです。」を英語にすると？", ["Riku is the tallest in our class.", "Riku is the taller in our class.", "Riku is tallest in our class.", "Riku is the tallest of our class."], "the tallest in 〜。", "Riku is the tallest in our class. です。"),
+    sc("s2", "cpEst", "「ユミはクラスでいちばん速く走ります。」Yumi runs the （ ） in our class. の（ ）は？", ["fastest", "faster", "fast", "most fast"], "fast → fastest。", "fastest です。"),
+    sc("s3", "cpEst", "「サキはクラスでいちばん早く学校に来ます。」Saki comes to school the （ ） in our class. の（ ）は？", ["earliest", "earlier", "early", "most early"], "early → earliest。", "earliest です。")
+  ], ["cpEst"], "クラスの中でいちばんを the ＋ -est で言う。", "Riku is the tallest in our class.、fastest、earliest です。");
+  sp("cpEst-application-2", "cpEst", "家族を紹介します。", [
+    sc("s1", "cpEst", "「父は家族でいちばん年上です。」を英語にすると？", ["My father is the oldest in my family.", "My father is the older in my family.", "My father is oldest in my family.", "My father is the oldest of my family."], "the oldest in 〜。", "My father is the oldest in my family. です。"),
+    sc("s2", "cpEst", "「妹は4人の中でいちばん若いです。」My sister is the （ ） of the four. の（ ）は？", ["youngest", "younger", "young", "most young"], "young → youngest。", "youngest です。"),
+    sc("s3", "cpEst", "「わたしの犬は家族でいちばん小さいです。」My dog is the （ ） in my family. の（ ）は？", ["smallest", "smaller", "small", "most small"], "small → smallest。", "smallest です。")
+  ], ["cpEst"], "家族の中でいちばんを the ＋ -est で言う。", "My father is the oldest in my family.、youngest、smallest です。");
+  sp("cpEst-application-3", "cpEst", "旅行先で話します。", [
+    sc("s1", "cpEst", "「これは日本でいちばん大きい湖です。」を英語にすると？", ["This is the largest lake in Japan.", "This is the larger lake in Japan.", "This is largest lake in Japan.", "This is the largest lake of Japan."], "the largest 〜 in Japan。", "This is the largest lake in Japan. です。"),
+    sc("s2", "cpEst", "「この塔は町でいちばん高い建物です。」This tower is the （ ） building in the town. の（ ）は？", ["highest", "higher", "high", "most high"], "high → highest。", "highest です。"),
+    sc("s3", "cpEst", "「このホテルは3つの中でいちばん新しいです。」This hotel is the （ ） of the three. の（ ）は？", ["newest", "newer", "new", "most new"], "new → newest。", "newest です。")
+  ], ["cpEst"], "旅行先のいちばんを the ＋ -est で言う。", "This is the largest lake in Japan.、highest、newest です。");
+  sp("cpEst-application-4", "cpEst", "スポーツ大会の話です。", [
+    sc("s1", "cpEst", "「わたしたちのチームは5チームの中でいちばん強かったです。」を英語にすると？", ["Our team was the strongest of the five teams.", "Our team was the stronger of the five teams.", "Our team was strongest of the five teams.", "Our team was the strongest in the five teams."], "数の中は of。", "Our team was the strongest of the five teams. です。"),
+    sc("s2", "cpEst", "「ケンがみんなの中でいちばん高くとびました。」Ken jumped the （ ） of all. の（ ）は？", ["highest", "higher", "high", "most high"], "high → highest。", "highest です。"),
+    sc("s3", "cpEst", "「その日はこの夏いちばん暑い日でした。」That day was the （ ） day this summer. の（ ）は？", ["hottest", "hotter", "hot", "most hot"], "hot → hottest。", "hottest です。")
+  ], ["cpEst"], "大会のいちばんを the ＋ -est で言う。", "Our team was the strongest of the five teams.、highest、hottest です。");
+  sp("cpEst-application-5", "cpEst", "文房具店で話します。", [
+    sc("s1", "cpEst", "「これは店でいちばん安いペンです。」を英語にすると？", ["This is the cheapest pen in the shop.", "This is the cheaper pen in the shop.", "This is cheapest pen in the shop.", "This is the cheapest pen of the shop."], "the cheapest 〜 in the shop。", "This is the cheapest pen in the shop. です。"),
+    sc("s2", "cpEst", "「このかばんは3つの中でいちばん小さいです。」This bag is the （ ） of the three. の（ ）は？", ["smallest", "smaller", "small", "most small"], "small → smallest。", "smallest です。"),
+    sc("s3", "cpEst", "「このくつは店でいちばん新しいです。」These shoes are the （ ） in the shop. の（ ）は？", ["newest", "newer", "new", "most new"], "new → newest。", "newest です。")
+  ], ["cpEst"], "店の中でいちばんを the ＋ -est で言う。", "This is the cheapest pen in the shop.、smallest、newest です。");
+  ch("cpEst-retention-1", "cpEst", "retention", "「ケンは3人の中でいちばん背が高いです。」を英語にすると？", ["Ken is the tallest of the three.", "Ken is the taller of the three.", "Ken is tallest of the three.", "Ken is the tallest in the three."], "数の中は of。", "Ken is the tallest of the three. です。", RB);
+  ch("cpEst-retention-2", "cpEst", "retention", "「この川は日本でいちばん長いです。」を英語にすると？", ["This river is the longest in Japan.", "This river is the longer in Japan.", "This river is longest in Japan.", "This river is the longest of Japan."], "the longest in 〜。", "This river is the longest in Japan. です。", RB);
+  ch("cpEst-retention-3", "cpEst", "retention", "「今日は今週いちばん寒い日です。」を英語にすると？", ["Today is the coldest day this week.", "Today is the colder day this week.", "Today is coldest day this week.", "Today is the most cold day this week."], "the coldest 〜。", "Today is the coldest day this week. です。", RB);
+  ch("cpEst-retention-4", "cpEst", "retention", "「サキは家族でいちばん早く起きます。」を英語にすると？", ["Saki gets up the earliest in her family.", "Saki gets up the earlier in her family.", "Saki gets up earliest than her family.", "Saki gets up the earliest of her family."], "the earliest in 〜。", "Saki gets up the earliest in her family. です。", RS);
+  ch("cpEst-retention-5", "cpEst", "retention", "「この箱は4つの中でいちばん重いです。」を英語にすると？", ["This box is the heaviest of the four.", "This box is the heavier of the four.", "This box is heaviest of the four.", "This box is the heaviest in the four."], "the heaviest of 〜。", "This box is the heaviest of the four. です。", RS);
+
+  // --- more・most ---
+  ch("cpMore-basic-1", "cpMore", "basic", "「この本はあの本よりおもしろいです。」を英語にすると？", ["This book is more interesting than that one.", "This book is interestinger than that one.", "This book is most interesting than that one.", "This book is more interestinger than that one."], "長い語は more ＋ もとの形 ＋ than。", "This book is more interesting than that one. です。", { usage: "diagnosis" });
+  ch("cpMore-basic-2", "cpMore", "basic", "「この花はあの花より美しいです。」This flower is （ ） beautiful than that one. の（ ）は？", ["more", "most", "the most", "very"], "beautiful の比較級は more beautiful。", "more です。");
+  ch("cpMore-basic-3", "cpMore", "basic", "beautiful・interesting のような長い語の比較級は？", ["more ＋ もとの形", "もとの形 ＋ -er", "most ＋ もとの形", "もとの形 ＋ -est"], "more beautiful のように言う。", "more ＋ もとの形です。");
+  ch("cpMore-basic-4", "cpMore", "basic", "「これはこの店でいちばん高価な時計です。」This is the （ ） expensive watch in this store. の（ ）は？", ["most", "more", "very", "much"], "長い語の最上級は the most ＋ もとの形。", "most です。");
+  ch("cpMore-basic-5", "cpMore", "basic", "「サッカーは野球より人気があります。」を英語にすると？", ["Soccer is more popular than baseball.", "Soccer is popularer than baseball.", "Soccer is most popular than baseball.", "Soccer is more popularer than baseball."], "more popular than。", "Soccer is more popular than baseball. です。");
+  ch("cpMore-basic-6", "cpMore", "basic", "「この問題は5つの中でいちばんむずかしいです。」This question is the （ ） difficult of the five. の（ ）は？", ["most", "more", "very", "much"], "the most difficult。", "most です。");
+  ch("cpMore-basic-7", "cpMore", "basic", "「この映画はあの映画よりわくわくします。」This movie is （ ） exciting than that one. の（ ）は？", ["more", "most", "the most", "much"], "more exciting than。", "more です。");
+  ch("cpMore-standard-1", "cpMore", "standard", "「これは日本でいちばん有名な寺です。」を英語にすると？", ["This is the most famous temple in Japan.", "This is the more famous temple in Japan.", "This is the famousest temple in Japan.", "This is most famous temple in Japan."], "the most famous 〜。", "This is the most famous temple in Japan. です。");
+  ch("cpMore-standard-2", "cpMore", "standard", "「英語は数学よりむずかしいです。」English is （ ） than math. の（ ）は？", ["more difficult", "difficulter", "most difficult", "more difficulter"], "more difficult than。", "more difficult です。");
+  ch("cpMore-standard-3", "cpMore", "standard", "「この辞書はあの辞書より役に立ちます。」を英語にすると？", ["This dictionary is more useful than that one.", "This dictionary is usefuler than that one.", "This dictionary is most useful than that one.", "This dictionary is the more useful than that one."], "more useful than。", "This dictionary is more useful than that one. です。");
+  ch("cpMore-standard-4", "cpMore", "standard", "「サキはクラスでいちばん人気があります。」Saki is the （ ） in her class. の（ ）は？", ["most popular", "more popular", "popularest", "most popularer"], "the most popular。", "most popular です。");
+  ch("cpMore-standard-5", "cpMore", "standard", "「ケンはリクより注意深く書きます。」Ken writes （ ） than Riku. の（ ）は？", ["more carefully", "carefullier", "most carefully", "carefully"], "carefully の比較級は more carefully。", "more carefully です。");
+  ch("cpMore-standard-6", "cpMore", "standard", "「この絵は美術館でいちばん美しいです。」を英語にすると？", ["This picture is the most beautiful in the museum.", "This picture is the more beautiful in the museum.", "This picture is the beautifulest in the museum.", "This picture is the most beautiful of the museum."], "the most beautiful in 〜。", "This picture is the most beautiful in the museum. です。");
+  sp("cpMore-application-1", "cpMore", "好きな教科の話です。", [
+    sc("s1", "cpMore", "「理科は社会よりおもしろいです。」を英語にすると？", ["Science is more interesting than social studies.", "Science is interestinger than social studies.", "Science is most interesting than social studies.", "Science is the more interesting than social studies."], "more interesting than。", "Science is more interesting than social studies. です。"),
+    sc("s2", "cpMore", "「数学は5教科の中でいちばんむずかしいです。」Math is the （ ） difficult of the five subjects. の（ ）は？", ["most", "more", "very", "much"], "the most difficult。", "most です。"),
+    sc("s3", "cpMore", "「英語は国語より役に立ちます。」English is （ ） useful than Japanese. の（ ）は？", ["more", "most", "the most", "much"], "more useful than。", "more です。")
+  ], ["cpMore"], "長い語は more・the most でくらべる。", "Science is more interesting than social studies.、most、more です。");
+  sp("cpMore-application-2", "cpMore", "町を案内します。", [
+    sc("s1", "cpMore", "「このお城は町でいちばん有名です。」を英語にすると？", ["This castle is the most famous in the town.", "This castle is the more famous in the town.", "This castle is the famousest in the town.", "This castle is most famous in the town."], "the most famous in 〜。", "This castle is the most famous in the town. です。"),
+    sc("s2", "cpMore", "「この公園はあの公園より美しいです。」This park is （ ） than that one. の（ ）は？", ["more beautiful", "beautifuler", "most beautiful", "more beautifuler"], "more beautiful than。", "more beautiful です。"),
+    sc("s3", "cpMore", "「このレストランはあのレストランより人気があります。」This restaurant is （ ） popular than that one. の（ ）は？", ["more", "most", "the most", "very"], "more popular than。", "more です。")
+  ], ["cpMore"], "町の見どころを more・the most でくらべる。", "This castle is the most famous in the town.、more beautiful、more です。");
+  sp("cpMore-application-3", "cpMore", "時計店で話します。", [
+    sc("s1", "cpMore", "「この時計はあの時計より高価です。」を英語にすると？", ["This watch is more expensive than that one.", "This watch is expensiver than that one.", "This watch is most expensive than that one.", "This watch is more expensiver than that one."], "more expensive than。", "This watch is more expensive than that one. です。"),
+    sc("s2", "cpMore", "「これは店でいちばん高価なかばんです。」This is the （ ） expensive bag in the store. の（ ）は？", ["most", "more", "very", "much"], "the most expensive。", "most です。"),
+    sc("s3", "cpMore", "「このペンはあのペンより役に立ちます。」This pen is （ ） than that one. の（ ）は？", ["more useful", "usefuler", "most useful", "the more useful"], "more useful than。", "more useful です。")
+  ], ["cpMore"], "品物を more・the most でくらべる。", "This watch is more expensive than that one.、most、more useful です。");
+  sp("cpMore-application-4", "cpMore", "映画の話です。", [
+    sc("s1", "cpMore", "「これは今年いちばんわくわくする映画です。」を英語にすると？", ["This is the most exciting movie this year.", "This is the more exciting movie this year.", "This is the excitingest movie this year.", "This is most exciting movie this year."], "the most exciting 〜。", "This is the most exciting movie this year. です。"),
+    sc("s2", "cpMore", "「この俳優はあの俳優より有名です。」This actor is （ ） famous than that one. の（ ）は？", ["more", "most", "the most", "very"], "more famous than。", "more です。"),
+    sc("s3", "cpMore", "「この話はあの話よりおもしろいです。」This story is （ ） than that one. の（ ）は？", ["more interesting", "interestinger", "most interesting", "more interestinger"], "more interesting than。", "more interesting です。")
+  ], ["cpMore"], "映画や話を more・the most でくらべる。", "This is the most exciting movie this year.、more、more interesting です。");
+  sp("cpMore-application-5", "cpMore", "料理の話です。", [
+    sc("s1", "cpMore", "「このカレーはあのカレーよりおいしいです。」を英語にすると？", ["This curry is more delicious than that one.", "This curry is deliciouser than that one.", "This curry is most delicious than that one.", "This curry is more deliciouser than that one."], "more delicious than。", "This curry is more delicious than that one. です。"),
+    sc("s2", "cpMore", "「これはこのレストランでいちばん人気のある料理です。」This is the （ ） popular dish in this restaurant. の（ ）は？", ["most", "more", "very", "much"], "the most popular。", "most です。"),
+    sc("s3", "cpMore", "「母は父より注意深く料理します。」My mother cooks （ ） than my father. の（ ）は？", ["more carefully", "carefullier", "most carefully", "carefully"], "more carefully than。", "more carefully です。")
+  ], ["cpMore"], "料理のことを more・the most でくらべる。", "This curry is more delicious than that one.、most、more carefully です。");
+  ch("cpMore-retention-1", "cpMore", "retention", "「この写真はあの写真より美しいです。」を英語にすると？", ["This picture is more beautiful than that one.", "This picture is beautifuler than that one.", "This picture is most beautiful than that one.", "This picture is more beautifuler than that one."], "more beautiful than。", "This picture is more beautiful than that one. です。", RB);
+  ch("cpMore-retention-2", "cpMore", "retention", "「これは日本でいちばん人気のあるスポーツです。」を英語にすると？", ["This is the most popular sport in Japan.", "This is the more popular sport in Japan.", "This is the popularest sport in Japan.", "This is most popular sport in Japan."], "the most popular 〜。", "This is the most popular sport in Japan. です。", RB);
+  ch("cpMore-retention-3", "cpMore", "retention", "「数学は理科よりむずかしいです。」を英語にすると？", ["Math is more difficult than science.", "Math is difficulter than science.", "Math is most difficult than science.", "Math is the more difficult than science."], "more difficult than。", "Math is more difficult than science. です。", RB);
+  ch("cpMore-retention-4", "cpMore", "retention", "「これはこの本の中でいちばんおもしろい話です。」を英語にすると？", ["This is the most interesting story in this book.", "This is the more interesting story in this book.", "This is the interestingest story in this book.", "This is most interesting story in this book."], "the most interesting 〜。", "This is the most interesting story in this book. です。", RS);
+  ch("cpMore-retention-5", "cpMore", "retention", "「ユミはサキより注意深く話します。」を英語にすると？", ["Yumi speaks more carefully than Saki.", "Yumi speaks carefullier than Saki.", "Yumi speaks most carefully than Saki.", "Yumi speaks carefully than Saki."], "more carefully than。", "Yumi speaks more carefully than Saki. です。", RS);
+
+  // --- as 〜 as ---
+  ch("cpAs-basic-1", "cpAs", "basic", "「ケンはリクと同じくらい背が高いです。」を英語にすると？", ["Ken is as tall as Riku.", "Ken is as taller as Riku.", "Ken is as tall than Riku.", "Ken is as tallest as Riku."], "as ＋ もとの形 ＋ as。", "Ken is as tall as Riku. です。", { usage: "diagnosis" });
+  ch("cpAs-basic-2", "cpAs", "basic", "「この犬はあの犬と同じくらい大きいです。」This dog is as （ ） as that one. の（ ）は？", ["big", "bigger", "biggest", "more big"], "as と as の間はもとの形。", "big です。");
+  ch("cpAs-basic-3", "cpAs", "basic", "「…と同じくらい〜」の形は？", ["as ＋ 形容詞のもとの形 ＋ as", "as ＋ 形容詞の -er ＋ as", "形容詞の -er ＋ than", "the ＋ 形容詞の -est"], "as tall as のように言う。", "as ＋ もとの形 ＋ as です。");
+  ch("cpAs-basic-4", "cpAs", "basic", "「わたしは兄ほど背が高くありません。」を英語にすると？", ["I am not as tall as my brother.", "I am as tall as my brother.", "I am not as taller as my brother.", "I am not as tall than my brother."], "「…ほど〜ない」は not as 〜 as。", "I am not as tall as my brother. です。");
+  ch("cpAs-basic-5", "cpAs", "basic", "「ユミはサキと同じくらい速く走ります。」Yumi runs as （ ） as Saki. の（ ）は？", ["fast", "faster", "fastest", "more fast"], "as と as の間はもとの形。", "fast です。");
+  ch("cpAs-basic-6", "cpAs", "basic", "「この本はあの本ほどおもしろくありません。」This book is not as （ ） as that one. の（ ）は？", ["interesting", "more interesting", "most interesting", "interestinger"], "長い語も as と as の間はもとの形。", "interesting です。");
+  ch("cpAs-basic-7", "cpAs", "basic", "「今日は昨日と同じくらい寒いです。」Today is （ ） cold as yesterday. の（ ）は？", ["as", "more", "so", "than"], "as cold as。", "as です。");
+  ch("cpAs-standard-1", "cpAs", "standard", "「この箱はあの箱と同じくらい重いです。」を英語にすると？", ["This box is as heavy as that one.", "This box is as heavier as that one.", "This box is as heavy than that one.", "This box is so heavy as that one."], "as heavy as。", "This box is as heavy as that one. です。");
+  ch("cpAs-standard-2", "cpAs", "standard", "「わたしの父は母ほど忙しくありません。」My father is not as （ ） as my mother. の（ ）は？", ["busy", "busier", "busiest", "more busy"], "not as ＋ もとの形 ＋ as。", "busy です。");
+  ch("cpAs-standard-3", "cpAs", "standard", "「リクはケンと同じくらい上手に泳げます。」を英語にすると？", ["Riku can swim as well as Ken.", "Riku can swim as better as Ken.", "Riku can swim as good than Ken.", "Riku can swim as best as Ken."], "「上手に」は well。as well as。", "Riku can swim as well as Ken. です。");
+  ch("cpAs-standard-4", "cpAs", "standard", "「この問題はあの問題ほどむずかしくありません。」This question is not as （ ） as that one. の（ ）は？", ["difficult", "more difficult", "difficulter", "most difficult"], "not as ＋ もとの形 ＋ as。", "difficult です。");
+  ch("cpAs-standard-5", "cpAs", "standard", "「わたしのかばんはあなたのと同じくらい新しいです。」を英語にすると？", ["My bag is as new as yours.", "My bag is as newer as yours.", "My bag is as new than yours.", "My bag is newer as yours."], "as new as。", "My bag is as new as yours. です。");
+  ch("cpAs-standard-6", "cpAs", "standard", "「サキはユミほど早く起きません。」Saki doesn't get up as （ ） as Yumi. の（ ）は？", ["early", "earlier", "earliest", "more early"], "not as ＋ もとの形 ＋ as。", "early です。");
+  sp("cpAs-application-1", "cpAs", "ペットの話です。", [
+    sc("s1", "cpAs", "「わたしの犬はあなたの犬と同じくらい大きいです。」を英語にすると？", ["My dog is as big as your dog.", "My dog is as bigger as your dog.", "My dog is as big than your dog.", "My dog is as biggest as your dog."], "as big as。", "My dog is as big as your dog. です。"),
+    sc("s2", "cpAs", "「でも、あなたの犬ほど速く走りません。」But my dog doesn't run as （ ） as yours. の（ ）は？", ["fast", "faster", "fastest", "more fast"], "not as ＋ もとの形 ＋ as。", "fast です。"),
+    sc("s3", "cpAs", "「わたしのねこはわたしの犬ほど重くありません。」My cat is not as （ ） as my dog. の（ ）は？", ["heavy", "heavier", "heaviest", "more heavy"], "not as ＋ もとの形 ＋ as。", "heavy です。")
+  ], ["cpAs"], "同じくらい・…ほど〜ない を as 〜 as で言う。", "My dog is as big as your dog.、fast、heavy です。");
+  sp("cpAs-application-2", "cpAs", "姉と自分をくらべます。", [
+    sc("s1", "cpAs", "「わたしは姉と同じくらい背が高いです。」を英語にすると？", ["I am as tall as my sister.", "I am as taller as my sister.", "I am as tall than my sister.", "I am not as tall as my sister."], "「同じくらい」は as 〜 as（not はつけない）。", "I am as tall as my sister. です。"),
+    sc("s2", "cpAs", "「でも、わたしは姉ほど速く泳げません。」But I can't swim as （ ） as my sister. の（ ）は？", ["fast", "faster", "fastest", "more fast"], "not as ＋ もとの形 ＋ as。", "fast です。"),
+    sc("s3", "cpAs", "「姉はわたしと同じくらい早く起きます。」My sister gets up as （ ） as I do. の（ ）は？", ["early", "earlier", "earliest", "more early"], "as ＋ もとの形 ＋ as。", "early です。")
+  ], ["cpAs"], "姉と自分を as 〜 as でくらべる。", "I am as tall as my sister.、fast、early です。");
+  sp("cpAs-application-3", "cpAs", "季節の話です。", [
+    sc("s1", "cpAs", "「今年の夏は去年の夏と同じくらい暑いです。」を英語にすると？", ["This summer is as hot as last summer.", "This summer is as hotter as last summer.", "This summer is as hot than last summer.", "This summer is as hottest as last summer."], "as hot as。", "This summer is as hot as last summer. です。"),
+    sc("s2", "cpAs", "「4月は3月ほど寒くありません。」April is not as （ ） as March. の（ ）は？", ["cold", "colder", "coldest", "more cold"], "not as ＋ もとの形 ＋ as。", "cold です。"),
+    sc("s3", "cpAs", "「秋は春と同じくらい美しいです。」Fall is as （ ） as spring. の（ ）は？", ["beautiful", "more beautiful", "beautifuler", "most beautiful"], "as ＋ もとの形 ＋ as。", "beautiful です。")
+  ], ["cpAs"], "季節を as 〜 as でくらべる。", "This summer is as hot as last summer.、cold、beautiful です。");
+  sp("cpAs-application-4", "cpAs", "教科の話です。", [
+    sc("s1", "cpAs", "「理科は数学と同じくらいおもしろいです。」を英語にすると？", ["Science is as interesting as math.", "Science is as more interesting as math.", "Science is as interesting than math.", "Science is more interesting as math."], "as interesting as。", "Science is as interesting as math. です。"),
+    sc("s2", "cpAs", "「英語は数学ほどむずかしくありません。」English is not as （ ） as math. の（ ）は？", ["difficult", "more difficult", "difficulter", "most difficult"], "not as ＋ もとの形 ＋ as。", "difficult です。"),
+    sc("s3", "cpAs", "「音楽は体育と同じくらい楽しいです。」Music is as （ ） as P.E. の（ ）は？", ["fun", "funner", "funnest", "more fun"], "as ＋ もとの形 ＋ as。", "fun です。")
+  ], ["cpAs"], "教科を as 〜 as でくらべる。", "Science is as interesting as math.、difficult、fun です。");
+  sp("cpAs-application-5", "cpAs", "町の話です。", [
+    sc("s1", "cpAs", "「わたしの町はあなたの町と同じくらい大きいです。」を英語にすると？", ["My town is as large as your town.", "My town is as larger as your town.", "My town is as large than your town.", "My town is as largest as your town."], "as large as。", "My town is as large as your town. です。"),
+    sc("s2", "cpAs", "「でも、あなたの町ほど有名ではありません。」But it is not as （ ） as your town. の（ ）は？", ["famous", "more famous", "famouser", "most famous"], "not as ＋ もとの形 ＋ as。", "famous です。"),
+    sc("s3", "cpAs", "「この駅はあの駅ほど新しくありません。」This station is not as （ ） as that one. の（ ）は？", ["new", "newer", "newest", "more new"], "not as ＋ もとの形 ＋ as。", "new です。")
+  ], ["cpAs"], "町を as 〜 as でくらべる。", "My town is as large as your town.、famous、new です。");
+  ch("cpAs-retention-1", "cpAs", "retention", "「ケンはリクと同じくらい速く走ります。」を英語にすると？", ["Ken runs as fast as Riku.", "Ken runs as faster as Riku.", "Ken runs as fast than Riku.", "Ken runs as fastest as Riku."], "as fast as。", "Ken runs as fast as Riku. です。", RB);
+  ch("cpAs-retention-2", "cpAs", "retention", "「この橋はあの橋と同じくらい長いです。」を英語にすると？", ["This bridge is as long as that one.", "This bridge is as longer as that one.", "This bridge is as long than that one.", "This bridge is so long as that one."], "as long as。", "This bridge is as long as that one. です。", RB);
+  ch("cpAs-retention-3", "cpAs", "retention", "「わたしは父ほど背が高くありません。」を英語にすると？", ["I am not as tall as my father.", "I am as tall as my father.", "I am not as taller as my father.", "I am not as tall than my father."], "not as tall as。", "I am not as tall as my father. です。", RB);
+  ch("cpAs-retention-4", "cpAs", "retention", "「今日は昨日ほど暑くありません。」を英語にすると？", ["Today is not as hot as yesterday.", "Today is as hot as yesterday.", "Today is not as hotter as yesterday.", "Today is not as hot than yesterday."], "not as hot as。", "Today is not as hot as yesterday. です。", RS);
+  ch("cpAs-retention-5", "cpAs", "retention", "「サキはユミと同じくらい上手に歌えます。」を英語にすると？", ["Saki can sing as well as Yumi.", "Saki can sing as better as Yumi.", "Saki can sing as good than Yumi.", "Saki can sing as best as Yumi."], "as well as。", "Saki can sing as well as Yumi. です。", RS);
+
+  // --- Which・Who の比較の疑問文と better・best ---
+  ch("cpWhich-basic-1", "cpWhich", "basic", "「ケンとリクでは、どちらが背が高いですか。」を英語にすると？", ["Who is taller, Ken or Riku?", "Who is tallest, Ken or Riku?", "Who is more tall, Ken or Riku?", "Who is the taller, Ken or Riku?"], "Who is ＋ -er, A or B?", "Who is taller, Ken or Riku? です。", { usage: "diagnosis" });
+  ch("cpWhich-basic-2", "cpWhich", "basic", "「わたしは冬より夏のほうが好きです。」I like summer （ ） than winter. の（ ）は？", ["better", "best", "more good", "good"], "like A better than B。", "better です。");
+  ch("cpWhich-basic-3", "cpWhich", "basic", "good・well の比較級・最上級は？", ["better・best", "gooder・goodest", "more good・most good", "weller・wellest"], "形が大きくかわる。", "better・best です。");
+  ch("cpWhich-basic-4", "cpWhich", "basic", "「あなたはどの季節がいちばん好きですか。」Which season do you like the （ ）? の（ ）は？", ["best", "better", "most good", "good"], "like 〜 the best。", "best です。");
+  ch("cpWhich-basic-5", "cpWhich", "basic", "Who is taller, Ken or Riku? — Ken （ ）. の（ ）は？", ["is", "does", "are", "do"], "Who is 〜? には 〜 is. で答える。", "is です。");
+  ch("cpWhich-basic-6", "cpWhich", "basic", "「あなたの家族でだれがいちばん早く起きますか。」を英語にすると？", ["Who gets up the earliest in your family?", "Who gets up the earlier in your family?", "Who gets up earliest than your family?", "Who gets up the earliest of your family?"], "Who ＋ 動詞 ＋ the -est in 〜?", "Who gets up the earliest in your family? です。");
+  ch("cpWhich-basic-7", "cpWhich", "basic", "「ユミはサキより上手にピアノをひきます。」Yumi plays the piano （ ） than Saki. の（ ）は？", ["better", "best", "more well", "weller"], "well の比較級は better。", "better です。");
+  ch("cpWhich-standard-1", "cpWhich", "standard", "「お茶とコーヒーでは、どちらのほうが好きですか。」を英語にすると？", ["Which do you like better, tea or coffee?", "Which do you like best, tea or coffee?", "Which do you like more good, tea or coffee?", "Which do you like the better, tea or coffee?"], "Which do you like better, A or B?", "Which do you like better, tea or coffee? です。");
+  ch("cpWhich-standard-2", "cpWhich", "standard", "Which do you like better, tea or coffee? の答えとして正しいものは？", ["I like tea better.", "I like tea best.", "Yes, I do.", "I like tea more good."], "I like 〜 better. で答える。", "I like tea better. です。");
+  ch("cpWhich-standard-3", "cpWhich", "standard", "「この3つのかばんの中で、どれがいちばん安いですか。」Which is the （ ） of these three bags? の（ ）は？", ["cheapest", "cheaper", "cheap", "most cheap"], "Which is the -est of 〜?", "cheapest です。");
+  ch("cpWhich-standard-4", "cpWhich", "standard", "Who runs faster, Yumi or Saki? — Saki （ ）. の（ ）は？", ["does", "is", "do", "are"], "一般動詞の質問には does で答える。", "does です。");
+  ch("cpWhich-standard-5", "cpWhich", "standard", "「わたしはすべてのスポーツの中でサッカーがいちばん好きです。」を英語にすると？", ["I like soccer the best of all sports.", "I like soccer the better of all sports.", "I like soccer best than all sports.", "I like soccer the best in all sports."], "the best of all 〜。", "I like soccer the best of all sports. です。");
+  ch("cpWhich-standard-6", "cpWhich", "standard", "「あなたのクラスでだれがいちばん上手に歌いますか。」Who sings the （ ） in your class? の（ ）は？", ["best", "better", "most well", "goodest"], "well の最上級は best。", "best です。");
+  sp("cpWhich-application-1", "cpWhich", "好きな季節の話です。", [
+    sc("s1", "cpWhich", "「あなたは春と秋では、どちらのほうが好きですか。」を英語にすると？", ["Which do you like better, spring or fall?", "Which do you like best, spring or fall?", "Which do you like more good, spring or fall?", "Which do you like the better, spring or fall?"], "Which do you like better, A or B?", "Which do you like better, spring or fall? です。"),
+    sc("s2", "cpWhich", "「わたしは春より秋のほうが好きです。」I like fall （ ） than spring. の（ ）は？", ["better", "best", "more good", "good"], "like A better than B。", "better です。"),
+    sc("s3", "cpWhich", "「わたしはすべての季節の中で秋がいちばん好きです。」I like fall the （ ） of all the seasons. の（ ）は？", ["best", "better", "good", "most good"], "like 〜 the best。", "best です。")
+  ], ["cpWhich"], "好きなものを better・best でくらべる。", "Which do you like better, spring or fall?、better、best です。");
+  sp("cpWhich-application-2", "cpWhich", "背くらべをします。", [
+    sc("s1", "cpWhich", "「ユミとサキでは、どちらが背が高いですか。」を英語にすると？", ["Who is taller, Yumi or Saki?", "Who is tallest, Yumi or Saki?", "Who is more tall, Yumi or Saki?", "Who is the taller, Yumi or Saki?"], "Who is ＋ -er, A or B?", "Who is taller, Yumi or Saki? です。"),
+    sc("s2", "cpWhich", "Who is taller, Yumi or Saki? — Yumi （ ）. の（ ）は？", ["is", "does", "are", "do"], "Who is 〜? には 〜 is.", "is です。"),
+    sc("s3", "cpWhich", "「3人の中でだれがいちばん背が高いですか。」Who is the （ ） of the three? の（ ）は？", ["tallest", "taller", "tall", "most tall"], "Who is the -est of 〜?", "tallest です。")
+  ], ["cpWhich"], "Who でくらべてたずね、答える。", "Who is taller, Yumi or Saki?、is、tallest です。");
+  sp("cpWhich-application-3", "cpWhich", "スポーツの話です。", [
+    sc("s1", "cpWhich", "「あなたは野球とテニスでは、どちらのほうが好きですか。」を英語にすると？", ["Which do you like better, baseball or tennis?", "Which do you like best, baseball or tennis?", "Which do you like more good, baseball or tennis?", "Which do you like the better, baseball or tennis?"], "Which do you like better, A or B?", "Which do you like better, baseball or tennis? です。"),
+    sc("s2", "cpWhich", "「日本でいちばん人気のあるスポーツは何ですか。」What is the （ ） popular sport in Japan? の（ ）は？", ["most", "more", "very", "much"], "the most popular。", "most です。"),
+    sc("s3", "cpWhich", "「わたしはテニスがいちばん好きです。」I like tennis the （ ）. の（ ）は？", ["best", "better", "good", "most good"], "like 〜 the best。", "best です。")
+  ], ["cpWhich"], "スポーツの好みを better・best で言う。", "Which do you like better, baseball or tennis?、most、best です。");
+  sp("cpWhich-application-4", "cpWhich", "かけっこの話です。", [
+    sc("s1", "cpWhich", "「ケンとリクでは、どちらが速く走りますか。」を英語にすると？", ["Who runs faster, Ken or Riku?", "Who runs fastest, Ken or Riku?", "Who runs more fast, Ken or Riku?", "Who runs the faster, Ken or Riku?"], "Who ＋ 動詞 ＋ -er, A or B?", "Who runs faster, Ken or Riku? です。"),
+    sc("s2", "cpWhich", "Who runs faster, Ken or Riku? — Riku （ ）. の（ ）は？", ["does", "is", "do", "are"], "一般動詞の質問には does。", "does です。"),
+    sc("s3", "cpWhich", "「クラスでだれがいちばん速く走りますか。」Who runs the （ ） in your class? の（ ）は？", ["fastest", "faster", "fast", "most fast"], "the fastest in 〜。", "fastest です。")
+  ], ["cpWhich"], "Who ＋ 一般動詞 でくらべてたずね、does で答える。", "Who runs faster, Ken or Riku?、does、fastest です。");
+  sp("cpWhich-application-5", "cpWhich", "音楽の時間の話です。", [
+    sc("s1", "cpWhich", "「ユミとサキでは、どちらが上手に歌いますか。」を英語にすると？", ["Who sings better, Yumi or Saki?", "Who sings best, Yumi or Saki?", "Who sings more well, Yumi or Saki?", "Who sings the better, Yumi or Saki?"], "well → better。", "Who sings better, Yumi or Saki? です。"),
+    sc("s2", "cpWhich", "Who sings better, Yumi or Saki? — Saki （ ）. の（ ）は？", ["does", "is", "do", "are"], "一般動詞の質問には does。", "does です。"),
+    sc("s3", "cpWhich", "「あなたはどの歌がいちばん好きですか。」Which song do you like the （ ）? の（ ）は？", ["best", "better", "good", "most good"], "like 〜 the best。", "best です。")
+  ], ["cpWhich"], "上手さや好みを better・best でたずねる。", "Who sings better, Yumi or Saki?、does、best です。");
+  sp("cpWhich-application-6", "cpWhich", "図書室で話します。", [
+    sc("s1", "cpWhich", "「この本とあの本では、どちらがおもしろいですか。」を英語にすると？", ["Which is more interesting, this book or that one?", "Which is interestinger, this book or that one?", "Which is most interesting, this book or that one?", "Which is the more interesting, this book or that one?"], "Which is more 〜, A or B?", "Which is more interesting, this book or that one? です。"),
+    sc("s2", "cpWhich", "Which is more interesting, this book or that one? — This book （ ）. の（ ）は？", ["is", "does", "are", "do"], "Which is 〜? には 〜 is.", "is です。"),
+    sc("s3", "cpWhich", "「この5冊の中でどれがいちばん有名ですか。」Which is the （ ） famous of these five books? の（ ）は？", ["most", "more", "very", "much"], "the most famous of 〜。", "most です。")
+  ], ["cpWhich"], "Which で本をくらべてたずねる。", "Which is more interesting, this book or that one?、is、most です。");
+  sp("cpWhich-application-7", "cpWhich", "好きな食べ物の話です。", [
+    sc("s1", "cpWhich", "「すしとてんぷらでは、どちらのほうが好きですか。」を英語にすると？", ["Which do you like better, sushi or tempura?", "Which do you like best, sushi or tempura?", "Which do you like more good, sushi or tempura?", "Which do you like the better, sushi or tempura?"], "Which do you like better, A or B?", "Which do you like better, sushi or tempura? です。"),
+    sc("s2", "cpWhich", "Which do you like better, sushi or tempura? の答えとして正しいものは？", ["I like sushi better.", "I like sushi best.", "Yes, I do.", "I like sushi more good."], "I like 〜 better. で答える。", "I like sushi better. です。"),
+    sc("s3", "cpWhich", "「わたしはすべての食べ物の中ですしがいちばん好きです。」I like sushi the （ ） of all foods. の（ ）は？", ["best", "better", "good", "most good"], "like 〜 the best of all。", "best です。")
+  ], ["cpWhich"], "食べ物の好みを better・best でたずねて答える。", "Which do you like better, sushi or tempura?、I like sushi better.、best です。");
+  ch("cpWhich-retention-1", "cpWhich", "retention", "「サキとユミでは、どちらが年上ですか。」を英語にすると？", ["Who is older, Saki or Yumi?", "Who is oldest, Saki or Yumi?", "Who is more old, Saki or Yumi?", "Who is the older, Saki or Yumi?"], "Who is ＋ -er, A or B?", "Who is older, Saki or Yumi? です。", RB);
+  ch("cpWhich-retention-2", "cpWhich", "retention", "「わたしは犬よりねこのほうが好きです。」を英語にすると？", ["I like cats better than dogs.", "I like cats best than dogs.", "I like cats more good than dogs.", "I like cats gooder than dogs."], "like A better than B。", "I like cats better than dogs. です。", RB);
+  ch("cpWhich-retention-3", "cpWhich", "retention", "「あなたはどの教科がいちばん好きですか。」を英語にすると？", ["Which subject do you like the best?", "Which subject do you like the better?", "Which subject do you like the most good?", "Which subject do you like the good?"], "like 〜 the best。", "Which subject do you like the best? です。", RB);
+  ch("cpWhich-retention-4", "cpWhich", "retention", "「あなたのクラスでだれがいちばん上手に泳ぎますか。」を英語にすると？", ["Who swims the best in your class?", "Who swims the better in your class?", "Who swims the best of your class?", "Who swims the most well in your class?"], "well の最上級は best。", "Who swims the best in your class? です。", RS);
+  ch("cpWhich-retention-5", "cpWhich", "retention", "「ケンはリクより上手にギターをひきます。」を英語にすると？", ["Ken plays the guitar better than Riku.", "Ken plays the guitar best than Riku.", "Ken plays the guitar more well than Riku.", "Ken plays the guitar weller than Riku."], "well の比較級は better。", "Ken plays the guitar better than Riku. です。", RS);
+  ch("cpWhich-retention-6", "cpWhich", "retention", "「赤と青では、どちらの色のほうが好きですか。」を英語にすると？", ["Which color do you like better, red or blue?", "Which color do you like best, red or blue?", "Which color do you like more good, red or blue?", "Which color do you like the better, red or blue?"], "Which 〜 do you like better, A or B?", "Which color do you like better, red or blue? です。", RS);
+  ch("cpWhich-retention-7", "cpWhich", "retention", "「この3つの中でどれがいちばん大きいですか。」を英語にすると？", ["Which is the biggest of the three?", "Which is the bigger of the three?", "Which is biggest of the three?", "Which is the biggest in the three?"], "Which is the -est of 〜?", "Which is the biggest of the three? です。", RB);
+
+  // =====================================================================
   // 共通の情報を足して、問題一覧に登録する
   // =====================================================================
   var E = SC.engine;
